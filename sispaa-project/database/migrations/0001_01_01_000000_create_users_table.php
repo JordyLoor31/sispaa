@@ -21,7 +21,7 @@ return new class extends Migration
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();
-            // ⚠️ carrera_id NO va aquí — todavía no existe la tabla carreras
+            
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
