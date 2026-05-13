@@ -8,7 +8,7 @@ import { ChevronRight } from 'lucide-vue-next';
 
 interface NavItem {
     title: string;
-    url?: string;
+    href?: string;
     icon: Component;
     items?: NavItem[];
 }
@@ -37,8 +37,8 @@ const page = usePage<SharedData>();
                         <CollapsibleContent>
                             <SidebarMenuSub>
                                 <SidebarMenuSubItem v-for="subItem in item.items" :key="subItem.title">
-                                    <SidebarMenuSubButton as-child :is-active="subItem.url === page.url">
-                                        <Link :href="subItem.url || '#'">
+                                    <SidebarMenuSubButton as-child :is-active="subItem.href === page.url">
+                                        <Link :href="subItem.href || '#'">
                                             <span>{{ subItem.title }}</span>
                                         </Link>
                                     </SidebarMenuSubButton>
@@ -48,8 +48,8 @@ const page = usePage<SharedData>();
                     </SidebarMenuItem>
                 </Collapsible>
                 <SidebarMenuItem v-else>
-                    <SidebarMenuButton as-child :is-active="item.url === page.url">
-                        <Link :href="item.url || '#'">
+                    <SidebarMenuButton as-child :is-active="item.href === page.url">
+                        <Link :href="item.href || '#'">
                             <component :is="item.icon" />
                             <span>{{ item.title }}</span>
                         </Link>

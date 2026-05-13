@@ -5,7 +5,7 @@ import NavUser from '@/components/NavUser.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { Feather, Book, Search, FlaskConical, Handshake, GraduationCap, LayoutGrid } from 'lucide-vue-next';
+import { Book, Feather, FlaskConical, GraduationCap, Handshake, LayoutGrid, Search } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
 const mainNavItems: NavItem[] = [
@@ -81,6 +81,14 @@ const mainNavItems: NavItem[] = [
                 title: 'Líderes de vinculación',
                 href: '/vinculacion/lideres',
             },
+            {
+                title: 'Actividades',
+                href: '/vinculacion/actividades',
+            },
+            {
+                title: 'Empresas beneficiadas',
+                href: '/vinculacion/empresas-beneficiadas',
+            },
         ],
     },
     {
@@ -91,6 +99,14 @@ const mainNavItems: NavItem[] = [
             {
                 title: 'Temas en desarrollo',
                 href: '/titulacion/temas-desarrollo',
+            },
+            {
+                title: 'Estudiantes en proceso',
+                href: '/titulacion/estudiantes-titulacion',
+            },
+            {
+                title: 'Estudiantes titulados',
+                href: '/titulacion/estudiantes-titulados',
             },
         ],
     },
