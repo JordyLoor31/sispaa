@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Estudiantes\EstudianteController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -10,6 +11,16 @@ Route::get('/', function () {
 Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::middleware(['auth', 'verified'])
+    ->prefix('estudiantes')
+    ->name('estudiantes.')
+    ->group(function () {
+        Route::get('/', [EstudianteController::class, 'index'])->name('index');
+        Route::get('matriculados', [EstudianteController::class, 'matriculados'])->name('matriculados');
+        Route::get('faltas', [EstudianteController::class, 'faltas'])->name('faltas');
+        Route::get('justificaciones', [EstudianteController::class, 'justificaciones'])->name('justificaciones');
+    });
 
 // Titulación routes(provisional)
 Route::middleware(['auth', 'verified'])->prefix('titulacion')->group(function () {

@@ -42,28 +42,32 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Estudiantes',
-        href: '/estudiantes',
+        href: route('estudiantes.index'),
         icon: Book,
         items: [
             {
+                title: 'Panel Estudiantes',
+                href: route('estudiantes.index'),
+            },
+            {
                 title: 'Estudiantes matriculados',
-                href: '/estudiantes/matriculados',
+                href: route('estudiantes.matriculados'),
             },
             {
                 title: 'Estudiantes activos',
-                href: '/estudiantes/activos',
+                //href: route('estudiantes.index'),
             },
             {
                 title: 'Estudiantes retirados',
-                href: '/estudiantes/retirados',
+                //href: route('estudiantes.index'),
             },
             {
                 title: 'Faltas',
-                href: '/estudiantes/faltas',
+                href: route('estudiantes.faltas'),
             },
             {
                 title: 'Justificaciones de faltas',
-                href: '/estudiantes/justificaciones',
+                href: route('estudiantes.justificaciones'),
             },
         ],
     },
