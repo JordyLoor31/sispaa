@@ -2,13 +2,13 @@
   <Head title="Estudiantes" />
 
   <AppLayout :breadcrumbs="breadcrumbs">
-    <div class="min-h-screen px-4 py-6 sm:px-6 lg:px-8" :style="{ backgroundColor: 'var(--sispaa-background)', color: 'var(--sispaa-text)' }">
+    <div class="min-h-screen pt-2 pr-3 pl-3 sm:px-6 lg:px-8" :style="{ backgroundColor: 'var(--sispaa-background)', color: 'var(--sispaa-text)' }">
     <div class="mx-auto flex w-full max-w-7xl flex-col gap-6">
       <header class="rounded-3xl p-6 shadow-sm" :style="{ backgroundColor: 'var(--sispaa-surface)' }">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p class="text-sm font-medium uppercase tracking-[0.24em]" :style="{ color: 'var(--sispaa-primary)' }">Estudiantes</p>
-            <h1 class="mt-2 text-3xl font-semibold sm:text-4xl" :style="{ color: 'var(--sispaa-text)' }">Panel de estudiantes</h1>
+           <!-- <h1 class="mt-2 text-3xl font-semibold sm:text-4xl" :style="{ color: 'var(--sispaa-text)' }"></h1>-->
             <p class="mt-2 max-w-2xl text-sm" :style="{ color: '#555' }">
               Resumen visual para matrícula, faltas y distribución académica.
             </p>
