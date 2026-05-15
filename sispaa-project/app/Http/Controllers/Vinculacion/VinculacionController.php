@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Vinculacion;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
+use App\Models\Vinculacion\ActividadVinculacion; // modelo correcto
 
 class VinculacionController extends Controller
 {
@@ -13,9 +15,19 @@ class VinculacionController extends Controller
     }
 
     public function actividades()
-    {
-        // Gestionar actividades
-    }
+{
+    // Cuenta actividades ejecutadas
+    $ejecutadas = ActividadVinculacion::where('estado', 'ejecutada')->count();
+
+    // Cuenta actividades pendientes
+    $pendientes = ActividadVinculacion::where('estado', 'pendiente')->count();
+
+    // Envía indicadores al frontend
+    return Inertia::render('Vinculacion/Actividades', [
+        'ejecutadas' => $ejecutadas,
+        'pendientes' => $pendientes
+    ]);
+}
 
     public function asignarDocente()
     {
