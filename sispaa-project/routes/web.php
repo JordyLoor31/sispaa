@@ -26,5 +26,25 @@ Route::middleware(['auth', 'verified'])->prefix('titulacion')->group(function ()
     })->name('titulacion.estudiantes-titulados');
 });
 
+// Vinculación routes (provisionalS)
+Route::middleware(['auth', 'verified'])->prefix('vinculacion')->group(function () {
+    
+    // Vista de actividades
+    Route::get('actividades', function () {
+        return Inertia::render('Vinculacion/Actividades');
+    })->name('vinculacion.actividades');
+
+    // Vista de empresas beneficiadas
+    Route::get('empresas-beneficiadas', function () {
+        return Inertia::render('Vinculacion/Empresas');
+    })->name('vinculacion.empresas');
+
+    // Vista de asignación de docentes
+    Route::get('lideres', function () {
+        return Inertia::render('Vinculacion/AsignarDocente');
+    })->name('vinculacion.lideres');
+
+});
+
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
