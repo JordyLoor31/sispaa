@@ -1,13 +1,27 @@
 <template>
-  <div class="estudiantes-faltas">
-    <h1>Faltas</h1>
-    <!-- Gestión de faltas -->
-  </div>
+  <Head title="Faltas" />
+
+  <AppLayout :breadcrumbs="breadcrumbs">
+    <div class="rounded-xl border border-sidebar-border/70 p-6 dark:border-sidebar-border">
+      <h1 class="text-2xl font-semibold">Faltas</h1>
+      <p class="mt-2 text-sm text-muted-foreground">Gestión de faltas de estudiantes.</p>
+    </div>
+  </AppLayout>
 </template>
 
 <script setup lang="ts">
-// Lógica del componente Faltas
-</script>
+import AppLayout from '@/layouts/AppLayout.vue';
+import type { BreadcrumbItem } from '@/types';
+import { Head } from '@inertiajs/vue3';
 
-<style scoped>
-</style>
+const breadcrumbs: BreadcrumbItem[] = [
+  {
+    title: 'Estudiantes',
+    href: '/estudiantes',
+  },
+  {
+    title: 'Faltas',
+    href: '/estudiantes/faltas',
+  },
+];
+</script>

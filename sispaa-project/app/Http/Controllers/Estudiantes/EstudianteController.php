@@ -3,27 +3,28 @@
 namespace App\Http\Controllers\Estudiantes;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class EstudianteController extends Controller
 {
-    public function index()
+    public function index(): Response
     {
-        // Listar estudiantes
+        return Inertia::render('Estudiantes/Index');
     }
 
-    public function matriculados()
+    public function matriculados(): Response
     {
-        // Ver estudiantes matriculados
+        return Inertia::render('Estudiantes/Matriculados');
     }
 
-    public function faltas()
+    public function faltas(): Response
     {
-        // Gestionar faltas de estudiantes
+        return Inertia::render('Estudiantes/Faltas');
     }
 
-    public function justificaciones()
+    public function justificaciones(): Response
     {
-        // Ver justificaciones de inasistencias
+        return Inertia::render('Estudiantes/Justificaciones');
     }
 }
