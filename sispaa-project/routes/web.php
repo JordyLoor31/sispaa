@@ -1,8 +1,11 @@
 <?php
 
+
 use App\Http\Controllers\Estudiantes\EstudianteController;
+use App\Http\Controllers\Vinculacion\VinculacionController; // controlador de vinculacion
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+
 
 Route::get('/', function () {
     return Inertia::render('Dashboard');
@@ -37,20 +40,20 @@ Route::middleware(['auth', 'verified'])->prefix('titulacion')->group(function ()
     })->name('titulacion.estudiantes-titulados');
 });
 
-// Vinculación routes (provisionalS)
+
+// Vinculación routes (provisional)
 Route::middleware(['auth', 'verified'])->prefix('vinculacion')->group(function () {
     
-    // Vista de actividades
-    Route::get('actividades', function () {
-        return Inertia::render('Vinculacion/Actividades');
-    })->name('vinculacion.actividades');
+    // Actividades con datos dinámicos
+    Route::get('actividades', [VinculacionController::class, 'actividades'])
+        ->name('vinculacion.actividades');
 
-    // Vista de empresas beneficiadas
+    // Empresas beneficiadas
     Route::get('empresas-beneficiadas', function () {
         return Inertia::render('Vinculacion/Empresas');
     })->name('vinculacion.empresas');
 
-    // Vista de asignación de docentes
+    // Líderes de vinculación
     Route::get('lideres', function () {
         return Inertia::render('Vinculacion/AsignarDocente');
     })->name('vinculacion.lideres');
