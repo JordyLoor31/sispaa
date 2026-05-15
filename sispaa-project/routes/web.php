@@ -1,10 +1,16 @@
 <?php
 
-
 use App\Http\Controllers\Estudiantes\EstudianteController;
+use App\Http\Controllers\Laboratorio\LaboratorioController;
+
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+/*
+|--------------------------------------------------------------------------
+| HOME
+|--------------------------------------------------------------------------
+*/
 
 Route::get('/', function () {
     return Inertia::render('Dashboard');
@@ -13,7 +19,6 @@ Route::get('/', function () {
 Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
-
 
 
 /*
@@ -30,16 +35,15 @@ Route::middleware(['auth', 'verified'])
         Route::get('/', [EstudianteController::class, 'index'])
             ->name('index');
 
-        Route::get('matriculados', [EstudianteController::class, 'matriculados'])
+        Route::get('/matriculados', [EstudianteController::class, 'matriculados'])
             ->name('matriculados');
 
-        Route::get('faltas', [EstudianteController::class, 'faltas'])
+        Route::get('/faltas', [EstudianteController::class, 'faltas'])
             ->name('faltas');
 
-        Route::get('justificaciones', [EstudianteController::class, 'justificaciones'])
+        Route::get('/justificaciones', [EstudianteController::class, 'justificaciones'])
             ->name('justificaciones');
     });
-
 
 
 /*
@@ -53,22 +57,51 @@ Route::middleware(['auth', 'verified'])
     ->name('laboratorio.')
     ->group(function () {
 
+        /*
+        |--------------------------------------------------------------------------
+        | Dashboard laboratorio
+        |--------------------------------------------------------------------------
+        */
+
         Route::get('/', [LaboratorioController::class, 'index'])
             ->name('index');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Registro de prácticas
+        |--------------------------------------------------------------------------
+        */
 
         Route::get('/practicas', [LaboratorioController::class, 'practicas'])
             ->name('practicas');
 
+        /*
+        |--------------------------------------------------------------------------
+        | Reportes por carrera
+        |--------------------------------------------------------------------------
+        */
+
         Route::get('/por-carrera', [LaboratorioController::class, 'porCarrera'])
             ->name('porCarrera');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Ubicaciones
+        |--------------------------------------------------------------------------
+        */
 
         Route::get('/ubicaciones', [LaboratorioController::class, 'ubicaciones'])
             ->name('ubicaciones');
 
+        /*
+        |--------------------------------------------------------------------------
+        | Crear práctica
+        |--------------------------------------------------------------------------
+        */
+
         Route::get('/crear', [LaboratorioController::class, 'create'])
             ->name('create');
     });
-
 
 
 /*
@@ -81,40 +114,49 @@ Route::middleware(['auth', 'verified'])
     ->prefix('titulacion')
     ->group(function () {
 
-        Route::get('temas-desarrollo', function () {
+        Route::get('/temas-desarrollo', function () {
             return Inertia::render('Titulacion/Temas');
         })->name('titulacion.temas-desarrollo');
 
-        Route::get('estudiantes-titulacion', function () {
+        Route::get('/estudiantes-titulacion', function () {
             return Inertia::render('Titulacion/EnProceso');
         })->name('titulacion.estudiantes-titulacion');
 
-        Route::get('estudiantes-titulados', function () {
+        Route::get('/estudiantes-titulados', function () {
             return Inertia::render('Titulacion/Graduados');
         })->name('titulacion.estudiantes-titulados');
     });
 
-// Vinculación routes (provisionalS)
-Route::middleware(['auth', 'verified'])->prefix('vinculacion')->group(function () {
-    
-    // Vista de actividades
-    Route::get('actividades', function () {
-        return Inertia::render('Vinculacion/Actividades');
-    })->name('vinculacion.actividades');
 
-    // Vista de empresas beneficiadas
-    Route::get('empresas-beneficiadas', function () {
-        return Inertia::render('Vinculacion/Empresas');
-    })->name('vinculacion.empresas');
+/*
+|--------------------------------------------------------------------------
+| VINCULACIÓN
+|--------------------------------------------------------------------------
+*/
 
-    // Vista de asignación de docentes
-    Route::get('lideres', function () {
-        return Inertia::render('Vinculacion/AsignarDocente');
-    })->name('vinculacion.lideres');
+Route::middleware(['auth', 'verified'])
+    ->prefix('vinculacion')
+    ->group(function () {
 
-});
+        Route::get('/actividades', function () {
+            return Inertia::render('Vinculacion/Actividades');
+        })->name('vinculacion.actividades');
+
+        Route::get('/empresas-beneficiadas', function () {
+            return Inertia::render('Vinculacion/Empresas');
+        })->name('vinculacion.empresas');
+
+        Route::get('/lideres', function () {
+            return Inertia::render('Vinculacion/AsignarDocente');
+        })->name('vinculacion.lideres');
+    });
 
 
+/*
+|--------------------------------------------------------------------------
+| ARCHIVOS EXTRA
+|--------------------------------------------------------------------------
+*/
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
