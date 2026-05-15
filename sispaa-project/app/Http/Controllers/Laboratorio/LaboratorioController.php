@@ -3,27 +3,32 @@
 namespace App\Http\Controllers\Laboratorio;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class LaboratorioController extends Controller
 {
     public function index()
     {
-        // Listar prácticas de laboratorio
+        return Inertia::render('Laboratorio/Index');
     }
 
     public function practicas()
     {
-        // Gestionar prácticas
+        return Inertia::render('Laboratorio/Practicas');
     }
 
     public function porCarrera()
     {
-        // Ver prácticas por carrera
+        return Inertia::render('Laboratorio/PorCarrera');
     }
 
     public function ubicaciones()
     {
-        // Gestionar ubicaciones de laboratorios
+        return Inertia::render('Laboratorio/Ubicaciones');
+    }
+
+    public function create()
+    {
+        return Inertia::render('Laboratorio/Create');
     }
 }

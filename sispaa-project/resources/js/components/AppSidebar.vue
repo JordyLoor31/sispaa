@@ -71,11 +71,34 @@ const mainNavItems: NavItem[] = [
             },
         ],
     },
-    {
-        title: 'Prácticas de Laboratorio',
-        href: '/practicas-laboratorio',
-        icon: FlaskConical,
-    },
+{
+    title: 'Laboratorio',
+    href: route('laboratorio.index'),
+    icon: FlaskConical,
+
+    items: [
+        {
+            title: 'Dashboard',
+            href: route('laboratorio.index'),
+        },
+        {
+            title: 'Registro prácticas',
+            href: route('laboratorio.create'),
+        },
+        {
+            title: 'Prácticas',
+            href: route('laboratorio.practicas'),
+        },
+        {
+            title: 'Por carrera',
+            href: route('laboratorio.porCarrera'),
+        },
+        {
+            title: 'Ubicaciones',
+            href: route('laboratorio.ubicaciones'),
+        },
+    ],
+},
     {
         title: 'Vinculación',
         href: '/vinculacion',
