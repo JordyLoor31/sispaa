@@ -7,6 +7,7 @@ const breadcrumbs = [
     { title: 'Actividades', href: '/vinculacion/actividades' }, // vista actual
 ]
 
+//
 // Datos simulados
 const ejecutadas = 10
 const pendientes = 5
@@ -60,6 +61,7 @@ const empresas = 3
 .title {
     font-size: 14px;
 }
+
 
 .value {
     font-size: 28px;
