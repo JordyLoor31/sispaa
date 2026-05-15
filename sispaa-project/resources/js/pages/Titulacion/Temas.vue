@@ -1,9 +1,9 @@
 <template>
     <AppSidebarLayout :breadcrumbs="breadcrumbs">
         <!-- Contenedor principal -->
-        <div class="min-h-screen pt-2 pr-3 pl-3" :style="{ backgroundColor: 'var(--sispaa-background)' }">
+        <div class="min-h-screen pl-3 pr-3 pt-2" :style="{ backgroundColor: 'var(--sispaa-background)' }">
             <!-- Encabezado con título y filtro -->
-            <div class="mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div class="mb-8 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
                 <div>
                     <h1 class="text-2xl font-bold" :style="{ color: 'var(--sispaa-text)' }">Temas en Desarrollo</h1>
                     <p class="mt-2 text-sm" :style="{ color: '#666' }">Selecciona una carrera para filtrar los temas</p>
@@ -65,19 +65,17 @@
                     </h3>
 
                     <!-- Descripción -->
-                    <!-- ERROR CORREGIDO: Faltaba cerrar comillas en :style -->
                     <p class="mb-4 text-sm" :style="{ color: '#444' }">
                         {{ tema.descripcion }}
                     </p>
 
-                    <!-- ERROR CORREGIDO: Falta de llaves en :style -->
+                    <!-- Docente -->
                     <div class="mb-4 flex items-center gap-2 text-sm" :style="{ color: '#666' }">
                         <span class="font-medium">Docente:</span>
                         <span>{{ tema.docente }}</span>
                     </div>
 
                     <!-- Estado -->
-                    <!-- ERROR CORREGIDO: Faltaba cerrar comillas en :style -->
                     <div class="flex items-center gap-2 text-sm" :style="{ color: '#666' }">
                         <span class="font-medium">Estado:</span>
                         <span
@@ -232,18 +230,6 @@ const getEstadoColor = (estado: string): string => {
 </script>
 
 <style scoped>
-/* 
-   Nota: Definir :root dentro de un style scoped puede dar problemas 
-   de alcance. Es mejor mover estas variables a un archivo CSS global.
-*/
-:root {
-    --sispaa-primary-green: #88c273;
-    --sispaa-light-beige: #fff1db;
-    --sispaa-dark-beige: #d4bdac;
-    --sispaa-sidebar-blue: #536493;
-    --sispaa-text-dark: #1a1a1a;
-}
-
 div {
     box-sizing: border-box;
 }

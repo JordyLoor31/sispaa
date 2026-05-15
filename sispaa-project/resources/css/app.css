@@ -44,6 +44,8 @@ html {
         --sidebar-ring: 217.2 91.2% 59.8%;
         /* Colores personalizados para SISPAA (Patrón UX) */
         --sispaa-primary: #3C6E71;      /* Acentos y botones principales */
+        --sispaa-secondary: #72c184;    /* Elementos secundarios y fondos de tarjetas */
+        --sispaa-accent: #536493;       /* Colores de acento para gráficos y detalles */
         --sispaa-background: #FFFFFF;   /* Fondo general de vistas */
         --sispaa-surface: #D9D9D9;      /* Superficies / tarjetas */
         --sispaa-sidebar: #353535;      /* Sidebar */

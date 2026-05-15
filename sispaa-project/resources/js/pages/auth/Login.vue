@@ -38,7 +38,7 @@ const submit = () => {
         <form @submit.prevent="submit" class="flex flex-col gap-6">
             <div class="grid gap-6">
                 <div class="grid gap-2">
-                    <Label for="email">correo electrónico</Label>
+                    <Label for="email" class="text-[var(--sispaa-text)]">Correo electrónico</Label>
                     <Input
                         id="email"
                         type="email"
@@ -48,14 +48,15 @@ const submit = () => {
                         autocomplete="email"
                         v-model="form.email"
                         placeholder="email@ejemplo.com"
+                        class="border-[var(--sispaa-text)]/20 focus-visible:ring-[var(--sispaa-primary)]"
                     />
                     <InputError :message="form.errors.email" />
                 </div>
 
                 <div class="grid gap-2">
                     <div class="flex items-center justify-between">
-                        <Label for="password">Contraseña</Label>
-                        <TextLink v-if="canResetPassword" :href="route('password.request')" class="text-sm" :tabindex="5"> ¿Olvidó su contraseña? </TextLink>
+                        <Label for="password" class="text-[var(--sispaa-text)]">Contraseña</Label>
+                        <TextLink v-if="canResetPassword" :href="route('password.request')" class="text-sm text-[var(--sispaa-accent)] hover:text-[var(--sispaa-primary)]" :tabindex="5"> ¿Olvidó su contraseña? </TextLink>
                     </div>
                     <Input
                         id="password"
@@ -65,26 +66,27 @@ const submit = () => {
                         autocomplete="current-password"
                         v-model="form.password"
                         placeholder="********"
+                        class="border-[var(--sispaa-text)]/20 focus-visible:ring-[var(--sispaa-primary)]"
                     />
                     <InputError :message="form.errors.password" />
                 </div>
 
                 <div class="flex items-center justify-between" tabindex="3">
-                    <Label for="remember" class="flex items-center space-x-3">
-                        <Checkbox id="remember" v-model:checked="form.remember" tabindex="4" />
+                    <Label for="remember" class="flex items-center space-x-3 text-[var(--sispaa-text)]/80">
+                        <Checkbox id="remember" v-model:checked="form.remember" tabindex="4" class="border-[var(--sispaa-text)]/30 data-[state=checked]:bg-[var(--sispaa-primary)] data-[state=checked]:text-white" />
                         <span>Recordarme</span>
                     </Label>
                 </div>
 
-                <Button type="submit" class="mt-4 w-full" tabindex="4" :disabled="form.processing">
+                <Button type="submit" class="mt-4 w-full bg-[var(--sispaa-primary)] text-white hover:bg-[var(--sispaa-primary)]/90" tabindex="4" :disabled="form.processing">
                     <LoaderCircle v-if="form.processing" class="h-4 w-4 animate-spin" />
                     Iniciar sesión
                 </Button>
             </div>
 
-            <div class="text-center text-sm text-muted-foreground">
+            <div class="text-center text-sm text-[var(--sispaa-text)]/70">
                 ¿No tiene una cuenta?
-                <TextLink :href="route('register')" :tabindex="5">Registrarse</TextLink>
+                <TextLink :href="route('register')" class="text-[var(--sispaa-primary)] font-semibold hover:underline" :tabindex="5">Registrarse</TextLink>
             </div>
         </form>
     </AuthBase>

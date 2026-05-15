@@ -1,0 +1,58 @@
+<script setup lang="ts">
+import { Head } from '@inertiajs/vue3';
+
+import HeadingSmall from '@/components/HeadingSmall.vue';
+import { type BreadcrumbItem } from '@/types';
+
+import AppLayout from '@/layouts/AppLayout.vue';
+import SettingsLayout from '@/layouts/settings/Layout.vue';
+
+const breadcrumbItems: BreadcrumbItem[] = [
+    {
+        title: 'Acerca de',
+        href: '/settings/about',
+    },
+];
+
+const teamMembers = [
+    {
+        name: 'Jesús Bosada',
+        email: 'e1351344765@live.uleam.edu.ec'
+    },
+    {
+        name: 'Jordy Loor',
+        email: 'e1317238366@live.uleam.edu.ec'
+    },
+    {
+        name: 'Douglas Parrales',
+        email: 'e1317025755@live.uleam.edu.ec'
+    },
+    {
+        name: 'José Santos',
+        email: 'e1317851911@live.uleam.edu.ec'
+    },
+];
+</script>
+
+<template>
+    <AppLayout :breadcrumbs="breadcrumbItems">
+        <Head title="Acerca de" />
+
+        <SettingsLayout>
+            <div class="space-y-6">
+                <HeadingSmall title="Acerca de" description="Equipo de desarrollo de la aplicación" />
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div
+                        v-for="(member, index) in teamMembers"
+                        :key="index"
+                        class="flex flex-col space-y-1 p-4 rounded-lg border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900 shadow-sm"
+                    >
+                        <span class="font-semibold text-neutral-900 dark:text-neutral-100">{{ member.name }}</span>
+                        <span class="text-sm text-neutral-500 dark:text-neutral-400">{{ member.email }}</span>
+                    </div>
+                </div>
+            </div>
+        </SettingsLayout>
+    </AppLayout>
+</template>

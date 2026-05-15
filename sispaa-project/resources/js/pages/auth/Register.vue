@@ -26,10 +26,10 @@ const submit = () => {
     <AuthBase title="Crear una cuenta" description="Ingrese sus datos para crear una cuenta">
         <Head title="Register" />
 
-        <form @submit.prevent="submit" class="flex flex-col gap-6">
-            <div class="grid gap-6">
+        <form @submit.prevent="submit" class="flex flex-col gap-5">
+            <div class="grid gap-4">
                 <div class="grid gap-2">
-                    <Label for="name">Nombre</Label>
+                    <Label for="name" class="text-[var(--sispaa-text)]">Nombre</Label>
                     <Input
                         id="name"
                         type="text"
@@ -39,18 +39,19 @@ const submit = () => {
                         autocomplete="name"
                         v-model="form.name"
                         placeholder="Nombre Apellido"
+                        class="border-[var(--sispaa-text)]/20 focus-visible:ring-[var(--sispaa-primary)]"
                     />
                     <InputError :message="form.errors.name" />
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="email">Dirección de email</Label>
-                    <Input id="email" type="email" required tabindex="2" autocomplete="email" v-model="form.email" placeholder="email@ejemplo.com" />
+                    <Label for="email" class="text-[var(--sispaa-text)]">Correo electrónico</Label>
+                    <Input id="email" type="email" required tabindex="2" autocomplete="email" v-model="form.email" placeholder="email@ejemplo.com" class="border-[var(--sispaa-text)]/20 focus-visible:ring-[var(--sispaa-primary)]" />
                     <InputError :message="form.errors.email" />
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="password">Contraseña</Label>
+                    <Label for="password" class="text-[var(--sispaa-text)]">Contraseña</Label>
                     <Input
                         id="password"
                         type="password"
@@ -59,12 +60,13 @@ const submit = () => {
                         autocomplete="new-password"
                         v-model="form.password"
                         placeholder="********"
+                        class="border-[var(--sispaa-text)]/20 focus-visible:ring-[var(--sispaa-primary)]"
                     />
                     <InputError :message="form.errors.password" />
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="password_confirmation">Confirmar contraseña</Label>
+                    <Label for="password_confirmation" class="text-[var(--sispaa-text)]">Confirmar contraseña</Label>
                     <Input
                         id="password_confirmation"
                         type="password"
@@ -73,19 +75,20 @@ const submit = () => {
                         autocomplete="new-password"
                         v-model="form.password_confirmation"
                         placeholder="********"
+                        class="border-[var(--sispaa-text)]/20 focus-visible:ring-[var(--sispaa-primary)]"
                     />
                     <InputError :message="form.errors.password_confirmation" />
                 </div>
 
-                <Button type="submit" class="mt-2 w-full" tabindex="5" :disabled="form.processing">
+                <Button type="submit" class="mt-2 w-full bg-[var(--sispaa-primary)] text-white hover:bg-[var(--sispaa-primary)]/90" tabindex="5" :disabled="form.processing">
                     <LoaderCircle v-if="form.processing" class="h-4 w-4 animate-spin" />
                     Crear cuenta
                 </Button>
             </div>
 
-            <div class="text-center text-sm text-muted-foreground">
+            <div class="text-center text-sm text-[var(--sispaa-text)]/70">
                 ¿Ya tiene una cuenta?
-                <TextLink :href="route('login')" class="underline underline-offset-4" :tabindex="6">Iniciar sesión</TextLink>
+                <TextLink :href="route('login')" class="text-[var(--sispaa-primary)] font-semibold hover:underline" :tabindex="6">Iniciar sesión</TextLink>
             </div>
         </form>
     </AuthBase>
