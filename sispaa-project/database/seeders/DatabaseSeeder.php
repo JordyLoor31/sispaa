@@ -9,6 +9,7 @@ use Database\Seeders\CarreraSeeder;
 use Database\Seeders\MateriasSeeder;
 use Database\Seeders\RolesPermissionsSeeder;
 use Database\Seeders\DocentesSeeder;
+use Database\Seeders\EstudiantesSeeder;
 
 
 class DatabaseSeeder extends Seeder
@@ -29,5 +30,6 @@ class DatabaseSeeder extends Seeder
         $this->call(MateriasSeeder::class);
         $this->call(RolesPermissionsSeeder::class);
         $this->call(DocentesSeeder::class);
+        $this->call(EstudiantesSeeder::class);
     }
 }

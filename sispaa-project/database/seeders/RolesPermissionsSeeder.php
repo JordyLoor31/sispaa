@@ -13,7 +13,7 @@ class RolesPermissionsSeeder extends Seeder
     {
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
-        $permissions = [
+        $docentePermissions = [
             'silabos.upload',
             'informes.upload',
             'faltas.create',
@@ -28,11 +28,26 @@ class RolesPermissionsSeeder extends Seeder
             'laboratorio.register',
         ];
 
+        $estudiantePermissions = [
+            'indicadores.view-own',
+            'matriculas.view-own',
+            'faltas.view-own',
+            'justificaciones.create',
+            'documentos.upload',
+            'documentos.view-own',
+            'notificaciones.view-own',
+        ];
+
+        $permissions = array_values(array_unique(array_merge($docentePermissions, $estudiantePermissions)));
+
         foreach ($permissions as $permissionName) {
             Permission::findOrCreate($permissionName, 'web');
         }
 
         $docenteRole = Role::findOrCreate('docente', 'web');
-        $docenteRole->syncPermissions($permissions);
+        $docenteRole->syncPermissions($docentePermissions);
+
+        $estudianteRole = Role::findOrCreate('estudiante', 'web');
+        $estudianteRole->syncPermissions($estudiantePermissions);
     }
 }

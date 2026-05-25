@@ -26,6 +26,7 @@ class User extends Authenticatable
         'telefono',
         'is_active',
         'email_verified_at',
+        'carrera_id',
     ];
 
     /**
