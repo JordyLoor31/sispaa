@@ -22,145 +22,145 @@ class DocentesSeeder extends Seeder
             // ── AGROPECUARIA Y AGRONEGOCIOS ──────────────────────────────
             [
                 'name'  => 'Byron Rolando Alcívar Arteaga',
-                'email' => 'b.alcivar@universidad.edu.ec',
+                'email' => 'b.alcivar@uleam.edu.ec',
             ],
             [
                 'name'  => 'Paola Rosalin Alcívar Vaca',
-                'email' => 'p.alcivar@universidad.edu.ec',
+                'email' => 'p.alcivar@uleam.edu.ec',
             ],
             [
                 'name'  => 'Mariana del Carmen Avellan Chancay',
-                'email' => 'm.avellan@universidad.edu.ec',
+                'email' => 'm.avellan@uleam.edu.ec',
             ],
             [
                 'name'  => 'José Luis Brito Jurado',
-                'email' => 'j.brito@universidad.edu.ec',
+                'email' => 'j.brito@uleam.edu.ec',
             ],
             [
                 'name'  => 'Francisco Orley Cañarte García',
-                'email' => 'f.canarte@universidad.edu.ec',
+                'email' => 'f.canarte@uleam.edu.ec',
             ],
             [
                 'name'  => 'Elizalde Exequiel Cárdenas Reyes',
-                'email' => 'e.cardenas@universidad.edu.ec',
+                'email' => 'e.cardenas@uleam.edu.ec',
             ],
             [
                 'name'  => 'Jeniffer Paulina Espinoza Zambrano',
-                'email' => 'j.espinoza@universidad.edu.ec',
+                'email' => 'j.espinoza@uleam.edu.ec',
             ],
             [
                 'name'  => 'María Gabriela Farias Delgado',
-                'email' => 'm.farias@universidad.edu.ec',
+                'email' => 'm.farias@uleam.edu.ec',
             ],
             [
                 'name'  => 'George Adalberto García Mera',
-                'email' => 'g.garcia@universidad.edu.ec',
+                'email' => 'g.garcia@uleam.edu.ec',
             ],
             [
                 'name'  => 'Ángel Monserrate Guzmán Cedeño',
-                'email' => 'a.guzman@universidad.edu.ec',
+                'email' => 'a.guzman@uleam.edu.ec',
             ],
             [
                 'name'  => 'Xavier Eloy Mata Loor',
-                'email' => 'x.mata@universidad.edu.ec',
+                'email' => 'x.mata@uleam.edu.ec',
             ],
             [
                 'name'  => 'Dídimo Alexander Mendoza Intriago',
-                'email' => 'd.mendoza@universidad.edu.ec',
+                'email' => 'd.mendoza@uleam.edu.ec',
             ],
             [
                 'name'  => 'Valter Francisco Mero Rosado',
-                'email' => 'v.mero@universidad.edu.ec',
+                'email' => 'v.mero@uleam.edu.ec',
             ],
             [
                 'name'  => 'Ramón Antonio Molina Basurto',
-                'email' => 'r.molina@universidad.edu.ec',
+                'email' => 'r.molina@uleam.edu.ec',
             ],
             [
                 'name'  => 'Ever Morales Avendaño',
-                'email' => 'e.morales@universidad.edu.ec',
+                'email' => 'e.morales@uleam.edu.ec',
             ],
             [
                 'name'  => 'María Belén Muñoz Menéndez',
-                'email' => 'm.munoz@universidad.edu.ec',
+                'email' => 'm.munoz@uleam.edu.ec',
             ],
             [
                 'name'  => 'Diego Javier Nevárez Pérez',
-                'email' => 'd.nevarez@universidad.edu.ec',
+                'email' => 'd.nevarez@uleam.edu.ec',
             ],
             [
                 'name'  => 'Juan Carlos Palacios Peñafiel',
-                'email' => 'j.palacios@universidad.edu.ec',
+                'email' => 'j.palacios@uleam.edu.ec',
             ],
             [
                 'name'  => 'Christian Simón Rivadeneira Barcia',
-                'email' => 'c.rivadeneira@universidad.edu.ec',
+                'email' => 'c.rivadeneira@uleam.edu.ec',
             ],
             [
                 'name'  => 'Liz Sabrina Trueba Macías',
-                'email' => 'l.trueba@universidad.edu.ec',
+                'email' => 'l.trueba@uleam.edu.ec',
             ],
             [
                 'name'  => 'Miguel Bolívar Zambrano Reyes',
-                'email' => 'm.zambrano@universidad.edu.ec',
+                'email' => 'm.zambrano@uleam.edu.ec',
             ],
 
             // ── AGROINDUSTRIA ────────────────────────────────────────────
             [
                 'name'  => 'Carlos Eduardo Anchundia Betancourt',
-                'email' => 'c.anchundia@universidad.edu.ec',
+                'email' => 'c.anchundia@uleam.edu.ec',
             ],
             [
                 'name'  => 'José Isidro Andrade Vera',
-                'email' => 'j.andrade@universidad.edu.ec',
+                'email' => 'j.andrade@uleam.edu.ec',
             ],
             [
                 'name'  => 'Geovanny Oswaldo Arauz Barcia',
-                'email' => 'g.arauz@universidad.edu.ec',
+                'email' => 'g.arauz@uleam.edu.ec',
             ],
             [
                 'name'  => 'Julio Enrique Avila Roca',
-                'email' => 'j.avila@universidad.edu.ec',
+                'email' => 'j.avila@uleam.edu.ec',
             ],
             [
                 'name'  => 'Ítalo Pedro Bello Moreira',
-                'email' => 'i.bello@universidad.edu.ec',
+                'email' => 'i.bello@uleam.edu.ec',
             ],
             [
                 'name'  => 'José Antonio Cedeño Velasco',
-                'email' => 'ja.cedeno@universidad.edu.ec',
+                'email' => 'ja.cedeno@uleam.edu.ec',
             ],
             [
                 'name'  => 'José Luis Coloma Hurel',
-                'email' => 'j.coloma@universidad.edu.ec',
+                'email' => 'j.coloma@uleam.edu.ec',
             ],
             [
                 'name'  => 'Yessenia Maribel García Montes',
-                'email' => 'y.garcia@universidad.edu.ec',
+                'email' => 'y.garcia@uleam.edu.ec',
             ],
             [
                 'name'  => 'Edison Grego Lavayen Delgado',
-                'email' => 'e.lavayen@universidad.edu.ec',
+                'email' => 'e.lavayen@uleam.edu.ec',
             ],
             [
                 'name'  => 'Aldo Eduardo Mendoza González',
-                'email' => 'a.mendoza@universidad.edu.ec',
+                'email' => 'a.mendoza@uleam.edu.ec',
             ],
             [
                 'name'  => 'Juan Robert Mero Santana',
-                'email' => 'jr.mero@universidad.edu.ec',
+                'email' => 'jr.mero@uleam.edu.ec',
             ],
             [
                 'name'  => 'Víctor Oswaldo Otero Tuarez',
-                'email' => 'v.otero@universidad.edu.ec',
+                'email' => 'v.otero@uleam.edu.ec',
             ],
             [
                 'name'  => 'Ángel Del Jesús Prado Cedeño',
-                'email' => 'a.prado@universidad.edu.ec',
+                'email' => 'a.prado@uleam.edu.ec',
             ],
             [
                 'name'  => 'Stalin Gustavo Santacruz Terán',
-                'email' => 's.santacruz@universidad.edu.ec',
+                'email' => 's.santacruz@uleam.edu.ec',
             ],
         ];
 
@@ -178,6 +178,8 @@ class DocentesSeeder extends Seeder
                     'carrera_id'         => null, 
                 ]
             );
+
+            $user->assignRole('docente');
 
             if ($user->wasRecentlyCreated) {
                 $creados++;

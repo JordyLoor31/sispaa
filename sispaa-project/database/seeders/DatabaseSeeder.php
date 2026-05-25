@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 use Database\Seeders\CarreraSeeder;
 use Database\Seeders\MateriasSeeder;
+use Database\Seeders\RolesPermissionsSeeder;
 use Database\Seeders\DocentesSeeder;
 
 
@@ -26,6 +27,7 @@ class DatabaseSeeder extends Seeder
 
         $this->call(CarreraSeeder::class);
         $this->call(MateriasSeeder::class);
+        $this->call(RolesPermissionsSeeder::class);
         $this->call(DocentesSeeder::class);
     }
 }
