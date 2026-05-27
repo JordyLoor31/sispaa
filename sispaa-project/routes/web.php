@@ -6,12 +6,7 @@ use App\Http\Controllers\Laboratorio\LaboratorioController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-/*
-|--------------------------------------------------------------------------
-| HOME
-|--------------------------------------------------------------------------
-*/
-
+// HOME
 Route::get('/', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('home');
@@ -21,12 +16,7 @@ Route::get('dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 
-/*
-|--------------------------------------------------------------------------
-| ESTUDIANTES
-|--------------------------------------------------------------------------
-*/
-
+// ESTUDIANTES
 Route::middleware(['auth', 'verified'])
     ->prefix('estudiantes')
     ->name('estudiantes.')
@@ -46,70 +36,53 @@ Route::middleware(['auth', 'verified'])
     });
 
 
-/*
-|--------------------------------------------------------------------------
-| LABORATORIO
-|--------------------------------------------------------------------------
-*/
+// DOCENCIA
+Route::middleware(['auth', 'verified'])->prefix('docencia')->group(function () {
+    Route::get('informes-asignatura', function () {
+        $docentes = \App\Models\User::all();
+        $materias = \App\Models\Docencia\Materia::with('carrera')->get();
+        return Inertia::render('Docencia/Informes', [
+            'docentes' => $docentes,
+            'materias' => $materias
+        ]);
+    })->name('docencia.informes-asignaturas');
+});
 
+
+// LABORATORIO
 Route::middleware(['auth', 'verified'])
     ->prefix('laboratorio')
     ->name('laboratorio.')
     ->group(function () {
 
-        /*
-        |--------------------------------------------------------------------------
-        | Dashboard laboratorio
-        |--------------------------------------------------------------------------
-        */
+        // Dashboard laboratorio
 
         Route::get('/', [LaboratorioController::class, 'index'])
             ->name('index');
 
-        /*
-        |--------------------------------------------------------------------------
-        | Registro de prácticas
-        |--------------------------------------------------------------------------
-        */
+        // Registro de prácticas
 
         Route::get('/practicas', [LaboratorioController::class, 'practicas'])
             ->name('practicas');
 
-        /*
-        |--------------------------------------------------------------------------
-        | Reportes por carrera
-        |--------------------------------------------------------------------------
-        */
+        // Reportes por carrera
 
         Route::get('/por-carrera', [LaboratorioController::class, 'porCarrera'])
             ->name('porCarrera');
 
-        /*
-        |--------------------------------------------------------------------------
-        | Ubicaciones
-        |--------------------------------------------------------------------------
-        */
+        // Ubicaciones
 
         Route::get('/ubicaciones', [LaboratorioController::class, 'ubicaciones'])
             ->name('ubicaciones');
 
-        /*
-        |--------------------------------------------------------------------------
-        | Crear práctica
-        |--------------------------------------------------------------------------
-        */
+        // Crear práctica
 
         Route::get('/crear', [LaboratorioController::class, 'create'])
             ->name('create');
     });
 
 
-/*
-|--------------------------------------------------------------------------
-| TITULACIÓN
-|--------------------------------------------------------------------------
-*/
-
+// TITULACIÓN
 Route::middleware(['auth', 'verified'])
     ->prefix('titulacion')
     ->group(function () {
@@ -128,12 +101,7 @@ Route::middleware(['auth', 'verified'])
     });
 
 
-/*
-|--------------------------------------------------------------------------
-| VINCULACIÓN
-|--------------------------------------------------------------------------
-*/
-
+// VINCULACIÓN
 Route::middleware(['auth', 'verified'])
     ->prefix('vinculacion')
     ->group(function () {
@@ -152,11 +120,7 @@ Route::middleware(['auth', 'verified'])
     });
 
 
-/*
-|--------------------------------------------------------------------------
-| ARCHIVOS EXTRA
-|--------------------------------------------------------------------------
-*/
+// ARCHIVOS EXTRA
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
