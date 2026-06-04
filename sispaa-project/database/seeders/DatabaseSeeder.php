@@ -10,6 +10,8 @@ use Database\Seeders\MateriasSeeder;
 use Database\Seeders\RolesPermissionsSeeder;
 use Database\Seeders\DocentesSeeder;
 use Database\Seeders\EstudiantesSeeder;
+use Database\Seeders\FaltasSeeder;
+use Database\Seeders\DocumentosSeeder;
 
 
 class DatabaseSeeder extends Seeder
@@ -31,5 +33,7 @@ class DatabaseSeeder extends Seeder
         $this->call(RolesPermissionsSeeder::class);
         $this->call(DocentesSeeder::class);
         $this->call(EstudiantesSeeder::class);
+        $this->call(FaltasSeeder::class);
+        $this->call(DocumentosSeeder::class);
     }
 }

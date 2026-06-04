@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Estudiantes\EstudianteController;
+use App\Http\Controllers\Api\EstudiantesController as ApiEstudiantesController;
+use App\Http\Controllers\Api\CatalogsController as ApiCatalogsController;
 use App\Http\Controllers\Laboratorio\LaboratorioController;
 
 use Illuminate\Support\Facades\Route;
@@ -31,6 +33,14 @@ Route::middleware(['auth', 'verified'])
     ->prefix('estudiantes')
     ->name('estudiantes.')
     ->group(function () {
+
+        // API: listado y filtros para la UI (método en EstudianteController)
+        Route::get('/api/list', [EstudianteController::class, 'apiList'])
+            ->name('api.list');
+
+        Route::get('/api/carreras', [ApiCatalogsController::class, 'carreras'])
+            ->name('api.carreras.index');
+
 
         Route::get('/', [EstudianteController::class, 'index'])
             ->name('index');
