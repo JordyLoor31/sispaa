@@ -10,10 +10,13 @@ use Inertia\Inertia;
 
 // HOME
 Route::get('/', function () {
-    return Inertia::render('Dashboard');
+    return redirect()->route('dashboard');
 })->middleware(['auth', 'verified'])->name('home');
 
 Route::get('dashboard', function () {
+    if (auth()->user()->hasRole('estudiante')) {
+        return app(\App\Http\Controllers\Estudiantes\StudentPortalController::class)->dashboard();
+    }
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -48,14 +51,8 @@ Route::middleware(['auth', 'verified'])
 
 // DOCENCIA
 Route::middleware(['auth', 'verified'])->prefix('docencia')->group(function () {
-    Route::get('informes-asignatura', function () {
-        $docentes = \App\Models\User::all();
-        $materias = \App\Models\Docencia\Materia::with('carrera')->get();
-        return Inertia::render('Docencia/Informes', [
-            'docentes' => $docentes,
-            'materias' => $materias
-        ]);
-    })->name('docencia.informes-asignaturas');
+    Route::get('informes-asignatura', [\App\Http\Controllers\Admin\AdminPortalController::class, 'informesAsignatura'])
+        ->name('docencia.informes-asignaturas');
 });
 
 
@@ -129,6 +126,53 @@ Route::middleware(['auth', 'verified'])
         })->name('vinculacion.lideres');
     });
 
+
+// PORTAL DEL ESTUDIANTE (Rutas específicas para el estudiante)
+Route::middleware(['auth', 'verified', 'role:estudiante'])
+    ->prefix('estudiante')
+    ->name('student.')
+    ->group(function () {
+        Route::get('/documentos', [\App\Http\Controllers\Estudiantes\StudentPortalController::class, 'documentos'])->name('documentos');
+        Route::post('/documentos/upload', [\App\Http\Controllers\Estudiantes\StudentPortalController::class, 'uploadDocumento'])->name('documentos.upload');
+
+        Route::get('/justificaciones', [\App\Http\Controllers\Estudiantes\StudentPortalController::class, 'justificaciones'])->name('justificaciones');
+        Route::post('/justificaciones/store', [\App\Http\Controllers\Estudiantes\StudentPortalController::class, 'storeJustificacion'])->name('justificaciones.store');
+
+        Route::get('/titulacion', [\App\Http\Controllers\Estudiantes\StudentPortalController::class, 'titulacion'])->name('titulacion');
+
+        Route::get('/asistencias', [\App\Http\Controllers\Estudiantes\StudentPortalController::class, 'asistencias'])->name('asistencias');
+
+        Route::get('/perfil', [\App\Http\Controllers\Estudiantes\StudentPortalController::class, 'perfil'])->name('perfil');
+
+        Route::get('/notificaciones', [\App\Http\Controllers\Estudiantes\StudentPortalController::class, 'notificaciones'])->name('notificaciones');
+        Route::post('/notificaciones/read', [\App\Http\Controllers\Estudiantes\StudentPortalController::class, 'readNotificaciones'])->name('notificaciones.read');
+    });
+
+// PORTAL DEL ADMINISTRADOR (Rutas específicas para el administrador)
+Route::middleware(['auth', 'verified', 'role:administrador'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        // Gestión de Usuarios
+        Route::get('/usuarios', [\App\Http\Controllers\Admin\AdminPortalController::class, 'usuariosIndex'])->name('usuarios.index');
+        Route::post('/usuarios', [\App\Http\Controllers\Admin\AdminPortalController::class, 'usuariosStore'])->name('usuarios.store');
+        Route::put('/usuarios/{user}', [\App\Http\Controllers\Admin\AdminPortalController::class, 'usuariosUpdate'])->name('usuarios.update');
+        Route::post('/usuarios/{user}/toggle-status', [\App\Http\Controllers\Admin\AdminPortalController::class, 'usuariosToggleStatus'])->name('usuarios.toggle-status');
+
+        // Configuración de Malla Curricular
+        Route::get('/malla', [\App\Http\Controllers\Admin\AdminPortalController::class, 'mallaIndex'])->name('malla.index');
+        Route::post('/carreras', [\App\Http\Controllers\Admin\AdminPortalController::class, 'carreraStore'])->name('carreras.store');
+        Route::put('/carreras/{carrera}', [\App\Http\Controllers\Admin\AdminPortalController::class, 'carreraUpdate'])->name('carreras.update');
+        Route::post('/materias', [\App\Http\Controllers\Admin\AdminPortalController::class, 'materiaStore'])->name('materias.store');
+        Route::put('/materias/{materia}', [\App\Http\Controllers\Admin\AdminPortalController::class, 'materiaUpdate'])->name('materias.update');
+        Route::delete('/materias/{materia}', [\App\Http\Controllers\Admin\AdminPortalController::class, 'materiaDestroy'])->name('materias.destroy');
+
+        // Fechas Límite y Convocatorias
+        Route::get('/fechas', [\App\Http\Controllers\Admin\AdminPortalController::class, 'fechasIndex'])->name('fechas.index');
+        Route::post('/fechas/periodos', [\App\Http\Controllers\Admin\AdminPortalController::class, 'periodoStore'])->name('periodos.store');
+        Route::put('/fechas/periodos/{periodo}', [\App\Http\Controllers\Admin\AdminPortalController::class, 'periodoUpdate'])->name('periodos.update');
+        Route::put('/fechas/periodos/{periodo}/deadlines', [\App\Http\Controllers\Admin\AdminPortalController::class, 'periodoDeadlinesUpdate'])->name('periodos.deadlines.update');
+    });
 
 // ARCHIVOS EXTRA
 

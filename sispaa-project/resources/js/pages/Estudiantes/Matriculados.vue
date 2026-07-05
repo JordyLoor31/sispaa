@@ -75,12 +75,10 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
-import { ref, reactive, onMounted, computed, h, watch } from 'vue';
+import { ref, reactive, onMounted, watch } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 import { Inertia } from '@inertiajs/inertia';
-import makeColumns from './columns';
-
-import type { ColumnDef } from '@tanstack/vue-table'
+import makeColumns from './Matriculados/column';
 import {
   FlexRender,
   getCoreRowModel,
@@ -148,9 +146,9 @@ function viewStudent(id: number) {
   Inertia.get(`/estudiantes/${id}`);
 }
 
-const columns = computed<ColumnDef<any, any>[]>(() => makeColumns(viewStudent))
+const columns = makeColumns(viewStudent)
 
-const table = useVueTable({ get data() { return data.value }, get columns() { return columns.value }, getCoreRowModel: getCoreRowModel(), })
+const table = useVueTable({ get data() { return data.value }, get columns() { return columns }, getCoreRowModel: getCoreRowModel(), })
 
 onMounted(() => {
   syncFromProps();

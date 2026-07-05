@@ -3,16 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Database\Seeders\CarreraSeeder;
-use Database\Seeders\MateriasSeeder;
-use Database\Seeders\RolesPermissionsSeeder;
-use Database\Seeders\DocentesSeeder;
-use Database\Seeders\EstudiantesSeeder;
-use Database\Seeders\FaltasSeeder;
-use Database\Seeders\DocumentosSeeder;
-
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -21,19 +13,49 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
-
         $this->call(CarreraSeeder::class);
         $this->call(MateriasSeeder::class);
         $this->call(RolesPermissionsSeeder::class);
+
+        // 1. Crear Administrador de Prueba
+        $admin = User::firstOrCreate(
+            ['email' => 'test@example.com'],
+            [
+                'name' => 'Test Admin',
+                'password' => Hash::make('password'),
+                'email_verified_at' => now(),
+            ]
+        );
+        $admin->syncRoles(['administrador']);
+
+        // 2. Crear Secretaria de Prueba
+        $secretaria = User::firstOrCreate(
+            ['email' => 'secretaria@example.com'],
+            [
+                'name' => 'Test Secretaria',
+                'password' => Hash::make('Secretaria2026!'),
+                'email_verified_at' => now(),
+            ]
+        );
+        $secretaria->syncRoles(['secretaria']);
+
+        // 3. Crear Coordinador de Prueba
+        $coordinador = User::firstOrCreate(
+            ['email' => 'coordinador@example.com'],
+            [
+                'name' => 'Test Coordinador',
+                'password' => Hash::make('Coordinador2026!'),
+                'email_verified_at' => now(),
+            ]
+        );
+        $coordinador->syncRoles(['coordinador']);
+
+        // 4. Ejecutar el resto de seeders
         $this->call(DocentesSeeder::class);
         $this->call(EstudiantesSeeder::class);
         $this->call(FaltasSeeder::class);
         $this->call(DocumentosSeeder::class);
+        $this->call(TitulacionSeeder::class);
+        $this->call(AsignacionesInformesSeeder::class);
     }
 }

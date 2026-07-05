@@ -49,6 +49,12 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_active' => 'boolean',
         ];
+    }
+
+    public function carrera()
+    {
+        return $this->belongsTo(\App\Models\Admin\Carrera::class, 'carrera_id');
     }
 }

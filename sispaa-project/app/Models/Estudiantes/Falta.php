@@ -36,4 +36,10 @@ class Falta extends Model
     {
         return $this->belongsTo(\App\Models\Admin\PeriodoAcademico::class, 'periodo_id');
     }
+
+    public function justificacion()
+    {
+        return $this->hasOne(JustificacionSolicitud::class, 'falta_id');
+    }
 }
+

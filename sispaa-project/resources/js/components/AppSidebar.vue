@@ -4,8 +4,9 @@ import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
-import { Link } from '@inertiajs/vue3';
-import { Book, Feather, FlaskConical, GraduationCap, Handshake, LayoutGrid, Search } from 'lucide-vue-next';
+import { Link, usePage } from '@inertiajs/vue3';
+import { Book, Feather, FlaskConical, GraduationCap, Handshake, LayoutGrid, Search, User, Bell, FileText, Calendar } from 'lucide-vue-next';
+import { computed } from 'vue';
 import AppLogo from './AppLogo.vue';
 
 const mainNavItems: NavItem[] = [
@@ -139,6 +140,83 @@ const mainNavItems: NavItem[] = [
     },
 ];
 
+const studentNavItems: NavItem[] = [
+    {
+        title: 'Vista general',
+        href: '/dashboard',
+        icon: LayoutGrid,
+    },
+    {
+        title: 'Mis Documentos',
+        href: '/estudiante/documentos',
+        icon: FileText,
+    },
+    {
+        title: 'Mis Justificaciones',
+        href: '/estudiante/justificaciones',
+        icon: Search,
+    },
+    {
+        title: 'Mi Titulación',
+        href: '/estudiante/titulacion',
+        icon: GraduationCap,
+    },
+    {
+        title: 'Mis Asistencias',
+        href: '/estudiante/asistencias',
+        icon: Feather,
+    },
+    {
+        title: 'Mi Perfil',
+        href: '/estudiante/perfil',
+        icon: User,
+    },
+    {
+        title: 'Notificaciones',
+        href: '/estudiante/notificaciones',
+        icon: Bell,
+    }
+];
+
+const adminNavItems: NavItem[] = [
+    {
+        title: 'Vista general',
+        href: '/dashboard',
+        icon: LayoutGrid,
+    },
+    {
+        title: 'Gestión de Usuarios',
+        href: '/admin/usuarios',
+        icon: User,
+    },
+    {
+        title: 'Malla Curricular',
+        href: '/admin/malla',
+        icon: Book,
+    },
+    {
+        title: 'Fechas y Convocatorias',
+        href: '/admin/fechas',
+        icon: Calendar,
+    },
+    {
+        title: 'Informes de Asignatura',
+        href: '/docencia/informes-asignatura',
+        icon: FileText,
+    }
+];
+
+const page = usePage<any>();
+const user = computed(() => page.props.auth?.user);
+const isAdmin = computed(() => user.value?.roles?.includes('administrador'));
+const isStudent = computed(() => user.value?.roles?.includes('estudiante'));
+
+const navItems = computed(() => {
+    if (isAdmin.value) return adminNavItems;
+    if (isStudent.value) return studentNavItems;
+    return mainNavItems;
+});
+
 const footerNavItems: NavItem[] = [];
 </script>
 
@@ -157,7 +235,7 @@ const footerNavItems: NavItem[] = [];
         </SidebarHeader>
 
         <SidebarContent>
-            <NavMain :items="mainNavItems" />
+            <NavMain :items="navItems" />
         </SidebarContent>
 
         <SidebarFooter>

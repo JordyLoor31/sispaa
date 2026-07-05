@@ -71,9 +71,14 @@ const isItemOpen = (item: NavItem) => {
                 </Collapsible>
                 <SidebarMenuItem v-else>
                     <SidebarMenuButton as-child :is-active="resolvePath(item.href) === page.url">
-                        <Link :href="item.href || '#'">
-                            <component :is="item.icon" v-if="item.icon" />
-                            <span>{{ item.title }}</span>
+                        <Link :href="item.href || '#'" class="flex items-center justify-between w-full">
+                            <div class="flex items-center gap-2">
+                                <component :is="item.icon" v-if="item.icon" />
+                                <span>{{ item.title }}</span>
+                            </div>
+                            <span v-if="item.title === 'Notificaciones' && (page.props.auth?.user as any)?.unread_notifications > 0" class="flex h-5 min-w-[20px] px-1 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white leading-none">
+                                {{ (page.props.auth.user as any).unread_notifications }}
+                            </span>
                         </Link>
                     </SidebarMenuButton>
                 </SidebarMenuItem>

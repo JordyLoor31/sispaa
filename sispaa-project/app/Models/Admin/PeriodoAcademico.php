@@ -15,12 +15,16 @@ class PeriodoAcademico extends Model
         'fecha_fin',
         'tipo',
         'activo',
+        'fecha_limite_silabo',
+        'fecha_limite_informe',
     ];
 
     protected $casts = [
         'fecha_inicio' => 'date',
         'fecha_fin' => 'date',
         'activo' => 'boolean',
+        'fecha_limite_silabo' => 'date',
+        'fecha_limite_informe' => 'date',
     ];
 
     public function carrera()
