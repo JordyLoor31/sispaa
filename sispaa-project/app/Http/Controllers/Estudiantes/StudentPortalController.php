@@ -102,13 +102,16 @@ class StudentPortalController extends Controller
         $expediente = [];
         foreach ($tiposSGA as $tipo) {
             if (isset($documentosDb[$tipo])) {
+                $doc = $documentosDb[$tipo];
+                // archivo_url es JSON: {"path":"...","name":"...","size":...}
+                $publicUrl = $doc->archivo_publico_url;
                 $expediente[] = [
                     'tipo' => $tipo,
                     'subido' => true,
-                    'archivo_url' => $documentosDb[$tipo]->archivo_url,
-                    'estado' => $documentosDb[$tipo]->estado,
-                    'observacion' => $documentosDb[$tipo]->observacion,
-                    'updated_at' => $documentosDb[$tipo]->updated_at->diffForHumans(),
+                    'archivo_url' => $publicUrl,
+                    'estado' => $doc->estado,
+                    'observacion' => $doc->observacion,
+                    'updated_at' => $doc->updated_at->diffForHumans(),
                 ];
             } else {
                 $expediente[] = [
@@ -139,10 +142,23 @@ class StudentPortalController extends Controller
 
         $user = Auth::user();
         $file = $request->file('archivo');
-        
-        // Guardar archivo
-        $path = $file->store('documentos', 'public');
-        $url = '/storage/' . $path;
+
+        // Guardar archivo en storage/public/documentos/{year}/{userId}/
+        $year = now()->format('Y');
+        $path = $file->storeAs(
+            "documentos/{$year}/{$user->id}",
+            \Illuminate\Support\Str::uuid() . '.pdf',
+            'public'
+        );
+
+        // Metadatos en JSON para no guardar binarios en DB
+        $archivoJson = [
+            'path'          => $path,
+            'name'          => $file->getClientOriginalName(),
+            'size'          => $file->getSize(),
+            'mime'          => $file->getMimeType(),
+            'uploaded_at'   => now()->toISOString(),
+        ];
 
         // Buscar si ya existe
         $documento = DocumentoEstudiante::where('estudiante_id', $user->id)
@@ -150,23 +166,25 @@ class StudentPortalController extends Controller
             ->first();
 
         if ($documento) {
-            // Eliminar archivo anterior si existía
-            $oldPath = str_replace('/storage/', '', $documento->archivo_url);
-            Storage::disk('public')->delete($oldPath);
+            // Eliminar archivo anterior del disco
+            $oldData = $documento->archivo_url; // ya es array por el cast
+            if (isset($oldData['path'])) {
+                Storage::disk('public')->delete($oldData['path']);
+            }
 
             $documento->update([
-                'archivo_url' => $url,
-                'estado' => 'pendiente',
-                'observacion' => null,
-                'reviewed_at' => null,
+                'archivo_url'  => $archivoJson,
+                'estado'       => 'pendiente',
+                'observacion'  => null,
+                'reviewed_at'  => null,
             ]);
         } else {
             DocumentoEstudiante::create([
-                'estudiante_id' => $user->id,
+                'estudiante_id'  => $user->id,
                 'tipo_documento' => $request->tipo_documento,
-                'archivo_url' => $url,
-                'estado' => 'pendiente',
-                'observacion' => null,
+                'archivo_url'    => $archivoJson,
+                'estado'         => 'pendiente',
+                'observacion'    => null,
             ]);
         }
 
@@ -239,10 +257,11 @@ class StudentPortalController extends Controller
         }
 
         JustificacionSolicitud::create([
-            'falta_id' => $falta->id,
-            'motivo_estudiante' => $request->motivo_estudiante,
-            'archivo_adjunto' => $archivoPath,
-            'estado' => 'pendiente'
+            'falta_id'           => $falta->id,
+            'motivo_estudiante'  => $request->motivo_estudiante,
+            'archivo_adjunto'    => $archivoPath,
+            'estado'             => 'pendiente',
+            'comentario_revisor' => null,
         ]);
 
         // Crear notificación

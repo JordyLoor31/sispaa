@@ -58,12 +58,12 @@ class AdminPortalController extends Controller
         $cumplimientoPorCarrera = [];
         foreach ($carreras as $carrera) {
             $totalCarrera = InformeDocente::whereHas('materia', function($q) use ($carrera) {
-                $q->where('carrera_id', $carrera.id);
+                $q->where('carrera_id', $carrera->id);
             })->count();
             
             $entregadosCarrera = InformeDocente::whereIn('estado', ['subido', 'aprobado'])
                 ->whereHas('materia', function($q) use ($carrera) {
-                    $q->where('carrera_id', $carrera.id);
+                    $q->where('carrera_id', $carrera->id);
                 })->count();
 
             $pct = $totalCarrera > 0 ? round(($entregadosCarrera / $totalCarrera) * 100) : 0;
@@ -246,6 +246,15 @@ class AdminPortalController extends Controller
         return redirect()->back()->with('success', 'Carrera actualizada correctamente.');
     }
 
+    public function carreraToggleStatus(Carrera $carrera)
+    {
+        $carrera->update([
+            'activa' => !$carrera->activa
+        ]);
+
+        return redirect()->back()->with('success', 'Estado de la carrera actualizado.');
+    }
+
     public function materiaStore(Request $request)
     {
         $request->validate([
@@ -293,6 +302,15 @@ class AdminPortalController extends Controller
     {
         $materia->delete();
         return redirect()->back()->with('success', 'Asignatura eliminada correctamente.');
+    }
+
+    public function materiaToggleStatus(Materia $materia)
+    {
+        $materia->update([
+            'activa' => !$materia->activa
+        ]);
+
+        return redirect()->back()->with('success', 'Estado de la asignatura actualizado.');
     }
 
     /**

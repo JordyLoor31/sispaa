@@ -5,6 +5,7 @@ import { Head, router } from '@inertiajs/vue3';
 import { ref, reactive, computed } from 'vue';
 import { Plus, BookOpen, GraduationCap } from 'lucide-vue-next';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { FlexRender, getCoreRowModel, useVueTable } from '@tanstack/vue-table';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -23,6 +24,7 @@ interface CarreraItem {
     nombre: string;
     codigo: string;
     coordinador_id: number | null;
+    activa: boolean;
     coordinador?: Coordinator | null;
 }
 
@@ -75,7 +77,7 @@ const showMateriaModal = ref(false);
 const editingMateria = ref<MateriaItem | null>(null);
 
 const handleSearch = () => {
-    router.get(route('admin.carreras.index'), {
+    router.get(route('admin.malla.index'), {
         carrera_id: selectedCarreraFilter.value,
         q: search.value,
     }, {
@@ -104,6 +106,12 @@ const openEditCarrera = (carrera: CarreraItem) => {
     showCarreraModal.value = true;
 };
 
+const toggleCarreraActive = (carrera: CarreraItem) => {
+    router.post(route('admin.carreras.toggle-status', carrera.id), {}, {
+        preserveScroll: true
+    });
+};
+
 // Materia actions
 const openAddMateria = () => {
     editingMateria.value = null;
@@ -115,12 +123,10 @@ const openEditMateria = (materia: MateriaItem) => {
     showMateriaModal.value = true;
 };
 
-const deleteMateria = (materia: MateriaItem) => {
-    if (confirm(`¿Estás seguro de eliminar la asignatura "${materia.nombre}"?`)) {
-        router.delete(route('admin.materias.destroy', materia.id), {
-            preserveScroll: true
-        });
-    }
+const toggleMateriaActive = (materia: MateriaItem) => {
+    router.post(route('admin.materias.toggle-status', materia.id), {}, {
+        preserveScroll: true
+    });
 };
 
 const navigateToPage = (url: string | null) => {
@@ -132,8 +138,11 @@ const navigateToPage = (url: string | null) => {
 // TanStack Columns Definition
 const columns = makeMateriaColumns({
     onEditMateria: openEditMateria,
-    onDeleteMateria: deleteMateria,
+    onToggleStatus: toggleMateriaActive,
 });
+
+console.log('Props Materias:', props.materias);
+console.log('Columns:', columns);
 
 // Reactivity options wrapper to resolve state updates
 const table = useVueTable(reactive({
@@ -141,6 +150,8 @@ const table = useVueTable(reactive({
     columns,
     getCoreRowModel: getCoreRowModel(),
 }));
+
+console.log('Table Row Model:', table.getRowModel().rows);
 </script>
 
 <template>
@@ -198,6 +209,17 @@ const table = useVueTable(reactive({
                                 <span class="rounded bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 px-2.5 py-1 text-xs font-bold uppercase tracking-wider">
                                     {{ carrera.codigo }}
                                 </span>
+                                <div class="flex items-center gap-2">
+                                    <Switch
+                                        :checked="!!carrera.activa"
+                                        :model-value="!!carrera.activa"
+                                        @update:checked="toggleCarreraActive(carrera)"
+                                        @update:model-value="toggleCarreraActive(carrera)"
+                                    />
+                                    <span class="text-xxs font-semibold" :class="[carrera.activa ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400']">
+                                        {{ carrera.activa ? 'Activa' : 'Inactiva' }}
+                                    </span>
+                                </div>
                             </div>
                             <h3 class="text-base font-bold text-slate-900 dark:text-white mb-2 line-clamp-2">
                                 {{ carrera.nombre }}

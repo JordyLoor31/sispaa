@@ -229,9 +229,9 @@ const submitRequest = () => {
                                         {{ sol.motivo_estudiante }}
                                     </p>
 
-                                    <!-- Comentario del Docente -->
-                                    <div v-if="sol.comentario_docente" class="text-xs border-l-2 border-indigo-500 pl-2 text-indigo-700 dark:text-indigo-400 font-medium">
-                                        Observación docente: {{ sol.comentario_docente }}
+                                    <!-- Comentario del Revisor -->
+                                    <div v-if="sol.comentario_revisor" class="text-xs border-l-2 border-indigo-500 pl-2 text-indigo-700 dark:text-indigo-400 font-medium">
+                                        Observación secretaría: {{ sol.comentario_revisor }}
                                     </div>
                                 </div>
 

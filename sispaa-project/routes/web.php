@@ -4,6 +4,7 @@ use App\Http\Controllers\Estudiantes\EstudianteController;
 use App\Http\Controllers\Api\EstudiantesController as ApiEstudiantesController;
 use App\Http\Controllers\Api\CatalogsController as ApiCatalogsController;
 use App\Http\Controllers\Laboratorio\LaboratorioController;
+use App\Http\Controllers\Secretaria\SecretariaController;
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -17,7 +18,7 @@ Route::get('dashboard', function () {
     if (auth()->user()->hasRole('estudiante')) {
         return app(\App\Http\Controllers\Estudiantes\StudentPortalController::class)->dashboard();
     }
-    return Inertia::render('Dashboard');
+    return app(\App\Http\Controllers\Admin\AdminPortalController::class)->dashboard();
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 
@@ -163,9 +164,11 @@ Route::middleware(['auth', 'verified', 'role:administrador'])
         Route::get('/malla', [\App\Http\Controllers\Admin\AdminPortalController::class, 'mallaIndex'])->name('malla.index');
         Route::post('/carreras', [\App\Http\Controllers\Admin\AdminPortalController::class, 'carreraStore'])->name('carreras.store');
         Route::put('/carreras/{carrera}', [\App\Http\Controllers\Admin\AdminPortalController::class, 'carreraUpdate'])->name('carreras.update');
+        Route::post('/carreras/{carrera}/toggle-status', [\App\Http\Controllers\Admin\AdminPortalController::class, 'carreraToggleStatus'])->name('carreras.toggle-status');
         Route::post('/materias', [\App\Http\Controllers\Admin\AdminPortalController::class, 'materiaStore'])->name('materias.store');
         Route::put('/materias/{materia}', [\App\Http\Controllers\Admin\AdminPortalController::class, 'materiaUpdate'])->name('materias.update');
         Route::delete('/materias/{materia}', [\App\Http\Controllers\Admin\AdminPortalController::class, 'materiaDestroy'])->name('materias.destroy');
+        Route::post('/materias/{materia}/toggle-status', [\App\Http\Controllers\Admin\AdminPortalController::class, 'materiaToggleStatus'])->name('materias.toggle-status');
 
         // Fechas Límite y Convocatorias
         Route::get('/fechas', [\App\Http\Controllers\Admin\AdminPortalController::class, 'fechasIndex'])->name('fechas.index');
@@ -173,6 +176,35 @@ Route::middleware(['auth', 'verified', 'role:administrador'])
         Route::put('/fechas/periodos/{periodo}', [\App\Http\Controllers\Admin\AdminPortalController::class, 'periodoUpdate'])->name('periodos.update');
         Route::put('/fechas/periodos/{periodo}/deadlines', [\App\Http\Controllers\Admin\AdminPortalController::class, 'periodoDeadlinesUpdate'])->name('periodos.deadlines.update');
     });
+
+
+// SECRETARÍA
+Route::middleware(['auth', 'verified', 'role:secretaria'])
+    ->prefix('secretaria')
+    ->name('secretaria.')
+    ->group(function () {
+
+        // Expediente SGA
+        Route::get('/expediente', [SecretariaController::class, 'expedienteIndex'])
+            ->name('expediente.index');
+        Route::patch('/expediente/{documento}/review', [SecretariaController::class, 'expedienteReview'])
+            ->name('expediente.review');
+
+        // Justificaciones
+        Route::get('/justificaciones', [SecretariaController::class, 'justificacionesIndex'])
+            ->name('justificaciones.index');
+        Route::patch('/justificaciones/{justificacion}/review', [SecretariaController::class, 'justificacionReview'])
+            ->name('justificacion.review');
+
+        // Matrículas
+        Route::get('/matriculas', [SecretariaController::class, 'matriculasIndex'])
+            ->name('matriculas.index');
+        Route::post('/matriculas', [SecretariaController::class, 'matriculaStore'])
+            ->name('matriculas.store');
+        Route::patch('/matriculas/{matricula}/estado', [SecretariaController::class, 'matriculaUpdateEstado'])
+            ->name('matriculas.update-estado');
+    });
+
 
 // ARCHIVOS EXTRA
 

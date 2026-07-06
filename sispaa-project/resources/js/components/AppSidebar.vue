@@ -206,14 +206,39 @@ const adminNavItems: NavItem[] = [
     }
 ];
 
+const secretariaNavItems: NavItem[] = [
+    {
+        title: 'Vista general',
+        href: '/dashboard',
+        icon: LayoutGrid,
+    },
+    {
+        title: 'Expediente SGA',
+        href: route('secretaria.expediente.index'),
+        icon: FileText,
+    },
+    {
+        title: 'Justificaciones',
+        href: route('secretaria.justificaciones.index'),
+        icon: Search,
+    },
+    {
+        title: 'Matrículas',
+        href: route('secretaria.matriculas.index'),
+        icon: Book,
+    },
+];
+
 const page = usePage<any>();
 const user = computed(() => page.props.auth?.user);
 const isAdmin = computed(() => user.value?.roles?.includes('administrador'));
 const isStudent = computed(() => user.value?.roles?.includes('estudiante'));
+const isSecretaria = computed(() => user.value?.roles?.includes('secretaria'));
 
 const navItems = computed(() => {
     if (isAdmin.value) return adminNavItems;
     if (isStudent.value) return studentNavItems;
+    if (isSecretaria.value) return secretariaNavItems;
     return mainNavItems;
 });
 

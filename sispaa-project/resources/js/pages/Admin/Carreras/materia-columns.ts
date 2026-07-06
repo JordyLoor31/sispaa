@@ -1,6 +1,7 @@
 import type { ColumnDef } from '@tanstack/vue-table';
-import { Edit, Trash2 } from 'lucide-vue-next';
+import { Edit } from 'lucide-vue-next';
 import { h } from 'vue';
+import { Switch } from '@/components/ui/switch';
 
 interface CarreraItem {
     id: number;
@@ -8,6 +9,7 @@ interface CarreraItem {
     codigo: string;
     coordinador_id: number | null;
     coordinador?: { id: number; name: string } | null;
+    activa?: boolean;
 }
 
 interface MateriaItem {
@@ -17,15 +19,16 @@ interface MateriaItem {
     creditos: number;
     nivel: number;
     carrera_id: number;
+    activa: boolean;
     carrera?: CarreraItem;
 }
 
 interface MateriaColumnsOptions {
     onEditMateria: (materia: MateriaItem) => void;
-    onDeleteMateria: (materia: MateriaItem) => void;
+    onToggleStatus: (materia: MateriaItem) => void;
 }
 
-export function makeMateriaColumns({ onEditMateria, onDeleteMateria }: MateriaColumnsOptions): ColumnDef<MateriaItem>[] {
+export function makeMateriaColumns({ onEditMateria, onToggleStatus }: MateriaColumnsOptions): ColumnDef<MateriaItem>[] {
     return [
         {
             accessorKey: 'codigo',
@@ -53,6 +56,26 @@ export function makeMateriaColumns({ onEditMateria, onDeleteMateria }: MateriaCo
             cell: ({ row }) => h('span', { class: 'rounded bg-slate-105 dark:bg-slate-900 px-2 py-0.5 text-xs text-slate-700 dark:text-slate-400 font-semibold' }, row.original.carrera?.codigo || '-'),
         },
         {
+            accessorKey: 'activa',
+            header: 'Estado',
+            cell: ({ row }) => {
+                const materia = row.original;
+                const isActive = !!materia.activa;
+
+                return h('div', { class: 'flex items-center gap-2' }, [
+                    h(Switch, {
+                        checked: isActive,
+                        modelValue: isActive,
+                        'onUpdate:checked': () => onToggleStatus(materia),
+                        'onUpdate:modelValue': () => onToggleStatus(materia),
+                    }),
+                    h('span', {
+                        class: `text-xs font-semibold ${isActive ? 'text-emerald-650 dark:text-emerald-400' : 'text-slate-400'}`,
+                    }, isActive ? 'Activo' : 'Inactivo'),
+                ]);
+            },
+        },
+        {
             id: 'actions',
             header: () => h('div', { class: 'text-right font-semibold' }, 'Acciones'),
             cell: ({ row }) => {
@@ -61,15 +84,9 @@ export function makeMateriaColumns({ onEditMateria, onDeleteMateria }: MateriaCo
                 return h('div', { class: 'text-right space-x-1.5' }, [
                     h('button', {
                         onClick: () => onEditMateria(materia),
-                        class: 'text-slate-500 hover:text-indigo-600 p-1',
+                        class: 'text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 p-1.5 rounded-lg border border-slate-100 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-900 transition-colors',
                     }, [
                         h(Edit, { class: 'h-4 w-4' }),
-                    ]),
-                    h('button', {
-                        onClick: () => onDeleteMateria(materia),
-                        class: 'text-slate-400 hover:text-rose-500 p-1',
-                    }, [
-                        h(Trash2, { class: 'h-4 w-4' }),
                     ]),
                 ]);
             },

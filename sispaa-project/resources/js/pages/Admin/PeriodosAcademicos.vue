@@ -2,9 +2,20 @@
 import AppSidebarLayout from '@/layouts/app/AppSidebarLayout.vue';
 import { type BreadcrumbItemType } from '@/types';
 import { Head, useForm, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
-import { Calendar, Plus, Edit, Clock, X, Check, Save } from 'lucide-vue-next';
+import { ref, computed, watch } from 'vue';
+import { Calendar, Plus, Edit, Clock, X, Check, Save, ChevronsUpDown } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
+import {
+    Combobox,
+    ComboboxAnchor,
+    ComboboxEmpty,
+    ComboboxGroup,
+    ComboboxInput,
+    ComboboxItem,
+    ComboboxItemIndicator,
+    ComboboxList,
+    ComboboxTrigger,
+} from '@/components/ui/combobox';
 import {
     AlertDialog,
     AlertDialogContent,
@@ -31,7 +42,7 @@ interface Periodo {
     fecha_limite_informe: string | null;
 }
 
-defineProps<{
+const props = defineProps<{
     periodos: Periodo[];
     carreras: Carrera[];
 }>();
@@ -61,6 +72,40 @@ const periodForm = useForm({
 const deadlinesForm = useForm({
     fecha_limite_silabo: '',
     fecha_limite_informe: ''
+});
+
+const selectedTipoObj = ref<{ value: string, label: string } | null>(null);
+
+watch(() => periodForm.tipo, (newVal) => {
+    if (!newVal) {
+        selectedTipoObj.value = { value: 'semestral', label: 'Semestral' };
+    } else {
+        const formattedLabel = newVal.charAt(0).toUpperCase() + newVal.slice(1);
+        selectedTipoObj.value = { value: newVal, label: formattedLabel };
+    }
+}, { immediate: true });
+
+watch(selectedTipoObj, (newVal) => {
+    periodForm.tipo = newVal ? newVal.value : 'semestral';
+});
+
+const selectedCarreraObj = ref<{ value: string | number, label: string } | null>(null);
+
+watch(() => periodForm.carrera_id, (newVal) => {
+    if (!newVal || newVal === '') {
+        selectedCarreraObj.value = null;
+    } else {
+        const carrera = props.carreras.find(c => c.id === Number(newVal));
+        if (carrera) {
+            selectedCarreraObj.value = { value: carrera.id, label: carrera.nombre };
+        } else {
+            selectedCarreraObj.value = null;
+        }
+    }
+}, { immediate: true });
+
+watch(selectedCarreraObj, (newVal) => {
+    periodForm.carrera_id = newVal ? newVal.value.toString() : '';
 });
 
 // Period actions
@@ -257,11 +302,35 @@ const togglePeriodActive = (period: Periodo) => {
 
                     <form @submit.prevent="submitPeriod" class="mt-4 space-y-4">
                         <div v-if="!editingPeriod">
-                            <label class="block text-xs font-bold text-slate-500 uppercase">Carrera *</label>
-                            <select v-model="periodForm.carrera_id" required class="mt-1 w-full rounded-lg border-slate-200 text-sm focus:ring-indigo-500 focus:border-indigo-500 dark:border-slate-850 dark:bg-slate-950 dark:text-slate-350">
-                                <option value="" disabled>Selecciona carrera...</option>
-                                <option v-for="c in carreras" :key="c.id" :value="c.id">{{ c.nombre }}</option>
-                            </select>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Carrera *</label>
+                            <Combobox v-model="selectedCarreraObj" by="value">
+                                <ComboboxAnchor as-child>
+                                    <ComboboxTrigger as-child>
+                                        <Button type="button" variant="outline" class="w-full justify-between text-left text-sm font-normal border-slate-200 focus:ring-indigo-500 focus:border-indigo-500 dark:border-slate-850 dark:bg-slate-950 dark:text-slate-350 mt-1">
+                                            {{ selectedCarreraObj ? selectedCarreraObj.label : 'Selecciona carrera...' }}
+                                            <ChevronsUpDown class="h-4 w-4 opacity-50" />
+                                        </Button>
+                                    </ComboboxTrigger>
+                                </ComboboxAnchor>
+
+                                <ComboboxList class="w-[var(--reka-combobox-trigger-width)] min-w-[250px] bg-white dark:bg-slate-950 border border-slate-100 dark:border-slate-900 rounded-lg shadow-lg">
+                                    <ComboboxInput placeholder="Buscar carrera..." class="w-full border-0 border-b border-slate-105 dark:border-slate-850 bg-transparent text-sm focus:ring-0 py-2.5 px-3" />
+                                    <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron carreras.</ComboboxEmpty>
+                                    <ComboboxGroup class="max-h-60 overflow-y-auto p-1">
+                                        <ComboboxItem
+                                            v-for="c in carreras"
+                                            :key="c.id"
+                                            :value="{ value: c.id, label: c.nombre }"
+                                            class="flex items-center justify-between px-3 py-2 text-sm rounded-md cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 data-[state=checked]:bg-slate-100 dark:data-[state=checked]:bg-slate-800"
+                                        >
+                                            {{ c.nombre }}
+                                            <ComboboxItemIndicator>
+                                                <Check class="h-4 w-4 text-indigo-650" />
+                                            </ComboboxItemIndicator>
+                                        </ComboboxItem>
+                                    </ComboboxGroup>
+                                </ComboboxList>
+                            </Combobox>
                         </div>
 
                         <div>
@@ -281,11 +350,36 @@ const togglePeriodActive = (period: Periodo) => {
                         </div>
 
                         <div v-if="!editingPeriod">
-                            <label class="block text-xs font-bold text-slate-500 uppercase">Tipo *</label>
-                            <select v-model="periodForm.tipo" class="mt-1 w-full rounded-lg border-slate-200 text-sm focus:ring-indigo-500 focus:border-indigo-500 dark:border-slate-850 dark:bg-slate-950 dark:text-slate-350">
-                                <option value="semestral">Semestral</option>
-                                <option value="anual">Anual</option>
-                            </select>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Tipo *</label>
+                            <Combobox v-model="selectedTipoObj" by="value">
+                                <ComboboxAnchor as-child>
+                                    <ComboboxTrigger as-child>
+                                        <Button type="button" variant="outline" class="w-full justify-between text-left text-sm font-normal border-slate-200 focus:ring-indigo-500 focus:border-indigo-500 dark:border-slate-850 dark:bg-slate-950 dark:text-slate-350 mt-1">
+                                            {{ selectedTipoObj ? selectedTipoObj.label : 'Semestral' }}
+                                            <ChevronsUpDown class="h-4 w-4 opacity-50" />
+                                        </Button>
+                                    </ComboboxTrigger>
+                                </ComboboxAnchor>
+
+                                <ComboboxList class="w-[var(--reka-combobox-trigger-width)] min-w-[200px] bg-white dark:bg-slate-950 border border-slate-100 dark:border-slate-900 rounded-lg shadow-lg">
+                                    <ComboboxInput placeholder="Buscar tipo..." class="w-full border-0 border-b border-slate-105 dark:border-slate-850 bg-transparent text-sm focus:ring-0 py-2.5 px-3" />
+                                    <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron tipos.</ComboboxEmpty>
+                                    <ComboboxGroup class="p-1">
+                                        <ComboboxItem :value="{ value: 'semestral', label: 'Semestral' }" class="flex items-center justify-between px-3 py-2 text-sm rounded-md cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 data-[state=checked]:bg-slate-100 dark:data-[state=checked]:bg-slate-800">
+                                            Semestral
+                                            <ComboboxItemIndicator>
+                                                <Check class="h-4 w-4 text-indigo-650" />
+                                            </ComboboxItemIndicator>
+                                        </ComboboxItem>
+                                        <ComboboxItem :value="{ value: 'anual', label: 'Anual' }" class="flex items-center justify-between px-3 py-2 text-sm rounded-md cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 data-[state=checked]:bg-slate-100 dark:data-[state=checked]:bg-slate-800">
+                                            Anual
+                                            <ComboboxItemIndicator>
+                                                <Check class="h-4 w-4 text-indigo-650" />
+                                            </ComboboxItemIndicator>
+                                        </ComboboxItem>
+                                    </ComboboxGroup>
+                                </ComboboxList>
+                            </Combobox>
                         </div>
 
                         <div class="flex justify-end gap-3 border-t border-slate-100 pt-4 mt-6 dark:border-slate-850">
