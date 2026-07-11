@@ -31,7 +31,7 @@ interface UserColumnsOptions {
 }
 
 const getRoleBadgeClass = (rolName: string) => {
-    if (rolName === 'administrador') return 'bg-purple-50 text-purple-800 dark:bg-purple-950/30 dark:text-purple-400';
+    if (rolName === 'SystemAdministrador') return 'bg-purple-50 text-purple-800 dark:bg-purple-950/30 dark:text-purple-400';
     if (rolName === 'secretaria') return 'bg-pink-50 text-pink-800 dark:bg-pink-950/30 dark:text-pink-400';
     if (rolName === 'coordinador') return 'bg-blue-50 text-blue-800 dark:bg-blue-950/30 dark:text-blue-400';
     if (rolName === 'docente') return 'bg-orange-50 text-docente dark:bg-orange-950/30 dark:text-orange-400';

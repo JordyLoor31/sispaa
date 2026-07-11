@@ -129,7 +129,10 @@ Route::middleware(['auth', 'verified'])
 
 
 // PORTAL DEL ESTUDIANTE (Rutas específicas para el estudiante)
-Route::middleware(['auth', 'verified', 'role:estudiante'])
+// Nota: 'role:' de Spatie no respeta el Gate::before bypass de SystemAdministrador
+// (ese bypass solo cubre Gate::allows()/permission:), por eso se agrega explícitamente
+// como alternativa aquí para que pueda entrar a cualquier vista que ve en el Sidebar.
+Route::middleware(['auth', 'verified', 'role:estudiante|SystemAdministrador'])
     ->prefix('estudiante')
     ->name('student.')
     ->group(function () {
@@ -149,8 +152,8 @@ Route::middleware(['auth', 'verified', 'role:estudiante'])
         Route::post('/notificaciones/read', [\App\Http\Controllers\Estudiantes\StudentPortalController::class, 'readNotificaciones'])->name('notificaciones.read');
     });
 
-// PORTAL DEL ADMINISTRADOR (Rutas específicas para el administrador)
-Route::middleware(['auth', 'verified', 'role:administrador'])
+// PORTAL DEL ADMINISTRADOR (Rutas específicas para SystemAdministrador)
+Route::middleware(['auth', 'verified', 'role:SystemAdministrador'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
@@ -179,7 +182,7 @@ Route::middleware(['auth', 'verified', 'role:administrador'])
 
 
 // SECRETARÍA
-Route::middleware(['auth', 'verified', 'role:secretaria'])
+Route::middleware(['auth', 'verified', 'role:secretaria|SystemAdministrador'])
     ->prefix('secretaria')
     ->name('secretaria.')
     ->group(function () {
@@ -203,6 +206,32 @@ Route::middleware(['auth', 'verified', 'role:secretaria'])
             ->name('matriculas.store');
         Route::patch('/matriculas/{matricula}/estado', [SecretariaController::class, 'matriculaUpdateEstado'])
             ->name('matriculas.update-estado');
+
+        // Convocatorias
+        Route::get('/convocatorias', [SecretariaController::class, 'convocatoriasIndex'])
+            ->name('convocatorias.index');
+        Route::post('/convocatorias', [SecretariaController::class, 'convocatoriaStore'])
+            ->name('convocatorias.store');
+        Route::put('/convocatorias/{convocatoria}', [SecretariaController::class, 'convocatoriaUpdate'])
+            ->name('convocatorias.update');
+        Route::delete('/convocatorias/{convocatoria}', [SecretariaController::class, 'convocatoriaDestroy'])
+            ->name('convocatorias.destroy');
+
+        // Grupos de Documentos
+        Route::get('/grupos-documentos', [SecretariaController::class, 'gruposDocumentosIndex'])
+            ->name('grupos-documentos.index');
+        Route::post('/grupos-documentos', [SecretariaController::class, 'grupoDocumentoStore'])
+            ->name('grupos-documentos.store');
+        Route::post('/grupos-documentos/{grupo}/requisitos', [SecretariaController::class, 'requisitoStore'])
+            ->name('grupos-documentos.requisitos.store');
+        Route::post('/grupos-documentos/{grupo}/toggle', [SecretariaController::class, 'grupoDocumentoToggle'])
+            ->name('grupos-documentos.toggle');
+
+        // Notificaciones Masivas
+        Route::get('/notificaciones-masivas', [SecretariaController::class, 'notificacionesMasivasIndex'])
+            ->name('notificaciones-masivas.index');
+        Route::post('/notificaciones-masivas', [SecretariaController::class, 'notificacionesMasivasStore'])
+            ->name('notificaciones-masivas.store');
     });
 
 

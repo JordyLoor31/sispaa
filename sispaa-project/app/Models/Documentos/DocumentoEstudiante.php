@@ -14,6 +14,9 @@ class DocumentoEstudiante extends Model
     protected $fillable = [
         'estudiante_id',
         'secretaria_id',
+        'grupo_id',
+        'requisito_id',
+        'convocatoria_id',
         'tipo_documento',
         'archivo_url',
         'estado',
@@ -35,6 +38,21 @@ class DocumentoEstudiante extends Model
     public function secretaria()
     {
         return $this->belongsTo(\App\Models\User::class, 'secretaria_id');
+    }
+
+    public function grupo()
+    {
+        return $this->belongsTo(GrupoDocumento::class, 'grupo_id');
+    }
+
+    public function requisito()
+    {
+        return $this->belongsTo(RequisitoGrupo::class, 'requisito_id');
+    }
+
+    public function convocatoria()
+    {
+        return $this->belongsTo(\App\Models\Admin\Convocatoria::class, 'convocatoria_id');
     }
 
     /**

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Estudiantes;
 
 use App\Http\Controllers\Controller;
 use App\Models\Documentos\DocumentoEstudiante;
+use App\Models\Documentos\RequisitoGrupo;
 use App\Models\Estudiantes\Falta;
 use App\Models\Estudiantes\JustificacionSolicitud;
 use App\Models\Titulacion\Titulacion;
@@ -17,6 +18,21 @@ use Inertia\Response;
 
 class StudentPortalController extends Controller
 {
+    /**
+     * Requisitos de documento activos, tomados del catálogo dinámico
+     * (Grupos de Documentos / Requisitos) que gestiona Secretaría, en vez de
+     * un arreglo fijo en código. Devuelve los nombres en el orden definido
+     * por cada grupo/requisito.
+     */
+    private function requisitosActivos()
+    {
+        return RequisitoGrupo::where('activo', true)
+            ->whereHas('grupo', fn ($q) => $q->where('activo', true))
+            ->orderBy('grupo_id')
+            ->orderBy('orden')
+            ->pluck('nombre');
+    }
+
     /**
      * Dashboard Principal del Estudiante
      */
@@ -36,26 +52,21 @@ class StudentPortalController extends Controller
             ->whereDoesntHave('justificacion')
             ->count();
 
-        // 3. Expediente SGA (4 tipos obligatorios)
-        $tiposSGA = [
-            'Cédula y Papeleta de Votación',
-            'Título de Bachiller',
-            'Solicitud de Matrícula',
-            'Ficha Socioeconómica'
-        ];
+        // 3. Expediente de documentos (catálogo dinámico gestionado por Secretaría)
+        $tiposRequeridos = $this->requisitosActivos();
 
         $documentosSubidos = DocumentoEstudiante::where('estudiante_id', $user->id)
-            ->whereIn('tipo_documento', $tiposSGA)
+            ->whereIn('tipo_documento', $tiposRequeridos)
             ->get()
             ->keyBy('tipo_documento');
 
         $aprobadosCount = 0;
-        foreach ($tiposSGA as $tipo) {
+        foreach ($tiposRequeridos as $tipo) {
             if (isset($documentosSubidos[$tipo]) && $documentosSubidos[$tipo]->estado === 'aprobado') {
                 $aprobadosCount++;
             }
         }
-        $avanceSGA = round(($aprobadosCount / count($tiposSGA)) * 100);
+        $avanceSGA = $tiposRequeridos->count() > 0 ? round(($aprobadosCount / $tiposRequeridos->count()) * 100) : 0;
 
         // 4. Actividades recientes/KPIs
         $kpis = [
@@ -87,20 +98,15 @@ class StudentPortalController extends Controller
     public function documentos(): Response
     {
         $user = Auth::user();
-        $tiposSGA = [
-            'Cédula y Papeleta de Votación',
-            'Título de Bachiller',
-            'Solicitud de Matrícula',
-            'Ficha Socioeconómica'
-        ];
+        $tiposRequeridos = $this->requisitosActivos();
 
         $documentosDb = DocumentoEstudiante::where('estudiante_id', $user->id)
-            ->whereIn('tipo_documento', $tiposSGA)
+            ->whereIn('tipo_documento', $tiposRequeridos)
             ->get()
             ->keyBy('tipo_documento');
 
         $expediente = [];
-        foreach ($tiposSGA as $tipo) {
+        foreach ($tiposRequeridos as $tipo) {
             if (isset($documentosDb[$tipo])) {
                 $doc = $documentosDb[$tipo];
                 // archivo_url es JSON: {"path":"...","name":"...","size":...}
@@ -140,6 +146,13 @@ class StudentPortalController extends Controller
             'archivo' => 'required|file|mimes:pdf,jpg,png,jpeg|max:5120', // Max 5MB
         ]);
 
+        // Resolver a qué requisito del catálogo dinámico corresponde este tipo,
+        // para dejar el documento enlazado a su grupo/requisito (además del
+        // campo de texto tipo_documento, que se conserva por compatibilidad).
+        $requisito = RequisitoGrupo::where('nombre', $request->tipo_documento)
+            ->where('activo', true)
+            ->first();
+
         $user = Auth::user();
         $file = $request->file('archivo');
 
@@ -177,6 +190,8 @@ class StudentPortalController extends Controller
                 'estado'       => 'pendiente',
                 'observacion'  => null,
                 'reviewed_at'  => null,
+                'grupo_id'     => $requisito?->grupo_id,
+                'requisito_id' => $requisito?->id,
             ]);
         } else {
             DocumentoEstudiante::create([
@@ -185,6 +200,8 @@ class StudentPortalController extends Controller
                 'archivo_url'    => $archivoJson,
                 'estado'         => 'pendiente',
                 'observacion'    => null,
+                'grupo_id'       => $requisito?->grupo_id,
+                'requisito_id'   => $requisito?->id,
             ]);
         }
 

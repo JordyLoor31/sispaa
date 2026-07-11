@@ -5,9 +5,17 @@ import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
 import { ChevronRight } from 'lucide-vue-next';
 
-defineProps<{
-    items: NavItem[];
-}>();
+withDefaults(
+    defineProps<{
+        items: NavItem[];
+        label?: string;
+        hideLabel?: boolean;
+    }>(),
+    {
+        label: 'Menú',
+        hideLabel: false,
+    },
+);
 
 const page = usePage<SharedData & Record<string, unknown>>();
 
@@ -44,7 +52,7 @@ const isItemOpen = (item: NavItem) => {
 
 <template>
     <SidebarGroup class="px-2 py-0">
-        <SidebarGroupLabel>Platform</SidebarGroupLabel>
+        <SidebarGroupLabel v-if="!hideLabel">{{ label }}</SidebarGroupLabel>
         <SidebarMenu>
             <template v-for="item in items" :key="item.title">
                 <Collapsible v-if="item.items && item.items.length > 0" :default-open="isItemOpen(item)" class="group/collapsible">

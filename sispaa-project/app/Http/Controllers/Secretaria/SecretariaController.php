@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Secretaria;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin\Convocatoria;
 use App\Models\Admin\Notificacion;
 use App\Models\Admin\PeriodoAcademico;
 use App\Models\Admin\Carrera;
 use App\Models\Documentos\DocumentoEstudiante;
+use App\Models\Documentos\GrupoDocumento;
+use App\Models\Documentos\RequisitoGrupo;
 use App\Models\Estudiantes\JustificacionSolicitud;
 use App\Models\Estudiantes\Matricula;
 use App\Models\User;
@@ -15,6 +18,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
+use Spatie\Permission\Models\Role;
 
 class SecretariaController extends Controller
 {
@@ -387,5 +391,214 @@ class SecretariaController extends Controller
         ]);
 
         return redirect()->back()->with('success', "Estado de matrícula actualizado a \"{$request->estado}\".");
+    }
+
+    // ─────────────────────────────────────────────
+    // 4. CONVOCATORIAS (fechas límite por módulo)
+    // ─────────────────────────────────────────────
+
+    public function convocatoriasIndex(Request $request): Response
+    {
+        $modulo = $request->input('modulo', 'all');
+
+        $query = Convocatoria::with('creadoPor')->orderBy('fecha_fin', 'desc');
+
+        if ($modulo && $modulo !== 'all') {
+            $query->where('modulo', $modulo);
+        }
+
+        return Inertia::render('Secretaria/Convocatorias', [
+            'convocatorias' => $query->get(),
+            'filters' => $request->only(['modulo']),
+            'modulos' => ['Académico', 'Titulación', 'Vinculación', 'Investigación', 'Laboratorio'],
+        ]);
+    }
+
+    public function convocatoriaStore(Request $request)
+    {
+        $request->validate([
+            'titulo' => 'required|string|max:255',
+            'descripcion' => 'nullable|string|max:1000',
+            'modulo' => 'required|string|max:100',
+            'tipo_documento' => 'nullable|string|max:255',
+            'fecha_inicio' => 'required|date',
+            'fecha_fin' => 'required|date|after_or_equal:fecha_inicio',
+        ]);
+
+        Convocatoria::create([
+            'titulo' => $request->titulo,
+            'descripcion' => $request->descripcion,
+            'modulo' => $request->modulo,
+            'tipo_documento' => $request->tipo_documento,
+            'fecha_inicio' => $request->fecha_inicio,
+            'fecha_fin' => $request->fecha_fin,
+            'creado_por' => Auth::id(),
+            'activa' => true,
+        ]);
+
+        return redirect()->back()->with('success', 'Convocatoria creada correctamente.');
+    }
+
+    public function convocatoriaUpdate(Request $request, Convocatoria $convocatoria)
+    {
+        $request->validate([
+            'titulo' => 'required|string|max:255',
+            'descripcion' => 'nullable|string|max:1000',
+            'modulo' => 'required|string|max:100',
+            'tipo_documento' => 'nullable|string|max:255',
+            'fecha_inicio' => 'required|date',
+            'fecha_fin' => 'required|date|after_or_equal:fecha_inicio',
+            'activa' => 'required|boolean',
+        ]);
+
+        $convocatoria->update($request->only([
+            'titulo', 'descripcion', 'modulo', 'tipo_documento', 'fecha_inicio', 'fecha_fin', 'activa',
+        ]));
+
+        return redirect()->back()->with('success', 'Convocatoria actualizada correctamente.');
+    }
+
+    public function convocatoriaDestroy(Convocatoria $convocatoria)
+    {
+        $convocatoria->delete();
+
+        return redirect()->back()->with('success', 'Convocatoria eliminada correctamente.');
+    }
+
+    // ─────────────────────────────────────────────
+    // 5. GRUPOS DE DOCUMENTOS (catálogo dinámico de requisitos)
+    // ─────────────────────────────────────────────
+
+    public function gruposDocumentosIndex(): Response
+    {
+        $grupos = GrupoDocumento::with(['requisitos', 'creadoPor'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return Inertia::render('Secretaria/GruposDocumentos', [
+            'grupos' => $grupos,
+        ]);
+    }
+
+    public function grupoDocumentoStore(Request $request)
+    {
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+            'descripcion' => 'nullable|string|max:1000',
+            'requisitos' => 'required|array|min:1',
+            'requisitos.*' => 'required|string|max:255',
+        ]);
+
+        $grupo = GrupoDocumento::create([
+            'nombre' => $request->nombre,
+            'descripcion' => $request->descripcion,
+            'creado_por' => Auth::id(),
+            'activo' => true,
+        ]);
+
+        foreach ($request->requisitos as $orden => $nombreRequisito) {
+            RequisitoGrupo::create([
+                'grupo_id' => $grupo->id,
+                'nombre' => $nombreRequisito,
+                'orden' => $orden,
+                'activo' => true,
+            ]);
+        }
+
+        // Notificar a todos los estudiantes activos que hay un nuevo grupo de requisitos
+        $estudiantes = User::role('estudiante')->where('is_active', true)->get(['id']);
+        $ahora = now();
+        $notificaciones = $estudiantes->map(fn ($estudiante) => [
+            'user_id' => $estudiante->id,
+            'titulo' => 'Nuevo grupo de documentos requeridos',
+            'mensaje' => "Se habilitó el grupo \"{$grupo->nombre}\" con nuevos documentos que debes cargar. Revisa la sección Mis Documentos.",
+            'leido' => false,
+            'created_at' => $ahora,
+            'updated_at' => $ahora,
+        ])->all();
+
+        if (!empty($notificaciones)) {
+            Notificacion::insert($notificaciones);
+        }
+
+        return redirect()->back()->with('success', 'Grupo de documentos creado y estudiantes notificados.');
+    }
+
+    public function requisitoStore(Request $request, GrupoDocumento $grupo)
+    {
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+        ]);
+
+        $ordenMax = $grupo->requisitos()->max('orden') ?? -1;
+
+        RequisitoGrupo::create([
+            'grupo_id' => $grupo->id,
+            'nombre' => $request->nombre,
+            'orden' => $ordenMax + 1,
+            'activo' => true,
+        ]);
+
+        return redirect()->back()->with('success', 'Requisito agregado al grupo.');
+    }
+
+    public function grupoDocumentoToggle(GrupoDocumento $grupo)
+    {
+        $grupo->update(['activo' => !$grupo->activo]);
+
+        return redirect()->back()->with('success', $grupo->activo
+            ? 'Grupo activado correctamente.'
+            : 'Grupo desactivado correctamente.');
+    }
+
+    // ─────────────────────────────────────────────
+    // 6. NOTIFICACIONES MASIVAS
+    // ─────────────────────────────────────────────
+
+    public function notificacionesMasivasIndex(): Response
+    {
+        // Historial agrupado por título+mensaje+minuto de envío (igual al criterio
+        // usado en el sistema Next.js origen para reconstruir "envíos masivos"
+        // a partir de filas individuales de la tabla de notificaciones).
+        $historial = Notificacion::selectRaw("titulo, mensaje, date_trunc('minute', created_at) as enviado_en, count(*) as total_destinatarios")
+            ->groupBy('titulo', 'mensaje', 'enviado_en')
+            ->orderByDesc('enviado_en')
+            ->limit(50)
+            ->get();
+
+        return Inertia::render('Secretaria/NotificacionesMasivas', [
+            'historial' => $historial,
+            'roles' => Role::pluck('name'),
+        ]);
+    }
+
+    public function notificacionesMasivasStore(Request $request)
+    {
+        $request->validate([
+            'titulo' => 'required|string|max:255',
+            'mensaje' => 'required|string|max:1000',
+            'roles' => 'required|array|min:1',
+            'roles.*' => 'required|string|exists:roles,name',
+        ]);
+
+        $destinatarios = User::role($request->roles)
+            ->where('id', '!=', Auth::id())
+            ->get(['id']);
+
+        $ahora = now();
+        $notificaciones = $destinatarios->map(fn ($user) => [
+            'user_id' => $user->id,
+            'titulo' => $request->titulo,
+            'mensaje' => $request->mensaje,
+            'leido' => false,
+            'created_at' => $ahora,
+            'updated_at' => $ahora,
+        ])->all();
+
+        if (!empty($notificaciones)) {
+            Notificacion::insert($notificaciones);
+        }
+
+        return redirect()->back()->with('success', 'Notificación enviada a ' . count($notificaciones) . ' usuario(s).');
     }
 }

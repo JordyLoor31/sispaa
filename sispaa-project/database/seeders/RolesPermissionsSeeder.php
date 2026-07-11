@@ -26,6 +26,9 @@ class RolesPermissionsSeeder extends Seeder
             'expediente.review',
             'justificaciones.review',
             'matriculas.manage',
+            'convocatorias.manage',
+            'grupos_documentos.manage',
+            'notificaciones.manage-masivas',
         ];
 
         $docentePermissions = [
@@ -66,7 +69,10 @@ class RolesPermissionsSeeder extends Seeder
         }
 
         // 3. Crear roles y asignar sus respectivos permisos
-        $adminRole = Role::findOrCreate('administrador', 'web');
+        // 'SystemAdministrador' es el rol raíz del sistema (RBAC): además de sus
+        // permisos propios, tiene bypass total vía Gate::before (ver AppServiceProvider),
+        // por lo que siempre ve todas las opciones del Sidebar sin importar permisos.
+        $adminRole = Role::findOrCreate('SystemAdministrador', 'web');
         $adminRole->syncPermissions($adminPermissions);
 
         $secretariaRole = Role::findOrCreate('secretaria', 'web');

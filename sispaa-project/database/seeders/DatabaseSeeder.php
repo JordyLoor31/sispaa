@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
         $this->call(MateriasSeeder::class);
         $this->call(RolesPermissionsSeeder::class);
 
-        // 1. Crear Administrador de Prueba
+        // 1. Crear SystemAdministrador de Prueba
         $admin = User::firstOrCreate(
             ['email' => 'test@example.com'],
             [
@@ -26,7 +26,7 @@ class DatabaseSeeder extends Seeder
                 'email_verified_at' => now(),
             ]
         );
-        $admin->syncRoles(['administrador']);
+        $admin->syncRoles(['SystemAdministrador']);
 
         // 2. Crear Secretaria de Prueba
         $secretaria = User::firstOrCreate(
