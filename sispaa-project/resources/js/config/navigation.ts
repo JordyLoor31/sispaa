@@ -11,7 +11,7 @@
 // "todo" de SystemAdministrador.
 
 import { type NavItem } from '@/types';
-import { Bell, Book, BookOpen, Calendar, Feather, FileText, FlaskConical, FolderOpen, GraduationCap, Handshake, LayoutGrid, Megaphone, Search, User } from 'lucide-vue-next';
+import { BarChart3, Bell, Book, BookOpen, Calendar, Feather, FileText, FlaskConical, FolderOpen, GraduationCap, Handshake, LayoutGrid, Megaphone, Search, User } from 'lucide-vue-next';
 
 /** Nombres de rol tal como están sembrados en Spatie (roles.name). */
 export const ROLES = {
@@ -139,6 +139,11 @@ export const secretariaNavItems: NavItem[] = [
         title: 'Notificaciones Masivas',
         href: route('secretaria.notificaciones-masivas.index'),
         icon: Bell,
+    },
+    {
+        title: 'Reportes',
+        href: route('reportes.index'),
+        icon: BarChart3,
     },
 ];
 

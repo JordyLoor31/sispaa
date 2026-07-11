@@ -7,6 +7,7 @@ use App\Http\Controllers\Docencia\DocenteController;
 use App\Http\Controllers\Docencia\SilaboController;
 use App\Http\Controllers\Investigacion\InvestigacionController;
 use App\Http\Controllers\Laboratorio\LaboratorioController;
+use App\Http\Controllers\Reportes\ReporteController;
 use App\Http\Controllers\Secretaria\SecretariaController;
 use App\Http\Controllers\Titulacion\TitulacionController;
 use App\Http\Controllers\Vinculacion\VinculacionController;
@@ -159,6 +160,18 @@ Route::middleware(['auth', 'verified', 'role:coordinador|SystemAdministrador'])
         Route::post('/empresas-beneficiadas', [VinculacionController::class, 'storeEmpresa'])->name('empresas.store');
         Route::put('/empresas-beneficiadas/{empresa}', [VinculacionController::class, 'updateEmpresa'])->name('empresas.update');
         Route::delete('/empresas-beneficiadas/{empresa}', [VinculacionController::class, 'destroyEmpresa'])->name('empresas.destroy');
+    });
+
+
+// REPORTES (exportación CSV/XLSX/PDF; solo Secretaría y SystemAdministrador)
+Route::middleware(['auth', 'verified', 'role:secretaria|SystemAdministrador'])
+    ->prefix('reportes')
+    ->name('reportes.')
+    ->group(function () {
+        Route::get('/', [ReporteController::class, 'index'])->name('index');
+        Route::get('/export/csv', [ReporteController::class, 'exportCsv'])->name('export.csv');
+        Route::get('/export/xlsx', [ReporteController::class, 'exportXlsx'])->name('export.xlsx');
+        Route::get('/export/pdf', [ReporteController::class, 'exportPdf'])->name('export.pdf');
     });
 
 
