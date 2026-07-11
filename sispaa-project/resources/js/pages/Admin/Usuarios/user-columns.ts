@@ -69,18 +69,24 @@ export function makeUserColumns({ onEdit, onToggleStatus }: UserColumnsOptions):
         },
         {
             id: 'rol',
-            header: 'Rol',
+            header: 'Roles',
             cell: ({ row }) => {
                 const user = row.original;
-                const rolName = user.roles[0]?.name || 'Ninguno';
-                const formattedRol = rolName.charAt(0).toUpperCase() + rolName.slice(1);
 
-                return h('span', {
-                    class: `inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${getRoleBadgeClass(rolName)}`,
-                }, [
-                    h(Shield, { class: 'h-3 w-3' }),
-                    formattedRol,
-                ]);
+                if (user.roles.length === 0) {
+                    return h('span', { class: 'text-xs text-slate-400' }, 'Ninguno');
+                }
+
+                return h('div', { class: 'flex flex-wrap gap-1' }, user.roles.map((rol) => {
+                    const formattedRol = rol.name.charAt(0).toUpperCase() + rol.name.slice(1);
+                    return h('span', {
+                        key: rol.id,
+                        class: `inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${getRoleBadgeClass(rol.name)}`,
+                    }, [
+                        h(Shield, { class: 'h-3 w-3' }),
+                        formattedRol,
+                    ]);
+                }));
             },
         },
         {

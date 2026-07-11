@@ -11,7 +11,7 @@
 // "todo" de SystemAdministrador.
 
 import { type NavItem } from '@/types';
-import { Bell, Book, Calendar, Feather, FileText, FlaskConical, FolderOpen, GraduationCap, Handshake, LayoutGrid, Megaphone, Search, User } from 'lucide-vue-next';
+import { Bell, Book, BookOpen, Calendar, Feather, FileText, FlaskConical, FolderOpen, GraduationCap, Handshake, LayoutGrid, Megaphone, Search, User } from 'lucide-vue-next';
 
 /** Nombres de rol tal como están sembrados en Spatie (roles.name). */
 export const ROLES = {
@@ -52,18 +52,17 @@ export const systemAdministradorNavItems: NavItem[] = [
 export const docenteNavItems: NavItem[] = [
     {
         title: 'Docencia',
-        href: '/docencia',
+        href: route('docencia.mis-silabos'),
         icon: Feather,
         items: [
-            { title: 'Informes de asignatura', href: '/docencia/informes-asignatura' },
-            { title: 'Informes de sílabo', href: '/docencia/informes-silabo' },
+            { title: 'Mis Sílabos', href: route('docencia.mis-silabos') },
+            { title: 'Mis Informes de Asignatura', href: route('docencia.mis-informes') },
         ],
     },
     {
         title: 'Investigación',
-        href: '/investigacion',
+        href: route('investigacion.index'),
         icon: Search,
-        items: [{ title: 'Informes', href: '/investigacion/informes' }],
     },
     {
         title: 'Laboratorio',
@@ -71,34 +70,34 @@ export const docenteNavItems: NavItem[] = [
         icon: FlaskConical,
         items: [
             { title: 'Dashboard', href: route('laboratorio.index') },
-            { title: 'Registro prácticas', href: route('laboratorio.create') },
             { title: 'Prácticas', href: route('laboratorio.practicas') },
+            { title: 'Laboratorios', href: route('laboratorio.laboratorios') },
+            { title: 'Equipos', href: route('laboratorio.equipos') },
+            { title: 'Reactivos', href: route('laboratorio.reactivos') },
             { title: 'Por carrera', href: route('laboratorio.porCarrera') },
-            { title: 'Ubicaciones', href: route('laboratorio.ubicaciones') },
         ],
     },
 ];
 
-/** Rol Coordinador: titulación y vinculación. */
+/** Rol Coordinador: supervisión de investigación, titulación y vinculación. */
 export const coordinadorNavItems: NavItem[] = [
     {
+        title: 'Investigación',
+        href: route('investigacion.index'),
+        icon: Search,
+    },
+    {
         title: 'Titulación',
-        href: '/titulacion',
+        href: route('titulacion.index'),
         icon: GraduationCap,
-        items: [
-            { title: 'Temas en desarrollo', href: '/titulacion/temas-desarrollo' },
-            { title: 'Estudiantes en proceso', href: '/titulacion/estudiantes-titulacion' },
-            { title: 'Estudiantes titulados', href: '/titulacion/estudiantes-titulados' },
-        ],
     },
     {
         title: 'Vinculación',
-        href: '/vinculacion',
+        href: route('vinculacion.actividades'),
         icon: Handshake,
         items: [
-            { title: 'Líderes de vinculación', href: '/vinculacion/lideres' },
-            { title: 'Actividades', href: '/vinculacion/actividades' },
-            { title: 'Empresas beneficiadas', href: '/vinculacion/empresas-beneficiadas' },
+            { title: 'Actividades', href: route('vinculacion.actividades') },
+            { title: 'Empresas beneficiadas', href: route('vinculacion.empresas') },
         ],
     },
 ];
@@ -115,6 +114,11 @@ export const secretariaNavItems: NavItem[] = [
         title: 'Justificaciones',
         href: route('secretaria.justificaciones.index'),
         icon: Search,
+    },
+    {
+        title: 'Revisión de Sílabos',
+        href: route('secretaria.silabos.index'),
+        icon: BookOpen,
     },
     {
         title: 'Matrículas',
@@ -216,7 +220,9 @@ export const navByRole: Record<string, NavItem[]> = {
 /**
  * Resuelve qué debe pintar el Sidebar para un set de roles del usuario actual.
  * - SystemAdministrador -> modo "god view": grupos colapsables por rol.
- * - Cualquier otro rol reconocido -> lista plana de su propio rol.
+ * - Cualquier otro rol reconocido -> lista plana combinando los menús de
+ *   TODOS los roles que tenga (ej. alguien con docente + coordinador ve
+ *   ambos menús seguidos, no solo el primero que coincida).
  * - Sin rol reconocido -> solo la Vista general.
  */
 export function resolveSidebarNav(userRoles: string[] = []): { mode: 'grouped' | 'flat'; groups?: NavRoleGroup[]; items?: NavItem[] } {
@@ -224,7 +230,20 @@ export function resolveSidebarNav(userRoles: string[] = []): { mode: 'grouped' |
         return { mode: 'grouped', groups: roleNavGroups };
     }
 
-    const matchedRole = Object.keys(navByRole).find((role) => userRoles.includes(role));
+    const matchedRoles = Object.keys(navByRole).filter((role) => userRoles.includes(role));
 
-    return { mode: 'flat', items: matchedRole ? navByRole[matchedRole] : [] };
+    // Combina los items de cada rol coincidente evitando duplicar el mismo href
+    // (relevante para docente+coordinador, ambos con acceso a "Estudiantes").
+    const seenHrefs = new Set<string>();
+    const items: NavItem[] = [];
+    for (const role of matchedRoles) {
+        for (const item of navByRole[role]) {
+            const key = item.href ?? item.title;
+            if (seenHrefs.has(key)) continue;
+            seenHrefs.add(key);
+            items.push(item);
+        }
+    }
+
+    return { mode: 'flat', items };
 }

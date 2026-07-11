@@ -7,6 +7,7 @@ use App\Models\Admin\Convocatoria;
 use App\Models\Admin\Notificacion;
 use App\Models\Admin\PeriodoAcademico;
 use App\Models\Admin\Carrera;
+use App\Models\Docencia\Silabo;
 use App\Models\Documentos\DocumentoEstudiante;
 use App\Models\Documentos\GrupoDocumento;
 use App\Models\Documentos\RequisitoGrupo;
@@ -391,6 +392,104 @@ class SecretariaController extends Controller
         ]);
 
         return redirect()->back()->with('success', "Estado de matrícula actualizado a \"{$request->estado}\".");
+    }
+
+    // ─────────────────────────────────────────────
+    // 3.5. REVISIÓN DE SÍLABOS
+    // ─────────────────────────────────────────────
+
+    public function silabosIndex(Request $request): Response
+    {
+        $q = $request->input('q');
+        $estado = $request->input('estado', 'all');
+        $perPage = max(1, min(100, (int) $request->input('per_page', 15)));
+
+        $query = Silabo::with(['docente', 'materia.carrera', 'periodo'])
+            ->whereNull('deleted_at');
+
+        if ($q) {
+            $query->whereHas('docente', function ($w) use ($q) {
+                $w->where('name', 'like', "%{$q}%")
+                  ->orWhere('email', 'like', "%{$q}%");
+            });
+        }
+
+        if ($estado && $estado !== 'all') {
+            $query->where('estado', $estado);
+        }
+
+        $silabos = $query
+            ->orderByRaw("CASE estado WHEN 'subido' THEN 0 WHEN 'pendiente' THEN 1 ELSE 2 END")
+            ->orderBy('fecha_subida', 'desc')
+            ->paginate($perPage)
+            ->withQueryString()
+            ->through(fn ($s) => [
+                'id' => $s->id,
+                'estado' => $s->estado,
+                'archivo_url' => $s->archivo_url,
+                'observaciones' => $s->observaciones,
+                'fecha_subida' => $s->fecha_subida?->format('d/m/Y H:i'),
+                'docente' => [
+                    'id' => $s->docente->id,
+                    'name' => $s->docente->name,
+                    'email' => $s->docente->email,
+                ],
+                'materia' => $s->materia->nombre,
+                'carrera' => $s->materia->carrera?->nombre,
+                'periodo' => $s->periodo->nombre,
+            ]);
+
+        return Inertia::render('Secretaria/Silabos', [
+            'silabos' => $silabos,
+            'filters' => $request->only(['q', 'estado', 'per_page']),
+            'stats' => [
+                'pendientes' => Silabo::whereIn('estado', ['pendiente', 'subido'])->count(),
+                'aprobados' => Silabo::where('estado', 'aprobado')->count(),
+                'total' => Silabo::count(),
+            ],
+        ]);
+    }
+
+    public function silaboReview(Request $request, Silabo $silabo)
+    {
+        $request->validate([
+            'accion' => 'required|in:aprobar,rechazar',
+            'observaciones' => 'nullable|string|max:500',
+        ]);
+
+        if ($request->accion === 'rechazar') {
+            $request->validate([
+                'observaciones' => 'required|string|min:5|max:500',
+            ], [
+                'observaciones.required' => 'Debes indicar el motivo del rechazo.',
+            ]);
+        }
+
+        $nuevoEstado = $request->accion === 'aprobar' ? 'aprobado' : 'pendiente';
+
+        $silabo->update([
+            'estado' => $nuevoEstado,
+            'observaciones' => $request->observaciones,
+        ]);
+
+        $silabo->load('materia');
+
+        Notificacion::create([
+            'user_id' => $silabo->docente_id,
+            'titulo' => $nuevoEstado === 'aprobado'
+                ? "Sílabo aprobado: {$silabo->materia->nombre}"
+                : "Sílabo rechazado: {$silabo->materia->nombre}",
+            'mensaje' => $nuevoEstado === 'aprobado'
+                ? "Tu sílabo de \"{$silabo->materia->nombre}\" ha sido aprobado por Secretaría."
+                : "Tu sílabo de \"{$silabo->materia->nombre}\" fue rechazado. Motivo: {$request->observaciones}. Vuelve a subirlo corregido.",
+            'leido' => false,
+        ]);
+
+        return redirect()->back()->with('success',
+            $nuevoEstado === 'aprobado'
+                ? 'Sílabo aprobado correctamente.'
+                : 'Sílabo rechazado. Se ha notificado al docente.'
+        );
     }
 
     // ─────────────────────────────────────────────

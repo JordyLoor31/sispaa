@@ -116,17 +116,38 @@ class AdminPortalController extends Controller
         ]);
     }
 
+    /**
+     * Valida el arreglo de roles a asignar, incluyendo reglas de negocio de
+     * jerarquía (ej. 'coordinador' solo se puede otorgar a alguien que
+     * también tenga 'docente' — es un rol adicional, no un reemplazo).
+     */
+    private function validateRolesAssignment(Request $request): void
+    {
+        $request->validate([
+            'roles' => 'required|array|min:1',
+            'roles.*' => 'required|string|exists:roles,name',
+        ], [
+            'roles.required' => 'Selecciona al menos un rol.',
+        ]);
+
+        if (in_array('coordinador', $request->roles, true) && !in_array('docente', $request->roles, true)) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'roles' => 'El rol Coordinador solo se puede asignar a un usuario que también tenga el rol Docente.',
+            ]);
+        }
+    }
+
     public function usuariosStore(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
-            'role' => 'required|exists:roles,name',
             'cedula' => 'nullable|string|max:10|unique:users',
             'telefono' => 'nullable|string|max:15',
             'carrera_id' => 'nullable|exists:carreras,id',
         ]);
+        $this->validateRolesAssignment($request);
 
         $user = User::create([
             'name' => $request->name,
@@ -138,7 +159,7 @@ class AdminPortalController extends Controller
             'is_active' => true,
         ]);
 
-        $user->assignRole($request->role);
+        $user->syncRoles($request->roles);
 
         return redirect()->back()->with('success', 'Usuario creado correctamente.');
     }
@@ -148,11 +169,11 @@ class AdminPortalController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-            'role' => 'required|exists:roles,name',
             'cedula' => 'nullable|string|max:10|unique:users,cedula,' . $user->id,
             'telefono' => 'nullable|string|max:15',
             'carrera_id' => 'nullable|exists:carreras,id',
         ]);
+        $this->validateRolesAssignment($request);
 
         $user->update([
             'name' => $request->name,
@@ -162,7 +183,7 @@ class AdminPortalController extends Controller
             'carrera_id' => $request->carrera_id,
         ]);
 
-        $user->syncRoles([$request->role]);
+        $user->syncRoles($request->roles);
 
         return redirect()->back()->with('success', 'Usuario actualizado correctamente.');
     }

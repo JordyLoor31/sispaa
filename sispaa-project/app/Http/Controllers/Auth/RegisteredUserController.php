@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin\Notificacion;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -32,14 +33,32 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'cedula' => 'required|digits:10|unique:'.User::class,
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ], [
+            'cedula.digits' => 'La cédula debe tener exactamente 10 dígitos.',
+            'cedula.unique' => 'Esta cédula ya está registrada.',
         ]);
 
         $user = User::create([
             'name' => $request->name,
+            'cedula' => $request->cedula,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'is_active' => true,
+        ]);
+
+        // Todo registro público es un ESTUDIANTE (igual que en el sistema origen:
+        // no existe un formulario público para crear Docente/Coordinador/Secretaría/
+        // SystemAdministrador; esos roles solo se asignan desde Administración).
+        $user->assignRole('estudiante');
+
+        Notificacion::create([
+            'user_id' => $user->id,
+            'titulo' => '¡Bienvenido/a a SISPAA!',
+            'mensaje' => "Hola {$user->name}, tu cuenta fue creada correctamente. Ya puedes revisar tus documentos, matrículas y notificaciones desde tu panel de estudiante.",
+            'leido' => false,
         ]);
 
         event(new Registered($user));

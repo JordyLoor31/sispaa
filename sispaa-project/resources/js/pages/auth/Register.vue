@@ -10,6 +10,7 @@ import { LoaderCircle } from 'lucide-vue-next';
 
 const form = useForm({
     name: '',
+    cedula: '',
     email: '',
     password: '',
     password_confirmation: '',
@@ -45,8 +46,25 @@ const submit = () => {
                 </div>
 
                 <div class="grid gap-2">
+                    <Label for="cedula" class="text-[var(--sispaa-text)]">Cédula</Label>
+                    <Input
+                        id="cedula"
+                        type="text"
+                        inputmode="numeric"
+                        maxlength="10"
+                        required
+                        tabindex="2"
+                        autocomplete="off"
+                        v-model="form.cedula"
+                        placeholder="10 dígitos"
+                        class="border-[var(--sispaa-text)]/20 focus-visible:ring-[var(--sispaa-primary)]"
+                    />
+                    <InputError :message="form.errors.cedula" />
+                </div>
+
+                <div class="grid gap-2">
                     <Label for="email" class="text-[var(--sispaa-text)]">Correo electrónico</Label>
-                    <Input id="email" type="email" required tabindex="2" autocomplete="email" v-model="form.email" placeholder="email@ejemplo.com" class="border-[var(--sispaa-text)]/20 focus-visible:ring-[var(--sispaa-primary)]" />
+                    <Input id="email" type="email" required tabindex="3" autocomplete="email" v-model="form.email" placeholder="email@ejemplo.com" class="border-[var(--sispaa-text)]/20 focus-visible:ring-[var(--sispaa-primary)]" />
                     <InputError :message="form.errors.email" />
                 </div>
 
@@ -56,7 +74,7 @@ const submit = () => {
                         id="password"
                         type="password"
                         required
-                        tabindex="3"
+                        tabindex="4"
                         autocomplete="new-password"
                         v-model="form.password"
                         placeholder="********"
@@ -71,7 +89,7 @@ const submit = () => {
                         id="password_confirmation"
                         type="password"
                         required
-                        tabindex="4"
+                        tabindex="5"
                         autocomplete="new-password"
                         v-model="form.password_confirmation"
                         placeholder="********"
@@ -80,7 +98,7 @@ const submit = () => {
                     <InputError :message="form.errors.password_confirmation" />
                 </div>
 
-                <Button type="submit" class="mt-2 w-full bg-[var(--sispaa-primary)] text-white hover:bg-[var(--sispaa-primary)]/90" tabindex="5" :disabled="form.processing">
+                <Button type="submit" class="mt-2 w-full bg-[var(--sispaa-primary)] text-white hover:bg-[var(--sispaa-primary)]/90" tabindex="6" :disabled="form.processing">
                     <LoaderCircle v-if="form.processing" class="h-4 w-4 animate-spin" />
                     Crear cuenta
                 </Button>
@@ -88,7 +106,7 @@ const submit = () => {
 
             <div class="text-center text-sm text-[var(--sispaa-text)]/70">
                 ¿Ya tiene una cuenta?
-                <TextLink :href="route('login')" class="text-[var(--sispaa-primary)] font-semibold hover:underline" :tabindex="6">Iniciar sesión</TextLink>
+                <TextLink :href="route('login')" class="text-[var(--sispaa-primary)] font-semibold hover:underline" :tabindex="7">Iniciar sesión</TextLink>
             </div>
         </form>
     </AuthBase>

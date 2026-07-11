@@ -3,8 +3,13 @@
 use App\Http\Controllers\Estudiantes\EstudianteController;
 use App\Http\Controllers\Api\EstudiantesController as ApiEstudiantesController;
 use App\Http\Controllers\Api\CatalogsController as ApiCatalogsController;
+use App\Http\Controllers\Docencia\DocenteController;
+use App\Http\Controllers\Docencia\SilaboController;
+use App\Http\Controllers\Investigacion\InvestigacionController;
 use App\Http\Controllers\Laboratorio\LaboratorioController;
 use App\Http\Controllers\Secretaria\SecretariaController;
+use App\Http\Controllers\Titulacion\TitulacionController;
+use App\Http\Controllers\Vinculacion\VinculacionController;
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -50,81 +55,110 @@ Route::middleware(['auth', 'verified'])
     });
 
 
-// DOCENCIA
+// DOCENCIA (vista de gestión/coordinación, sin restricción de rol específica)
 Route::middleware(['auth', 'verified'])->prefix('docencia')->group(function () {
     Route::get('informes-asignatura', [\App\Http\Controllers\Admin\AdminPortalController::class, 'informesAsignatura'])
         ->name('docencia.informes-asignaturas');
 });
 
+// DOCENCIA - Autoservicio del Docente (Mis Sílabos / Mis Informes)
+Route::middleware(['auth', 'verified', 'role:docente|SystemAdministrador'])
+    ->prefix('docencia')
+    ->name('docencia.')
+    ->group(function () {
+        Route::get('/mis-silabos', [SilaboController::class, 'index'])->name('mis-silabos');
+        Route::post('/mis-silabos/upload', [SilaboController::class, 'store'])->name('mis-silabos.upload');
+
+        Route::get('/mis-informes', [DocenteController::class, 'informes'])->name('mis-informes');
+        Route::post('/mis-informes/upload', [DocenteController::class, 'storeInforme'])->name('mis-informes.upload');
+    });
+
+
+// INVESTIGACIÓN (docente: proyectos propios / coordinador: proyectos supervisados)
+Route::middleware(['auth', 'verified', 'role:docente|coordinador|SystemAdministrador'])
+    ->prefix('investigacion')
+    ->name('investigacion.')
+    ->group(function () {
+        Route::get('/', [InvestigacionController::class, 'index'])->name('index');
+        Route::post('/', [InvestigacionController::class, 'store'])->name('store');
+        Route::put('/{investigacion}', [InvestigacionController::class, 'update'])->name('update');
+        Route::delete('/{investigacion}', [InvestigacionController::class, 'destroy'])->name('destroy');
+
+        Route::get('/{investigacion}/hitos', [InvestigacionController::class, 'hitos'])->name('hitos');
+        Route::post('/{investigacion}/hitos', [InvestigacionController::class, 'storeHito'])->name('hitos.store');
+        Route::put('/hitos/{hito}', [InvestigacionController::class, 'updateHito'])->name('hitos.update');
+
+        Route::post('/{investigacion}/seguimiento', [InvestigacionController::class, 'storeSeguimiento'])->name('seguimiento.store');
+        Route::patch('/seguimiento/{seguimiento}/responder', [InvestigacionController::class, 'responderSeguimiento'])->name('seguimiento.responder');
+    });
+
 
 // LABORATORIO
-Route::middleware(['auth', 'verified'])
+Route::middleware(['auth', 'verified', 'role:docente|SystemAdministrador'])
     ->prefix('laboratorio')
     ->name('laboratorio.')
     ->group(function () {
+        Route::get('/', [LaboratorioController::class, 'index'])->name('index');
 
-        // Dashboard laboratorio
+        // Prácticas (listado + CRUD; el registro se hace desde un modal aquí mismo)
+        Route::get('/practicas', [LaboratorioController::class, 'practicas'])->name('practicas');
+        Route::post('/practicas', [LaboratorioController::class, 'storePractica'])->name('practicas.store');
+        Route::put('/practicas/{practica}', [LaboratorioController::class, 'updatePractica'])->name('practicas.update');
+        Route::delete('/practicas/{practica}', [LaboratorioController::class, 'destroyPractica'])->name('practicas.destroy');
 
-        Route::get('/', [LaboratorioController::class, 'index'])
-            ->name('index');
-
-        // Registro de prácticas
-
-        Route::get('/practicas', [LaboratorioController::class, 'practicas'])
-            ->name('practicas');
+        // Asistencia por práctica
+        Route::get('/practicas/{practica}/asistencia', [LaboratorioController::class, 'asistencia'])->name('practicas.asistencia');
+        Route::post('/practicas/{practica}/asistencia', [LaboratorioController::class, 'storeAsistencia'])->name('practicas.asistencia.store');
 
         // Reportes por carrera
+        Route::get('/por-carrera', [LaboratorioController::class, 'porCarrera'])->name('porCarrera');
 
-        Route::get('/por-carrera', [LaboratorioController::class, 'porCarrera'])
-            ->name('porCarrera');
+        // Laboratorios (espacios físicos; antes "Ubicaciones")
+        Route::get('/laboratorios', [LaboratorioController::class, 'laboratorios'])->name('laboratorios');
+        Route::post('/laboratorios', [LaboratorioController::class, 'storeLaboratorio'])->name('laboratorios.store');
+        Route::put('/laboratorios/{laboratorio}', [LaboratorioController::class, 'updateLaboratorio'])->name('laboratorios.update');
+        Route::delete('/laboratorios/{laboratorio}', [LaboratorioController::class, 'destroyLaboratorio'])->name('laboratorios.destroy');
 
-        // Ubicaciones
+        // Equipos
+        Route::get('/equipos', [LaboratorioController::class, 'equipos'])->name('equipos');
+        Route::post('/equipos', [LaboratorioController::class, 'storeEquipo'])->name('equipos.store');
+        Route::put('/equipos/{equipo}', [LaboratorioController::class, 'updateEquipo'])->name('equipos.update');
+        Route::delete('/equipos/{equipo}', [LaboratorioController::class, 'destroyEquipo'])->name('equipos.destroy');
 
-        Route::get('/ubicaciones', [LaboratorioController::class, 'ubicaciones'])
-            ->name('ubicaciones');
-
-        // Crear práctica
-
-        Route::get('/crear', [LaboratorioController::class, 'create'])
-            ->name('create');
+        // Reactivos
+        Route::get('/reactivos', [LaboratorioController::class, 'reactivos'])->name('reactivos');
+        Route::post('/reactivos', [LaboratorioController::class, 'storeReactivo'])->name('reactivos.store');
+        Route::put('/reactivos/{reactivo}', [LaboratorioController::class, 'updateReactivo'])->name('reactivos.update');
+        Route::delete('/reactivos/{reactivo}', [LaboratorioController::class, 'destroyReactivo'])->name('reactivos.destroy');
     });
 
 
-// TITULACIÓN
-Route::middleware(['auth', 'verified'])
+// TITULACIÓN (panel único del coordinador; consolida temas/en-proceso/graduados)
+Route::middleware(['auth', 'verified', 'role:coordinador|SystemAdministrador'])
     ->prefix('titulacion')
+    ->name('titulacion.')
     ->group(function () {
-
-        Route::get('/temas-desarrollo', function () {
-            return Inertia::render('Titulacion/Temas');
-        })->name('titulacion.temas-desarrollo');
-
-        Route::get('/estudiantes-titulacion', function () {
-            return Inertia::render('Titulacion/EnProceso');
-        })->name('titulacion.estudiantes-titulacion');
-
-        Route::get('/estudiantes-titulados', function () {
-            return Inertia::render('Titulacion/Graduados');
-        })->name('titulacion.estudiantes-titulados');
+        Route::get('/', [TitulacionController::class, 'index'])->name('index');
+        Route::post('/', [TitulacionController::class, 'store'])->name('store');
+        Route::put('/{titulacion}', [TitulacionController::class, 'update'])->name('update');
+        Route::delete('/{titulacion}', [TitulacionController::class, 'destroy'])->name('destroy');
     });
 
 
-// VINCULACIÓN
-Route::middleware(['auth', 'verified'])
+// VINCULACIÓN (líder de actividad se asigna dentro del propio formulario)
+Route::middleware(['auth', 'verified', 'role:coordinador|SystemAdministrador'])
     ->prefix('vinculacion')
+    ->name('vinculacion.')
     ->group(function () {
+        Route::get('/actividades', [VinculacionController::class, 'actividades'])->name('actividades');
+        Route::post('/actividades', [VinculacionController::class, 'storeActividad'])->name('actividades.store');
+        Route::put('/actividades/{actividad}', [VinculacionController::class, 'updateActividad'])->name('actividades.update');
+        Route::delete('/actividades/{actividad}', [VinculacionController::class, 'destroyActividad'])->name('actividades.destroy');
 
-        Route::get('/actividades', function () {
-            return Inertia::render('Vinculacion/Actividades');
-        })->name('vinculacion.actividades');
-
-        Route::get('/empresas-beneficiadas', function () {
-            return Inertia::render('Vinculacion/Empresas');
-        })->name('vinculacion.empresas');
-
-        Route::get('/lideres', function () {
-            return Inertia::render('Vinculacion/AsignarDocente');
-        })->name('vinculacion.lideres');
+        Route::get('/empresas-beneficiadas', [VinculacionController::class, 'empresas'])->name('empresas');
+        Route::post('/empresas-beneficiadas', [VinculacionController::class, 'storeEmpresa'])->name('empresas.store');
+        Route::put('/empresas-beneficiadas/{empresa}', [VinculacionController::class, 'updateEmpresa'])->name('empresas.update');
+        Route::delete('/empresas-beneficiadas/{empresa}', [VinculacionController::class, 'destroyEmpresa'])->name('empresas.destroy');
     });
 
 
@@ -232,6 +266,12 @@ Route::middleware(['auth', 'verified', 'role:secretaria|SystemAdministrador'])
             ->name('notificaciones-masivas.index');
         Route::post('/notificaciones-masivas', [SecretariaController::class, 'notificacionesMasivasStore'])
             ->name('notificaciones-masivas.store');
+
+        // Revisión de Sílabos
+        Route::get('/silabos', [SecretariaController::class, 'silabosIndex'])
+            ->name('silabos.index');
+        Route::patch('/silabos/{silabo}/review', [SecretariaController::class, 'silaboReview'])
+            ->name('silabos.review');
     });
 
 

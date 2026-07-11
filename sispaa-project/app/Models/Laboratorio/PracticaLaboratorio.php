@@ -12,8 +12,19 @@ class PracticaLaboratorio extends Model
         'materia_id',
         'docente_id',
         'periodo_id',
+        'laboratorio_id',
         'ubicacion',
         'numero_practica',
+        'tema',
+        'subtema',
+        'logro_aprendizaje',
+        'semestre',
+        'numero_estudiantes',
+        'horario',
+        'objetivo',
+        'metodologia',
+        'resultados',
+        'conclusiones',
         'fecha',
     ];
 
@@ -34,5 +45,29 @@ class PracticaLaboratorio extends Model
     public function periodo()
     {
         return $this->belongsTo(\App\Models\Admin\PeriodoAcademico::class, 'periodo_id');
+    }
+
+    public function laboratorio()
+    {
+        return $this->belongsTo(Laboratorio::class);
+    }
+
+    public function equipos()
+    {
+        return $this->belongsToMany(Equipo::class, 'practica_equipo', 'practica_id', 'equipo_id')
+            ->withPivot('cantidad_usada')
+            ->withTimestamps();
+    }
+
+    public function reactivos()
+    {
+        return $this->belongsToMany(Reactivo::class, 'practica_reactivo', 'practica_id', 'reactivo_id')
+            ->withPivot('cantidad_usada')
+            ->withTimestamps();
+    }
+
+    public function asistencias()
+    {
+        return $this->hasMany(AsistenciaPractica::class, 'practica_id');
     }
 }

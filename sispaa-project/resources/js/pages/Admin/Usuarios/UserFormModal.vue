@@ -56,14 +56,31 @@ const form = useForm({
     name: '',
     email: '',
     password: '',
-    role: '',
+    roles: [] as string[],
     cedula: '',
     telefono: '',
     carrera_id: null as number | null | string,
 });
 
 const selectedCarreraObj = ref<{ value: string | number, label: string } | null>(null);
-const selectedRolObj = ref<{ value: string, label: string } | null>(null);
+
+// 'coordinador' es un rol adicional sobre 'docente', no un reemplazo:
+// solo se puede marcar si 'docente' también está marcado.
+const hasDocente = computed(() => form.roles.includes('docente'));
+
+const toggleRole = (roleName: string) => {
+    const idx = form.roles.indexOf(roleName);
+    if (idx >= 0) {
+        form.roles.splice(idx, 1);
+        // Si se desmarca docente, coordinador ya no puede quedar activo.
+        if (roleName === 'docente') {
+            const coordIdx = form.roles.indexOf('coordinador');
+            if (coordIdx >= 0) form.roles.splice(coordIdx, 1);
+        }
+    } else {
+        form.roles.push(roleName);
+    }
+};
 
 watch(() => form.carrera_id, (newVal) => {
     if (!newVal || newVal === '') {
@@ -82,31 +99,19 @@ watch(selectedCarreraObj, (newVal) => {
     form.carrera_id = newVal ? newVal.value : '';
 });
 
-watch(() => form.role, (newVal) => {
-    if (!newVal) {
-        selectedRolObj.value = null;
-    } else {
-        const formattedLabel = newVal.charAt(0).toUpperCase() + newVal.slice(1);
-        selectedRolObj.value = { value: newVal, label: formattedLabel };
-    }
-}, { immediate: true });
-
-watch(selectedRolObj, (newVal) => {
-    form.role = newVal ? newVal.value : '';
-});
-
 watch(() => props.open, (newVal) => {
     if (newVal) {
         if (props.user) {
             form.name = props.user.name;
             form.email = props.user.email;
             form.password = '';
-            form.role = props.user.roles[0]?.name || '';
+            form.roles = props.user.roles.map(r => r.name);
             form.cedula = props.user.cedula || '';
             form.telefono = props.user.telefono || '';
             form.carrera_id = props.user.carrera_id || '';
         } else {
             form.reset();
+            form.roles = [];
         }
         form.clearErrors();
     }
@@ -186,37 +191,30 @@ const submit = () => {
                         <div v-if="form.errors.telefono" class="text-xs text-rose-500 mt-1">{{ form.errors.telefono }}</div>
                     </div>
 
-                    <!-- Rol -->
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Rol *</label>
-                        <Combobox v-model="selectedRolObj" by="value">
-                            <ComboboxAnchor as-child>
-                                <ComboboxTrigger as-child>
-                                    <Button type="button" variant="outline" class="w-full justify-between text-left text-sm font-normal border-slate-200 focus:ring-indigo-500 focus:border-indigo-500 dark:border-slate-850 dark:bg-slate-950 dark:text-slate-350 mt-1">
-                                        {{ selectedRolObj ? selectedRolObj.label : 'Selecciona rol...' }}
-                                        <ChevronsUpDown class="h-4 w-4 opacity-50" />
-                                    </Button>
-                                </ComboboxTrigger>
-                            </ComboboxAnchor>
-
-                            <ComboboxList class="w-[var(--reka-combobox-trigger-width)] min-w-[200px] bg-white dark:bg-slate-950 border border-slate-100 dark:border-slate-900 rounded-lg shadow-lg">
-                                <ComboboxInput placeholder="Buscar rol..." class="w-full border-0 border-b border-slate-105 dark:border-slate-850 bg-transparent text-sm focus:ring-0 py-2.5 px-3" />
-                                <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron roles.</ComboboxEmpty>
-                                <ComboboxGroup class="max-h-60 overflow-y-auto p-1">
-                                    <ComboboxItem
-                                        v-for="role in roles"
-                                        :key="role.id"
-                                        :value="{ value: role.name, label: role.name.charAt(0).toUpperCase() + role.name.slice(1) }"
-                                        class="flex items-center justify-between px-3 py-2 text-sm rounded-md cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 data-[state=checked]:bg-slate-100 dark:data-[state=checked]:bg-slate-800"
-                                    >
-                                        {{ role.name.charAt(0).toUpperCase() + role.name.slice(1) }}
-                                        <ComboboxItemIndicator>
-                                            <Check class="h-4 w-4 text-indigo-650" />
-                                        </ComboboxItemIndicator>
-                                    </ComboboxItem>
-                                </ComboboxGroup>
-                            </ComboboxList>
-                        </Combobox>
+                    <!-- Roles (multi-selección) -->
+                    <div class="col-span-2">
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Roles *</label>
+                        <div class="flex flex-wrap gap-2 mt-1">
+                            <button
+                                v-for="role in roles"
+                                :key="role.id"
+                                type="button"
+                                @click="toggleRole(role.name)"
+                                :disabled="role.name === 'coordinador' && !hasDocente"
+                                :class="['inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold border transition-colors',
+                                    form.roles.includes(role.name)
+                                        ? 'bg-indigo-600 border-indigo-600 text-white'
+                                        : 'bg-white border-slate-200 text-slate-600 hover:border-indigo-300 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-300',
+                                    (role.name === 'coordinador' && !hasDocente) ? 'opacity-40 cursor-not-allowed hover:border-slate-200' : '']"
+                            >
+                                <Check v-if="form.roles.includes(role.name)" class="h-3.5 w-3.5" />
+                                {{ role.name.charAt(0).toUpperCase() + role.name.slice(1) }}
+                            </button>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-1.5">
+                            "Coordinador" es un rol adicional: solo se puede marcar junto con "Docente".
+                        </p>
+                        <div v-if="form.errors.roles" class="text-xs text-rose-500 mt-1">{{ form.errors.roles }}</div>
                     </div>
 
                     <!-- Carrera -->

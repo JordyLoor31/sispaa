@@ -1,614 +1,135 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue'
-import { Head } from '@inertiajs/vue3'
-import type { BreadcrumbItem } from '@/types'
-import type { ApexOptions } from 'apexcharts'
-import ApexChart from 'vue3-apexcharts'
-import {
-    FlaskConical,
-    Users,
-    MapPin,
-    BookOpen,
-    CalendarDays,
-    Microscope,
-} from 'lucide-vue-next'
+import AppSidebarLayout from '@/layouts/app/AppSidebarLayout.vue';
+import { type BreadcrumbItemType } from '@/types';
+import { Head, Link } from '@inertiajs/vue3';
+import { FlaskConical, Microscope, Beaker, Users, MapPin } from 'lucide-vue-next';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Laboratorio',
-        href: '/laboratorio',
-    },
-]
-
-/*
-|--------------------------------------------------------------------------
-| KPI CARDS
-|--------------------------------------------------------------------------
-*/
-
-const kpis = [
-    {
-        title: 'Prácticas realizadas',
-        value: '148',
-        icon: FlaskConical,
-        color: '#536493',
-        bg: '#53649315',
-    },
-    {
-        title: 'Estudiantes participantes',
-        value: '1,284',
-        icon: Users,
-        color: '#88C273',
-        bg: '#88C27315',
-    },
-    {
-        title: 'Laboratorios activos',
-        value: '12',
-        icon: Microscope,
-        color: '#D4BDAC',
-        bg: '#D4BDAC25',
-    },
-    {
-        title: 'Carreras involucradas',
-        value: '6',
-        icon: BookOpen,
-        color: '#7C5CFC',
-        bg: '#7C5CFC15',
-    },
-]
-
-/*
-|--------------------------------------------------------------------------
-| GRÁFICO 1
-|--------------------------------------------------------------------------
-*/
-
-const practicasSeries = [
-    {
-        name: 'Prácticas',
-        data: [24, 18, 30, 14, 28, 34],
-    },
-]
-
-const practicasChartOptions: ApexOptions = {
-    chart: {
-        toolbar: {
-            show: false,
-        },
-        background: 'transparent',
-    },
-    colors: ['#536493'],
-    stroke: {
-        curve: 'smooth',
-        width: 4,
-    },
-    grid: {
-        borderColor: '#d9d9d9',
-    },
-    xaxis: {
-        categories: [
-            'Ene',
-            'Feb',
-            'Mar',
-            'Abr',
-            'May',
-            'Jun',
-        ],
-    },
-    dataLabels: {
-        enabled: false,
-    },
+interface UltimaPractica {
+    id: number;
+    tema: string;
+    materia: string;
+    carrera: string;
+    docente: string;
+    laboratorio: string | null;
+    numero_estudiantes: number | null;
+    fecha: string | null;
 }
+interface LaboratorioUso { id: number; nombre: string; usos: number }
 
-/*
-|--------------------------------------------------------------------------
-| GRÁFICO 2
-|--------------------------------------------------------------------------
-*/
+defineProps<{
+    stats: {
+        total_practicas: number;
+        laboratorios_activos: number;
+        total_equipos: number;
+        total_reactivos: number;
+        estudiantes_atendidos: number;
+    };
+    ultimasPracticas: UltimaPractica[];
+    laboratoriosMasUsados: LaboratorioUso[];
+}>();
 
-const carreraSeries = [44, 28, 18, 10]
-
-const carreraChartOptions: ApexOptions = {
-    labels: [
-        'Agroindustrial',
-        'Agronegocios',
-        'Agropecuaria',
-        'Ambiental',
-    ],
-    colors: [
-        '#536493',
-        '#88C273',
-        '#D4BDAC',
-        '#7C5CFC',
-    ],
-    legend: {
-        position: 'bottom',
-    },
-    chart: {
-        background: 'transparent',
-    },
-}
-
-/*
-|--------------------------------------------------------------------------
-| TABLA
-|--------------------------------------------------------------------------
-*/
-
-const practicas = [
-    {
-        materia: 'Química Orgánica',
-        carrera: 'Agroindustrial',
-        laboratorio: 'Lab A',
-        estudiantes: 32,
-        fecha: '10/07/2026',
-        estado: 'Completada',
-        badge:
-            'bg-green-100 text-green-700',
-    },
-    {
-        materia: 'Microbiología',
-        carrera: 'Agropecuaria',
-        laboratorio: 'Lab B',
-        estudiantes: 24,
-        fecha: '12/07/2026',
-        estado: 'En proceso',
-        badge:
-            'bg-yellow-100 text-yellow-700',
-    },
-    {
-        materia: 'Biotecnología',
-        carrera: 'Agronegocios',
-        laboratorio: 'Lab C',
-        estudiantes: 28,
-        fecha: '15/07/2026',
-        estado: 'Planificada',
-        badge:
-            'bg-blue-100 text-blue-700',
-    },
-    {
-        materia: 'Análisis de Suelos',
-        carrera: 'Ambiental',
-        laboratorio: 'Lab D',
-        estudiantes: 18,
-        fecha: '18/07/2026',
-        estado: 'Completada',
-        badge:
-            'bg-green-100 text-green-700',
-    },
-]
-
-/*
-|--------------------------------------------------------------------------
-| UBICACIONES
-|--------------------------------------------------------------------------
-*/
-
-const ubicaciones = [
-    {
-        nombre: 'Laboratorio Químico',
-        usos: 38,
-    },
-    {
-        nombre: 'Laboratorio Biológico',
-        usos: 26,
-    },
-    {
-        nombre: 'Laboratorio de Suelos',
-        usos: 18,
-    },
-    {
-        nombre: 'Laboratorio Industrial',
-        usos: 14,
-    },
-]
+const breadcrumbs: BreadcrumbItemType[] = [
+    { title: 'Laboratorio', href: route('laboratorio.index') },
+];
 </script>
 
 <template>
-    <Head title="Laboratorio" />
+    <AppSidebarLayout :breadcrumbs="breadcrumbs">
+        <Head title="Laboratorio" />
 
-    <AppLayout :breadcrumbs="breadcrumbs">
-        <div
-            class="min-h-screen p-4 sm:p-6"
-            :style="{
-                backgroundColor: 'var(--sispaa-background)',
-                color: 'var(--sispaa-text)',
-            }"
-        >
-            <div class="mx-auto flex max-w-7xl flex-col gap-6">
+        <div class="flex h-full flex-1 flex-col gap-6 p-6 bg-slate-50/50 dark:bg-slate-900/50">
+            <div>
+                <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">Laboratorio</h1>
+                <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Panel general de prácticas, laboratorios e inventario.</p>
+            </div>
 
-                <!-- HEADER -->
-                <section
-                    class="rounded-3xl p-6 shadow-sm"
-                    :style="{
-                        backgroundColor: 'var(--sispaa-surface)',
-                    }"
-                >
-                    <div
-                        class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"
-                    >
-                        <div>
-                            <p
-                                class="text-sm font-semibold uppercase tracking-[0.25em]"
-                                :style="{
-                                    color: '#536493',
-                                }"
-                            >
-                                Laboratorio
-                            </p>
+            <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+                <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+                    <div class="flex items-center justify-between">
+                        <p class="text-xs font-semibold text-slate-500 uppercase">Prácticas</p>
+                        <FlaskConical class="h-5 w-5 text-indigo-500" />
+                    </div>
+                    <p class="mt-2 text-3xl font-extrabold text-slate-900 dark:text-white">{{ stats.total_practicas }}</p>
+                </div>
+                <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+                    <div class="flex items-center justify-between">
+                        <p class="text-xs font-semibold text-slate-500 uppercase">Laboratorios activos</p>
+                        <MapPin class="h-5 w-5 text-indigo-500" />
+                    </div>
+                    <p class="mt-2 text-3xl font-extrabold text-slate-900 dark:text-white">{{ stats.laboratorios_activos }}</p>
+                </div>
+                <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+                    <div class="flex items-center justify-between">
+                        <p class="text-xs font-semibold text-slate-500 uppercase">Equipos</p>
+                        <Microscope class="h-5 w-5 text-indigo-500" />
+                    </div>
+                    <p class="mt-2 text-3xl font-extrabold text-slate-900 dark:text-white">{{ stats.total_equipos }}</p>
+                </div>
+                <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+                    <div class="flex items-center justify-between">
+                        <p class="text-xs font-semibold text-slate-500 uppercase">Reactivos</p>
+                        <Beaker class="h-5 w-5 text-indigo-500" />
+                    </div>
+                    <p class="mt-2 text-3xl font-extrabold text-slate-900 dark:text-white">{{ stats.total_reactivos }}</p>
+                </div>
+                <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+                    <div class="flex items-center justify-between">
+                        <p class="text-xs font-semibold text-slate-500 uppercase">Estudiantes atendidos</p>
+                        <Users class="h-5 w-5 text-indigo-500" />
+                    </div>
+                    <p class="mt-2 text-3xl font-extrabold text-slate-900 dark:text-white">{{ stats.estudiantes_atendidos }}</p>
+                </div>
+            </div>
 
-                            <h1
-                                class="mt-2 text-3xl font-bold"
-                            >
-                                Panel General de Prácticas
-                            </h1>
+            <div class="grid gap-6 xl:grid-cols-3">
+                <div class="xl:col-span-2 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+                    <div class="mb-4 flex items-center justify-between">
+                        <h2 class="text-sm font-bold text-slate-900 dark:text-white">Últimas prácticas</h2>
+                        <Link :href="route('laboratorio.practicas')" class="text-xs font-semibold text-indigo-600 hover:text-indigo-500">Ver todas</Link>
+                    </div>
+                    <div class="overflow-hidden rounded-xl border border-slate-100 dark:border-slate-800">
+                        <table class="w-full text-sm">
+                            <thead class="bg-slate-50 dark:bg-slate-900 text-xs uppercase text-slate-500">
+                                <tr>
+                                    <th class="px-4 py-2 text-left">Tema</th>
+                                    <th class="px-4 py-2 text-left">Materia</th>
+                                    <th class="px-4 py-2 text-left">Docente</th>
+                                    <th class="px-4 py-2 text-left">Laboratorio</th>
+                                    <th class="px-4 py-2 text-left">Fecha</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="p in ultimasPracticas" :key="p.id" class="border-t border-slate-100 dark:border-slate-800">
+                                    <td class="px-4 py-3 font-semibold text-slate-900 dark:text-white">{{ p.tema }}</td>
+                                    <td class="px-4 py-3 text-slate-500">{{ p.materia }} · {{ p.carrera }}</td>
+                                    <td class="px-4 py-3 text-slate-500">{{ p.docente }}</td>
+                                    <td class="px-4 py-3 text-slate-400 text-xs">{{ p.laboratorio ?? '—' }}</td>
+                                    <td class="px-4 py-3 text-slate-400 text-xs">{{ p.fecha }}</td>
+                                </tr>
+                                <tr v-if="ultimasPracticas.length === 0">
+                                    <td colspan="5" class="px-4 py-8 text-center text-sm text-slate-400">Aún no hay prácticas registradas.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
 
-                            <p
-                                class="mt-2 max-w-2xl text-sm"
-                                :style="{ color: '#666' }"
-                            >
-                                Dashboard visual con indicadores,
-                                prácticas registradas, carreras,
-                                estudiantes y laboratorios utilizados.
-                            </p>
-                        </div>
-
-                        <div
-                            class="rounded-2xl px-5 py-4"
-                            :style="{
-                                backgroundColor: '#53649315',
-                            }"
-                        >
-                            <div
-                                class="flex items-center gap-3"
-                            >
-                                <CalendarDays
-                                    class="h-10 w-10 text-[#536493]"
-                                />
-
-                                <div>
-                                    <p
-                                        class="text-sm"
-                                        :style="{ color: '#666' }"
-                                    >
-                                        Período activo
-                                    </p>
-
-                                    <p
-                                        class="text-lg font-semibold"
-                                    >
-                                        2026 - A
-                                    </p>
-                                </div>
+                <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+                    <h2 class="text-sm font-bold text-slate-900 dark:text-white mb-4">Laboratorios más usados</h2>
+                    <div class="space-y-3">
+                        <div v-for="l in laboratoriosMasUsados" :key="l.id" class="flex items-center justify-between rounded-xl border border-slate-100 dark:border-slate-800 p-3">
+                            <div class="flex items-center gap-2">
+                                <MapPin class="h-4 w-4 text-indigo-500" />
+                                <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">{{ l.nombre }}</span>
                             </div>
+                            <span class="text-sm font-bold text-indigo-600">{{ l.usos }}</span>
+                        </div>
+                        <div v-if="laboratoriosMasUsados.length === 0" class="text-center text-sm text-slate-400 py-6">
+                            No hay laboratorios registrados.
                         </div>
                     </div>
-                </section>
-
-                <!-- KPIS -->
-                <section
-                    class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
-                >
-                    <article
-                        v-for="item in kpis"
-                        :key="item.title"
-                        class="rounded-3xl border p-5"
-                        :style="{
-                            backgroundColor:
-                                'var(--sispaa-surface)',
-                            borderColor: '#d9d9d9',
-                        }"
-                    >
-                        <div
-                            class="flex items-center justify-between"
-                        >
-                            <div>
-                                <p
-                                    class="text-sm"
-                                    :style="{ color: '#666' }"
-                                >
-                                    {{ item.title }}
-                                </p>
-
-                                <h2
-                                    class="mt-2 text-3xl font-bold"
-                                >
-                                    {{ item.value }}
-                                </h2>
-                            </div>
-
-                            <div
-                                class="rounded-2xl p-4"
-                                :style="{
-                                    backgroundColor: item.bg,
-                                }"
-                            >
-                                <component
-                                    :is="item.icon"
-                                    class="h-7 w-7"
-                                    :style="{
-                                        color: item.color,
-                                    }"
-                                />
-                            </div>
-                        </div>
-                    </article>
-                </section>
-
-                <!-- GRÁFICOS -->
-                <section
-                    class="grid gap-6 xl:grid-cols-3"
-                >
-                    <!-- LINE CHART -->
-                    <article
-                        class="rounded-3xl border p-5 xl:col-span-2"
-                        :style="{
-                            backgroundColor:
-                                'var(--sispaa-surface)',
-                            borderColor: '#d9d9d9',
-                        }"
-                    >
-                        <div class="mb-4">
-                            <h2
-                                class="text-xl font-semibold"
-                            >
-                                Prácticas por mes
-                            </h2>
-
-                            <p
-                                class="text-sm"
-                                :style="{ color: '#666' }"
-                            >
-                                Evolución de prácticas realizadas
-                            </p>
-                        </div>
-
-                        <ApexChart
-                            type="line"
-                            height="340"
-                            :options="practicasChartOptions"
-                            :series="practicasSeries"
-                        />
-                    </article>
-
-                    <!-- DONUT -->
-                    <article
-                        class="rounded-3xl border p-5"
-                        :style="{
-                            backgroundColor:
-                                'var(--sispaa-surface)',
-                            borderColor: '#d9d9d9',
-                        }"
-                    >
-                        <div class="mb-4">
-                            <h2
-                                class="text-xl font-semibold"
-                            >
-                                Distribución por carrera
-                            </h2>
-
-                            <p
-                                class="text-sm"
-                                :style="{ color: '#666' }"
-                            >
-                                Participación en prácticas
-                            </p>
-                        </div>
-
-                        <ApexChart
-                            type="donut"
-                            height="340"
-                            :options="carreraChartOptions"
-                            :series="carreraSeries"
-                        />
-                    </article>
-                </section>
-
-                <!-- TABLA + UBICACIONES -->
-                <section
-                    class="grid gap-6 xl:grid-cols-3"
-                >
-                    <!-- TABLA -->
-                    <article
-                        class="rounded-3xl border p-5 xl:col-span-2"
-                        :style="{
-                            backgroundColor:
-                                'var(--sispaa-surface)',
-                            borderColor: '#d9d9d9',
-                        }"
-                    >
-                        <div
-                            class="mb-4 flex items-center justify-between"
-                        >
-                            <div>
-                                <h2
-                                    class="text-xl font-semibold"
-                                >
-                                    Últimas prácticas
-                                </h2>
-
-                                <p
-                                    class="text-sm"
-                                    :style="{ color: '#666' }"
-                                >
-                                    Registro reciente
-                                </p>
-                            </div>
-                        </div>
-
-                        <div
-                            class="overflow-hidden rounded-2xl border"
-                            :style="{
-                                borderColor: '#d9d9d9',
-                            }"
-                        >
-                            <table
-                                class="min-w-full text-left text-sm"
-                            >
-                                <thead
-                                    :style="{
-                                        backgroundColor:
-                                            '#efefef',
-                                    }"
-                                >
-                                    <tr>
-                                        <th
-                                            class="px-4 py-3"
-                                        >
-                                            Materia
-                                        </th>
-
-                                        <th
-                                            class="px-4 py-3"
-                                        >
-                                            Carrera
-                                        </th>
-
-                                        <th
-                                            class="px-4 py-3"
-                                        >
-                                            Laboratorio
-                                        </th>
-
-                                        <th
-                                            class="px-4 py-3"
-                                        >
-                                            Estudiantes
-                                        </th>
-
-                                        <th
-                                            class="px-4 py-3"
-                                        >
-                                            Estado
-                                        </th>
-                                    </tr>
-                                </thead>
-
-                                <tbody>
-                                    <tr
-                                        v-for="item in practicas"
-                                        :key="item.materia"
-                                        class="border-t"
-                                        :style="{
-                                            borderColor:
-                                                '#e5e5e5',
-                                        }"
-                                    >
-                                        <td
-                                            class="px-4 py-4 font-medium"
-                                        >
-                                            {{ item.materia }}
-                                        </td>
-
-                                        <td
-                                            class="px-4 py-4"
-                                        >
-                                            {{ item.carrera }}
-                                        </td>
-
-                                        <td
-                                            class="px-4 py-4"
-                                        >
-                                            {{ item.laboratorio }}
-                                        </td>
-
-                                        <td
-                                            class="px-4 py-4"
-                                        >
-                                            {{ item.estudiantes }}
-                                        </td>
-
-                                        <td
-                                            class="px-4 py-4"
-                                        >
-                                            <span
-                                                class="rounded-full px-3 py-1 text-xs font-semibold"
-                                                :class="item.badge"
-                                            >
-                                                {{ item.estado }}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </article>
-
-                    <!-- UBICACIONES -->
-                    <article
-                        class="rounded-3xl border p-5"
-                        :style="{
-                            backgroundColor:
-                                'var(--sispaa-surface)',
-                            borderColor: '#d9d9d9',
-                        }"
-                    >
-                        <div class="mb-5">
-                            <h2
-                                class="text-xl font-semibold"
-                            >
-                                Uso de laboratorios
-                            </h2>
-
-                            <p
-                                class="text-sm"
-                                :style="{ color: '#666' }"
-                            >
-                                Espacios más utilizados
-                            </p>
-                        </div>
-
-                        <div class="space-y-4">
-                            <div
-                                v-for="lab in ubicaciones"
-                                :key="lab.nombre"
-                                class="rounded-2xl border p-4"
-                                :style="{
-                                    borderColor: '#e5e5e5',
-                                }"
-                            >
-                                <div
-                                    class="flex items-center justify-between"
-                                >
-                                    <div
-                                        class="flex items-center gap-3"
-                                    >
-                                        <div
-                                            class="rounded-xl bg-[#53649315] p-3"
-                                        >
-                                            <MapPin
-                                                class="h-5 w-5 text-[#536493]"
-                                            />
-                                        </div>
-
-                                        <div>
-                                            <p
-                                                class="font-medium"
-                                            >
-                                                {{ lab.nombre }}
-                                            </p>
-
-                                            <p
-                                                class="text-xs"
-                                                :style="{ color: '#666' }"
-                                            >
-                                                {{ lab.usos }}
-                                                prácticas
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <div
-                                        class="text-lg font-bold text-[#536493]"
-                                    >
-                                        {{ lab.usos }}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </article>
-                </section>
+                </div>
             </div>
         </div>
-    </AppLayout>
+    </AppSidebarLayout>
 </template>
