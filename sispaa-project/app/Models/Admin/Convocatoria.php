@@ -2,11 +2,14 @@
 
 namespace App\Models\Admin;
 
+use App\Models\Traits\HasAuditFields;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
 class Convocatoria extends Model
 {
+    use HasAuditFields;
+
     protected $table = 'convocatorias';
 
     protected $fillable = [
@@ -34,5 +37,15 @@ class Convocatoria extends Model
     public function scopeActivas($query)
     {
         return $query->where('activa', true);
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function updater()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
     }
 }

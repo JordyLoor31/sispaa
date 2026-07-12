@@ -2,12 +2,13 @@
 
 namespace App\Models\Investigacion;
 
+use App\Models\Traits\HasAuditFields;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Investigacion extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, HasAuditFields;
 
     protected $table = 'investigaciones';
 
@@ -43,5 +44,15 @@ class Investigacion extends Model
     public function seguimientos()
     {
         return $this->hasMany(SeguimientoInvestigacion::class);
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'created_by');
+    }
+
+    public function updater()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'updated_by');
     }
 }

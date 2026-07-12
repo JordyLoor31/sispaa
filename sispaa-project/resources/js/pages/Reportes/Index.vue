@@ -2,22 +2,27 @@
 import AppSidebarLayout from '@/layouts/app/AppSidebarLayout.vue';
 import { type BreadcrumbItemType } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { computed, reactive, ref } from 'vue';
 import { FileSpreadsheet, FileText, FileDown, BarChart3 } from 'lucide-vue-next';
+import { FlexRender, getCoreRowModel, useVueTable } from '@tanstack/vue-table';
+import type { ColumnDef } from '@tanstack/vue-table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 
 interface Catalogo { id: number; nombre: string }
+type Fila = (string | number | null)[];
+interface Paginated<T> { data: T[]; current_page: number; last_page: number; per_page: number; total: number; links: any[] }
 
 const props = defineProps<{
     tipos: Record<string, string>;
     tipoActual: string;
     columnas: string[];
-    filas: (string | number | null)[][];
+    filas: Paginated<Fila>;
     periodos: Catalogo[];
     carreras: Catalogo[];
     grupos: Catalogo[];
-    filters: { periodo_id?: string; carrera_id?: string; grupo_id?: string; estado?: string };
+    filters: { periodo_id?: string; carrera_id?: string; grupo_id?: string; estado?: string; per_page?: string };
 }>();
 
 const breadcrumbs: BreadcrumbItemType[] = [
@@ -52,6 +57,27 @@ const urlExport = (formato: 'csv' | 'xlsx' | 'pdf') => {
     const params = new URLSearchParams(filtrosActivos.value as Record<string, string>).toString();
     return `${route('reportes.export.' + formato)}?${params}`;
 };
+
+const navigateToPage = (url: string | null) => {
+    if (url) router.get(url, {}, { preserveState: true });
+};
+
+// ── Tabla (@tanstack/vue-table + shadcn Table), columnas dinámicas ──
+const columns = computed<ColumnDef<Fila>[]>(() =>
+    props.columnas.map((label, idx) => ({
+        id: `col-${idx}`,
+        header: label,
+        cell: ({ row }) => row.original[idx] ?? '—',
+    })),
+);
+
+const table = useVueTable(
+    reactive({
+        get data() { return props.filas.data; },
+        get columns() { return columns.value; },
+        getCoreRowModel: getCoreRowModel(),
+    }),
+);
 </script>
 
 <template>
@@ -149,28 +175,51 @@ const urlExport = (formato: 'csv' | 'xlsx' | 'pdf') => {
                 </div>
             </div>
 
-            <div class="rounded-2xl border border-slate-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950 overflow-hidden">
-                <div class="flex items-center gap-2 p-4 border-b border-slate-100 dark:border-slate-800">
+            <div class="rounded-xl border border-slate-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950 overflow-hidden">
+                <div class="flex items-center gap-2 px-4 py-3.5 border-b border-slate-100 dark:border-slate-800">
                     <BarChart3 class="h-4 w-4 text-indigo-500" />
                     <h2 class="text-sm font-bold text-slate-900 dark:text-white">Vista previa — {{ tipos[tipoActual] }}</h2>
-                    <span class="ml-auto text-xs text-slate-400">{{ filas.length }} registros</span>
                 </div>
+
                 <div class="overflow-x-auto">
-                    <table class="w-full text-sm">
-                        <thead class="bg-slate-50 dark:bg-slate-900 text-xs uppercase text-slate-500">
-                            <tr>
-                                <th v-for="col in columnas" :key="col" class="px-4 py-3 text-left whitespace-nowrap">{{ col }}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="(fila, i) in filas" :key="i" class="border-t border-slate-100 dark:border-slate-800">
-                                <td v-for="(valor, j) in fila" :key="j" class="px-4 py-3 text-slate-600 dark:text-slate-300 whitespace-nowrap">{{ valor ?? '—' }}</td>
-                            </tr>
-                            <tr v-if="filas.length === 0">
-                                <td :colspan="columnas.length" class="px-4 py-10 text-center text-sm text-slate-400">No hay datos para los filtros seleccionados.</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <Table>
+                        <TableHeader>
+                            <TableRow v-for="hg in table.getHeaderGroups()" :key="hg.id"
+                                class="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30">
+                                <TableHead v-for="header in hg.headers" :key="header.id"
+                                    class="py-3.5 px-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">
+                                    <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header" :props="header.getContext()" />
+                                </TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody class="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
+                            <template v-if="table.getRowModel().rows.length">
+                                <TableRow v-for="row in table.getRowModel().rows" :key="row.id"
+                                    class="hover:bg-slate-50/40 dark:hover:bg-slate-900/20 transition-colors">
+                                    <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id"
+                                        class="py-3.5 px-4 text-xs text-slate-600 dark:text-slate-300 whitespace-nowrap">
+                                        <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
+                                    </TableCell>
+                                </TableRow>
+                            </template>
+                            <TableRow v-else>
+                                <TableCell :colspan="columnas.length" class="h-32 text-center text-sm text-slate-400">
+                                    No hay datos para los filtros seleccionados.
+                                </TableCell>
+                            </TableRow>
+                        </TableBody>
+                    </Table>
+                </div>
+
+                <!-- Paginación -->
+                <div class="flex items-center justify-between border-t border-slate-100 dark:border-slate-800 px-6 py-4">
+                    <span class="text-xs text-slate-500">Mostrando {{ filas.data.length }} de {{ filas.total }} registros</span>
+                    <div class="flex items-center gap-1">
+                        <button v-for="link in filas.links" :key="link.label" @click="navigateToPage(link.url)"
+                            :disabled="!link.url || link.active" v-html="link.label"
+                            class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+                            :class="[link.active ? 'bg-indigo-600 text-white' : 'border border-slate-200/80 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 disabled:opacity-40']" />
+                    </div>
                 </div>
             </div>
         </div>

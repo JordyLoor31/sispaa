@@ -32,25 +32,24 @@ class EstudiantesSeeder extends Seeder
             ['codigo' => 'AGP', 'cantidad' => 33],
         ];
 
+        // El periodo académico es una sola entidad compartida por todas las
+        // carreras (ej. "2026-1"), no un registro por carrera.
+        $periodo = PeriodoAcademico::firstOrCreate(
+            ['nombre' => '2026-1'],
+            [
+                'fecha_inicio' => Carbon::now()->startOfMonth()->toDateString(),
+                'fecha_fin' => Carbon::now()->addMonths(5)->endOfMonth()->toDateString(),
+                'tipo' => 'semestral',
+                'activo' => true,
+            ]
+        );
+
         $fake = fake('es_ES');
         $created = 0;
         $existing = 0;
 
         foreach ($carreraDistribution as $distribution) {
             $carrera = $carreras[$distribution['codigo']];
-
-            $periodo = PeriodoAcademico::firstOrCreate(
-                [
-                    'carrera_id' => $carrera->id,
-                    'nombre' => '2026-1',
-                ],
-                [
-                    'fecha_inicio' => Carbon::now()->startOfMonth()->toDateString(),
-                    'fecha_fin' => Carbon::now()->addMonths(5)->endOfMonth()->toDateString(),
-                    'tipo' => 'semestral',
-                    'activo' => true,
-                ]
-            );
 
             for ($index = 1; $index <= $distribution['cantidad']; $index++) {
                 $suffix = str_pad((string) $index, 3, '0', STR_PAD_LEFT);

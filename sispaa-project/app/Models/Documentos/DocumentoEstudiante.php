@@ -2,12 +2,13 @@
 
 namespace App\Models\Documentos;
 
+use App\Models\Traits\HasAuditFields;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class DocumentoEstudiante extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, HasAuditFields;
 
     protected $table = 'documentos_estudiante';
 
@@ -63,5 +64,15 @@ class DocumentoEstudiante extends Model
         if (!$this->archivo_url) return null;
         $data = is_array($this->archivo_url) ? $this->archivo_url : json_decode($this->archivo_url, true);
         return isset($data['path']) ? '/storage/' . $data['path'] : null;
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'created_by');
+    }
+
+    public function updater()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'updated_by');
     }
 }

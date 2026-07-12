@@ -7,12 +7,13 @@
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import NavMain from '@/components/NavMain.vue';
 import { type NavItem } from '@/types';
-import { ChevronDown } from 'lucide-vue-next';
+import { ChevronDown, type LucideIcon } from 'lucide-vue-next';
 
 withDefaults(
     defineProps<{
         label: string;
         items: NavItem[];
+        icon?: LucideIcon;
         defaultOpen?: boolean;
     }>(),
     {
@@ -26,7 +27,10 @@ withDefaults(
         <CollapsibleTrigger
             class="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-xs font-semibold tracking-wide text-sidebar-foreground/70 uppercase hover:bg-sidebar-accent"
         >
-            <span>{{ label }}</span>
+            <span class="flex items-center gap-2">
+                <component :is="icon" v-if="icon" class="h-4 w-4" />
+                <span>{{ label }}</span>
+            </span>
             <ChevronDown class="h-3.5 w-3.5 transition-transform group-data-[state=open]/role-collapsible:rotate-180" />
         </CollapsibleTrigger>
         <CollapsibleContent>

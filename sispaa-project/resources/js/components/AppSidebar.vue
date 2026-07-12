@@ -37,7 +37,7 @@ const footerNavItems: NavItem[] = [];
 
             <!-- SystemAdministrador: ve TODO, segmentado en cascada por rol -->
             <template v-if="sidebarNav.mode === 'grouped'">
-                <NavRoleGroup v-for="group in sidebarNav.groups" :key="group.key" :label="group.label" :items="group.items" />
+                <NavRoleGroup v-for="group in sidebarNav.groups" :key="group.key" :label="group.label" :items="group.items" :icon="group.icon" />
             </template>
 
             <!-- Cualquier otro rol: solo su propio menú, en lista plana -->

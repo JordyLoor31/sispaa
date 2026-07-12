@@ -11,7 +11,7 @@
 // "todo" de SystemAdministrador.
 
 import { type NavItem } from '@/types';
-import { BarChart3, Bell, Book, BookOpen, Calendar, Feather, FileText, FlaskConical, FolderOpen, GraduationCap, Handshake, LayoutGrid, Megaphone, Search, User } from 'lucide-vue-next';
+import { BarChart3, Bell, Book, BookOpen, Calendar, Feather, FileText, FlaskConical, FolderOpen, GraduationCap, Handshake, LayoutGrid, Megaphone, Search, Settings, User, Users, type LucideIcon } from 'lucide-vue-next';
 
 /** Nombres de rol tal como están sembrados en Spatie (roles.name). */
 export const ROLES = {
@@ -33,18 +33,28 @@ export const dashboardNavItem: NavItem = {
 export const systemAdministradorNavItems: NavItem[] = [
     {
         title: 'Gestión de Usuarios',
-        href: '/admin/usuarios',
+        href: route('admin.usuarios.index'),
         icon: User,
     },
     {
-        title: 'Malla Curricular',
-        href: '/admin/malla',
+        title: 'Carreras',
+        href: route('admin.carreras.index'),
+        icon: GraduationCap,
+    },
+    {
+        title: 'Asignaturas',
+        href: route('admin.materias.index'),
         icon: Book,
     },
     {
         title: 'Fechas y Convocatorias',
         href: '/admin/fechas',
         icon: Calendar,
+    },
+    {
+        title: 'Notificaciones',
+        href: route('notificaciones.index'),
+        icon: Bell,
     },
 ];
 
@@ -77,6 +87,11 @@ export const docenteNavItems: NavItem[] = [
             { title: 'Por carrera', href: route('laboratorio.porCarrera') },
         ],
     },
+    {
+        title: 'Notificaciones',
+        href: route('notificaciones.index'),
+        icon: Bell,
+    },
 ];
 
 /** Rol Coordinador: supervisión de investigación, titulación y vinculación. */
@@ -99,6 +114,11 @@ export const coordinadorNavItems: NavItem[] = [
             { title: 'Actividades', href: route('vinculacion.actividades') },
             { title: 'Empresas beneficiadas', href: route('vinculacion.empresas') },
         ],
+    },
+    {
+        title: 'Notificaciones',
+        href: route('notificaciones.index'),
+        icon: Bell,
     },
 ];
 
@@ -144,6 +164,11 @@ export const secretariaNavItems: NavItem[] = [
         title: 'Reportes',
         href: route('reportes.index'),
         icon: BarChart3,
+    },
+    {
+        title: 'Notificaciones',
+        href: route('notificaciones.index'),
+        icon: Bell,
     },
 ];
 
@@ -204,14 +229,15 @@ export interface NavRoleGroup {
     key: string;
     label: string;
     items: NavItem[];
+    icon?: LucideIcon;
 }
 
 export const roleNavGroups: NavRoleGroup[] = [
-    { key: 'administracion', label: 'Administración', items: systemAdministradorNavItems },
-    { key: 'docente', label: 'Docente', items: docenteNavItems },
-    { key: 'coordinador', label: 'Coordinador', items: [...coordinadorNavItems, ...gestionEstudiantesNavItems] },
-    { key: 'secretaria', label: 'Secretaría', items: secretariaNavItems },
-    { key: 'estudiante', label: 'Estudiante', items: estudianteNavItems },
+    { key: 'administracion', label: 'Administración', items: systemAdministradorNavItems, icon: Settings },
+    { key: 'docente', label: 'Docente', items: docenteNavItems, icon: Feather },
+    { key: 'coordinador', label: 'Coordinador', items: [...coordinadorNavItems, ...gestionEstudiantesNavItems], icon: Users },
+    { key: 'secretaria', label: 'Secretaría', items: secretariaNavItems, icon: FileText },
+    { key: 'estudiante', label: 'Estudiante', items: estudianteNavItems, icon: User },
 ];
 
 /** Menú plano por rol para usuarios normales (no SystemAdministrador). */

@@ -2,10 +2,13 @@
 
 namespace App\Models\Estudiantes;
 
+use App\Models\Traits\HasAuditFields;
 use Illuminate\Database\Eloquent\Model;
 
 class Matricula extends Model
 {
+    use HasAuditFields;
+
     protected $table = 'matriculas';
 
     protected $fillable = [
@@ -38,5 +41,15 @@ class Matricula extends Model
     public function faltas()
     {
         return $this->hasMany(Falta::class, 'estudiante_id', 'estudiante_id');
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'created_by');
+    }
+
+    public function updater()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'updated_by');
     }
 }

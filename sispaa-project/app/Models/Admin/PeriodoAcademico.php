@@ -2,14 +2,16 @@
 
 namespace App\Models\Admin;
 
+use App\Models\Traits\HasAuditFields;
 use Illuminate\Database\Eloquent\Model;
 
 class PeriodoAcademico extends Model
 {
+    use HasAuditFields;
+
     protected $table = 'periodos_academicos';
 
     protected $fillable = [
-        'carrera_id',
         'nombre',
         'fecha_inicio',
         'fecha_fin',
@@ -27,11 +29,13 @@ class PeriodoAcademico extends Model
         'fecha_limite_informe' => 'date',
     ];
 
-    public function carrera()
-    {
-        return $this->belongsTo(Carrera::class);
-    }
-
+    /**
+     * Un periodo académico es una entidad global compartida por todas las
+     * carreras (ej. "2026-1"), no un registro por carrera. El alcance por
+     * carrera se resuelve en cada tabla dependiente que ya tiene su propio
+     * carrera_id (matriculas, actividades_vinculacion) o vía materia->carrera
+     * (silabos, informes_docente, asignaciones_docente, practicas_laboratorio).
+     */
     public function asignacionesDocente()
     {
         return $this->hasMany(\App\Models\Docencia\AsignacionDocente::class);
@@ -70,5 +74,15 @@ class PeriodoAcademico extends Model
     public function practicasLaboratorio()
     {
         return $this->hasMany(\App\Models\Laboratorio\PracticaLaboratorio::class);
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'created_by');
+    }
+
+    public function updater()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'updated_by');
     }
 }

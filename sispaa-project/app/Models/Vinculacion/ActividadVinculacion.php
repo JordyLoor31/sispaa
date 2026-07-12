@@ -2,12 +2,13 @@
 
 namespace App\Models\Vinculacion;
 
+use App\Models\Traits\HasAuditFields;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ActividadVinculacion extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, HasAuditFields;
 
     protected $table = 'actividades_vinculacion';
 
@@ -43,5 +44,15 @@ class ActividadVinculacion extends Model
     public function empresa()
     {
         return $this->belongsTo(\App\Models\Admin\Empresa::class);
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'created_by');
+    }
+
+    public function updater()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'updated_by');
     }
 }

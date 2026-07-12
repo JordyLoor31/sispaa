@@ -24,11 +24,6 @@ import {
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 
-interface Carrera {
-    id: number;
-    nombre: string;
-}
-
 interface Periodo {
     id: number;
     nombre: string;
@@ -36,15 +31,12 @@ interface Periodo {
     fecha_fin: string;
     tipo: 'semestral' | 'anual' | string;
     activo: boolean;
-    carrera_id: number;
-    carrera?: Carrera;
     fecha_limite_silabo: string | null;
     fecha_limite_informe: string | null;
 }
 
 const props = defineProps<{
     periodos: Periodo[];
-    carreras: Carrera[];
 }>();
 
 const breadcrumbs: BreadcrumbItemType[] = [
@@ -60,7 +52,6 @@ const activePeriodForDeadlines = ref<Periodo | null>(null);
 
 // Form for Periodo
 const periodForm = useForm({
-    carrera_id: '',
     nombre: '',
     fecha_inicio: '',
     fecha_fin: '',
@@ -89,25 +80,6 @@ watch(selectedTipoObj, (newVal) => {
     periodForm.tipo = newVal ? newVal.value : 'semestral';
 });
 
-const selectedCarreraObj = ref<{ value: string | number, label: string } | null>(null);
-
-watch(() => periodForm.carrera_id, (newVal) => {
-    if (!newVal || newVal === '') {
-        selectedCarreraObj.value = null;
-    } else {
-        const carrera = props.carreras.find(c => c.id === Number(newVal));
-        if (carrera) {
-            selectedCarreraObj.value = { value: carrera.id, label: carrera.nombre };
-        } else {
-            selectedCarreraObj.value = null;
-        }
-    }
-}, { immediate: true });
-
-watch(selectedCarreraObj, (newVal) => {
-    periodForm.carrera_id = newVal ? newVal.value.toString() : '';
-});
-
 // Period actions
 const openAddPeriod = () => {
     periodForm.reset();
@@ -118,7 +90,6 @@ const openAddPeriod = () => {
 
 const openEditPeriod = (period: Periodo) => {
     editingPeriod.value = period;
-    periodForm.carrera_id = period.carrera_id.toString();
     periodForm.nombre = period.nombre;
     periodForm.fecha_inicio = period.fecha_inicio;
     periodForm.fecha_fin = period.fecha_fin;
@@ -220,10 +191,7 @@ const togglePeriodActive = (period: Periodo) => {
 
                     <div class="space-y-4">
                         <div>
-                            <span class="rounded bg-indigo-50 px-2 py-0.5 text-xxs font-bold text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-400">
-                                {{ period.carrera?.nombre }}
-                            </span>
-                            <h3 class="text-lg font-bold text-slate-900 dark:text-white mt-2">{{ period.nombre }}</h3>
+                            <h3 class="text-lg font-bold text-slate-900 dark:text-white">{{ period.nombre }}</h3>
                             <p class="text-xs text-slate-400 mt-1">
                                 Duración: {{ period.fecha_inicio }} al {{ period.fecha_fin }} ({{ period.tipo }})
                             </p>
@@ -301,38 +269,6 @@ const togglePeriodActive = (period: Periodo) => {
                     </AlertDialogHeader>
 
                     <form @submit.prevent="submitPeriod" class="mt-4 space-y-4">
-                        <div v-if="!editingPeriod">
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Carrera *</label>
-                            <Combobox v-model="selectedCarreraObj" by="value">
-                                <ComboboxAnchor as-child>
-                                    <ComboboxTrigger as-child>
-                                        <Button type="button" variant="outline" class="w-full justify-between text-left text-sm font-normal border-slate-200 focus:ring-indigo-500 focus:border-indigo-500 dark:border-slate-850 dark:bg-slate-950 dark:text-slate-350 mt-1">
-                                            {{ selectedCarreraObj ? selectedCarreraObj.label : 'Selecciona carrera...' }}
-                                            <ChevronsUpDown class="h-4 w-4 opacity-50" />
-                                        </Button>
-                                    </ComboboxTrigger>
-                                </ComboboxAnchor>
-
-                                <ComboboxList class="w-[var(--reka-combobox-trigger-width)] min-w-[250px] bg-white dark:bg-slate-950 border border-slate-100 dark:border-slate-900 rounded-lg shadow-lg">
-                                    <ComboboxInput placeholder="Buscar carrera..." class="w-full border-0 border-b border-slate-105 dark:border-slate-850 bg-transparent text-sm focus:ring-0 py-2.5 px-3" />
-                                    <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron carreras.</ComboboxEmpty>
-                                    <ComboboxGroup class="max-h-60 overflow-y-auto p-1">
-                                        <ComboboxItem
-                                            v-for="c in carreras"
-                                            :key="c.id"
-                                            :value="{ value: c.id, label: c.nombre }"
-                                            class="flex items-center justify-between px-3 py-2 text-sm rounded-md cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 data-[state=checked]:bg-slate-100 dark:data-[state=checked]:bg-slate-800"
-                                        >
-                                            {{ c.nombre }}
-                                            <ComboboxItemIndicator>
-                                                <Check class="h-4 w-4 text-indigo-650" />
-                                            </ComboboxItemIndicator>
-                                        </ComboboxItem>
-                                    </ComboboxGroup>
-                                </ComboboxList>
-                            </Combobox>
-                        </div>
-
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase">Nombre del Periodo * (Ej: 2026-1)</label>
                             <input v-model="periodForm.nombre" type="text" required class="mt-1 w-full rounded-lg border-slate-200 text-sm focus:ring-indigo-500 focus:border-indigo-500 dark:border-slate-850 dark:bg-slate-950 dark:text-slate-350" />

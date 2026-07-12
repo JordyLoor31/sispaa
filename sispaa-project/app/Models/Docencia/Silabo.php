@@ -2,12 +2,13 @@
 
 namespace App\Models\Docencia;
 
+use App\Models\Traits\HasAuditFields;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Silabo extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, HasAuditFields;
 
     protected $table = 'silabos';
 
@@ -38,5 +39,15 @@ class Silabo extends Model
     public function periodo()
     {
         return $this->belongsTo(\App\Models\Admin\PeriodoAcademico::class, 'periodo_id');
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'created_by');
+    }
+
+    public function updater()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'updated_by');
     }
 }

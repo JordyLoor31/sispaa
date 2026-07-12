@@ -2,10 +2,13 @@
 
 namespace App\Models\Investigacion;
 
+use App\Models\Traits\HasAuditFields;
 use Illuminate\Database\Eloquent\Model;
 
 class SeguimientoInvestigacion extends Model
 {
+    use HasAuditFields;
+
     protected $table = 'seguimiento_investigacion';
 
     protected $fillable = [
@@ -18,5 +21,15 @@ class SeguimientoInvestigacion extends Model
     public function investigacion()
     {
         return $this->belongsTo(Investigacion::class);
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'created_by');
+    }
+
+    public function updater()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'updated_by');
     }
 }

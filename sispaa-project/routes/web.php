@@ -7,8 +7,8 @@ use App\Http\Controllers\Docencia\DocenteController;
 use App\Http\Controllers\Docencia\SilaboController;
 use App\Http\Controllers\Investigacion\InvestigacionController;
 use App\Http\Controllers\Laboratorio\LaboratorioController;
+use App\Http\Controllers\NotificacionController;
 use App\Http\Controllers\Reportes\ReporteController;
-use App\Http\Controllers\Secretaria\SecretariaController;
 use App\Http\Controllers\Titulacion\TitulacionController;
 use App\Http\Controllers\Vinculacion\VinculacionController;
 
@@ -26,6 +26,17 @@ Route::get('dashboard', function () {
     }
     return app(\App\Http\Controllers\Admin\AdminPortalController::class)->dashboard();
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+
+// NOTIFICACIONES (centro compartido de staff: docente/coordinador/secretaría/
+// SystemAdministrador; el estudiante tiene el suyo propio bajo 'estudiante/notificaciones')
+Route::middleware(['auth', 'verified', 'role:docente|coordinador|secretaria|SystemAdministrador'])
+    ->prefix('notificaciones')
+    ->name('notificaciones.')
+    ->group(function () {
+        Route::get('/', [NotificacionController::class, 'index'])->name('index');
+        Route::post('/read', [NotificacionController::class, 'markRead'])->name('read');
+    });
 
 
 // ESTUDIANTES
@@ -204,17 +215,26 @@ Route::middleware(['auth', 'verified', 'role:SystemAdministrador'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
-        // Gestión de Usuarios
-        Route::get('/usuarios', [\App\Http\Controllers\Admin\AdminPortalController::class, 'usuariosIndex'])->name('usuarios.index');
-        Route::post('/usuarios', [\App\Http\Controllers\Admin\AdminPortalController::class, 'usuariosStore'])->name('usuarios.store');
-        Route::put('/usuarios/{user}', [\App\Http\Controllers\Admin\AdminPortalController::class, 'usuariosUpdate'])->name('usuarios.update');
-        Route::post('/usuarios/{user}/toggle-status', [\App\Http\Controllers\Admin\AdminPortalController::class, 'usuariosToggleStatus'])->name('usuarios.toggle-status');
+        // Gestión de Usuarios (CRUD completo, ver UserController)
+        Route::get('/usuarios', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('usuarios.index');
+        Route::get('/usuarios/crear', [\App\Http\Controllers\Admin\UserController::class, 'create'])->name('usuarios.create');
+        Route::post('/usuarios', [\App\Http\Controllers\Admin\UserController::class, 'store'])->name('usuarios.store');
+        Route::get('/usuarios/{user}', [\App\Http\Controllers\Admin\UserController::class, 'show'])->name('usuarios.show');
+        Route::get('/usuarios/{user}/editar', [\App\Http\Controllers\Admin\UserController::class, 'edit'])->name('usuarios.edit');
+        Route::put('/usuarios/{user}', [\App\Http\Controllers\Admin\UserController::class, 'update'])->name('usuarios.update');
+        Route::post('/usuarios/{user}/toggle-status', [\App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])->name('usuarios.toggle-status');
 
-        // Configuración de Malla Curricular
-        Route::get('/malla', [\App\Http\Controllers\Admin\AdminPortalController::class, 'mallaIndex'])->name('malla.index');
-        Route::post('/carreras', [\App\Http\Controllers\Admin\AdminPortalController::class, 'carreraStore'])->name('carreras.store');
-        Route::put('/carreras/{carrera}', [\App\Http\Controllers\Admin\AdminPortalController::class, 'carreraUpdate'])->name('carreras.update');
-        Route::post('/carreras/{carrera}/toggle-status', [\App\Http\Controllers\Admin\AdminPortalController::class, 'carreraToggleStatus'])->name('carreras.toggle-status');
+        // Carreras (CRUD completo, ver CarreraController)
+        Route::get('/carreras', [\App\Http\Controllers\Admin\CarreraController::class, 'index'])->name('carreras.index');
+        Route::get('/carreras/crear', [\App\Http\Controllers\Admin\CarreraController::class, 'create'])->name('carreras.create');
+        Route::post('/carreras', [\App\Http\Controllers\Admin\CarreraController::class, 'store'])->name('carreras.store');
+        Route::get('/carreras/{carrera}', [\App\Http\Controllers\Admin\CarreraController::class, 'show'])->name('carreras.show');
+        Route::get('/carreras/{carrera}/editar', [\App\Http\Controllers\Admin\CarreraController::class, 'edit'])->name('carreras.edit');
+        Route::put('/carreras/{carrera}', [\App\Http\Controllers\Admin\CarreraController::class, 'update'])->name('carreras.update');
+        Route::post('/carreras/{carrera}/toggle-status', [\App\Http\Controllers\Admin\CarreraController::class, 'toggleStatus'])->name('carreras.toggle-status');
+
+        // Asignaturas (malla curricular por carrera)
+        Route::get('/materias', [\App\Http\Controllers\Admin\AdminPortalController::class, 'materiasIndex'])->name('materias.index');
         Route::post('/materias', [\App\Http\Controllers\Admin\AdminPortalController::class, 'materiaStore'])->name('materias.store');
         Route::put('/materias/{materia}', [\App\Http\Controllers\Admin\AdminPortalController::class, 'materiaUpdate'])->name('materias.update');
         Route::delete('/materias/{materia}', [\App\Http\Controllers\Admin\AdminPortalController::class, 'materiaDestroy'])->name('materias.destroy');
@@ -235,55 +255,73 @@ Route::middleware(['auth', 'verified', 'role:secretaria|SystemAdministrador'])
     ->group(function () {
 
         // Expediente SGA
-        Route::get('/expediente', [SecretariaController::class, 'expedienteIndex'])
+        Route::get('/expediente', [\App\Http\Controllers\Secretaria\ExpedienteController::class, 'index'])
             ->name('expediente.index');
-        Route::patch('/expediente/{documento}/review', [SecretariaController::class, 'expedienteReview'])
+        Route::get('/expediente/{documento}', [\App\Http\Controllers\Secretaria\ExpedienteController::class, 'show'])
+            ->name('expediente.show');
+        Route::patch('/expediente/{documento}/review', [\App\Http\Controllers\Secretaria\ExpedienteController::class, 'review'])
             ->name('expediente.review');
 
         // Justificaciones
-        Route::get('/justificaciones', [SecretariaController::class, 'justificacionesIndex'])
+        Route::get('/justificaciones', [\App\Http\Controllers\Secretaria\JustificacionController::class, 'index'])
             ->name('justificaciones.index');
-        Route::patch('/justificaciones/{justificacion}/review', [SecretariaController::class, 'justificacionReview'])
+        Route::get('/justificaciones/{justificacion}', [\App\Http\Controllers\Secretaria\JustificacionController::class, 'show'])
+            ->name('justificaciones.show');
+        Route::patch('/justificaciones/{justificacion}/review', [\App\Http\Controllers\Secretaria\JustificacionController::class, 'review'])
             ->name('justificacion.review');
 
         // Matrículas
-        Route::get('/matriculas', [SecretariaController::class, 'matriculasIndex'])
+        Route::get('/matriculas', [\App\Http\Controllers\Secretaria\MatriculaController::class, 'index'])
             ->name('matriculas.index');
-        Route::post('/matriculas', [SecretariaController::class, 'matriculaStore'])
+        Route::get('/matriculas/crear', [\App\Http\Controllers\Secretaria\MatriculaController::class, 'create'])
+            ->name('matriculas.create');
+        Route::post('/matriculas', [\App\Http\Controllers\Secretaria\MatriculaController::class, 'store'])
             ->name('matriculas.store');
-        Route::patch('/matriculas/{matricula}/estado', [SecretariaController::class, 'matriculaUpdateEstado'])
+        Route::patch('/matriculas/{matricula}/estado', [\App\Http\Controllers\Secretaria\MatriculaController::class, 'updateEstado'])
             ->name('matriculas.update-estado');
 
         // Convocatorias
-        Route::get('/convocatorias', [SecretariaController::class, 'convocatoriasIndex'])
+        Route::get('/convocatorias', [\App\Http\Controllers\Secretaria\ConvocatoriaController::class, 'index'])
             ->name('convocatorias.index');
-        Route::post('/convocatorias', [SecretariaController::class, 'convocatoriaStore'])
+        Route::get('/convocatorias/crear', [\App\Http\Controllers\Secretaria\ConvocatoriaController::class, 'create'])
+            ->name('convocatorias.create');
+        Route::post('/convocatorias', [\App\Http\Controllers\Secretaria\ConvocatoriaController::class, 'store'])
             ->name('convocatorias.store');
-        Route::put('/convocatorias/{convocatoria}', [SecretariaController::class, 'convocatoriaUpdate'])
+        Route::get('/convocatorias/{convocatoria}', [\App\Http\Controllers\Secretaria\ConvocatoriaController::class, 'show'])
+            ->name('convocatorias.show');
+        Route::get('/convocatorias/{convocatoria}/editar', [\App\Http\Controllers\Secretaria\ConvocatoriaController::class, 'edit'])
+            ->name('convocatorias.edit');
+        Route::put('/convocatorias/{convocatoria}', [\App\Http\Controllers\Secretaria\ConvocatoriaController::class, 'update'])
             ->name('convocatorias.update');
-        Route::delete('/convocatorias/{convocatoria}', [SecretariaController::class, 'convocatoriaDestroy'])
+        Route::delete('/convocatorias/{convocatoria}', [\App\Http\Controllers\Secretaria\ConvocatoriaController::class, 'destroy'])
             ->name('convocatorias.destroy');
 
         // Grupos de Documentos
-        Route::get('/grupos-documentos', [SecretariaController::class, 'gruposDocumentosIndex'])
+        Route::get('/grupos-documentos', [\App\Http\Controllers\Secretaria\GrupoDocumentoController::class, 'index'])
             ->name('grupos-documentos.index');
-        Route::post('/grupos-documentos', [SecretariaController::class, 'grupoDocumentoStore'])
+        Route::get('/grupos-documentos/crear', [\App\Http\Controllers\Secretaria\GrupoDocumentoController::class, 'create'])
+            ->name('grupos-documentos.create');
+        Route::post('/grupos-documentos', [\App\Http\Controllers\Secretaria\GrupoDocumentoController::class, 'store'])
             ->name('grupos-documentos.store');
-        Route::post('/grupos-documentos/{grupo}/requisitos', [SecretariaController::class, 'requisitoStore'])
+        Route::get('/grupos-documentos/{grupo}', [\App\Http\Controllers\Secretaria\GrupoDocumentoController::class, 'show'])
+            ->name('grupos-documentos.show');
+        Route::post('/grupos-documentos/{grupo}/requisitos', [\App\Http\Controllers\Secretaria\GrupoDocumentoController::class, 'requisitoStore'])
             ->name('grupos-documentos.requisitos.store');
-        Route::post('/grupos-documentos/{grupo}/toggle', [SecretariaController::class, 'grupoDocumentoToggle'])
+        Route::post('/grupos-documentos/{grupo}/toggle', [\App\Http\Controllers\Secretaria\GrupoDocumentoController::class, 'toggle'])
             ->name('grupos-documentos.toggle');
 
         // Notificaciones Masivas
-        Route::get('/notificaciones-masivas', [SecretariaController::class, 'notificacionesMasivasIndex'])
+        Route::get('/notificaciones-masivas', [\App\Http\Controllers\Secretaria\NotificacionMasivaController::class, 'index'])
             ->name('notificaciones-masivas.index');
-        Route::post('/notificaciones-masivas', [SecretariaController::class, 'notificacionesMasivasStore'])
+        Route::post('/notificaciones-masivas', [\App\Http\Controllers\Secretaria\NotificacionMasivaController::class, 'store'])
             ->name('notificaciones-masivas.store');
 
         // Revisión de Sílabos
-        Route::get('/silabos', [SecretariaController::class, 'silabosIndex'])
+        Route::get('/silabos', [\App\Http\Controllers\Secretaria\SilaboRevisionController::class, 'index'])
             ->name('silabos.index');
-        Route::patch('/silabos/{silabo}/review', [SecretariaController::class, 'silaboReview'])
+        Route::get('/silabos/{silabo}', [\App\Http\Controllers\Secretaria\SilaboRevisionController::class, 'show'])
+            ->name('silabos.show');
+        Route::patch('/silabos/{silabo}/review', [\App\Http\Controllers\Secretaria\SilaboRevisionController::class, 'review'])
             ->name('silabos.review');
     });
 

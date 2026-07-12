@@ -11,6 +11,7 @@ use App\Models\Documentos\GrupoDocumento;
 use App\Models\Estudiantes\Falta;
 use App\Models\Estudiantes\Matricula;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Inertia\Inertia;
@@ -43,17 +44,27 @@ class ReporteController extends Controller
         };
     }
 
-    private function obtenerFilas(string $tipo, Request $request): Collection
+    private function tituloReporte(string $tipo): string
+    {
+        return $this->tiposDisponibles()[$tipo] ?? 'Reporte';
+    }
+
+    /**
+     * Query builder (sin ejecutar) según el tipo de reporte + filtros.
+     * Separado del mapeo de filas para poder reutilizarlo tanto paginado
+     * (vista previa) como completo (exportaciones).
+     */
+    private function query(string $tipo, Request $request): Builder
     {
         return match ($tipo) {
-            'matriculados' => $this->filasMatriculados($request),
-            'faltas' => $this->filasFaltas($request),
-            'documentos' => $this->filasDocumentos($request),
-            default => collect(),
+            'matriculados' => $this->queryMatriculados($request),
+            'faltas' => $this->queryFaltas($request),
+            'documentos' => $this->queryDocumentos($request),
+            default => Matricula::query()->whereRaw('1 = 0'),
         };
     }
 
-    private function filasMatriculados(Request $request): Collection
+    private function queryMatriculados(Request $request): Builder
     {
         $query = Matricula::with(['estudiante', 'carrera', 'periodo']);
 
@@ -64,18 +75,10 @@ class ReporteController extends Controller
             $query->where('carrera_id', $request->carrera_id);
         }
 
-        return $query->orderBy('id')->get()->map(fn ($m) => [
-            $m->estudiante->cedula,
-            $m->estudiante->name,
-            $m->estudiante->email,
-            $m->carrera->nombre,
-            $m->periodo->nombre,
-            $m->estado,
-            $m->fecha_matricula?->format('Y-m-d'),
-        ]);
+        return $query->orderBy('id');
     }
 
-    private function filasFaltas(Request $request): Collection
+    private function queryFaltas(Request $request): Builder
     {
         $query = Falta::with(['estudiante', 'materia', 'periodo', 'justificacion']);
 
@@ -83,18 +86,10 @@ class ReporteController extends Controller
             $query->where('periodo_id', $request->periodo_id);
         }
 
-        return $query->orderByDesc('fecha')->get()->map(fn ($f) => [
-            $f->estudiante->name,
-            $f->materia->nombre,
-            $f->periodo->nombre,
-            $f->fecha?->format('Y-m-d'),
-            $f->justificada ? 'Sí' : 'No',
-            $f->justificacion->estado ?? '—',
-            $f->motivo ?? '—',
-        ]);
+        return $query->orderByDesc('fecha');
     }
 
-    private function filasDocumentos(Request $request): Collection
+    private function queryDocumentos(Request $request): Builder
     {
         $query = DocumentoEstudiante::with(['estudiante', 'grupo', 'requisito']);
 
@@ -105,25 +100,59 @@ class ReporteController extends Controller
             $query->where('estado', $request->estado);
         }
 
-        return $query->orderByDesc('created_at')->get()->map(fn ($d) => [
-            $d->estudiante->name,
-            $d->estudiante->cedula,
-            $d->grupo->nombre ?? '—',
-            $d->requisito->nombre ?? '—',
-            $d->tipo_documento,
-            $d->estado,
-            $d->reviewed_at?->format('Y-m-d') ?? '—',
-        ]);
-    }
-
-    private function tituloReporte(string $tipo): string
-    {
-        return $this->tiposDisponibles()[$tipo] ?? 'Reporte';
+        return $query->orderByDesc('created_at');
     }
 
     /**
-     * Panel único: selector de tipo + filtros + vista previa en tabla.
-     * La vista previa ES el "preview"; no hay una pantalla separada para eso.
+     * Convierte un modelo ya cargado (con sus relaciones) en la fila de
+     * texto plano que se muestra en la tabla y se exporta.
+     */
+    private function mapRow(string $tipo, $model): array
+    {
+        return match ($tipo) {
+            'matriculados' => [
+                $model->estudiante->cedula,
+                $model->estudiante->name,
+                $model->estudiante->email,
+                $model->carrera->nombre,
+                $model->periodo->nombre,
+                $model->estado,
+                $model->fecha_matricula?->format('Y-m-d'),
+            ],
+            'faltas' => [
+                $model->estudiante->name,
+                $model->materia->nombre,
+                $model->periodo->nombre,
+                $model->fecha?->format('Y-m-d'),
+                $model->justificada ? 'Sí' : 'No',
+                $model->justificacion->estado ?? '—',
+                $model->motivo ?? '—',
+            ],
+            'documentos' => [
+                $model->estudiante->name,
+                $model->estudiante->cedula,
+                $model->grupo->nombre ?? '—',
+                $model->requisito->nombre ?? '—',
+                $model->tipo_documento,
+                $model->estado,
+                $model->reviewed_at?->format('Y-m-d') ?? '—',
+            ],
+            default => [],
+        };
+    }
+
+    /**
+     * Todas las filas que cumplen los filtros, sin paginar (para exportar).
+     */
+    private function obtenerTodasLasFilas(string $tipo, Request $request): Collection
+    {
+        return $this->query($tipo, $request)->get()->map(fn ($m) => $this->mapRow($tipo, $m));
+    }
+
+    /**
+     * Panel único: selector de tipo + filtros + vista previa paginada con
+     * el mismo patrón de tabla (@tanstack/vue-table + shadcn Table) y
+     * paginación server-side que el resto del sistema.
      */
     public function index(Request $request): Response
     {
@@ -132,15 +161,22 @@ class ReporteController extends Controller
             $tipo = 'matriculados';
         }
 
+        $perPage = max(1, min(100, (int) $request->input('per_page', 15)));
+
+        $paginado = $this->query($tipo, $request)
+            ->paginate($perPage)
+            ->withQueryString()
+            ->through(fn ($m) => $this->mapRow($tipo, $m));
+
         return Inertia::render('Reportes/Index', [
             'tipos' => $this->tiposDisponibles(),
             'tipoActual' => $tipo,
             'columnas' => $this->columnas($tipo),
-            'filas' => $this->obtenerFilas($tipo, $request),
+            'filas' => $paginado,
             'periodos' => PeriodoAcademico::orderByDesc('fecha_inicio')->get(['id', 'nombre']),
             'carreras' => Carrera::orderBy('nombre')->get(['id', 'nombre']),
             'grupos' => GrupoDocumento::orderBy('nombre')->get(['id', 'nombre']),
-            'filters' => $request->only(['periodo_id', 'carrera_id', 'grupo_id', 'estado']),
+            'filters' => $request->only(['periodo_id', 'carrera_id', 'grupo_id', 'estado', 'per_page']),
         ]);
     }
 
@@ -148,7 +184,7 @@ class ReporteController extends Controller
     {
         $tipo = $request->input('tipo', 'matriculados');
         $columnas = $this->columnas($tipo);
-        $filas = $this->obtenerFilas($tipo, $request);
+        $filas = $this->obtenerTodasLasFilas($tipo, $request);
         $filename = 'reporte_' . $tipo . '_' . now()->format('Ymd_His') . '.csv';
 
         return response()->streamDownload(function () use ($columnas, $filas) {
@@ -167,7 +203,7 @@ class ReporteController extends Controller
     {
         $tipo = $request->input('tipo', 'matriculados');
         $columnas = $this->columnas($tipo);
-        $filas = $this->obtenerFilas($tipo, $request);
+        $filas = $this->obtenerTodasLasFilas($tipo, $request);
         $filename = 'reporte_' . $tipo . '_' . now()->format('Ymd_His') . '.xlsx';
 
         return Excel::download(new ReporteExport($columnas, $filas), $filename);
@@ -178,7 +214,7 @@ class ReporteController extends Controller
         $tipo = $request->input('tipo', 'matriculados');
         $titulo = $this->tituloReporte($tipo);
         $columnas = $this->columnas($tipo);
-        $filas = $this->obtenerFilas($tipo, $request);
+        $filas = $this->obtenerTodasLasFilas($tipo, $request);
         $filename = 'reporte_' . $tipo . '_' . now()->format('Ymd_His') . '.pdf';
 
         $pdf = Pdf::loadView('reportes.pdf', compact('titulo', 'columnas', 'filas'))

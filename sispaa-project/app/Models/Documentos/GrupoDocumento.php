@@ -2,11 +2,14 @@
 
 namespace App\Models\Documentos;
 
+use App\Models\Traits\HasAuditFields;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
 class GrupoDocumento extends Model
 {
+    use HasAuditFields;
+
     protected $table = 'grupos_documentos';
 
     protected $fillable = [
@@ -33,5 +36,15 @@ class GrupoDocumento extends Model
     public function creadoPor()
     {
         return $this->belongsTo(User::class, 'creado_por');
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function updater()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
     }
 }

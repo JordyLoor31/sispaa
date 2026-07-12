@@ -3,21 +3,29 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Traits\HasBreadcrumbs;
 use App\Models\Admin\Carrera;
 use App\Models\Admin\PeriodoAcademico;
 use App\Models\Docencia\Materia;
 use App\Models\Docencia\InformeDocente;
 use App\Models\Estudiantes\Matricula;
+use App\Models\Investigacion\HitoInvestigacion;
+use App\Models\Investigacion\Investigacion;
+use App\Models\Laboratorio\Equipo;
+use App\Models\Laboratorio\PracticaLaboratorio;
+use App\Models\Laboratorio\Reactivo;
+use App\Models\Titulacion\Titulacion;
 use App\Models\User;
+use App\Models\Vinculacion\ActividadVinculacion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 use Inertia\Response;
-use Spatie\Permission\Models\Role;
 
 class AdminPortalController extends Controller
 {
+    use HasBreadcrumbs;
+
     /**
      * Dashboard / Métricas Globales
      */
@@ -33,14 +41,45 @@ class AdminPortalController extends Controller
         $totalRetirados = Matricula::where('estado', 'retirado')->count();
         $desercionEstudiantil = $totalMatriculados > 0 ? round(($totalRetirados / $totalMatriculados) * 100, 2) : 0;
 
-        // 3. Inventario (Simulado)
+        // 3. Inventario de Laboratorio (real, ya no simulado)
         $inventarioStats = [
-            'total_equipos' => 320,
-            'total_reactivos' => 145,
-            'reactivos_bajo_stock' => 8
+            'total_equipos' => Equipo::count(),
+            'total_reactivos' => Reactivo::count(),
+            'reactivos_bajo_stock' => Reactivo::where('estado', 'agotado')->orWhere('cantidad', '<=', 5)->count(),
         ];
 
-        // 4. Estadísticas generales
+        // 4. Investigación
+        $totalHitosInvestigacion = HitoInvestigacion::count();
+        $investigacionStats = [
+            'total_proyectos' => Investigacion::count(),
+            'en_curso' => Investigacion::where('estado', 'en_curso')->count(),
+            'finalizados' => Investigacion::where('estado', 'finalizada')->count(),
+            'hitos_completados' => HitoInvestigacion::where('porcentaje_avance', 100)->count(),
+            'total_hitos' => $totalHitosInvestigacion,
+        ];
+
+        // 5. Prácticas de Laboratorio
+        $laboratorioStats = [
+            'total_practicas' => PracticaLaboratorio::count(),
+            'estudiantes_atendidos' => (int) PracticaLaboratorio::sum('numero_estudiantes'),
+        ];
+
+        // 6. Vinculación
+        $vinculacionStats = [
+            'total_actividades' => ActividadVinculacion::count(),
+            'ejecutadas' => ActividadVinculacion::where('estado', 'ejecutado')->count(),
+            'pendientes' => ActividadVinculacion::where('estado', 'pendiente')->count(),
+        ];
+
+        // 7. Titulación
+        $titulacionStats = [
+            'total' => Titulacion::count(),
+            'en_proceso' => Titulacion::where('estado', 'en_proceso')->count(),
+            'defendido' => Titulacion::where('estado', 'defendido')->count(),
+            'graduado' => Titulacion::where('estado', 'graduado')->count(),
+        ];
+
+        // 8. Estadísticas generales
         $stats = [
             'cumplimiento_docente' => $cumplimientoDocente,
             'total_informes' => $totalInformes,
@@ -50,7 +89,11 @@ class AdminPortalController extends Controller
             'total_docentes' => User::role('docente')->count(),
             'total_carreras' => Carrera::count(),
             'total_materias' => Materia::count(),
-            'inventario' => $inventarioStats
+            'inventario' => $inventarioStats,
+            'investigacion' => $investigacionStats,
+            'laboratorio' => $laboratorioStats,
+            'vinculacion' => $vinculacionStats,
+            'titulacion' => $titulacionStats,
         ];
 
         // Cumplimiento por carreras
@@ -81,134 +124,17 @@ class AdminPortalController extends Controller
     }
 
     /**
-     * Gestión de Usuarios
+     * Malla Curricular: Asignaturas (la gestión de Carreras vive en
+     * CarreraController, separada para seguir el patrón Index/Create/Edit/Show).
      */
-    public function usuariosIndex(Request $request): Response
-    {
-        $q = $request->input('q');
-        $role = $request->input('role');
-        $perPage = (int) $request->input('per_page', 10);
-        $perPage = $perPage > 0 ? min(100, $perPage) : 10;
-
-        $query = User::with(['roles', 'carrera']);
-
-        if ($q) {
-            $query->where(function($w) use ($q) {
-                $w->where('name', 'like', "%{$q}%")
-                  ->orWhere('email', 'like', "%{$q}%")
-                  ->orWhere('cedula', 'like', "%{$q}%");
-            });
-        }
-
-        if ($role && $role !== 'all') {
-            $query->role($role);
-        }
-
-        $usuarios = $query->orderBy('name')->paginate($perPage)->withQueryString();
-        $roles = Role::all();
-        $carreras = Carrera::all();
-
-        return Inertia::render('Admin/Usuarios/Index', [
-            'usuarios' => $usuarios,
-            'roles' => $roles,
-            'carreras' => $carreras,
-            'filters' => $request->only(['q', 'role', 'per_page'])
-        ]);
-    }
-
-    /**
-     * Valida el arreglo de roles a asignar, incluyendo reglas de negocio de
-     * jerarquía (ej. 'coordinador' solo se puede otorgar a alguien que
-     * también tenga 'docente' — es un rol adicional, no un reemplazo).
-     */
-    private function validateRolesAssignment(Request $request): void
-    {
-        $request->validate([
-            'roles' => 'required|array|min:1',
-            'roles.*' => 'required|string|exists:roles,name',
-        ], [
-            'roles.required' => 'Selecciona al menos un rol.',
-        ]);
-
-        if (in_array('coordinador', $request->roles, true) && !in_array('docente', $request->roles, true)) {
-            throw \Illuminate\Validation\ValidationException::withMessages([
-                'roles' => 'El rol Coordinador solo se puede asignar a un usuario que también tenga el rol Docente.',
-            ]);
-        }
-    }
-
-    public function usuariosStore(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
-            'cedula' => 'nullable|string|max:10|unique:users',
-            'telefono' => 'nullable|string|max:15',
-            'carrera_id' => 'nullable|exists:carreras,id',
-        ]);
-        $this->validateRolesAssignment($request);
-
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'cedula' => $request->cedula,
-            'telefono' => $request->telefono,
-            'carrera_id' => $request->carrera_id,
-            'is_active' => true,
-        ]);
-
-        $user->syncRoles($request->roles);
-
-        return redirect()->back()->with('success', 'Usuario creado correctamente.');
-    }
-
-    public function usuariosUpdate(Request $request, User $user)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-            'cedula' => 'nullable|string|max:10|unique:users,cedula,' . $user->id,
-            'telefono' => 'nullable|string|max:15',
-            'carrera_id' => 'nullable|exists:carreras,id',
-        ]);
-        $this->validateRolesAssignment($request);
-
-        $user->update([
-            'name' => $request->name,
-            'email' => $request->email,
-            'cedula' => $request->cedula,
-            'telefono' => $request->telefono,
-            'carrera_id' => $request->carrera_id,
-        ]);
-
-        $user->syncRoles($request->roles);
-
-        return redirect()->back()->with('success', 'Usuario actualizado correctamente.');
-    }
-
-    public function usuariosToggleStatus(User $user)
-    {
-        $user->update([
-            'is_active' => !$user->is_active
-        ]);
-
-        return redirect()->back()->with('success', 'Estado del usuario actualizado.');
-    }
-
-    /**
-     * Malla Curricular
-     */
-    public function mallaIndex(Request $request): Response
+    public function materiasIndex(Request $request): Response
     {
         $carreraId = $request->input('carrera_id');
         $q = $request->input('q');
         $perPage = (int) $request->input('per_page', 10);
         $perPage = $perPage > 0 ? min(100, $perPage) : 10;
 
-        $carreras = Carrera::with('coordinador')->get();
-        $coordinadores = User::role(['coordinador', 'docente'])->get();
+        $carreras = Carrera::orderBy('nombre')->get(['id', 'nombre']);
 
         $query = Materia::with('carrera');
         if ($carreraId && $carreraId !== 'all') {
@@ -224,56 +150,12 @@ class AdminPortalController extends Controller
 
         $materias = $query->orderBy('nivel')->orderBy('nombre')->paginate($perPage)->withQueryString();
 
-        return Inertia::render('Admin/Carreras/Index', [
+        return Inertia::render('Admin/Materias/Index', [
             'carreras' => $carreras,
-            'coordinadores' => $coordinadores,
             'materias' => $materias,
-            'filters' => $request->only(['carrera_id', 'q', 'per_page'])
+            'filters' => $request->only(['carrera_id', 'q', 'per_page']),
+            'breadcrumbs' => $this->adminBreadcrumbs('Asignaturas'),
         ]);
-    }
-
-    public function carreraStore(Request $request)
-    {
-        $request->validate([
-            'nombre' => 'required|string|max:255',
-            'codigo' => 'required|string|max:10|unique:carreras',
-            'coordinador_id' => 'nullable|exists:users,id',
-        ]);
-
-        Carrera::create([
-            'nombre' => $request->nombre,
-            'codigo' => $request->codigo,
-            'coordinador_id' => $request->coordinador_id,
-            'activa' => true,
-        ]);
-
-        return redirect()->back()->with('success', 'Carrera creada correctamente.');
-    }
-
-    public function carreraUpdate(Request $request, Carrera $carrera)
-    {
-        $request->validate([
-            'nombre' => 'required|string|max:255',
-            'codigo' => 'required|string|max:10|unique:carreras,codigo,' . $carrera->id,
-            'coordinador_id' => 'nullable|exists:users,id',
-        ]);
-
-        $carrera->update([
-            'nombre' => $request->nombre,
-            'codigo' => $request->codigo,
-            'coordinador_id' => $request->coordinador_id,
-        ]);
-
-        return redirect()->back()->with('success', 'Carrera actualizada correctamente.');
-    }
-
-    public function carreraToggleStatus(Carrera $carrera)
-    {
-        $carrera->update([
-            'activa' => !$carrera->activa
-        ]);
-
-        return redirect()->back()->with('success', 'Estado de la carrera actualizado.');
     }
 
     public function materiaStore(Request $request)
@@ -339,28 +221,25 @@ class AdminPortalController extends Controller
      */
     public function fechasIndex(): Response
     {
-        $periodos = PeriodoAcademico::with('carrera')->orderBy('id', 'desc')->get();
-        $carreras = Carrera::all();
+        $periodos = PeriodoAcademico::orderBy('id', 'desc')->get();
 
         return Inertia::render('Admin/PeriodosAcademicos', [
             'periodos' => $periodos,
-            'carreras' => $carreras,
         ]);
     }
 
     public function periodoStore(Request $request)
     {
         $request->validate([
-            'carrera_id' => 'required|exists:carreras,id',
-            'nombre' => 'required|string|max:255',
+            'nombre' => 'required|string|max:255|unique:periodos_academicos,nombre',
             'fecha_inicio' => 'required|date',
             'fecha_fin' => 'required|date|after:fecha_inicio',
             'tipo' => 'required|in:semestral,anual',
         ]);
 
-        // Si se crea como activo, desactivar los otros periodos de esa carrera
+        // Un periodo es una sola entidad compartida por todas las carreras
+        // (ej. "2026-1"), no un registro por carrera.
         PeriodoAcademico::create([
-            'carrera_id' => $request->carrera_id,
             'nombre' => $request->nombre,
             'fecha_inicio' => $request->fecha_inicio,
             'fecha_fin' => $request->fecha_fin,
@@ -374,17 +253,15 @@ class AdminPortalController extends Controller
     public function periodoUpdate(Request $request, PeriodoAcademico $periodo)
     {
         $request->validate([
-            'nombre' => 'required|string|max:255',
+            'nombre' => 'required|string|max:255|unique:periodos_academicos,nombre,' . $periodo->id,
             'fecha_inicio' => 'required|date',
             'fecha_fin' => 'required|date|after:fecha_inicio',
             'activo' => 'required|boolean',
         ]);
 
         if ($request->activo) {
-            // Desactivar otros para esta carrera
-            PeriodoAcademico::where('carrera_id', $periodo->carrera_id)
-                ->where('id', '!=', $periodo->id)
-                ->update(['activo' => false]);
+            // Solo un periodo puede estar activo a la vez a nivel institucional.
+            PeriodoAcademico::where('id', '!=', $periodo->id)->update(['activo' => false]);
         }
 
         $periodo->update([

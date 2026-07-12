@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link } from '@inertiajs/vue3';
-import { Book, Feather, FlaskConical, GraduationCap, Handshake, Search, AlertTriangle, Users, BookOpen, Layers, CheckCircle2, TrendingDown } from 'lucide-vue-next';
+import { Head } from '@inertiajs/vue3';
+import { FlaskConical, GraduationCap, Handshake, Search, AlertTriangle, Users, BookOpen, Layers, TrendingDown } from 'lucide-vue-next';
 import { computed } from 'vue';
 import type { ApexOptions } from 'apexcharts';
 import ApexChart from 'vue3-apexcharts';
@@ -27,6 +27,28 @@ interface Stats {
         total_equipos: number;
         total_reactivos: number;
         reactivos_bajo_stock: number;
+    };
+    investigacion: {
+        total_proyectos: number;
+        en_curso: number;
+        finalizados: number;
+        hitos_completados: number;
+        total_hitos: number;
+    };
+    laboratorio: {
+        total_practicas: number;
+        estudiantes_atendidos: number;
+    };
+    vinculacion: {
+        total_actividades: number;
+        ejecutadas: number;
+        pendientes: number;
+    };
+    titulacion: {
+        total: number;
+        en_proceso: number;
+        defendido: number;
+        graduado: number;
     };
 }
 
@@ -91,72 +113,7 @@ const adminChartOptions = computed<ApexOptions>(() => ({
     }
 }));
 
-// --- LÓGICA MÓDULO GENERAL / RESPALDO ---
-interface IndicatorDetail {
-    label: string;
-    value: string | number;
-    color?: string;
-}
-
-interface Indicator {
-    title: string;
-    mainValue: string | number;
-    mainLabel: string;
-    icon: any;
-    color: string;
-    details?: IndicatorDetail[];
-}
-
-const indicators: Indicator[] = [
-    {
-        title: 'Docencia',
-        mainValue: '85%',
-        mainLabel: 'Cumplimiento',
-        icon: Feather,
-        color: 'bg-blue-500',
-        details: [
-            { label: 'Informes Cumplidos', value: 42, color: 'text-green-600 font-bold' },
-            { label: 'Informes Pendientes', value: 6, color: 'text-yellow-600 font-bold' },
-            { label: 'Informes Incumplidos', value: 2, color: 'text-red-600 font-bold' },
-        ],
-    },
-    {
-        title: 'Investigación',
-        mainValue: '78%',
-        mainLabel: 'Informes Subidos',
-        icon: Search,
-        color: 'bg-purple-500',
-        details: [
-            { label: 'Proyectos Activos', value: 12, color: 'text-slate-700 font-semibold' },
-            { label: 'Hitos Avanzados', value: 8, color: 'text-slate-700 font-semibold' },
-            { label: 'En Revisión', value: 4, color: 'text-slate-700 font-semibold' },
-        ],
-    },
-    {
-        title: 'Estudiantes',
-        mainValue: 342,
-        mainLabel: 'Matriculados',
-        icon: Book,
-        color: 'bg-green-500',
-        details: [
-            { label: 'Activos', value: 318, color: 'text-slate-700 font-semibold' },
-            { label: 'Retirados', value: 15, color: 'text-slate-700 font-semibold' },
-            { label: 'Faltas Registradas', value: 127, color: 'text-slate-700 font-semibold' },
-        ],
-    },
-    {
-        title: 'Prácticas de Laboratorio',
-        mainValue: 156,
-        mainLabel: 'Realizadas',
-        icon: FlaskConical,
-        color: 'bg-orange-500',
-        details: [
-            { label: 'Agropecuaria', value: 52, color: 'text-slate-700 font-semibold' },
-            { label: 'Agronegocios', value: 61, color: 'text-slate-700 font-semibold' },
-            { label: 'Agroindustria', value: 43, color: 'text-slate-700 font-semibold' },
-        ],
-    },
-];
+const porcentaje = (parte: number, total: number) => (total > 0 ? Math.round((parte / total) * 100) : 0);
 </script>
 
 <template>
@@ -320,34 +277,71 @@ const indicators: Indicator[] = [
                         </div>
                     </div>
                 </div>
-            </template>
 
-            <!-- 2. VISTA DE RESPALDO (O ADMINISTRADOR GENERAL ORIGINAL) -->
-            <template v-else>
-                <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    <div
-                        v-for="indicator in indicators"
-                        :key="indicator.title"
-                        class="border-slate-200/80 overflow-hidden rounded-lg border bg-white dark:border-slate-800 dark:bg-slate-950 transition-shadow"
-                    >
-                        <div class="flex items-start justify-between p-6 pb-4">
-                            <div class="flex-1">
-                                <p class="text-sm font-semibold text-slate-500">{{ indicator.title }}</p>
-                                <p class="mt-2 text-3xl font-bold text-slate-900 dark:text-white">{{ indicator.mainValue }}</p>
-                                <p class="text-xs text-slate-400 mt-2">{{ indicator.mainLabel }}</p>
-                            </div>
-                            <div :class="[indicator.color, 'flex items-center justify-center rounded-lg p-3 text-white']">
-                                <component :is="indicator.icon" class="h-6 w-6" />
-                            </div>
+                <!-- Indicadores agregados por módulo -->
+                <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                    <!-- Investigación -->
+                    <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-semibold text-slate-500">Investigación</span>
+                            <Search class="h-5 w-5 text-purple-500" />
                         </div>
+                        <div class="mt-4">
+                            <span class="text-3xl font-extrabold text-slate-900 dark:text-white">{{ stats.investigacion.total_proyectos }}</span>
+                        </div>
+                        <p class="mt-2 text-xs text-slate-400">Proyectos registrados</p>
+                        <div class="mt-4 space-y-1.5 border-t border-slate-100 dark:border-slate-800 pt-3 text-xs">
+                            <div class="flex justify-between"><span class="text-slate-500">En curso</span><span class="font-bold text-slate-800 dark:text-slate-200">{{ stats.investigacion.en_curso }}</span></div>
+                            <div class="flex justify-between"><span class="text-slate-500">Finalizados</span><span class="font-bold text-slate-800 dark:text-slate-200">{{ stats.investigacion.finalizados }}</span></div>
+                            <div class="flex justify-between"><span class="text-slate-500">Hitos completados</span><span class="font-bold text-emerald-600 dark:text-emerald-400">{{ porcentaje(stats.investigacion.hitos_completados, stats.investigacion.total_hitos) }}%</span></div>
+                        </div>
+                    </div>
 
-                        <div v-if="indicator.details" class="bg-slate-50 dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800/80 px-6 py-4">
-                            <div class="space-y-2">
-                                <div v-for="(detail, idx) in indicator.details" :key="idx" class="flex items-center justify-between text-xs">
-                                    <span class="text-slate-500">{{ detail.label }}</span>
-                                    <span :class="[detail.color || 'font-semibold text-slate-700 dark:text-slate-350']">{{ detail.value }}</span>
-                                </div>
-                            </div>
+                    <!-- Prácticas de Laboratorio -->
+                    <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-semibold text-slate-500">Prácticas de Laboratorio</span>
+                            <FlaskConical class="h-5 w-5 text-orange-500" />
+                        </div>
+                        <div class="mt-4">
+                            <span class="text-3xl font-extrabold text-slate-900 dark:text-white">{{ stats.laboratorio.total_practicas }}</span>
+                        </div>
+                        <p class="mt-2 text-xs text-slate-400">Prácticas registradas</p>
+                        <div class="mt-4 space-y-1.5 border-t border-slate-100 dark:border-slate-800 pt-3 text-xs">
+                            <div class="flex justify-between"><span class="text-slate-500">Estudiantes atendidos</span><span class="font-bold text-slate-800 dark:text-slate-200">{{ stats.laboratorio.estudiantes_atendidos }}</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Vinculación -->
+                    <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-semibold text-slate-500">Vinculación</span>
+                            <Handshake class="h-5 w-5 text-emerald-500" />
+                        </div>
+                        <div class="mt-4">
+                            <span class="text-3xl font-extrabold text-slate-900 dark:text-white">{{ stats.vinculacion.total_actividades }}</span>
+                        </div>
+                        <p class="mt-2 text-xs text-slate-400">Actividades registradas</p>
+                        <div class="mt-4 space-y-1.5 border-t border-slate-100 dark:border-slate-800 pt-3 text-xs">
+                            <div class="flex justify-between"><span class="text-slate-500">Ejecutadas</span><span class="font-bold text-emerald-600 dark:text-emerald-400">{{ stats.vinculacion.ejecutadas }}</span></div>
+                            <div class="flex justify-between"><span class="text-slate-500">Pendientes</span><span class="font-bold text-amber-600 dark:text-amber-400">{{ stats.vinculacion.pendientes }}</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Titulación -->
+                    <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-semibold text-slate-500">Titulación</span>
+                            <GraduationCap class="h-5 w-5 text-indigo-500" />
+                        </div>
+                        <div class="mt-4">
+                            <span class="text-3xl font-extrabold text-slate-900 dark:text-white">{{ stats.titulacion.total }}</span>
+                        </div>
+                        <p class="mt-2 text-xs text-slate-400">Procesos registrados</p>
+                        <div class="mt-4 space-y-1.5 border-t border-slate-100 dark:border-slate-800 pt-3 text-xs">
+                            <div class="flex justify-between"><span class="text-slate-500">En proceso</span><span class="font-bold text-amber-600 dark:text-amber-400">{{ stats.titulacion.en_proceso }}</span></div>
+                            <div class="flex justify-between"><span class="text-slate-500">Defendidos</span><span class="font-bold text-slate-800 dark:text-slate-200">{{ stats.titulacion.defendido }}</span></div>
+                            <div class="flex justify-between"><span class="text-slate-500">Graduados</span><span class="font-bold text-emerald-600 dark:text-emerald-400">{{ stats.titulacion.graduado }}</span></div>
                         </div>
                     </div>
                 </div>

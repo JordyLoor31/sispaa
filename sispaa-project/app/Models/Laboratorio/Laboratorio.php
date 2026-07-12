@@ -2,10 +2,13 @@
 
 namespace App\Models\Laboratorio;
 
+use App\Models\Traits\HasAuditFields;
 use Illuminate\Database\Eloquent\Model;
 
 class Laboratorio extends Model
 {
+    use HasAuditFields;
+
     protected $table = 'laboratorios';
 
     protected $fillable = [
@@ -40,5 +43,15 @@ class Laboratorio extends Model
     public function practicas()
     {
         return $this->hasMany(PracticaLaboratorio::class);
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'created_by');
+    }
+
+    public function updater()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'updated_by');
     }
 }

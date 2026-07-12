@@ -2,10 +2,13 @@
 
 namespace App\Models\Estudiantes;
 
+use App\Models\Traits\HasAuditFields;
 use Illuminate\Database\Eloquent\Model;
 
 class JustificacionSolicitud extends Model
 {
+    use HasAuditFields;
+
     protected $table = 'justificaciones_solicitudes';
 
     protected $fillable = [
@@ -34,5 +37,15 @@ class JustificacionSolicitud extends Model
             'falta_id',    // FK local en justificaciones
             'estudiante_id' // FK en faltas -> users
         );
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'created_by');
+    }
+
+    public function updater()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'updated_by');
     }
 }

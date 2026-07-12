@@ -2,12 +2,13 @@
 
 namespace App\Models\Titulacion;
 
+use App\Models\Traits\HasAuditFields;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Titulacion extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, HasAuditFields;
 
     protected $table = 'titulaciones';
 
@@ -33,5 +34,15 @@ class Titulacion extends Model
     public function tutor()
     {
         return $this->belongsTo(\App\Models\User::class, 'tutor_id');
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'created_by');
+    }
+
+    public function updater()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'updated_by');
     }
 }
