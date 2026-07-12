@@ -1,7 +1,12 @@
 <script setup lang="ts">
-import { useForm, Link } from '@inertiajs/vue3';
-import { watch, computed, ref } from 'vue';
+import { Link, router } from '@inertiajs/vue3';
+import { toTypedSchema } from '@vee-validate/zod';
+import { useForm } from 'vee-validate';
+import * as z from 'zod';
+import { computed, ref, watch } from 'vue';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Check, ChevronsUpDown, ArrowLeft } from 'lucide-vue-next';
 import {
     Combobox,
@@ -22,128 +27,196 @@ const props = defineProps<{
     carreras: Carrera[];
 }>();
 
-const form = useForm({
-    name: props.usuario?.name ?? '',
-    email: props.usuario?.email ?? '',
-    password: '',
-    roles: props.usuario?.roles.map((r) => r.name) ?? [] as string[],
-    cedula: props.usuario?.cedula ?? '',
-    telefono: props.usuario?.telefono ?? '',
-    carrera_id: (props.usuario?.carrera_id ?? '') as number | string,
+const formSchema = toTypedSchema(
+    z
+        .object({
+            name: z.string().min(1, 'El nombre es obligatorio.').max(255, 'El nombre no puede superar los 255 caracteres.'),
+            email: z.string().min(1, 'El correo es obligatorio.').email('Ingresa un correo electrónico válido.').max(255, 'El correo no puede superar los 255 caracteres.'),
+            password: props.usuario
+                ? z.string().optional()
+                : z.string().min(8, 'La contraseña debe tener al menos 8 caracteres.'),
+            roles: z.array(z.string()).min(1, 'Selecciona al menos un rol.'),
+            cedula: z.string().max(10, 'La cédula no puede superar los 10 caracteres.').nullable().optional(),
+            telefono: z.string().max(15, 'El teléfono no puede superar los 15 caracteres.').nullable().optional(),
+            carrera_id: z.union([z.string(), z.number()]).nullable(),
+        })
+        .refine((data) => !data.roles.includes('coordinador') || data.roles.includes('docente'), {
+            message: 'El rol Coordinador solo se puede asignar a un usuario que también tenga el rol Docente.',
+            path: ['roles'],
+        }),
+);
+
+const { handleSubmit, setErrors, defineField } = useForm({
+    validationSchema: formSchema,
+    initialValues: {
+        name: props.usuario?.name ?? '',
+        email: props.usuario?.email ?? '',
+        password: '',
+        roles: props.usuario?.roles.map((r) => r.name) ?? ([] as string[]),
+        cedula: props.usuario?.cedula ?? '',
+        telefono: props.usuario?.telefono ?? '',
+        carrera_id: props.usuario?.carrera_id ?? null,
+    },
 });
 
-const selectedCarreraObj = ref<{ value: string | number, label: string } | null>(
-    props.usuario?.carrera ? { value: props.usuario.carrera.id, label: props.usuario.carrera.nombre } : null
+const [roles] = defineField('roles');
+const [carreraId] = defineField('carrera_id');
+
+const selectedCarreraObj = ref<{ value: string | number; label: string } | null>(
+    props.usuario?.carrera ? { value: props.usuario.carrera.id, label: props.usuario.carrera.nombre } : null,
 );
 
 // 'coordinador' es un rol adicional sobre 'docente', no un reemplazo:
 // solo se puede marcar si 'docente' también está marcado.
-const hasDocente = computed(() => form.roles.includes('docente'));
+const hasDocente = computed(() => (roles.value ?? []).includes('docente'));
 
 const toggleRole = (roleName: string) => {
-    const idx = form.roles.indexOf(roleName);
+    const current = [...(roles.value ?? [])];
+    const idx = current.indexOf(roleName);
     if (idx >= 0) {
-        form.roles.splice(idx, 1);
+        current.splice(idx, 1);
         if (roleName === 'docente') {
-            const coordIdx = form.roles.indexOf('coordinador');
-            if (coordIdx >= 0) form.roles.splice(coordIdx, 1);
+            const coordIdx = current.indexOf('coordinador');
+            if (coordIdx >= 0) current.splice(coordIdx, 1);
         }
     } else {
-        form.roles.push(roleName);
+        current.push(roleName);
     }
+    roles.value = current;
 };
 
 watch(selectedCarreraObj, (newVal) => {
-    form.carrera_id = newVal ? newVal.value : '';
+    carreraId.value = newVal ? newVal.value : null;
 });
 
-const submit = () => {
-    const payload = { ...form.data(), carrera_id: form.carrera_id === '' ? null : form.carrera_id };
-    form.transform(() => payload);
+const processing = ref(false);
+
+const onSubmit = handleSubmit((values) => {
+    processing.value = true;
+
+    const payload = {
+        ...values,
+        carrera_id: values.carrera_id === '' ? null : values.carrera_id,
+    };
+
+    const options = {
+        onError: (serverErrors: Record<string, string>) => {
+            setErrors(serverErrors);
+            processing.value = false;
+        },
+        onFinish: () => {
+            processing.value = false;
+        },
+    };
 
     if (props.usuario) {
-        form.put(route('admin.usuarios.update', props.usuario.id));
+        router.put(route('admin.usuarios.update', props.usuario.id), payload, options);
     } else {
-        form.post(route('admin.usuarios.store'));
+        router.post(route('admin.usuarios.store'), payload, options);
     }
-};
+});
 </script>
 
 <template>
-    <form @submit.prevent="submit" class="space-y-4 max-w-xl">
+    <form class="max-w-xl space-y-4" @submit="onSubmit">
         <div class="grid grid-cols-2 gap-4">
-            <div class="col-span-2">
-                <label class="block text-xs font-bold text-slate-500 uppercase">Nombre Completo *</label>
-                <input v-model="form.name" type="text" required class="mt-1 w-full rounded-lg border-slate-200 text-sm focus:ring-indigo-500 focus:border-indigo-500 dark:border-slate-850 dark:bg-slate-950 dark:text-slate-350" />
-                <div v-if="form.errors.name" class="text-xs text-rose-500 mt-1">{{ form.errors.name }}</div>
-            </div>
+            <FormField v-slot="{ componentField }" name="name">
+                <FormItem class="col-span-2">
+                    <FormLabel>Nombre Completo *</FormLabel>
+                    <FormControl>
+                        <Input type="text" v-bind="componentField" />
+                    </FormControl>
+                    <FormMessage />
+                </FormItem>
+            </FormField>
 
-            <div class="col-span-2">
-                <label class="block text-xs font-bold text-slate-500 uppercase">Correo Electrónico *</label>
-                <input v-model="form.email" type="email" required class="mt-1 w-full rounded-lg border-slate-200 text-sm focus:ring-indigo-500 focus:border-indigo-500 dark:border-slate-850 dark:bg-slate-950 dark:text-slate-350" />
-                <div v-if="form.errors.email" class="text-xs text-rose-500 mt-1">{{ form.errors.email }}</div>
-            </div>
+            <FormField v-slot="{ componentField }" name="email">
+                <FormItem class="col-span-2">
+                    <FormLabel>Correo Electrónico *</FormLabel>
+                    <FormControl>
+                        <Input type="email" v-bind="componentField" />
+                    </FormControl>
+                    <FormMessage />
+                </FormItem>
+            </FormField>
 
-            <div v-if="!usuario" class="col-span-2">
-                <label class="block text-xs font-bold text-slate-500 uppercase">Contraseña *</label>
-                <input v-model="form.password" type="password" required class="mt-1 w-full rounded-lg border-slate-200 text-sm focus:ring-indigo-500 focus:border-indigo-500 dark:border-slate-850 dark:bg-slate-950 dark:text-slate-350" />
-                <div v-if="form.errors.password" class="text-xs text-rose-500 mt-1">{{ form.errors.password }}</div>
-            </div>
+            <FormField v-if="!usuario" v-slot="{ componentField }" name="password">
+                <FormItem class="col-span-2">
+                    <FormLabel>Contraseña *</FormLabel>
+                    <FormControl>
+                        <Input type="password" v-bind="componentField" />
+                    </FormControl>
+                    <FormMessage />
+                </FormItem>
+            </FormField>
 
-            <div>
-                <label class="block text-xs font-bold text-slate-500 uppercase">Cédula</label>
-                <input v-model="form.cedula" type="text" maxlength="10" class="mt-1 w-full rounded-lg border-slate-200 text-sm focus:ring-indigo-500 focus:border-indigo-500 dark:border-slate-850 dark:bg-slate-950 dark:text-slate-350" />
-                <div v-if="form.errors.cedula" class="text-xs text-rose-500 mt-1">{{ form.errors.cedula }}</div>
-            </div>
+            <FormField v-slot="{ componentField }" name="cedula">
+                <FormItem>
+                    <FormLabel>Cédula</FormLabel>
+                    <FormControl>
+                        <Input type="text" maxlength="10" v-bind="componentField" />
+                    </FormControl>
+                    <FormMessage />
+                </FormItem>
+            </FormField>
 
-            <div>
-                <label class="block text-xs font-bold text-slate-500 uppercase">Teléfono</label>
-                <input v-model="form.telefono" type="text" class="mt-1 w-full rounded-lg border-slate-200 text-sm focus:ring-indigo-500 focus:border-indigo-500 dark:border-slate-850 dark:bg-slate-950 dark:text-slate-350" />
-                <div v-if="form.errors.telefono" class="text-xs text-rose-500 mt-1">{{ form.errors.telefono }}</div>
-            </div>
+            <FormField v-slot="{ componentField }" name="telefono">
+                <FormItem>
+                    <FormLabel>Teléfono</FormLabel>
+                    <FormControl>
+                        <Input type="text" v-bind="componentField" />
+                    </FormControl>
+                    <FormMessage />
+                </FormItem>
+            </FormField>
 
-            <div class="col-span-2">
-                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Roles *</label>
-                <div class="flex flex-wrap gap-2 mt-1">
-                    <button
-                        v-for="role in roles"
-                        :key="role.id"
-                        type="button"
-                        @click="toggleRole(role.name)"
-                        :disabled="role.name === 'coordinador' && !hasDocente"
-                        :class="['inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold border transition-colors',
-                            form.roles.includes(role.name)
-                                ? 'bg-indigo-600 border-indigo-600 text-white'
-                                : 'bg-white border-slate-200 text-slate-600 hover:border-indigo-300 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-300',
-                            (role.name === 'coordinador' && !hasDocente) ? 'opacity-40 cursor-not-allowed hover:border-slate-200' : '']"
-                    >
-                        <Check v-if="form.roles.includes(role.name)" class="h-3.5 w-3.5" />
-                        {{ role.name.charAt(0).toUpperCase() + role.name.slice(1) }}
-                    </button>
-                </div>
-                <p class="text-xs text-slate-400 mt-1.5">
-                    "Coordinador" es un rol adicional: solo se puede marcar junto con "Docente".
-                </p>
-                <div v-if="form.errors.roles" class="text-xs text-rose-500 mt-1">{{ form.errors.roles }}</div>
-            </div>
+            <FormField v-slot="{ errorMessage }" name="roles">
+                <FormItem class="col-span-2">
+                    <FormLabel>Roles *</FormLabel>
+                    <div class="mt-1 flex flex-wrap gap-2">
+                        <button
+                            v-for="role in props.roles"
+                            :key="role.id"
+                            type="button"
+                            :disabled="role.name === 'coordinador' && !hasDocente"
+                            :class="[
+                                'inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors',
+                                (roles ?? []).includes(role.name)
+                                    ? 'border-indigo-600 bg-indigo-600 text-white'
+                                    : 'border-slate-200 bg-white text-slate-600 hover:border-indigo-300 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300',
+                                role.name === 'coordinador' && !hasDocente ? 'cursor-not-allowed opacity-40 hover:border-slate-200' : '',
+                            ]"
+                            @click="toggleRole(role.name)"
+                        >
+                            <Check v-if="(roles ?? []).includes(role.name)" class="h-3.5 w-3.5" />
+                            {{ role.name.charAt(0).toUpperCase() + role.name.slice(1) }}
+                        </button>
+                    </div>
+                    <p class="mt-1.5 text-xs text-slate-400">"Coordinador" es un rol adicional: solo se puede marcar junto con "Docente".</p>
+                    <p v-if="errorMessage" class="mt-1 text-sm font-medium text-destructive">{{ errorMessage }}</p>
+                </FormItem>
+            </FormField>
 
-            <div>
-                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Carrera</label>
+            <FormItem>
+                <FormLabel>Carrera</FormLabel>
                 <Combobox v-model="selectedCarreraObj" by="value">
                     <ComboboxAnchor as-child>
                         <ComboboxTrigger as-child>
-                            <Button type="button" variant="outline" class="w-full justify-between text-left text-sm font-normal border-slate-200 focus:ring-indigo-500 focus:border-indigo-500 dark:border-slate-850 dark:bg-slate-950 dark:text-slate-350 mt-1">
+                            <Button type="button" variant="outline" class="mt-1 w-full justify-between text-left text-sm font-normal">
                                 {{ selectedCarreraObj ? selectedCarreraObj.label : 'Ninguna (General)' }}
                                 <ChevronsUpDown class="h-4 w-4 opacity-50" />
                             </Button>
                         </ComboboxTrigger>
                     </ComboboxAnchor>
 
-                    <ComboboxList class="w-[var(--reka-combobox-trigger-width)] min-w-[250px] bg-white dark:bg-slate-950 border border-slate-100 dark:border-slate-900 rounded-lg shadow-lg">
-                        <ComboboxInput placeholder="Buscar carrera..." class="w-full border-0 border-b border-slate-105 dark:border-slate-850 bg-transparent text-sm focus:ring-0 py-2.5 px-3" />
+                    <ComboboxList class="w-[var(--reka-combobox-trigger-width)] min-w-[250px] rounded-lg border border-slate-100 bg-white shadow-lg dark:border-slate-900 dark:bg-slate-950">
+                        <ComboboxInput placeholder="Buscar carrera..." class="w-full border-0 border-b border-slate-105 bg-transparent px-3 py-2.5 text-sm focus:ring-0 dark:border-slate-850" />
                         <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron carreras.</ComboboxEmpty>
                         <ComboboxGroup class="max-h-60 overflow-y-auto p-1">
-                            <ComboboxItem :value="{ value: '', label: 'Ninguna (General)' }" class="flex items-center justify-between px-3 py-2 text-sm rounded-md cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 data-[state=checked]:bg-slate-100 dark:data-[state=checked]:bg-slate-800">
+                            <ComboboxItem
+                                :value="{ value: '', label: 'Ninguna (General)' }"
+                                class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800"
+                            >
                                 Ninguna (General)
                                 <ComboboxItemIndicator>
                                     <Check class="h-4 w-4 text-indigo-650" />
@@ -153,7 +226,7 @@ const submit = () => {
                                 v-for="c in carreras"
                                 :key="c.id"
                                 :value="{ value: c.id, label: c.nombre }"
-                                class="flex items-center justify-between px-3 py-2 text-sm rounded-md cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 data-[state=checked]:bg-slate-100 dark:data-[state=checked]:bg-slate-800"
+                                class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800"
                             >
                                 {{ c.nombre }}
                                 <ComboboxItemIndicator>
@@ -163,16 +236,16 @@ const submit = () => {
                         </ComboboxGroup>
                     </ComboboxList>
                 </Combobox>
-            </div>
+            </FormItem>
         </div>
 
-        <div class="flex justify-between items-center border-t border-slate-100 pt-4 dark:border-slate-850">
+        <div class="flex items-center justify-between border-t border-slate-100 pt-4 dark:border-slate-850">
             <Button as-child variant="outline" type="button">
                 <Link :href="route('admin.usuarios.index')">
-                    <ArrowLeft class="h-4 w-4 mr-1.5" /> Volver
+                    <ArrowLeft class="mr-1.5 h-4 w-4" /> Volver
                 </Link>
             </Button>
-            <Button type="submit" :disabled="form.processing" class="bg-indigo-600 hover:bg-indigo-500 text-white">
+            <Button type="submit" :disabled="processing" class="bg-indigo-600 text-white hover:bg-indigo-500">
                 {{ usuario ? 'Guardar Cambios' : 'Crear Usuario' }}
             </Button>
         </div>

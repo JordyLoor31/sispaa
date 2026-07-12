@@ -1,6 +1,12 @@
 <script setup lang="ts">
-import { useForm } from '@inertiajs/vue3';
+import { router } from '@inertiajs/vue3';
+import { toTypedSchema } from '@vee-validate/zod';
+import { useForm } from 'vee-validate';
+import * as z from 'zod';
+import { ref } from 'vue';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import type { Empresa } from './types';
 
 const props = defineProps<{
@@ -9,45 +15,91 @@ const props = defineProps<{
 
 const isEditing = !!props.empresa;
 
-const form = useForm({
-    nombre: props.empresa?.nombre ?? '',
-    ruc: props.empresa?.ruc ?? '',
-    sector: props.empresa?.sector ?? '',
-    contacto: props.empresa?.contacto ?? '',
+const formSchema = toTypedSchema(
+    z.object({
+        nombre: z.string().min(1, 'El nombre es obligatorio.').max(255, 'El nombre no puede superar los 255 caracteres.'),
+        ruc: z.string().max(13, 'El RUC no puede superar los 13 caracteres.').nullable().optional(),
+        sector: z.string().max(255, 'El sector no puede superar los 255 caracteres.').nullable().optional(),
+        contacto: z.string().max(255, 'El contacto no puede superar los 255 caracteres.').nullable().optional(),
+    }),
+);
+
+const { handleSubmit, setErrors } = useForm({
+    validationSchema: formSchema,
+    initialValues: {
+        nombre: props.empresa?.nombre ?? '',
+        ruc: props.empresa?.ruc ?? '',
+        sector: props.empresa?.sector ?? '',
+        contacto: props.empresa?.contacto ?? '',
+    },
 });
 
-const submit = () => {
+const processing = ref(false);
+
+const onSubmit = handleSubmit((values) => {
+    processing.value = true;
+
+    const options = {
+        preserveScroll: true,
+        onError: (serverErrors: Record<string, string>) => setErrors(serverErrors),
+        onFinish: () => {
+            processing.value = false;
+        },
+    };
+
     if (isEditing && props.empresa) {
-        form.put(route('vinculacion.empresas.update', props.empresa.id), { preserveScroll: true });
+        router.put(route('vinculacion.empresas.update', props.empresa.id), values, options);
     } else {
-        form.post(route('vinculacion.empresas.store'), { preserveScroll: true });
+        router.post(route('vinculacion.empresas.store'), values, options);
     }
-};
+});
 </script>
 
 <template>
-    <form @submit.prevent="submit" class="space-y-5">
-        <div>
-            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Nombre *</label>
-            <input v-model="form.nombre" type="text" class="w-full rounded-lg border-slate-300 bg-white text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200" />
-            <p v-if="form.errors.nombre" class="text-xs text-rose-500 mt-1">{{ form.errors.nombre }}</p>
-        </div>
-        <div>
-            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">RUC</label>
-            <input v-model="form.ruc" type="text" maxlength="13" class="w-full rounded-lg border-slate-300 bg-white text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200" />
-            <p v-if="form.errors.ruc" class="text-xs text-rose-500 mt-1">{{ form.errors.ruc }}</p>
-        </div>
-        <div>
-            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Sector</label>
-            <input v-model="form.sector" type="text" class="w-full rounded-lg border-slate-300 bg-white text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200" />
-        </div>
-        <div>
-            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Contacto</label>
-            <input v-model="form.contacto" type="text" class="w-full rounded-lg border-slate-300 bg-white text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200" />
-        </div>
+    <form class="space-y-5" @submit="onSubmit">
+        <FormField v-slot="{ componentField }" name="nombre">
+            <FormItem>
+                <FormLabel>Nombre *</FormLabel>
+                <FormControl>
+                    <Input type="text" v-bind="componentField" />
+                </FormControl>
+                <FormMessage />
+            </FormItem>
+        </FormField>
+
+        <FormField v-slot="{ componentField }" name="ruc">
+            <FormItem>
+                <FormLabel>RUC</FormLabel>
+                <FormControl>
+                    <Input type="text" maxlength="13" v-bind="componentField" />
+                </FormControl>
+                <FormMessage />
+            </FormItem>
+        </FormField>
+
+        <FormField v-slot="{ componentField }" name="sector">
+            <FormItem>
+                <FormLabel>Sector</FormLabel>
+                <FormControl>
+                    <Input type="text" v-bind="componentField" />
+                </FormControl>
+                <FormMessage />
+            </FormItem>
+        </FormField>
+
+        <FormField v-slot="{ componentField }" name="contacto">
+            <FormItem>
+                <FormLabel>Contacto</FormLabel>
+                <FormControl>
+                    <Input type="text" v-bind="componentField" />
+                </FormControl>
+                <FormMessage />
+            </FormItem>
+        </FormField>
+
         <div class="flex items-center gap-2 pt-2">
-            <Button type="submit" :disabled="form.processing" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold">
-                {{ form.processing ? 'Guardando...' : (isEditing ? 'Guardar cambios' : 'Registrar empresa') }}
+            <Button type="submit" :disabled="processing" class="bg-indigo-600 font-semibold text-white hover:bg-indigo-500">
+                {{ processing ? 'Guardando...' : isEditing ? 'Guardar cambios' : 'Registrar empresa' }}
             </Button>
         </div>
     </form>

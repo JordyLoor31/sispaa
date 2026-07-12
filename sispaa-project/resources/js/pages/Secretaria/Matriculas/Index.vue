@@ -2,14 +2,15 @@
 import AppSidebarLayout from '@/layouts/app/AppSidebarLayout.vue';
 import { type BreadcrumbItemType } from '@/types';
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
-import { ref, reactive } from 'vue';
-import { Search, Plus, ChevronDown, ClipboardList } from 'lucide-vue-next';
+import { h, ref, reactive } from 'vue';
+import { Search, Plus, MoreHorizontal, ClipboardList } from 'lucide-vue-next';
 import { FlexRender, getCoreRowModel, useVueTable } from '@tanstack/vue-table';
 import type { ColumnDef } from '@tanstack/vue-table';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { toast } from 'vue-sonner';
 import { useDebounceFn } from '@vueuse/core';
 import type { Periodo, Carrera, MatriculaItem } from './types';
@@ -85,7 +86,7 @@ const columns: ColumnDef<MatriculaItem>[] = [
     { id: 'periodo', header: 'Período', cell: ({ row }) => row.original.periodo },
     { accessorKey: 'estado', header: 'Estado', cell: ({ row }) => row.original.estado },
     { accessorKey: 'fecha_matricula', header: 'Fecha Matrícula', cell: ({ row }) => row.original.fecha_matricula },
-    { id: 'actions', header: 'Acciones', cell: ({ row }) => row.original },
+    { id: 'actions', header: () => h('div', { class: 'text-right' }, 'Acciones'), cell: ({ row }) => row.original },
 ];
 
 const table = useVueTable(reactive({
@@ -140,7 +141,7 @@ const navigateToPage = (url: string | null) => {
                 </div>
             </div>
 
-            <div class="max-w-5xl w-full space-y-4">
+            <div class="w-full space-y-4">
                 <div class="flex flex-col sm:flex-row gap-3 flex-wrap bg-white dark:bg-slate-950 p-4 rounded-xl border border-slate-200/80 dark:border-slate-800">
                     <div class="flex-1 relative min-w-[200px]">
                         <Search class="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
@@ -177,14 +178,14 @@ const navigateToPage = (url: string | null) => {
                     </Select>
                 </div>
 
-                <div class="rounded-xl border border-slate-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950 overflow-hidden">
+                <div class="rounded-lg border border-slate-200/80 bg-white dark:border-slate-800 dark:bg-slate-950 overflow-hidden">
                     <div class="overflow-x-auto">
                         <Table>
                             <TableHeader>
                                 <TableRow v-for="hg in table.getHeaderGroups()" :key="hg.id"
-                                    class="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30">
+                                    class="border-b border-slate-200/80 dark:border-slate-800">
                                     <TableHead v-for="header in hg.headers" :key="header.id"
-                                        class="py-3.5 px-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">
+                                        class="h-12 px-4 text-sm font-medium text-slate-500 dark:text-slate-400">
                                         <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header" :props="header.getContext()" />
                                     </TableHead>
                                 </TableRow>
@@ -193,30 +194,36 @@ const navigateToPage = (url: string | null) => {
                                 <template v-if="table.getRowModel().rows.length">
                                     <TableRow v-for="row in table.getRowModel().rows" :key="row.id"
                                         class="hover:bg-slate-50/40 dark:hover:bg-slate-900/20 transition-colors">
-                                        <TableCell class="py-3.5 px-4">
+                                        <TableCell class="py-4 px-4">
                                             <div class="font-semibold text-slate-900 dark:text-white">{{ row.original.estudiante.name }}</div>
                                             <div class="text-xs text-slate-400">{{ row.original.estudiante.cedula ?? row.original.estudiante.email }}</div>
                                         </TableCell>
-                                        <TableCell class="py-3.5 px-4 text-xs text-slate-600 dark:text-slate-300">
+                                        <TableCell class="py-4 px-4 text-xs text-slate-600 dark:text-slate-300">
                                             {{ row.original.carrera.codigo }} — {{ row.original.carrera.nombre }}
                                         </TableCell>
-                                        <TableCell class="py-3.5 px-4 text-xs text-slate-600 dark:text-slate-300">
+                                        <TableCell class="py-4 px-4 text-xs text-slate-600 dark:text-slate-300">
                                             {{ row.original.periodo.nombre }}
                                         </TableCell>
-                                        <TableCell class="py-3.5 px-4">
+                                        <TableCell class="py-4 px-4">
                                             <span :class="['inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold', estadoBadge(row.original.estado)]">
                                                 {{ row.original.estado.charAt(0).toUpperCase() + row.original.estado.slice(1) }}
                                             </span>
                                         </TableCell>
-                                        <TableCell class="py-3.5 px-4 text-xs text-slate-500">{{ row.original.fecha_matricula }}</TableCell>
-                                        <TableCell class="py-3.5 px-4">
-                                            <button
-                                                @click="openChangeEstado(row.original)"
-                                                class="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-indigo-600 border border-slate-200 hover:border-indigo-300 dark:border-slate-700 rounded-lg px-2.5 py-1.5 transition-colors"
-                                            >
-                                                <ChevronDown class="h-3.5 w-3.5" />
-                                                Cambiar estado
-                                            </button>
+                                        <TableCell class="py-4 px-4 text-xs text-slate-500">{{ row.original.fecha_matricula }}</TableCell>
+                                        <TableCell class="py-4 px-4 text-right">
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger as-child>
+                                                    <Button variant="ghost" size="sm" class="h-8 w-8 p-0">
+                                                        <span class="sr-only">Abrir menú</span>
+                                                        <MoreHorizontal class="h-4 w-4" />
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end">
+                                                    <DropdownMenuItem @click="openChangeEstado(row.original)">
+                                                        Cambiar estado
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
                                         </TableCell>
                                     </TableRow>
                                 </template>

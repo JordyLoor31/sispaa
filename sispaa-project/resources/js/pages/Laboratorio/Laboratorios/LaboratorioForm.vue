@@ -1,7 +1,13 @@
 <script setup lang="ts">
-import { useForm } from '@inertiajs/vue3';
+import { router } from '@inertiajs/vue3';
+import { toTypedSchema } from '@vee-validate/zod';
+import { useForm } from 'vee-validate';
+import * as z from 'zod';
+import { ref } from 'vue';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'vue-sonner';
 import type { Catalogo, LaboratorioItem, Persona } from './types';
 
@@ -13,64 +19,120 @@ const props = defineProps<{
 
 const isEdit = !!props.laboratorio;
 
-const form = useForm({
-    nombre: props.laboratorio?.nombre ?? '',
-    ubicacion: props.laboratorio?.ubicacion ?? '',
-    carrera_id: props.laboratorio?.carrera_id ?? ('' as number | ''),
-    capacidad: props.laboratorio?.capacidad ?? (null as number | null),
-    responsable_id: props.laboratorio?.responsable?.id ?? ('' as number | ''),
+const formSchema = toTypedSchema(
+    z.object({
+        nombre: z.string().min(1, 'El nombre es obligatorio.').max(255, 'El nombre no puede superar los 255 caracteres.'),
+        ubicacion: z.string().max(255, 'La ubicación no puede superar los 255 caracteres.').nullable().optional(),
+        carrera_id: z.union([z.string(), z.number()]).nullable(),
+        capacidad: z.coerce.number({ invalid_type_error: 'Ingresa un número válido.' }).int().min(1, 'Debe ser al menos 1.').nullable(),
+        responsable_id: z.union([z.string(), z.number()]).nullable(),
+    }),
+);
+
+const { handleSubmit, setErrors } = useForm({
+    validationSchema: formSchema,
+    initialValues: {
+        nombre: props.laboratorio?.nombre ?? '',
+        ubicacion: props.laboratorio?.ubicacion ?? '',
+        carrera_id: props.laboratorio?.carrera_id ?? null,
+        capacidad: props.laboratorio?.capacidad ?? null,
+        responsable_id: props.laboratorio?.responsable?.id ?? null,
+    },
 });
 
-const submit = () => {
+const processing = ref(false);
+
+const onSubmit = handleSubmit((values) => {
+    processing.value = true;
+
+    const payload = {
+        ...values,
+        carrera_id: values.carrera_id === '' ? null : values.carrera_id,
+        responsable_id: values.responsable_id === '' ? null : values.responsable_id,
+    };
+
+    const options = {
+        preserveScroll: true,
+        onSuccess: () => toast.success(isEdit ? 'Laboratorio actualizado.' : 'Laboratorio registrado.'),
+        onError: (serverErrors: Record<string, string>) => setErrors(serverErrors),
+        onFinish: () => {
+            processing.value = false;
+        },
+    };
+
     if (isEdit && props.laboratorio) {
-        form.put(route('laboratorio.laboratorios.update', props.laboratorio.id), {
-            preserveScroll: true,
-            onSuccess: () => toast.success('Laboratorio actualizado.'),
-        });
+        router.put(route('laboratorio.laboratorios.update', props.laboratorio.id), payload, options);
     } else {
-        form.post(route('laboratorio.laboratorios.store'), {
-            onSuccess: () => toast.success('Laboratorio registrado.'),
-        });
+        router.post(route('laboratorio.laboratorios.store'), payload, options);
     }
-};
+});
 </script>
 
 <template>
-    <form @submit.prevent="submit" class="space-y-5">
-        <div>
-            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Nombre *</label>
-            <input v-model="form.nombre" type="text" class="w-full rounded-lg border-slate-300 bg-white text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200" />
-            <p v-if="form.errors.nombre" class="text-xs text-rose-500 mt-1">{{ form.errors.nombre }}</p>
-        </div>
-        <div>
-            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Ubicación</label>
-            <input v-model="form.ubicacion" type="text" placeholder="Bloque A - Piso 2" class="w-full rounded-lg border-slate-300 bg-white text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200" />
-        </div>
-        <div>
-            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Carrera</label>
-            <Select v-model="form.carrera_id">
-                <SelectTrigger class="w-full"><SelectValue placeholder="Sin asignar" /></SelectTrigger>
-                <SelectContent>
-                    <SelectItem v-for="c in carreras" :key="c.id" :value="c.id">{{ c.nombre }}</SelectItem>
-                </SelectContent>
-            </Select>
-        </div>
-        <div>
-            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Capacidad</label>
-            <input v-model.number="form.capacidad" type="number" min="1" class="w-full rounded-lg border-slate-300 bg-white text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200" />
-        </div>
-        <div>
-            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Responsable</label>
-            <Select v-model="form.responsable_id">
-                <SelectTrigger class="w-full"><SelectValue placeholder="Sin asignar" /></SelectTrigger>
-                <SelectContent>
-                    <SelectItem v-for="r in responsables" :key="r.id" :value="r.id">{{ r.name }}</SelectItem>
-                </SelectContent>
-            </Select>
-        </div>
+    <form class="space-y-5" @submit="onSubmit">
+        <FormField v-slot="{ componentField }" name="nombre">
+            <FormItem>
+                <FormLabel>Nombre *</FormLabel>
+                <FormControl>
+                    <Input type="text" v-bind="componentField" />
+                </FormControl>
+                <FormMessage />
+            </FormItem>
+        </FormField>
+
+        <FormField v-slot="{ componentField }" name="ubicacion">
+            <FormItem>
+                <FormLabel>Ubicación</FormLabel>
+                <FormControl>
+                    <Input type="text" placeholder="Bloque A - Piso 2" v-bind="componentField" />
+                </FormControl>
+                <FormMessage />
+            </FormItem>
+        </FormField>
+
+        <FormField v-slot="{ componentField }" name="carrera_id">
+            <FormItem>
+                <FormLabel>Carrera</FormLabel>
+                <Select v-bind="componentField">
+                    <FormControl>
+                        <SelectTrigger class="w-full"><SelectValue placeholder="Sin asignar" /></SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                        <SelectItem v-for="c in carreras" :key="c.id" :value="c.id">{{ c.nombre }}</SelectItem>
+                    </SelectContent>
+                </Select>
+                <FormMessage />
+            </FormItem>
+        </FormField>
+
+        <FormField v-slot="{ componentField }" name="capacidad">
+            <FormItem>
+                <FormLabel>Capacidad</FormLabel>
+                <FormControl>
+                    <Input type="number" min="1" v-bind="componentField" />
+                </FormControl>
+                <FormMessage />
+            </FormItem>
+        </FormField>
+
+        <FormField v-slot="{ componentField }" name="responsable_id">
+            <FormItem>
+                <FormLabel>Responsable</FormLabel>
+                <Select v-bind="componentField">
+                    <FormControl>
+                        <SelectTrigger class="w-full"><SelectValue placeholder="Sin asignar" /></SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                        <SelectItem v-for="r in responsables" :key="r.id" :value="r.id">{{ r.name }}</SelectItem>
+                    </SelectContent>
+                </Select>
+                <FormMessage />
+            </FormItem>
+        </FormField>
+
         <div class="flex justify-end pt-2">
-            <Button type="submit" :disabled="form.processing" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold">
-                {{ form.processing ? 'Guardando...' : 'Guardar' }}
+            <Button type="submit" :disabled="processing" class="bg-indigo-600 font-semibold text-white hover:bg-indigo-500">
+                {{ processing ? 'Guardando...' : 'Guardar' }}
             </Button>
         </div>
     </form>

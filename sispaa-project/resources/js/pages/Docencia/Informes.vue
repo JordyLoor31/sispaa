@@ -50,12 +50,12 @@
                 <div class="lg:col-span-2 flex flex-col gap-4">
                     <h2 class="text-lg font-semibold" :style="{ color: 'var(--sispaa-text)' }">Listado de Informes</h2>
                     
-                    <div class="rounded-xl border border-slate-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950 overflow-hidden">
+                    <div class="rounded-lg border border-slate-200/80 bg-white dark:border-slate-800 dark:bg-slate-950 overflow-hidden">
                         <div class="overflow-x-auto">
                             <Table>
                                 <TableHeader>
-                                    <TableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id" class="border-b border-slate-100 dark:border-slate-850 bg-slate-50/50 dark:bg-slate-900/30">
-                                        <TableHead v-for="header in headerGroup.headers" :key="header.id" class="py-3.5 px-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">
+                                    <TableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id" class="border-b border-slate-200/80 dark:border-slate-850">
+                                        <TableHead v-for="header in headerGroup.headers" :key="header.id" class="h-12 px-4 text-sm font-medium text-slate-500 dark:text-slate-400">
                                             <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header" :props="header.getContext()" />
                                         </TableHead>
                                     </TableRow>
@@ -63,7 +63,7 @@
                                 <TableBody class="divide-y divide-slate-100 dark:divide-slate-850 text-sm">
                                     <template v-if="table.getRowModel().rows?.length">
                                         <TableRow v-for="row in table.getRowModel().rows" :key="row.id" class="hover:bg-slate-50/30 dark:hover:bg-slate-900/10">
-                                            <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id" class="py-3.5 px-4">
+                                            <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id" class="px-4 py-4">
                                                 <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
                                             </TableCell>
                                         </TableRow>

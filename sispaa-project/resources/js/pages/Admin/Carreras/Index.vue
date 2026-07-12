@@ -91,7 +91,7 @@ const goToPage = (page: number) => {
                 </Button>
             </div>
 
-            <div class="max-w-5xl w-full space-y-4">
+            <div class="w-full space-y-4">
                 <!-- Búsqueda -->
                 <div class="relative max-w-sm">
                     <Search class="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />

@@ -1,7 +1,12 @@
 <script setup lang="ts">
-import { useForm, Link } from '@inertiajs/vue3';
-import { watch, ref } from 'vue';
+import { Link, router } from '@inertiajs/vue3';
+import { toTypedSchema } from '@vee-validate/zod';
+import { useForm } from 'vee-validate';
+import * as z from 'zod';
+import { ref, watch } from 'vue';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Check, ChevronsUpDown, ArrowLeft } from 'lucide-vue-next';
 import {
     Combobox,
@@ -21,91 +26,142 @@ const props = defineProps<{
     coordinadores: Coordinador[];
 }>();
 
-const form = useForm({
-    nombre: props.carrera?.nombre ?? '',
-    codigo: props.carrera?.codigo ?? '',
-    coordinador_id: (props.carrera?.coordinador_id ?? '') as number | string,
+const formSchema = toTypedSchema(
+    z.object({
+        nombre: z
+            .string({ required_error: 'El nombre es obligatorio.' })
+            .min(1, 'El nombre es obligatorio.')
+            .max(255, 'El nombre no puede superar los 255 caracteres.'),
+        codigo: z
+            .string({ required_error: 'El código es obligatorio.' })
+            .min(1, 'El código es obligatorio.')
+            .max(10, 'El código no puede superar los 10 caracteres.'),
+        coordinador_id: z.union([z.string(), z.number()]).nullable(),
+    }),
+);
+
+const { handleSubmit, setErrors, defineField } = useForm({
+    validationSchema: formSchema,
+    initialValues: {
+        nombre: props.carrera?.nombre ?? '',
+        codigo: props.carrera?.codigo ?? '',
+        coordinador_id: props.carrera?.coordinador_id ?? null,
+    },
 });
 
-const selectedCoordinadorObj = ref<{ value: string | number, label: string } | null>(
-    props.carrera?.coordinador ? { value: props.carrera.coordinador.id, label: props.carrera.coordinador.name } : null
+const [coordinadorId] = defineField('coordinador_id');
+
+const processing = ref(false);
+
+const selectedCoordinadorObj = ref<{ value: string | number; label: string } | null>(
+    props.carrera?.coordinador ? { value: props.carrera.coordinador.id, label: props.carrera.coordinador.name } : null,
 );
 
 watch(selectedCoordinadorObj, (newVal) => {
-    form.coordinador_id = newVal ? newVal.value : '';
+    coordinadorId.value = newVal ? newVal.value : null;
 });
 
-const submit = () => {
-    const payload = { ...form.data(), coordinador_id: form.coordinador_id === '' ? null : form.coordinador_id };
-    form.transform(() => payload);
+const onSubmit = handleSubmit((values) => {
+    processing.value = true;
+
+    const payload = {
+        ...values,
+        coordinador_id: values.coordinador_id === '' ? null : values.coordinador_id,
+    };
+
+    const options = {
+        onError: (serverErrors: Record<string, string>) => {
+            setErrors(serverErrors);
+            processing.value = false;
+        },
+        onFinish: () => {
+            processing.value = false;
+        },
+    };
 
     if (props.carrera) {
-        form.put(route('admin.carreras.update', props.carrera.id));
+        router.put(route('admin.carreras.update', props.carrera.id), payload, options);
     } else {
-        form.post(route('admin.carreras.store'));
+        router.post(route('admin.carreras.store'), payload, options);
     }
-};
+});
 </script>
 
 <template>
-    <form @submit.prevent="submit" class="space-y-6 max-w-xl">
-        <div>
-            <label class="block text-xs font-bold text-slate-500 uppercase">Nombre de Carrera *</label>
-            <input v-model="form.nombre" type="text" required class="mt-1 w-full rounded-lg border-slate-200 text-sm focus:ring-indigo-500 focus:border-indigo-500 dark:border-slate-850 dark:bg-slate-950 dark:text-slate-350" />
-            <div v-if="form.errors.nombre" class="text-xs text-rose-500 mt-1">{{ form.errors.nombre }}</div>
-        </div>
+    <form class="max-w-xl space-y-6" @submit="onSubmit">
+        <FormField v-slot="{ componentField }" name="nombre">
+            <FormItem>
+                <FormLabel>Nombre de Carrera *</FormLabel>
+                <FormControl>
+                    <Input type="text" v-bind="componentField" />
+                </FormControl>
+                <FormMessage />
+            </FormItem>
+        </FormField>
 
-        <div>
-            <label class="block text-xs font-bold text-slate-500 uppercase">Código / Sigla *</label>
-            <input v-model="form.codigo" type="text" required class="mt-1 w-full rounded-lg border-slate-200 text-sm focus:ring-indigo-500 focus:border-indigo-500 dark:border-slate-850 dark:bg-slate-950 dark:text-slate-350" />
-            <div v-if="form.errors.codigo" class="text-xs text-rose-500 mt-1">{{ form.errors.codigo }}</div>
-        </div>
+        <FormField v-slot="{ componentField }" name="codigo">
+            <FormItem>
+                <FormLabel>Código / Sigla *</FormLabel>
+                <FormControl>
+                    <Input type="text" v-bind="componentField" />
+                </FormControl>
+                <FormMessage />
+            </FormItem>
+        </FormField>
 
-        <div>
-            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Tutor / Coordinador</label>
-            <Combobox v-model="selectedCoordinadorObj" by="value">
-                <ComboboxAnchor as-child>
-                    <ComboboxTrigger as-child>
-                        <Button type="button" variant="outline" class="w-full justify-between text-left text-sm font-normal border-slate-200 focus:ring-indigo-500 focus:border-indigo-500 dark:border-slate-850 dark:bg-slate-950 dark:text-slate-350 mt-1">
-                            {{ selectedCoordinadorObj ? selectedCoordinadorObj.label : 'Sin asignar' }}
-                            <ChevronsUpDown class="h-4 w-4 opacity-50" />
-                        </Button>
-                    </ComboboxTrigger>
-                </ComboboxAnchor>
+        <FormField v-slot="{ errorMessage }" name="coordinador_id">
+            <FormItem>
+                <FormLabel>Tutor / Coordinador</FormLabel>
+                <Combobox v-model="selectedCoordinadorObj" by="value">
+                    <ComboboxAnchor as-child>
+                        <ComboboxTrigger as-child>
+                            <FormControl>
+                                <Button type="button" variant="outline" class="w-full justify-between text-left text-sm font-normal">
+                                    {{ selectedCoordinadorObj ? selectedCoordinadorObj.label : 'Sin asignar' }}
+                                    <ChevronsUpDown class="h-4 w-4 opacity-50" />
+                                </Button>
+                            </FormControl>
+                        </ComboboxTrigger>
+                    </ComboboxAnchor>
 
-                <ComboboxList class="w-[var(--reka-combobox-trigger-width)] min-w-[250px] bg-white dark:bg-slate-950 border border-slate-100 dark:border-slate-900 rounded-lg shadow-lg">
-                    <ComboboxInput placeholder="Buscar tutor..." class="w-full border-0 border-b border-slate-105 dark:border-slate-850 bg-transparent text-sm focus:ring-0 py-2.5 px-3" />
-                    <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron coordinadores.</ComboboxEmpty>
-                    <ComboboxGroup class="max-h-60 overflow-y-auto p-1">
-                        <ComboboxItem :value="{ value: '', label: 'Sin asignar' }" class="flex items-center justify-between px-3 py-2 text-sm rounded-md cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 data-[state=checked]:bg-slate-100 dark:data-[state=checked]:bg-slate-800">
-                            Sin asignar
-                            <ComboboxItemIndicator>
-                                <Check class="h-4 w-4 text-indigo-650" />
-                            </ComboboxItemIndicator>
-                        </ComboboxItem>
-                        <ComboboxItem
-                            v-for="c in coordinadores"
-                            :key="c.id"
-                            :value="{ value: c.id, label: c.name }"
-                            class="flex items-center justify-between px-3 py-2 text-sm rounded-md cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 data-[state=checked]:bg-slate-100 dark:data-[state=checked]:bg-slate-800"
-                        >
-                            {{ c.name }}
-                            <ComboboxItemIndicator>
-                                <Check class="h-4 w-4 text-indigo-650" />
-                            </ComboboxItemIndicator>
-                        </ComboboxItem>
-                    </ComboboxGroup>
-                </ComboboxList>
-            </Combobox>
-        </div>
+                    <ComboboxList class="w-[var(--reka-combobox-trigger-width)] min-w-[250px] rounded-lg border border-slate-100 bg-white shadow-lg dark:border-slate-900 dark:bg-slate-950">
+                        <ComboboxInput placeholder="Buscar tutor..." class="w-full border-0 border-b border-slate-105 bg-transparent px-3 py-2.5 text-sm focus:ring-0 dark:border-slate-850" />
+                        <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron coordinadores.</ComboboxEmpty>
+                        <ComboboxGroup class="max-h-60 overflow-y-auto p-1">
+                            <ComboboxItem
+                                :value="{ value: '', label: 'Sin asignar' }"
+                                class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800"
+                            >
+                                Sin asignar
+                                <ComboboxItemIndicator>
+                                    <Check class="h-4 w-4 text-indigo-650" />
+                                </ComboboxItemIndicator>
+                            </ComboboxItem>
+                            <ComboboxItem
+                                v-for="c in coordinadores"
+                                :key="c.id"
+                                :value="{ value: c.id, label: c.name }"
+                                class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800"
+                            >
+                                {{ c.name }}
+                                <ComboboxItemIndicator>
+                                    <Check class="h-4 w-4 text-indigo-650" />
+                                </ComboboxItemIndicator>
+                            </ComboboxItem>
+                        </ComboboxGroup>
+                    </ComboboxList>
+                </Combobox>
+                <FormMessage v-if="errorMessage" />
+            </FormItem>
+        </FormField>
 
-        <div class="flex justify-between items-center border-t border-slate-100 pt-4 dark:border-slate-850">
+        <div class="flex items-center justify-between border-t border-slate-100 pt-4 dark:border-slate-850">
             <Button as-child variant="outline" type="button">
                 <Link :href="route('admin.carreras.index')">
-                    <ArrowLeft class="h-4 w-4 mr-1.5" /> Volver
+                    <ArrowLeft class="mr-1.5 h-4 w-4" /> Volver
                 </Link>
             </Button>
-            <Button type="submit" :disabled="form.processing" class="bg-indigo-600 hover:bg-indigo-500 text-white">
+            <Button type="submit" :disabled="processing" class="bg-indigo-600 text-white hover:bg-indigo-500">
                 {{ carrera ? 'Guardar Cambios' : 'Crear Carrera' }}
             </Button>
         </div>

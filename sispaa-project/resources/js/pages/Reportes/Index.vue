@@ -175,7 +175,7 @@ const table = useVueTable(
                 </div>
             </div>
 
-            <div class="rounded-xl border border-slate-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950 overflow-hidden">
+            <div class="rounded-lg border border-slate-200/80 bg-white dark:border-slate-800 dark:bg-slate-950 overflow-hidden">
                 <div class="flex items-center gap-2 px-4 py-3.5 border-b border-slate-100 dark:border-slate-800">
                     <BarChart3 class="h-4 w-4 text-indigo-500" />
                     <h2 class="text-sm font-bold text-slate-900 dark:text-white">Vista previa — {{ tipos[tipoActual] }}</h2>
@@ -185,9 +185,9 @@ const table = useVueTable(
                     <Table>
                         <TableHeader>
                             <TableRow v-for="hg in table.getHeaderGroups()" :key="hg.id"
-                                class="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30">
+                                class="border-b border-slate-200/80 dark:border-slate-800">
                                 <TableHead v-for="header in hg.headers" :key="header.id"
-                                    class="py-3.5 px-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">
+                                    class="h-12 px-4 text-sm font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">
                                     <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header" :props="header.getContext()" />
                                 </TableHead>
                             </TableRow>
@@ -197,7 +197,7 @@ const table = useVueTable(
                                 <TableRow v-for="row in table.getRowModel().rows" :key="row.id"
                                     class="hover:bg-slate-50/40 dark:hover:bg-slate-900/20 transition-colors">
                                     <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id"
-                                        class="py-3.5 px-4 text-xs text-slate-600 dark:text-slate-300 whitespace-nowrap">
+                                        class="px-4 py-4 text-sm text-slate-600 dark:text-slate-300 whitespace-nowrap">
                                         <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
                                     </TableCell>
                                 </TableRow>

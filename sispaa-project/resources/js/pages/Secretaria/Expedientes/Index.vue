@@ -89,7 +89,7 @@ const navigateToPage = (url: string | null) => {
                 </div>
             </div>
 
-            <div class="max-w-5xl w-full space-y-4">
+            <div class="w-full space-y-4">
                 <div class="flex flex-col sm:flex-row gap-3 bg-white dark:bg-slate-950 p-4 rounded-xl border border-slate-200/80 dark:border-slate-800">
                     <div class="flex-1 relative">
                         <Search class="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
@@ -119,17 +119,17 @@ const navigateToPage = (url: string | null) => {
                     </Select>
                 </div>
 
-                <div class="rounded-xl border border-slate-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950 overflow-hidden">
+                <div class="rounded-lg border border-slate-200/80 bg-white dark:border-slate-800 dark:bg-slate-950 overflow-hidden">
                     <div class="overflow-x-auto">
                         <Table>
                             <TableHeader>
                                 <TableRow
                                     v-for="hg in table.getHeaderGroups()" :key="hg.id"
-                                    class="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30"
+                                    class="border-b border-slate-200/80 dark:border-slate-800"
                                 >
                                     <TableHead
                                         v-for="header in hg.headers" :key="header.id"
-                                        class="py-3.5 px-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide"
+                                        class="h-12 px-4 text-sm font-medium text-slate-500 dark:text-slate-400"
                                     >
                                         <FlexRender
                                             v-if="!header.isPlaceholder"
@@ -147,7 +147,7 @@ const navigateToPage = (url: string | null) => {
                                     >
                                         <TableCell
                                             v-for="cell in row.getVisibleCells()" :key="cell.id"
-                                            class="py-3.5 px-4"
+                                            class="py-4 px-4"
                                         >
                                             <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
                                         </TableCell>

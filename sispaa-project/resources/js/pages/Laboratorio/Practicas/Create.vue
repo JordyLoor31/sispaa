@@ -24,7 +24,7 @@ defineProps<{
                 <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">Nueva Práctica de Laboratorio</h1>
             </div>
 
-            <div class="max-w-2xl rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+            <div class="max-w-2xl mx-auto rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
                 <PracticaForm :materias="materias" :laboratorios="laboratorios" :periodos="periodos" :equipos-catalogo="equiposCatalogo" :reactivos-catalogo="reactivosCatalogo" />
             </div>
         </div>

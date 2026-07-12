@@ -1,8 +1,13 @@
 <script setup lang="ts">
 import AppSidebarLayout from '@/layouts/app/AppSidebarLayout.vue';
 import { type BreadcrumbItemType } from '@/types';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
+import { toTypedSchema } from '@vee-validate/zod';
+import { useForm } from 'vee-validate';
+import * as z from 'zod';
+import { ref } from 'vue';
 import { Button } from '@/components/ui/button';
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'vue-sonner';
 
 const props = defineProps<{
@@ -10,17 +15,35 @@ const props = defineProps<{
     breadcrumbs?: BreadcrumbItemType[];
 }>();
 
-const form = useForm({
-    titulo: props.proyecto.titulo,
-    objetivo: props.proyecto.objetivo ?? '',
+const formSchema = toTypedSchema(
+    z.object({
+        titulo: z.string().min(1, 'El título es obligatorio.'),
+        objetivo: z.string().nullable().optional(),
+    }),
+);
+
+const { handleSubmit, setErrors } = useForm({
+    validationSchema: formSchema,
+    initialValues: {
+        titulo: props.proyecto.titulo,
+        objetivo: props.proyecto.objetivo ?? '',
+    },
 });
 
-const submit = () => {
-    form.put(route('investigacion.update', props.proyecto.id), {
+const processing = ref(false);
+
+const onSubmit = handleSubmit((values) => {
+    processing.value = true;
+
+    router.put(route('investigacion.update', props.proyecto.id), values, {
         preserveScroll: true,
         onSuccess: () => toast.success('Proyecto actualizado.'),
+        onError: (serverErrors: Record<string, string>) => setErrors(serverErrors),
+        onFinish: () => {
+            processing.value = false;
+        },
     });
-};
+});
 </script>
 
 <template>
@@ -33,20 +56,39 @@ const submit = () => {
                 <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{{ props.proyecto.titulo }}</p>
             </div>
 
-            <div class="max-w-xl rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                <form @submit.prevent="submit" class="space-y-5">
-                    <div>
-                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Título *</label>
-                        <input v-model="form.titulo" type="text" class="w-full rounded-lg border-slate-300 bg-white text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200" />
-                        <p v-if="form.errors.titulo" class="text-xs text-rose-500 mt-1">{{ form.errors.titulo }}</p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Objetivo</label>
-                        <textarea v-model="form.objetivo" rows="3" class="w-full rounded-lg border-slate-300 bg-white text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"></textarea>
-                    </div>
+            <div class="max-w-xl mx-auto rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+                <form class="space-y-5" @submit="onSubmit">
+                    <FormField v-slot="{ componentField }" name="titulo">
+                        <FormItem>
+                            <FormLabel>Título *</FormLabel>
+                            <FormControl>
+                                <input
+                                    v-bind="componentField"
+                                    type="text"
+                                    class="w-full rounded-lg border-slate-300 bg-white text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    </FormField>
+
+                    <FormField v-slot="{ componentField }" name="objetivo">
+                        <FormItem>
+                            <FormLabel>Objetivo</FormLabel>
+                            <FormControl>
+                                <textarea
+                                    v-bind="componentField"
+                                    rows="3"
+                                    class="w-full rounded-lg border-slate-300 bg-white text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+                                ></textarea>
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    </FormField>
+
                     <div class="flex items-center gap-2 pt-2">
-                        <Button type="submit" :disabled="form.processing" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold">
-                            {{ form.processing ? 'Guardando...' : 'Guardar cambios' }}
+                        <Button type="submit" :disabled="processing" class="bg-indigo-600 font-semibold text-white hover:bg-indigo-500">
+                            {{ processing ? 'Guardando...' : 'Guardar cambios' }}
                         </Button>
                     </div>
                 </form>

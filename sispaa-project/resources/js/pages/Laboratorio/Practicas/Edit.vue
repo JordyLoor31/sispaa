@@ -26,7 +26,7 @@ const props = defineProps<{
                 <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{{ props.practica.tema }}</p>
             </div>
 
-            <div class="max-w-2xl rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+            <div class="max-w-2xl mx-auto rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
                 <PracticaForm :practica="practica" :materias="materias" :laboratorios="laboratorios" :periodos="periodos" :equipos-catalogo="equiposCatalogo" :reactivos-catalogo="reactivosCatalogo" />
             </div>
         </div>

@@ -1,7 +1,13 @@
 <script setup lang="ts">
-import { useForm } from '@inertiajs/vue3';
+import { router } from '@inertiajs/vue3';
+import { toTypedSchema } from '@vee-validate/zod';
+import { useForm } from 'vee-validate';
+import * as z from 'zod';
+import { ref } from 'vue';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import type { Convocatoria } from './types';
 
 const props = defineProps<{
@@ -11,75 +17,140 @@ const props = defineProps<{
 
 const isEditing = !!props.convocatoria;
 
-const form = useForm({
-    titulo: props.convocatoria?.titulo ?? '',
-    descripcion: props.convocatoria?.descripcion ?? '',
-    modulo: props.convocatoria?.modulo ?? '',
-    tipo_documento: props.convocatoria?.tipo_documento ?? '',
-    fecha_inicio: props.convocatoria?.fecha_inicio ?? '',
-    fecha_fin: props.convocatoria?.fecha_fin ?? '',
-    activa: props.convocatoria?.activa ?? true,
+const formSchema = toTypedSchema(
+    z
+        .object({
+            titulo: z.string().min(1, 'El título es obligatorio.').max(255, 'El título no puede superar los 255 caracteres.'),
+            descripcion: z.string().max(1000, 'La descripción no puede superar los 1000 caracteres.').nullable().optional(),
+            modulo: z.string().min(1, 'Selecciona un módulo.').max(100),
+            tipo_documento: z.string().max(255).nullable().optional(),
+            fecha_inicio: z.string().min(1, 'La fecha de inicio es obligatoria.'),
+            fecha_fin: z.string().min(1, 'La fecha de fin es obligatoria.'),
+            activa: z.boolean(),
+        })
+        .refine((data) => !data.fecha_inicio || !data.fecha_fin || data.fecha_fin >= data.fecha_inicio, {
+            message: 'La fecha de fin debe ser igual o posterior a la fecha de inicio.',
+            path: ['fecha_fin'],
+        }),
+);
+
+const { handleSubmit, setErrors, defineField } = useForm({
+    validationSchema: formSchema,
+    initialValues: {
+        titulo: props.convocatoria?.titulo ?? '',
+        descripcion: props.convocatoria?.descripcion ?? '',
+        modulo: props.convocatoria?.modulo ?? '',
+        tipo_documento: props.convocatoria?.tipo_documento ?? '',
+        fecha_inicio: props.convocatoria?.fecha_inicio ?? '',
+        fecha_fin: props.convocatoria?.fecha_fin ?? '',
+        activa: props.convocatoria?.activa ?? true,
+    },
 });
 
-const submit = () => {
+const [activa] = defineField('activa');
+
+const processing = ref(false);
+
+const onSubmit = handleSubmit((values) => {
+    processing.value = true;
+
+    const options = {
+        preserveScroll: true,
+        onError: (serverErrors: Record<string, string>) => setErrors(serverErrors),
+        onFinish: () => {
+            processing.value = false;
+        },
+    };
+
     if (isEditing && props.convocatoria) {
-        form.put(route('secretaria.convocatorias.update', props.convocatoria.id), { preserveScroll: true });
+        router.put(route('secretaria.convocatorias.update', props.convocatoria.id), values, options);
     } else {
-        form.post(route('secretaria.convocatorias.store'), { preserveScroll: true });
+        router.post(route('secretaria.convocatorias.store'), values, options);
     }
-};
+});
 </script>
 
 <template>
-    <form @submit.prevent="submit" class="space-y-5">
-        <div>
-            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Título *</label>
-            <input v-model="form.titulo" type="text" class="w-full rounded-lg border-slate-300 bg-white text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200" />
-            <p v-if="form.errors.titulo" class="text-xs text-rose-500 mt-1">{{ form.errors.titulo }}</p>
-        </div>
+    <form class="space-y-5" @submit="onSubmit">
+        <FormField v-slot="{ componentField }" name="titulo">
+            <FormItem>
+                <FormLabel>Título *</FormLabel>
+                <FormControl>
+                    <Input type="text" v-bind="componentField" />
+                </FormControl>
+                <FormMessage />
+            </FormItem>
+        </FormField>
 
-        <div>
-            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Módulo *</label>
-            <Select v-model="form.modulo">
-                <SelectTrigger class="w-full"><SelectValue placeholder="Selecciona un módulo..." /></SelectTrigger>
-                <SelectContent>
-                    <SelectItem v-for="m in modulos" :key="m" :value="m">{{ m }}</SelectItem>
-                </SelectContent>
-            </Select>
-            <p v-if="form.errors.modulo" class="text-xs text-rose-500 mt-1">{{ form.errors.modulo }}</p>
-        </div>
+        <FormField v-slot="{ componentField }" name="modulo">
+            <FormItem>
+                <FormLabel>Módulo *</FormLabel>
+                <Select v-bind="componentField">
+                    <FormControl>
+                        <SelectTrigger class="w-full"><SelectValue placeholder="Selecciona un módulo..." /></SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                        <SelectItem v-for="m in modulos" :key="m" :value="m">{{ m }}</SelectItem>
+                    </SelectContent>
+                </Select>
+                <FormMessage />
+            </FormItem>
+        </FormField>
 
-        <div>
-            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Tipo de documento (opcional)</label>
-            <input v-model="form.tipo_documento" type="text" class="w-full rounded-lg border-slate-300 bg-white text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200" />
-        </div>
+        <FormField v-slot="{ componentField }" name="tipo_documento">
+            <FormItem>
+                <FormLabel>Tipo de documento (opcional)</FormLabel>
+                <FormControl>
+                    <Input type="text" v-bind="componentField" />
+                </FormControl>
+                <FormMessage />
+            </FormItem>
+        </FormField>
 
-        <div>
-            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Descripción</label>
-            <textarea v-model="form.descripcion" rows="3" class="w-full rounded-lg border-slate-300 bg-white text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"></textarea>
-        </div>
+        <FormField v-slot="{ componentField }" name="descripcion">
+            <FormItem>
+                <FormLabel>Descripción</FormLabel>
+                <FormControl>
+                    <textarea
+                        v-bind="componentField"
+                        rows="3"
+                        class="w-full rounded-lg border-slate-300 bg-white text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+                    ></textarea>
+                </FormControl>
+                <FormMessage />
+            </FormItem>
+        </FormField>
 
         <div class="grid grid-cols-2 gap-3">
-            <div>
-                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Inicio *</label>
-                <input v-model="form.fecha_inicio" type="date" class="w-full rounded-lg border-slate-300 bg-white text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200" />
-                <p v-if="form.errors.fecha_inicio" class="text-xs text-rose-500 mt-1">{{ form.errors.fecha_inicio }}</p>
-            </div>
-            <div>
-                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Fin *</label>
-                <input v-model="form.fecha_fin" type="date" class="w-full rounded-lg border-slate-300 bg-white text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200" />
-                <p v-if="form.errors.fecha_fin" class="text-xs text-rose-500 mt-1">{{ form.errors.fecha_fin }}</p>
-            </div>
+            <FormField v-slot="{ componentField }" name="fecha_inicio">
+                <FormItem>
+                    <FormLabel>Inicio *</FormLabel>
+                    <FormControl>
+                        <Input type="date" v-bind="componentField" />
+                    </FormControl>
+                    <FormMessage />
+                </FormItem>
+            </FormField>
+
+            <FormField v-slot="{ componentField }" name="fecha_fin">
+                <FormItem>
+                    <FormLabel>Fin *</FormLabel>
+                    <FormControl>
+                        <Input type="date" v-bind="componentField" />
+                    </FormControl>
+                    <FormMessage />
+                </FormItem>
+            </FormField>
         </div>
 
         <div v-if="isEditing" class="flex items-center gap-2">
-            <input id="activa" type="checkbox" v-model="form.activa" class="rounded border-slate-300" />
+            <input id="activa" v-model="activa" type="checkbox" class="rounded border-slate-300" />
             <label for="activa" class="text-sm text-slate-700 dark:text-slate-300">Convocatoria activa</label>
         </div>
 
         <div class="flex items-center gap-2 pt-2">
-            <Button type="submit" :disabled="form.processing" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold">
-                {{ form.processing ? 'Guardando...' : (isEditing ? 'Guardar cambios' : 'Crear convocatoria') }}
+            <Button type="submit" :disabled="processing" class="bg-indigo-600 font-semibold text-white hover:bg-indigo-500">
+                {{ processing ? 'Guardando...' : isEditing ? 'Guardar cambios' : 'Crear convocatoria' }}
             </Button>
         </div>
     </form>

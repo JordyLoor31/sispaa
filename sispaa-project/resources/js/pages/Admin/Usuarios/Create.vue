@@ -26,7 +26,7 @@ defineProps<{
                 </p>
             </div>
 
-            <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+            <div class="max-w-2xl mx-auto rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
                 <UserForm :roles="roles" :carreras="carreras" />
             </div>
         </div>

@@ -81,14 +81,14 @@ const table = useVueTable(reactive({
                 </div>
             </div>
 
-            <div class="rounded-2xl border border-slate-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950 overflow-hidden">
+            <div class="rounded-lg border border-slate-200/80 bg-white dark:border-slate-800 dark:bg-slate-950 overflow-hidden">
                 <div class="overflow-x-auto">
                     <Table>
                         <TableHeader>
                             <TableRow v-for="hg in table.getHeaderGroups()" :key="hg.id"
-                                class="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30">
+                                class="border-b border-slate-200/80 dark:border-slate-800">
                                 <TableHead v-for="header in hg.headers" :key="header.id"
-                                    class="py-3.5 px-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                                    class="h-12 px-4 text-sm font-medium text-slate-500 dark:text-slate-400">
                                     <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header" :props="header.getContext()" />
                                 </TableHead>
                             </TableRow>
@@ -97,7 +97,7 @@ const table = useVueTable(reactive({
                             <template v-if="table.getRowModel().rows?.length">
                                 <TableRow v-for="row in table.getRowModel().rows" :key="row.id"
                                     class="hover:bg-slate-50/30 dark:hover:bg-slate-900/10 transition-colors">
-                                    <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id" class="py-3.5 px-4">
+                                    <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id" class="px-4 py-4">
                                         <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
                                     </TableCell>
                                 </TableRow>
