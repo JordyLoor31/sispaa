@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Investigacion;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Traits\HasBreadcrumbs;
 use App\Models\Admin\PeriodoAcademico;
 use App\Models\Investigacion\HitoInvestigacion;
 use App\Models\Investigacion\Investigacion;
@@ -13,8 +14,16 @@ use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
 
+/**
+ * Sigue el patrón Index/Create/Edit/Show adaptado: Show.vue (antes
+ * Hitos.vue) hace de página de detalle del proyecto con sus hitos y
+ * seguimiento anidados, ya que esos sub-recursos no tienen sentido como
+ * pantallas propias fuera del contexto del proyecto padre.
+ */
 class InvestigacionController extends Controller
 {
+    use HasBreadcrumbs;
+
     /**
      * Reglas de visibilidad (equivalentes a canEditProyecto del sistema origen,
      * extendidas por el campo coordinador_id que sí existe en este esquema):
@@ -85,6 +94,16 @@ class InvestigacionController extends Controller
             'periodos' => PeriodoAcademico::where('activo', true)->get(['id', 'nombre']),
             'coordinadores' => User::role('coordinador')->get(['id', 'name']),
             'filters' => ['estado' => $estado],
+            'breadcrumbs' => $this->investigacionBreadcrumbs('Mis Proyectos'),
+        ]);
+    }
+
+    public function create(): Response
+    {
+        return Inertia::render('Investigacion/Create', [
+            'periodos' => PeriodoAcademico::where('activo', true)->get(['id', 'nombre']),
+            'coordinadores' => User::role('coordinador')->get(['id', 'name']),
+            'breadcrumbs' => $this->investigacionBreadcrumbs('Mis Proyectos', 'Nuevo Proyecto', route('investigacion.index')),
         ]);
     }
 
@@ -110,7 +129,23 @@ class InvestigacionController extends Controller
             'estado' => 'en_curso',
         ]);
 
-        return redirect()->back()->with('success', 'Proyecto de investigación creado.');
+        return redirect()->route('investigacion.index')->with('success', 'Proyecto de investigación creado.');
+    }
+
+    public function edit(Investigacion $investigacion): Response
+    {
+        if ($investigacion->docente_id !== Auth::id() && !$this->puedeVerTodo()) {
+            abort(403);
+        }
+
+        return Inertia::render('Investigacion/Edit', [
+            'proyecto' => [
+                'id' => $investigacion->id,
+                'titulo' => $investigacion->titulo,
+                'objetivo' => $investigacion->objetivo,
+            ],
+            'breadcrumbs' => $this->investigacionBreadcrumbs('Mis Proyectos', 'Editar Proyecto', route('investigacion.index'), $investigacion->titulo),
+        ]);
     }
 
     /**
@@ -154,13 +189,13 @@ class InvestigacionController extends Controller
     }
 
     /**
-     * Hitos y seguimiento de un proyecto puntual.
+     * Show del proyecto: hitos y seguimiento (antes método hitos()).
      */
-    public function hitos(Investigacion $investigacion): Response
+    public function show(Investigacion $investigacion): Response
     {
         $this->authorizeView($investigacion);
 
-        return Inertia::render('Investigacion/Hitos', [
+        return Inertia::render('Investigacion/Show', [
             'proyecto' => [
                 'id' => $investigacion->id,
                 'titulo' => $investigacion->titulo,
@@ -170,6 +205,7 @@ class InvestigacionController extends Controller
             'seguimiento' => $investigacion->seguimientos()->orderBy('orden')->get(),
             'esDueno' => $investigacion->docente_id === Auth::id() || $this->puedeVerTodo(),
             'esCoordinador' => $investigacion->coordinador_id === Auth::id() || $this->puedeVerTodo(),
+            'breadcrumbs' => $this->investigacionBreadcrumbs('Mis Proyectos', 'Ver Proyecto', route('investigacion.index'), $investigacion->titulo),
         ]);
     }
 

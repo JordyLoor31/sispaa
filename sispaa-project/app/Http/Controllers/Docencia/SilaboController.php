@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Docencia;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Traits\HasBreadcrumbs;
 use App\Models\Docencia\AsignacionDocente;
 use App\Models\Docencia\Silabo;
 use Illuminate\Http\Request;
@@ -12,6 +13,8 @@ use Inertia\Response;
 
 class SilaboController extends Controller
 {
+    use HasBreadcrumbs;
+
     /**
      * Mis Sílabos: materias asignadas al docente en el período activo,
      * junto con el estado de su sílabo (si ya lo subió o no).
@@ -47,8 +50,9 @@ class SilaboController extends Controller
             ];
         })->values();
 
-        return Inertia::render('Docencia/MisSilabos', [
+        return Inertia::render('Docencia/MisSilabos/Index', [
             'silabos' => $items,
+            'breadcrumbs' => $this->docenciaBreadcrumbs('Mis Sílabos', null, route('docencia.mis-silabos')),
         ]);
     }
 

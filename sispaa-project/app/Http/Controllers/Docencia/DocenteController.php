@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Docencia;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Traits\HasBreadcrumbs;
 use App\Models\Docencia\AsignacionDocente;
 use App\Models\Docencia\InformeDocente;
 use Illuminate\Http\Request;
@@ -12,6 +13,8 @@ use Inertia\Response;
 
 class DocenteController extends Controller
 {
+    use HasBreadcrumbs;
+
     public function index()
     {
         // Listar docentes (vista de gestión, pendiente)
@@ -63,8 +66,9 @@ class DocenteController extends Controller
             ];
         })->values();
 
-        return Inertia::render('Docencia/MisInformes', [
+        return Inertia::render('Docencia/MisInformes/Index', [
             'informes' => $items,
+            'breadcrumbs' => $this->docenciaBreadcrumbs('Mis Informes de Asignatura', null, route('docencia.mis-informes')),
         ]);
     }
 

@@ -2,15 +2,17 @@
 
 use App\Http\Controllers\Estudiantes\EstudianteController;
 use App\Http\Controllers\Api\EstudiantesController as ApiEstudiantesController;
-use App\Http\Controllers\Api\CatalogsController as ApiCatalogsController;
 use App\Http\Controllers\Docencia\DocenteController;
 use App\Http\Controllers\Docencia\SilaboController;
 use App\Http\Controllers\Investigacion\InvestigacionController;
+use App\Http\Controllers\Laboratorio\EquipoController;
+use App\Http\Controllers\Laboratorio\EspacioLaboratorioController;
 use App\Http\Controllers\Laboratorio\LaboratorioController;
+use App\Http\Controllers\Laboratorio\PracticaLaboratorioController;
+use App\Http\Controllers\Laboratorio\ReactivoController;
 use App\Http\Controllers\NotificacionController;
 use App\Http\Controllers\Reportes\ReporteController;
 use App\Http\Controllers\Titulacion\TitulacionController;
-use App\Http\Controllers\Vinculacion\VinculacionController;
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -44,14 +46,6 @@ Route::middleware(['auth', 'verified'])
     ->prefix('estudiantes')
     ->name('estudiantes.')
     ->group(function () {
-
-        // API: listado y filtros para la UI (método en EstudianteController)
-        Route::get('/api/list', [EstudianteController::class, 'apiList'])
-            ->name('api.list');
-
-        Route::get('/api/carreras', [ApiCatalogsController::class, 'carreras'])
-            ->name('api.carreras.index');
-
 
         Route::get('/', [EstudianteController::class, 'index'])
             ->name('index');
@@ -92,11 +86,13 @@ Route::middleware(['auth', 'verified', 'role:docente|coordinador|SystemAdministr
     ->name('investigacion.')
     ->group(function () {
         Route::get('/', [InvestigacionController::class, 'index'])->name('index');
+        Route::get('/crear', [InvestigacionController::class, 'create'])->name('create');
         Route::post('/', [InvestigacionController::class, 'store'])->name('store');
+        Route::get('/{investigacion}/editar', [InvestigacionController::class, 'edit'])->name('edit');
         Route::put('/{investigacion}', [InvestigacionController::class, 'update'])->name('update');
         Route::delete('/{investigacion}', [InvestigacionController::class, 'destroy'])->name('destroy');
 
-        Route::get('/{investigacion}/hitos', [InvestigacionController::class, 'hitos'])->name('hitos');
+        Route::get('/{investigacion}/hitos', [InvestigacionController::class, 'show'])->name('hitos');
         Route::post('/{investigacion}/hitos', [InvestigacionController::class, 'storeHito'])->name('hitos.store');
         Route::put('/hitos/{hito}', [InvestigacionController::class, 'updateHito'])->name('hitos.update');
 
@@ -112,36 +108,47 @@ Route::middleware(['auth', 'verified', 'role:docente|SystemAdministrador'])
     ->group(function () {
         Route::get('/', [LaboratorioController::class, 'index'])->name('index');
 
-        // Prácticas (listado + CRUD; el registro se hace desde un modal aquí mismo)
-        Route::get('/practicas', [LaboratorioController::class, 'practicas'])->name('practicas');
-        Route::post('/practicas', [LaboratorioController::class, 'storePractica'])->name('practicas.store');
-        Route::put('/practicas/{practica}', [LaboratorioController::class, 'updatePractica'])->name('practicas.update');
-        Route::delete('/practicas/{practica}', [LaboratorioController::class, 'destroyPractica'])->name('practicas.destroy');
+        // Prácticas
+        Route::get('/practicas', [PracticaLaboratorioController::class, 'index'])->name('practicas');
+        Route::get('/practicas/crear', [PracticaLaboratorioController::class, 'create'])->name('practicas.create');
+        Route::post('/practicas', [PracticaLaboratorioController::class, 'store'])->name('practicas.store');
+        Route::get('/practicas/{practica}/editar', [PracticaLaboratorioController::class, 'edit'])->name('practicas.edit');
+        Route::put('/practicas/{practica}', [PracticaLaboratorioController::class, 'update'])->name('practicas.update');
+        Route::delete('/practicas/{practica}', [PracticaLaboratorioController::class, 'destroy'])->name('practicas.destroy');
 
         // Asistencia por práctica
-        Route::get('/practicas/{practica}/asistencia', [LaboratorioController::class, 'asistencia'])->name('practicas.asistencia');
-        Route::post('/practicas/{practica}/asistencia', [LaboratorioController::class, 'storeAsistencia'])->name('practicas.asistencia.store');
+        Route::get('/practicas/{practica}/asistencia', [PracticaLaboratorioController::class, 'asistencia'])->name('practicas.asistencia');
+        Route::post('/practicas/{practica}/asistencia', [PracticaLaboratorioController::class, 'storeAsistencia'])->name('practicas.asistencia.store');
 
         // Reportes por carrera
         Route::get('/por-carrera', [LaboratorioController::class, 'porCarrera'])->name('porCarrera');
 
         // Laboratorios (espacios físicos; antes "Ubicaciones")
-        Route::get('/laboratorios', [LaboratorioController::class, 'laboratorios'])->name('laboratorios');
-        Route::post('/laboratorios', [LaboratorioController::class, 'storeLaboratorio'])->name('laboratorios.store');
-        Route::put('/laboratorios/{laboratorio}', [LaboratorioController::class, 'updateLaboratorio'])->name('laboratorios.update');
-        Route::delete('/laboratorios/{laboratorio}', [LaboratorioController::class, 'destroyLaboratorio'])->name('laboratorios.destroy');
+        Route::get('/laboratorios', [EspacioLaboratorioController::class, 'index'])->name('laboratorios');
+        Route::get('/laboratorios/crear', [EspacioLaboratorioController::class, 'create'])->name('laboratorios.create');
+        Route::post('/laboratorios', [EspacioLaboratorioController::class, 'store'])->name('laboratorios.store');
+        Route::get('/laboratorios/{laboratorio}', [EspacioLaboratorioController::class, 'show'])->name('laboratorios.show');
+        Route::get('/laboratorios/{laboratorio}/editar', [EspacioLaboratorioController::class, 'edit'])->name('laboratorios.edit');
+        Route::put('/laboratorios/{laboratorio}', [EspacioLaboratorioController::class, 'update'])->name('laboratorios.update');
+        Route::delete('/laboratorios/{laboratorio}', [EspacioLaboratorioController::class, 'destroy'])->name('laboratorios.destroy');
 
         // Equipos
-        Route::get('/equipos', [LaboratorioController::class, 'equipos'])->name('equipos');
-        Route::post('/equipos', [LaboratorioController::class, 'storeEquipo'])->name('equipos.store');
-        Route::put('/equipos/{equipo}', [LaboratorioController::class, 'updateEquipo'])->name('equipos.update');
-        Route::delete('/equipos/{equipo}', [LaboratorioController::class, 'destroyEquipo'])->name('equipos.destroy');
+        Route::get('/equipos', [EquipoController::class, 'index'])->name('equipos');
+        Route::get('/equipos/crear', [EquipoController::class, 'create'])->name('equipos.create');
+        Route::post('/equipos', [EquipoController::class, 'store'])->name('equipos.store');
+        Route::get('/equipos/{equipo}', [EquipoController::class, 'show'])->name('equipos.show');
+        Route::get('/equipos/{equipo}/editar', [EquipoController::class, 'edit'])->name('equipos.edit');
+        Route::put('/equipos/{equipo}', [EquipoController::class, 'update'])->name('equipos.update');
+        Route::delete('/equipos/{equipo}', [EquipoController::class, 'destroy'])->name('equipos.destroy');
 
         // Reactivos
-        Route::get('/reactivos', [LaboratorioController::class, 'reactivos'])->name('reactivos');
-        Route::post('/reactivos', [LaboratorioController::class, 'storeReactivo'])->name('reactivos.store');
-        Route::put('/reactivos/{reactivo}', [LaboratorioController::class, 'updateReactivo'])->name('reactivos.update');
-        Route::delete('/reactivos/{reactivo}', [LaboratorioController::class, 'destroyReactivo'])->name('reactivos.destroy');
+        Route::get('/reactivos', [ReactivoController::class, 'index'])->name('reactivos');
+        Route::get('/reactivos/crear', [ReactivoController::class, 'create'])->name('reactivos.create');
+        Route::post('/reactivos', [ReactivoController::class, 'store'])->name('reactivos.store');
+        Route::get('/reactivos/{reactivo}', [ReactivoController::class, 'show'])->name('reactivos.show');
+        Route::get('/reactivos/{reactivo}/editar', [ReactivoController::class, 'edit'])->name('reactivos.edit');
+        Route::put('/reactivos/{reactivo}', [ReactivoController::class, 'update'])->name('reactivos.update');
+        Route::delete('/reactivos/{reactivo}', [ReactivoController::class, 'destroy'])->name('reactivos.destroy');
     });
 
 
@@ -151,7 +158,10 @@ Route::middleware(['auth', 'verified', 'role:coordinador|SystemAdministrador'])
     ->name('titulacion.')
     ->group(function () {
         Route::get('/', [TitulacionController::class, 'index'])->name('index');
+        Route::get('/crear', [TitulacionController::class, 'create'])->name('create');
         Route::post('/', [TitulacionController::class, 'store'])->name('store');
+        Route::get('/{titulacion}', [TitulacionController::class, 'show'])->name('show');
+        Route::get('/{titulacion}/editar', [TitulacionController::class, 'edit'])->name('edit');
         Route::put('/{titulacion}', [TitulacionController::class, 'update'])->name('update');
         Route::delete('/{titulacion}', [TitulacionController::class, 'destroy'])->name('destroy');
     });
@@ -162,15 +172,21 @@ Route::middleware(['auth', 'verified', 'role:coordinador|SystemAdministrador'])
     ->prefix('vinculacion')
     ->name('vinculacion.')
     ->group(function () {
-        Route::get('/actividades', [VinculacionController::class, 'actividades'])->name('actividades');
-        Route::post('/actividades', [VinculacionController::class, 'storeActividad'])->name('actividades.store');
-        Route::put('/actividades/{actividad}', [VinculacionController::class, 'updateActividad'])->name('actividades.update');
-        Route::delete('/actividades/{actividad}', [VinculacionController::class, 'destroyActividad'])->name('actividades.destroy');
+        Route::get('/actividades', [\App\Http\Controllers\Vinculacion\ActividadVinculacionController::class, 'index'])->name('actividades');
+        Route::get('/actividades/crear', [\App\Http\Controllers\Vinculacion\ActividadVinculacionController::class, 'create'])->name('actividades.create');
+        Route::post('/actividades', [\App\Http\Controllers\Vinculacion\ActividadVinculacionController::class, 'store'])->name('actividades.store');
+        Route::get('/actividades/{actividad}', [\App\Http\Controllers\Vinculacion\ActividadVinculacionController::class, 'show'])->name('actividades.show');
+        Route::get('/actividades/{actividad}/editar', [\App\Http\Controllers\Vinculacion\ActividadVinculacionController::class, 'edit'])->name('actividades.edit');
+        Route::put('/actividades/{actividad}', [\App\Http\Controllers\Vinculacion\ActividadVinculacionController::class, 'update'])->name('actividades.update');
+        Route::delete('/actividades/{actividad}', [\App\Http\Controllers\Vinculacion\ActividadVinculacionController::class, 'destroy'])->name('actividades.destroy');
 
-        Route::get('/empresas-beneficiadas', [VinculacionController::class, 'empresas'])->name('empresas');
-        Route::post('/empresas-beneficiadas', [VinculacionController::class, 'storeEmpresa'])->name('empresas.store');
-        Route::put('/empresas-beneficiadas/{empresa}', [VinculacionController::class, 'updateEmpresa'])->name('empresas.update');
-        Route::delete('/empresas-beneficiadas/{empresa}', [VinculacionController::class, 'destroyEmpresa'])->name('empresas.destroy');
+        Route::get('/empresas-beneficiadas', [\App\Http\Controllers\Vinculacion\EmpresaController::class, 'index'])->name('empresas');
+        Route::get('/empresas-beneficiadas/crear', [\App\Http\Controllers\Vinculacion\EmpresaController::class, 'create'])->name('empresas.create');
+        Route::post('/empresas-beneficiadas', [\App\Http\Controllers\Vinculacion\EmpresaController::class, 'store'])->name('empresas.store');
+        Route::get('/empresas-beneficiadas/{empresa}', [\App\Http\Controllers\Vinculacion\EmpresaController::class, 'show'])->name('empresas.show');
+        Route::get('/empresas-beneficiadas/{empresa}/editar', [\App\Http\Controllers\Vinculacion\EmpresaController::class, 'edit'])->name('empresas.edit');
+        Route::put('/empresas-beneficiadas/{empresa}', [\App\Http\Controllers\Vinculacion\EmpresaController::class, 'update'])->name('empresas.update');
+        Route::delete('/empresas-beneficiadas/{empresa}', [\App\Http\Controllers\Vinculacion\EmpresaController::class, 'destroy'])->name('empresas.destroy');
     });
 
 

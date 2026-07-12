@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Titulacion;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Traits\HasBreadcrumbs;
 use App\Models\Titulacion\Titulacion;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -11,6 +12,8 @@ use Inertia\Response;
 
 class TitulacionController extends Controller
 {
+    use HasBreadcrumbs;
+
     /**
      * Panel único de Titulación para el coordinador: consolida lo que en el
      * sistema origen eran 3 vistas separadas (temas en desarrollo, estudiantes
@@ -38,8 +41,6 @@ class TitulacionController extends Controller
 
         return Inertia::render('Titulacion/Index', [
             'titulaciones' => $titulaciones,
-            'estudiantes' => User::role('estudiante')->get(['id', 'name']),
-            'tutores' => User::role('docente')->get(['id', 'name']),
             'filters' => ['estado' => $estado],
             'stats' => [
                 'en_proceso' => Titulacion::where('estado', 'en_proceso')->count(),
@@ -47,6 +48,16 @@ class TitulacionController extends Controller
                 'graduado' => Titulacion::where('estado', 'graduado')->count(),
                 'total' => Titulacion::count(),
             ],
+            'breadcrumbs' => $this->titulacionBreadcrumbs('Procesos de Titulación'),
+        ]);
+    }
+
+    public function create(): Response
+    {
+        return Inertia::render('Titulacion/Create', [
+            'estudiantes' => User::role('estudiante')->get(['id', 'name']),
+            'tutores' => User::role('docente')->get(['id', 'name']),
+            'breadcrumbs' => $this->titulacionBreadcrumbs('Procesos de Titulación', 'Registrar Tema', route('titulacion.index')),
         ]);
     }
 
@@ -70,7 +81,26 @@ class TitulacionController extends Controller
             'estado' => 'en_proceso',
         ]);
 
-        return redirect()->back()->with('success', 'Proceso de titulación registrado.');
+        return redirect()->route('titulacion.index')->with('success', 'Proceso de titulación registrado.');
+    }
+
+    public function show(Titulacion $titulacion): Response
+    {
+        $titulacion->load(['estudiante', 'tutor', 'creator', 'updater']);
+
+        return Inertia::render('Titulacion/Show', [
+            'titulacion' => $titulacion,
+            'breadcrumbs' => $this->titulacionBreadcrumbs('Procesos de Titulación', 'Ver Proceso', route('titulacion.index'), $titulacion->estudiante->name),
+        ]);
+    }
+
+    public function edit(Titulacion $titulacion): Response
+    {
+        return Inertia::render('Titulacion/Edit', [
+            'titulacion' => $titulacion->load(['estudiante', 'tutor']),
+            'tutores' => User::role('docente')->get(['id', 'name']),
+            'breadcrumbs' => $this->titulacionBreadcrumbs('Procesos de Titulación', 'Editar Proceso', route('titulacion.index'), $titulacion->estudiante->name),
+        ]);
     }
 
     /**
@@ -106,6 +136,6 @@ class TitulacionController extends Controller
     {
         $titulacion->delete();
 
-        return redirect()->back()->with('success', 'Proceso de titulación eliminado.');
+        return redirect()->route('titulacion.index')->with('success', 'Proceso de titulación eliminado.');
     }
 }

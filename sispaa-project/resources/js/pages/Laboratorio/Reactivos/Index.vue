@@ -9,31 +9,32 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'vue-sonner';
-import makeTitulacionColumns, { type Titulacion } from './columns';
+import makeReactivoColumns from './columns';
+import type { Catalogo, ReactivoItem } from './types';
 
 const props = defineProps<{
-    titulaciones: Titulacion[];
-    filters: { estado?: string };
-    stats: { en_proceso: number; defendido: number; graduado: number; total: number };
+    reactivos: ReactivoItem[];
+    laboratorios: Catalogo[];
+    filters: { laboratorio_id?: string };
     breadcrumbs?: BreadcrumbItemType[];
 }>();
 
-const filterEstado = ref(props.filters.estado || 'all');
+const filterLab = ref(props.filters.laboratorio_id || 'all');
 const applyFilter = () => {
-    router.get(route('titulacion.index'), { estado: filterEstado.value !== 'all' ? filterEstado.value : undefined }, { preserveState: true, replace: true });
+    router.get(route('laboratorio.reactivos'), { laboratorio_id: filterLab.value !== 'all' ? filterLab.value : undefined }, { preserveState: true, replace: true });
 };
 
-const changeEstado = (t: Titulacion, estado: string) => {
-    router.put(route('titulacion.update', t.id), { estado }, {
+const changeEstado = (r: ReactivoItem, estado: string) => {
+    router.put(route('laboratorio.reactivos.update', r.id), { estado }, {
         preserveScroll: true,
         onSuccess: () => toast.success('Estado actualizado.'),
     });
 };
 
-const columns = makeTitulacionColumns({ onChangeEstado: changeEstado });
+const columns = makeReactivoColumns({ onChangeEstado: changeEstado });
 
 const table = useVueTable(reactive({
-    get data() { return props.titulaciones; },
+    get data() { return props.reactivos; },
     columns,
     getCoreRowModel: getCoreRowModel(),
 }));
@@ -41,49 +42,28 @@ const table = useVueTable(reactive({
 
 <template>
     <AppSidebarLayout :breadcrumbs="breadcrumbs">
-        <Head title="Titulación" />
+        <Head title="Reactivos de Laboratorio" />
 
         <div class="flex h-full flex-1 flex-col gap-6 p-6 bg-slate-50/50 dark:bg-slate-900/50">
             <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div>
-                    <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">Titulación</h1>
-                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Temas, procesos en curso y estudiantes titulados.</p>
+                    <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">Reactivos</h1>
+                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Inventario de reactivos de laboratorio.</p>
                 </div>
                 <Button as-child class="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold">
-                    <Link :href="route('titulacion.create')">
-                        <Plus class="h-4 w-4" /> Registrar Tema
+                    <Link :href="route('laboratorio.reactivos.create')">
+                        <Plus class="h-4 w-4" /> Nuevo Reactivo
                     </Link>
                 </Button>
             </div>
 
-            <div class="grid grid-cols-4 gap-4">
-                <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                    <p class="text-xs font-semibold text-slate-500 uppercase">Total</p>
-                    <p class="mt-1 text-3xl font-extrabold text-slate-900 dark:text-white">{{ stats.total }}</p>
-                </div>
-                <div class="rounded-2xl border border-amber-200/60 bg-amber-50/40 p-5 shadow-sm dark:border-amber-900/30 dark:bg-amber-950/10">
-                    <p class="text-xs font-semibold text-amber-700 uppercase">En proceso</p>
-                    <p class="mt-1 text-3xl font-extrabold text-amber-700 dark:text-amber-300">{{ stats.en_proceso }}</p>
-                </div>
-                <div class="rounded-2xl border border-indigo-200/60 bg-indigo-50/40 p-5 shadow-sm dark:border-indigo-900/30 dark:bg-indigo-950/10">
-                    <p class="text-xs font-semibold text-indigo-700 uppercase">Defendidos</p>
-                    <p class="mt-1 text-3xl font-extrabold text-indigo-700 dark:text-indigo-300">{{ stats.defendido }}</p>
-                </div>
-                <div class="rounded-2xl border border-emerald-200/60 bg-emerald-50/40 p-5 shadow-sm dark:border-emerald-900/30 dark:bg-emerald-950/10">
-                    <p class="text-xs font-semibold text-emerald-700 uppercase">Titulados</p>
-                    <p class="mt-1 text-3xl font-extrabold text-emerald-700 dark:text-emerald-300">{{ stats.graduado }}</p>
-                </div>
-            </div>
-
             <div class="max-w-5xl w-full space-y-4">
                 <div class="flex gap-3 bg-white dark:bg-slate-950 p-4 rounded-xl border border-slate-200/80 dark:border-slate-800">
-                    <Select v-model="filterEstado" @update:model-value="applyFilter">
-                        <SelectTrigger class="w-[200px]"><SelectValue placeholder="Estado" /></SelectTrigger>
+                    <Select v-model="filterLab" @update:model-value="applyFilter">
+                        <SelectTrigger class="w-[220px]"><SelectValue placeholder="Laboratorio" /></SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="all">Todos los estados</SelectItem>
-                            <SelectItem value="en_proceso">En proceso</SelectItem>
-                            <SelectItem value="defendido">Defendido</SelectItem>
-                            <SelectItem value="graduado">Graduado</SelectItem>
+                            <SelectItem value="all">Todos los laboratorios</SelectItem>
+                            <SelectItem v-for="l in laboratorios" :key="l.id" :value="String(l.id)">{{ l.nombre }}</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
@@ -111,7 +91,7 @@ const table = useVueTable(reactive({
                                 </template>
                                 <TableRow v-else>
                                     <TableCell :colspan="columns.length" class="h-32 text-center text-sm text-slate-400">
-                                        No hay procesos de titulación registrados.
+                                        No hay reactivos registrados.
                                     </TableCell>
                                 </TableRow>
                             </TableBody>

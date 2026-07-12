@@ -99,6 +99,12 @@ trait HasBreadcrumbs
         return $this->moduleBreadcrumbs('Docencia', null, $section, $action, $sectionRoute, $itemTitle);
     }
 
+    /** Breadcrumbs para Estudiantes (gestión staff: Matriculados, Faltas, Justificaciones) */
+    protected function estudiantesBreadcrumbs(string $section, ?string $action = null, ?string $sectionRoute = null, ?string $itemTitle = null): array
+    {
+        return $this->moduleBreadcrumbs('Estudiantes', route('estudiantes.index'), $section, $action, $sectionRoute, $itemTitle);
+    }
+
     /** Breadcrumbs para Reportes */
     protected function reportesBreadcrumbs(string $section, ?string $action = null, ?string $sectionRoute = null, ?string $itemTitle = null): array
     {
