@@ -207,6 +207,15 @@ export const secretariaNavItems: NavItem[] = [
         title: 'Reportes',
         href: route('reportes.index'),
         icon: BarChart3,
+        items: [
+            { title: 'Exportar datos', href: route('reportes.index') },
+            { title: 'Estudiantes', href: route('reportes.estudiantes') },
+            { title: 'Sílabos', href: route('reportes.silabos') },
+            { title: 'Informes de Asignatura', href: route('reportes.informes') },
+            { title: 'Vinculación', href: route('reportes.vinculacion') },
+            { title: 'Titulación', href: route('reportes.titulacion') },
+            { title: 'Laboratorio', href: route('reportes.laboratorio') },
+        ],
     },
     {
         title: 'Notificaciones',

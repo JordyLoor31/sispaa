@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
+import { Progress } from '@/components/ui/progress';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
 import { BookOpen, AlertTriangle, FileCheck, CheckCircle2, ArrowRight, UserCheck, Calendar } from 'lucide-vue-next';
@@ -146,9 +147,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                             <span class="text-4xl font-extrabold text-slate-900 dark:text-white">{{ kpis.avance_sga }}%</span>
                             <span class="text-xs text-slate-400 dark:text-slate-500">de avance</span>
                         </div>
-                        <div class="mt-3 h-2 w-full rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
-                            <div class="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-500" :style="{ width: kpis.avance_sga + '%' }"></div>
-                        </div>
+                        <Progress :model-value="kpis.avance_sga" class="mt-3 h-2" />
                     </div>
                     <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-teal-500 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></div>
                 </div>

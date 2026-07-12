@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
+import { Progress } from '@/components/ui/progress';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
 import { GraduationCap, User, Calendar, CheckCircle2, Clock, Info } from 'lucide-vue-next';
@@ -121,9 +122,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                             <h3 class="text-sm font-bold text-slate-900 dark:text-white">Avance Global</h3>
                             <span class="text-lg font-black text-indigo-600 dark:text-indigo-400">{{ progreso }}%</span>
                         </div>
-                        <div class="mt-3 h-3 w-full rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
-                            <div class="h-full rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 transition-all duration-500" :style="{ width: progreso + '%' }"></div>
-                        </div>
+                        <Progress :model-value="progreso" class="mt-3 h-3" />
                         <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-2">
                             El avance se incrementa automáticamente a medida que el tutor valida cada etapa aprobada en la plataforma.
                         </p>

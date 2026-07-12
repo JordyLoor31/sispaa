@@ -12,6 +12,12 @@ use App\Http\Controllers\Laboratorio\PracticaLaboratorioController;
 use App\Http\Controllers\Laboratorio\ReactivoController;
 use App\Http\Controllers\NotificacionController;
 use App\Http\Controllers\Reportes\ReporteController;
+use App\Http\Controllers\Reportes\EstudiantesReporteController;
+use App\Http\Controllers\Reportes\SilabosReporteController;
+use App\Http\Controllers\Reportes\InformesReporteController;
+use App\Http\Controllers\Reportes\VinculacionReporteController;
+use App\Http\Controllers\Reportes\TitulacionReporteController;
+use App\Http\Controllers\Reportes\LaboratorioReporteController;
 use App\Http\Controllers\Titulacion\TitulacionController;
 
 use Illuminate\Support\Facades\Route;
@@ -199,6 +205,14 @@ Route::middleware(['auth', 'verified', 'role:secretaria|SystemAdministrador'])
         Route::get('/export/csv', [ReporteController::class, 'exportCsv'])->name('export.csv');
         Route::get('/export/xlsx', [ReporteController::class, 'exportXlsx'])->name('export.xlsx');
         Route::get('/export/pdf', [ReporteController::class, 'exportPdf'])->name('export.pdf');
+
+        // Sub-reportes estadísticos (gráficos ApexCharts, controladores dedicados por módulo)
+        Route::get('/estudiantes', [EstudiantesReporteController::class, 'index'])->name('estudiantes');
+        Route::get('/silabos', [SilabosReporteController::class, 'index'])->name('silabos');
+        Route::get('/informes', [InformesReporteController::class, 'index'])->name('informes');
+        Route::get('/vinculacion', [VinculacionReporteController::class, 'index'])->name('vinculacion');
+        Route::get('/titulacion', [TitulacionReporteController::class, 'index'])->name('titulacion');
+        Route::get('/laboratorio', [LaboratorioReporteController::class, 'index'])->name('laboratorio');
     });
 
 

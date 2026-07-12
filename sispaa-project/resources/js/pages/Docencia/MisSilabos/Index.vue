@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import AppSidebarLayout from '@/layouts/app/AppSidebarLayout.vue';
+import { Progress } from '@/components/ui/progress';
 import { type BreadcrumbItemType } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { BookOpen, CheckCircle2, Clock, UploadCloud, X, ArrowUpRight } from 'lucide-vue-next';
 import { toast } from 'vue-sonner';
 
@@ -19,10 +20,15 @@ interface SilaboItem {
     fecha_subida: string | null;
 }
 
-defineProps<{
+const props = defineProps<{
     silabos: SilaboItem[];
     breadcrumbs?: BreadcrumbItemType[];
 }>();
+
+const totalSilabos = computed(() => props.silabos.length);
+const silabosAprobados = computed(() => props.silabos.filter((s) => s.estado === 'aprobado').length);
+const silabosFaltantes = computed(() => totalSilabos.value - silabosAprobados.value);
+const porcentajeAvance = computed(() => (totalSilabos.value === 0 ? 0 : Math.round((silabosAprobados.value / totalSilabos.value) * 100)));
 
 const activeItem = ref<SilaboItem | null>(null);
 
@@ -88,6 +94,20 @@ const estadoBadge = (estado: string) => {
                 <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">Mis Sílabos</h1>
                 <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
                     Sube el sílabo de cada materia que tienes asignada en el período activo.
+                </p>
+            </div>
+
+            <!-- Progreso de sílabos aprobados -->
+            <div v-if="totalSilabos > 0" class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+                <div class="flex items-center justify-between text-xs">
+                    <span class="font-semibold text-slate-600 dark:text-slate-300">
+                        {{ silabosAprobados }} de {{ totalSilabos }} sílabos aprobados
+                    </span>
+                    <span class="font-bold text-indigo-600 dark:text-indigo-400">{{ porcentajeAvance }}%</span>
+                </div>
+                <Progress :model-value="porcentajeAvance" class="mt-2 h-2" />
+                <p v-if="silabosFaltantes > 0" class="mt-1 text-xs text-slate-400 dark:text-slate-500">
+                    Te falta{{ silabosFaltantes === 1 ? '' : 'n' }} {{ silabosFaltantes }} sílabo{{ silabosFaltantes === 1 ? '' : 's' }} por subir o aprobar.
                 </p>
             </div>
 

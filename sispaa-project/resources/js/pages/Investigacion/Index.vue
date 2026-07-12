@@ -71,7 +71,7 @@ const estadoBadge = (estado: string) => {
                 </Button>
             </div>
 
-            <div class="max-w-5xl w-full space-y-4">
+            <div class="max-w-5xl w-full mx-auto space-y-4">
                 <div class="flex gap-3 bg-white dark:bg-slate-950 p-4 rounded-xl border border-slate-200/80 dark:border-slate-800">
                     <Select v-model="filterEstado" @update:model-value="applyFilter">
                         <SelectTrigger class="w-[180px]"><SelectValue placeholder="Estado" /></SelectTrigger>

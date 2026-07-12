@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
+import { Progress } from '@/components/ui/progress';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { FileText, CheckCircle2, AlertCircle, Clock, UploadCloud, X, ArrowUpRight } from 'lucide-vue-next';
 
 interface DocumentoExpediente {
@@ -14,9 +15,14 @@ interface DocumentoExpediente {
     updated_at: string | null;
 }
 
-defineProps<{
+const props = defineProps<{
     expediente: DocumentoExpediente[];
 }>();
+
+const totalDocumentos = computed(() => props.expediente.length);
+const documentosAprobados = computed(() => props.expediente.filter((d) => d.estado === 'aprobado').length);
+const documentosFaltantes = computed(() => totalDocumentos.value - documentosAprobados.value);
+const porcentajeAvance = computed(() => (totalDocumentos.value === 0 ? 0 : Math.round((documentosAprobados.value / totalDocumentos.value) * 100)));
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -133,6 +139,20 @@ const submitUpload = () => {
                 <div class="md:col-span-3 rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
                     <h3 class="text-base font-bold text-slate-900 dark:text-white">Estado General de Validación</h3>
                     <p class="text-xs text-slate-500 mt-0.5">Se requiere la aprobación del 100% de los documentos para culminar tu expediente académico.</p>
+
+                    <!-- Progreso de documentos aprobados -->
+                    <div class="mt-4">
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="font-semibold text-slate-600 dark:text-slate-300">
+                                {{ documentosAprobados }} de {{ totalDocumentos }} documentos aprobados
+                            </span>
+                            <span class="font-bold text-indigo-600 dark:text-indigo-400">{{ porcentajeAvance }}%</span>
+                        </div>
+                        <Progress :model-value="porcentajeAvance" class="mt-2 h-2" />
+                        <p v-if="documentosFaltantes > 0" class="mt-1 text-xs text-slate-400 dark:text-slate-500">
+                            Te falta{{ documentosFaltantes === 1 ? '' : 'n' }} {{ documentosFaltantes }} documento{{ documentosFaltantes === 1 ? '' : 's' }} por aprobar.
+                        </p>
+                    </div>
 
                     <!-- Lista de Documentos Obligatorios -->
                     <div class="mt-6 space-y-4">

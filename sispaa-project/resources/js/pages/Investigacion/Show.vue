@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppSidebarLayout from '@/layouts/app/AppSidebarLayout.vue';
+import { Progress } from '@/components/ui/progress';
 import { type BreadcrumbItemType } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
@@ -103,12 +104,6 @@ const submitRespuesta = () => {
         onSuccess: () => { toast.success('Respuesta guardada.'); respondiendo.value = null; },
     });
 };
-
-const progresoColor = (pct: number) => {
-    if (pct >= 100) return 'bg-emerald-500';
-    if (pct >= 50) return 'bg-indigo-500';
-    return 'bg-amber-500';
-};
 </script>
 
 <template>
@@ -151,9 +146,7 @@ const progresoColor = (pct: number) => {
                             </button>
                         </div>
                         <div class="mt-3 flex items-center gap-2">
-                            <div class="h-2 flex-1 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
-                                <div :class="['h-full rounded-full', progresoColor(h.porcentaje_avance)]" :style="{ width: h.porcentaje_avance + '%' }"></div>
-                            </div>
+                            <Progress :model-value="h.porcentaje_avance" class="h-2 flex-1" />
                             <span class="text-xs font-semibold text-slate-500 w-10 text-right">{{ h.porcentaje_avance }}%</span>
                         </div>
                     </div>

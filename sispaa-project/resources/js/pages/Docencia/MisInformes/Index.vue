@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import AppSidebarLayout from '@/layouts/app/AppSidebarLayout.vue';
+import { Progress } from '@/components/ui/progress';
 import { type BreadcrumbItemType } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { FileText, CheckCircle2, Clock, UploadCloud, X, ArrowUpRight } from 'lucide-vue-next';
 import { toast } from 'vue-sonner';
 
@@ -18,10 +19,15 @@ interface InformeItem {
     fecha_subida: string | null;
 }
 
-defineProps<{
+const props = defineProps<{
     informes: InformeItem[];
     breadcrumbs?: BreadcrumbItemType[];
 }>();
+
+const totalInformes = computed(() => props.informes.length);
+const informesAprobados = computed(() => props.informes.filter((i) => i.estado === 'aprobado').length);
+const informesFaltantes = computed(() => totalInformes.value - informesAprobados.value);
+const porcentajeAvance = computed(() => (totalInformes.value === 0 ? 0 : Math.round((informesAprobados.value / totalInformes.value) * 100)));
 
 const activeItem = ref<InformeItem | null>(null);
 
@@ -87,6 +93,20 @@ const estadoBadge = (estado: string) => {
                 <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">Mis Informes de Asignatura</h1>
                 <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
                     Sube el informe de cada materia que tienes asignada en el período activo.
+                </p>
+            </div>
+
+            <!-- Progreso de informes aprobados -->
+            <div v-if="totalInformes > 0" class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+                <div class="flex items-center justify-between text-xs">
+                    <span class="font-semibold text-slate-600 dark:text-slate-300">
+                        {{ informesAprobados }} de {{ totalInformes }} informes aprobados
+                    </span>
+                    <span class="font-bold text-indigo-600 dark:text-indigo-400">{{ porcentajeAvance }}%</span>
+                </div>
+                <Progress :model-value="porcentajeAvance" class="mt-2 h-2" />
+                <p v-if="informesFaltantes > 0" class="mt-1 text-xs text-slate-400 dark:text-slate-500">
+                    Te falta{{ informesFaltantes === 1 ? '' : 'n' }} {{ informesFaltantes }} informe{{ informesFaltantes === 1 ? '' : 's' }} por subir o aprobar.
                 </p>
             </div>
 
