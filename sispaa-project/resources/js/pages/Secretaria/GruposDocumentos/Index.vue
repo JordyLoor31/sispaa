@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import AppSidebarLayout from '@/layouts/app/AppSidebarLayout.vue';
 import { type BreadcrumbItemType } from '@/types';
-import { Head, Link, router } from '@inertiajs/vue3';
-import { Plus, FolderOpen, Power, Eye } from 'lucide-vue-next';
+import { Head, Link } from '@inertiajs/vue3';
+import { reactive } from 'vue';
+import { Plus, FolderOpen } from 'lucide-vue-next';
+import { FlexRender, getCoreRowModel, useVueTable } from '@tanstack/vue-table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { toast } from 'vue-sonner';
+import makeGrupoDocumentoColumns from './columns';
 import type { GrupoDocumento } from './types';
 
 const props = defineProps<{
@@ -12,12 +15,17 @@ const props = defineProps<{
     breadcrumbs?: BreadcrumbItemType[];
 }>();
 
-const toggleGrupo = (grupo: GrupoDocumento) => {
-    router.post(route('secretaria.grupos-documentos.toggle', grupo.id), {}, {
-        preserveScroll: true,
-        onSuccess: () => toast.success(grupo.activo ? 'Grupo desactivado.' : 'Grupo activado.'),
-    });
-};
+const columns = makeGrupoDocumentoColumns();
+
+const table = useVueTable(
+    reactive({
+        get data() {
+            return props.grupos;
+        },
+        columns,
+        getCoreRowModel: getCoreRowModel(),
+    }),
+);
 </script>
 
 <template>
@@ -32,7 +40,7 @@ const toggleGrupo = (grupo: GrupoDocumento) => {
                         Define catálogos de requisitos documentales. Al crear un grupo, se notifica a todos los estudiantes.
                     </p>
                 </div>
-                <Button as-child class="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold">
+                <Button as-child class="inline-flex items-center gap-1.5 bg-indigo-600 font-semibold text-white hover:bg-indigo-500">
                     <Link :href="route('secretaria.grupos-documentos.create')">
                         <Plus class="h-4 w-4" />
                         Nuevo Grupo
@@ -40,45 +48,36 @@ const toggleGrupo = (grupo: GrupoDocumento) => {
                 </Button>
             </div>
 
-            <div class="max-w-5xl w-full grid gap-4 md:grid-cols-2">
-                <div v-for="g in props.grupos" :key="g.id"
-                    class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950 flex flex-col gap-3">
-                    <div class="flex items-start justify-between">
-                        <div class="flex items-center gap-2">
-                            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 dark:bg-indigo-950/30 dark:text-indigo-400">
-                                <FolderOpen class="h-4.5 w-4.5" />
-                            </div>
-                            <div>
-                                <h3 class="text-sm font-bold text-slate-900 dark:text-white">{{ g.nombre }}</h3>
-                                <p v-if="g.descripcion" class="text-xs text-slate-400">{{ g.descripcion }}</p>
-                            </div>
-                        </div>
-                        <button @click="toggleGrupo(g)"
-                            :class="['inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold transition-colors', g.activo
-                                ? 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-400 hover:bg-emerald-100'
-                                : 'bg-slate-100 text-slate-500 dark:bg-slate-900 dark:text-slate-500 hover:bg-slate-200']">
-                            <Power class="h-3.5 w-3.5" />
-                            {{ g.activo ? 'Activo' : 'Inactivo' }}
-                        </button>
+            <div class="w-full space-y-4">
+                <div class="overflow-hidden rounded-lg border border-slate-200/80 bg-white dark:border-slate-800 dark:bg-slate-950">
+                    <div class="overflow-x-auto">
+                        <Table>
+                            <TableHeader>
+                                <TableRow v-for="hg in table.getHeaderGroups()" :key="hg.id" class="border-b border-slate-200/80 dark:border-slate-800">
+                                    <TableHead v-for="header in hg.headers" :key="header.id" class="h-12 px-4 text-sm font-medium text-slate-500 dark:text-slate-400">
+                                        <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header" :props="header.getContext()" />
+                                    </TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody class="divide-y divide-slate-100 text-sm dark:divide-slate-800">
+                                <template v-if="table.getRowModel().rows.length">
+                                    <TableRow v-for="row in table.getRowModel().rows" :key="row.id" class="transition-colors hover:bg-slate-50/40 dark:hover:bg-slate-900/20">
+                                        <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id" class="px-4 py-4">
+                                            <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
+                                        </TableCell>
+                                    </TableRow>
+                                </template>
+                                <TableRow v-else>
+                                    <TableCell :colspan="columns.length" class="h-32 text-center">
+                                        <div class="flex flex-col items-center gap-2 text-slate-400">
+                                            <FolderOpen class="h-8 w-8" />
+                                            <span class="text-sm font-medium">No hay grupos de documentos creados</span>
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            </TableBody>
+                        </Table>
                     </div>
-
-                    <ul class="space-y-1.5 pt-2 border-t border-slate-100 dark:border-slate-800">
-                        <li v-for="r in g.requisitos" :key="r.id" class="text-xs text-slate-600 dark:text-slate-300 flex items-center gap-2">
-                            <span class="h-1.5 w-1.5 rounded-full bg-indigo-400"></span>
-                            {{ r.nombre }}
-                            <span v-if="!r.activo" class="text-slate-400">(inactivo)</span>
-                        </li>
-                        <li v-if="g.requisitos.length === 0" class="text-xs text-slate-400">Sin requisitos aún.</li>
-                    </ul>
-
-                    <Link :href="route('secretaria.grupos-documentos.show', g.id)"
-                        class="mt-1 inline-flex items-center gap-1 self-start text-xs text-indigo-600 hover:text-indigo-500 font-semibold">
-                        <Eye class="h-3.5 w-3.5" /> Ver detalle / agregar requisito
-                    </Link>
-                </div>
-
-                <div v-if="props.grupos.length === 0" class="col-span-full rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 p-10 text-center text-sm text-slate-400">
-                    No hay grupos de documentos creados.
                 </div>
             </div>
         </div>

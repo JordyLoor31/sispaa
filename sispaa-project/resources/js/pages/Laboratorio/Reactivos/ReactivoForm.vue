@@ -3,11 +3,22 @@ import { router } from '@inertiajs/vue3';
 import { toTypedSchema } from '@vee-validate/zod';
 import { useForm } from 'vee-validate';
 import * as z from 'zod';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Check, ChevronsUpDown, TestTube2, Beaker, Scale, Ruler } from 'lucide-vue-next';
+import {
+    Combobox,
+    ComboboxAnchor,
+    ComboboxEmpty,
+    ComboboxGroup,
+    ComboboxInput,
+    ComboboxItem,
+    ComboboxItemIndicator,
+    ComboboxList,
+    ComboboxTrigger,
+} from '@/components/ui/combobox';
 import { toast } from 'vue-sonner';
 import type { Catalogo, ReactivoItem } from './types';
 
@@ -30,7 +41,7 @@ const formSchema = toTypedSchema(
     }),
 );
 
-const { handleSubmit, setErrors } = useForm({
+const { handleSubmit, setErrors, defineField } = useForm({
     validationSchema: formSchema,
     initialValues: {
         laboratorio_id: props.reactivo?.laboratorio_id ?? '',
@@ -39,6 +50,16 @@ const { handleSubmit, setErrors } = useForm({
         cantidad: props.reactivo?.cantidad ?? 0,
         unidad: props.reactivo?.unidad ?? '',
     },
+});
+
+const [laboratorioId] = defineField('laboratorio_id');
+
+const laboratorioInicial = props.laboratorios.find((l) => l.id === props.reactivo?.laboratorio_id);
+const selectedLaboratorioObj = ref<{ value: string | number; label: string } | null>(
+    laboratorioInicial ? { value: laboratorioInicial.id, label: laboratorioInicial.nombre } : null,
+);
+watch(selectedLaboratorioObj, (newVal) => {
+    laboratorioId.value = newVal ? newVal.value : '';
 });
 
 const processing = ref(false);
@@ -65,18 +86,37 @@ const onSubmit = handleSubmit((values) => {
 
 <template>
     <form class="space-y-5" @submit="onSubmit">
-        <FormField v-slot="{ componentField }" name="laboratorio_id">
+        <FormField v-slot="{ errorMessage }" name="laboratorio_id">
             <FormItem>
                 <FormLabel>Laboratorio *</FormLabel>
-                <Select v-bind="componentField">
-                    <FormControl>
-                        <SelectTrigger class="w-full"><SelectValue placeholder="Selecciona..." /></SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                        <SelectItem v-for="l in laboratorios" :key="l.id" :value="l.id">{{ l.nombre }}</SelectItem>
-                    </SelectContent>
-                </Select>
-                <FormMessage />
+                <Combobox v-model="selectedLaboratorioObj" by="value">
+                    <ComboboxAnchor as-child>
+                        <ComboboxTrigger as-child>
+                            <FormControl>
+                                <Button type="button" variant="outline" class="w-full justify-between text-left text-sm font-normal">
+                                    {{ selectedLaboratorioObj ? selectedLaboratorioObj.label : 'Selecciona...' }}
+                                    <ChevronsUpDown class="h-4 w-4 opacity-50" />
+                                </Button>
+                            </FormControl>
+                        </ComboboxTrigger>
+                    </ComboboxAnchor>
+                    <ComboboxList class="w-[var(--reka-combobox-trigger-width)] min-w-[250px] rounded-lg border border-slate-100 bg-white shadow-lg dark:border-slate-900 dark:bg-slate-950">
+                        <ComboboxInput placeholder="Buscar laboratorio..." class="w-full border-0 border-b border-slate-105 bg-transparent px-3 py-2.5 text-sm focus:ring-0 dark:border-slate-850" />
+                        <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron laboratorios.</ComboboxEmpty>
+                        <ComboboxGroup class="max-h-60 overflow-y-auto p-1">
+                            <ComboboxItem
+                                v-for="l in laboratorios"
+                                :key="l.id"
+                                :value="{ value: l.id, label: l.nombre }"
+                                class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800"
+                            >
+                                {{ l.nombre }}
+                                <ComboboxItemIndicator><Check class="h-4 w-4 text-indigo-650" /></ComboboxItemIndicator>
+                            </ComboboxItem>
+                        </ComboboxGroup>
+                    </ComboboxList>
+                </Combobox>
+                <FormMessage v-if="errorMessage" />
             </FormItem>
         </FormField>
 
@@ -84,7 +124,10 @@ const onSubmit = handleSubmit((values) => {
             <FormItem>
                 <FormLabel>Nombre *</FormLabel>
                 <FormControl>
-                    <Input type="text" v-bind="componentField" />
+                    <InputGroup>
+                        <InputGroupAddon><TestTube2 class="h-4 w-4" /></InputGroupAddon>
+                        <InputGroupInput type="text" v-bind="componentField" />
+                    </InputGroup>
                 </FormControl>
                 <FormMessage />
             </FormItem>
@@ -94,7 +137,10 @@ const onSubmit = handleSubmit((values) => {
             <FormItem>
                 <FormLabel>Fórmula</FormLabel>
                 <FormControl>
-                    <Input type="text" v-bind="componentField" />
+                    <InputGroup>
+                        <InputGroupAddon><Beaker class="h-4 w-4" /></InputGroupAddon>
+                        <InputGroupInput type="text" v-bind="componentField" />
+                    </InputGroup>
                 </FormControl>
                 <FormMessage />
             </FormItem>
@@ -105,7 +151,10 @@ const onSubmit = handleSubmit((values) => {
                 <FormItem>
                     <FormLabel>Cantidad *</FormLabel>
                     <FormControl>
-                        <Input type="number" min="0" v-bind="componentField" />
+                        <InputGroup>
+                            <InputGroupAddon><Scale class="h-4 w-4" /></InputGroupAddon>
+                            <InputGroupInput type="number" min="0" v-bind="componentField" />
+                        </InputGroup>
                     </FormControl>
                     <FormMessage />
                 </FormItem>
@@ -115,7 +164,10 @@ const onSubmit = handleSubmit((values) => {
                 <FormItem>
                     <FormLabel>Unidad</FormLabel>
                     <FormControl>
-                        <Input type="text" placeholder="ml, gr, L..." v-bind="componentField" />
+                        <InputGroup>
+                            <InputGroupAddon><Ruler class="h-4 w-4" /></InputGroupAddon>
+                            <InputGroupInput type="text" placeholder="ml, gr, L..." v-bind="componentField" />
+                        </InputGroup>
                     </FormControl>
                     <FormMessage />
                 </FormItem>

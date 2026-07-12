@@ -5,8 +5,9 @@ import { useForm } from 'vee-validate';
 import * as z from 'zod';
 import { ref } from 'vue';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Building2, Hash, Briefcase, Phone } from 'lucide-vue-next';
 import type { Empresa } from './types';
 
 const props = defineProps<{
@@ -61,7 +62,10 @@ const onSubmit = handleSubmit((values) => {
             <FormItem>
                 <FormLabel>Nombre *</FormLabel>
                 <FormControl>
-                    <Input type="text" v-bind="componentField" />
+                    <InputGroup>
+                        <InputGroupAddon><Building2 class="h-4 w-4" /></InputGroupAddon>
+                        <InputGroupInput type="text" v-bind="componentField" />
+                    </InputGroup>
                 </FormControl>
                 <FormMessage />
             </FormItem>
@@ -71,7 +75,10 @@ const onSubmit = handleSubmit((values) => {
             <FormItem>
                 <FormLabel>RUC</FormLabel>
                 <FormControl>
-                    <Input type="text" maxlength="13" v-bind="componentField" />
+                    <InputGroup>
+                        <InputGroupAddon><Hash class="h-4 w-4" /></InputGroupAddon>
+                        <InputGroupInput type="text" maxlength="13" v-bind="componentField" />
+                    </InputGroup>
                 </FormControl>
                 <FormMessage />
             </FormItem>
@@ -81,7 +88,10 @@ const onSubmit = handleSubmit((values) => {
             <FormItem>
                 <FormLabel>Sector</FormLabel>
                 <FormControl>
-                    <Input type="text" v-bind="componentField" />
+                    <InputGroup>
+                        <InputGroupAddon><Briefcase class="h-4 w-4" /></InputGroupAddon>
+                        <InputGroupInput type="text" v-bind="componentField" />
+                    </InputGroup>
                 </FormControl>
                 <FormMessage />
             </FormItem>
@@ -91,7 +101,10 @@ const onSubmit = handleSubmit((values) => {
             <FormItem>
                 <FormLabel>Contacto</FormLabel>
                 <FormControl>
-                    <Input type="text" v-bind="componentField" />
+                    <InputGroup>
+                        <InputGroupAddon><Phone class="h-4 w-4" /></InputGroupAddon>
+                        <InputGroupInput type="text" v-bind="componentField" />
+                    </InputGroup>
                 </FormControl>
                 <FormMessage />
             </FormItem>

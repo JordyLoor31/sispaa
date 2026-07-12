@@ -23,15 +23,15 @@ withDefaults(
 </script>
 
 <template>
-    <Collapsible :default-open="defaultOpen" class="group/role-collapsible px-2">
+    <Collapsible :default-open="defaultOpen" class="group/role-collapsible px-2 group-data-[collapsible=icon]:px-0">
         <CollapsibleTrigger
-            class="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-xs font-semibold tracking-wide text-sidebar-foreground/70 uppercase hover:bg-sidebar-accent"
+            class="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-xs font-semibold tracking-wide text-sidebar-foreground/70 uppercase hover:bg-sidebar-accent group-data-[collapsible=icon]:justify-center"
         >
-            <span class="flex items-center gap-2">
-                <component :is="icon" v-if="icon" class="h-4 w-4" />
-                <span>{{ label }}</span>
+            <span class="flex min-w-0 items-center gap-2">
+                <component :is="icon" v-if="icon" class="h-4 w-4 shrink-0" />
+                <span class="truncate group-data-[collapsible=icon]:hidden">{{ label }}</span>
             </span>
-            <ChevronDown class="h-3.5 w-3.5 transition-transform group-data-[state=open]/role-collapsible:rotate-180" />
+            <ChevronDown class="h-3.5 w-3.5 shrink-0 transition-transform group-data-[state=open]/role-collapsible:rotate-180 group-data-[collapsible=icon]:hidden" />
         </CollapsibleTrigger>
         <CollapsibleContent>
             <NavMain :items="items" hide-label />

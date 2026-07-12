@@ -5,9 +5,9 @@ import { useForm } from 'vee-validate';
 import * as z from 'zod';
 import { ref, watch } from 'vue';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Check, ChevronsUpDown, ArrowLeft } from 'lucide-vue-next';
+import { Check, ChevronsUpDown, ArrowLeft, GraduationCap, Hash } from 'lucide-vue-next';
 import {
     Combobox,
     ComboboxAnchor,
@@ -93,7 +93,10 @@ const onSubmit = handleSubmit((values) => {
             <FormItem>
                 <FormLabel>Nombre de Carrera *</FormLabel>
                 <FormControl>
-                    <Input type="text" v-bind="componentField" />
+                    <InputGroup>
+                        <InputGroupAddon><GraduationCap class="h-4 w-4" /></InputGroupAddon>
+                        <InputGroupInput type="text" v-bind="componentField" />
+                    </InputGroup>
                 </FormControl>
                 <FormMessage />
             </FormItem>
@@ -103,7 +106,10 @@ const onSubmit = handleSubmit((values) => {
             <FormItem>
                 <FormLabel>Código / Sigla *</FormLabel>
                 <FormControl>
-                    <Input type="text" v-bind="componentField" />
+                    <InputGroup>
+                        <InputGroupAddon><Hash class="h-4 w-4" /></InputGroupAddon>
+                        <InputGroupInput type="text" v-bind="componentField" />
+                    </InputGroup>
                 </FormControl>
                 <FormMessage />
             </FormItem>

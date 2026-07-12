@@ -94,6 +94,49 @@ export const docenteNavItems: NavItem[] = [
     },
 ];
 
+/**
+ * Variante del bloque "Docente" para SystemAdministrador cuando NO tiene
+ * también el rol docente: reemplaza los accesos en primera persona ("Mis
+ * Sílabos", "Mis Informes") por las vistas de supervisión de TODOS los
+ * docentes (mismo patrón de data table que usa Secretaría). Investigación,
+ * Laboratorio y Notificaciones ya son vistas de panel/overview, no de
+ * autoservicio, así que se reutilizan sin cambios.
+ */
+export const docenteAdminOverviewNavItems: NavItem[] = [
+    {
+        title: 'Docencia',
+        href: route('secretaria.silabos.index'),
+        icon: Feather,
+        items: [
+            { title: 'Sílabos subidos', href: route('secretaria.silabos.index') },
+            { title: 'Informes de Asignatura', href: route('docencia.informes-asignaturas') },
+        ],
+    },
+    {
+        title: 'Investigación',
+        href: route('investigacion.index'),
+        icon: Search,
+    },
+    {
+        title: 'Laboratorio',
+        href: route('laboratorio.index'),
+        icon: FlaskConical,
+        items: [
+            { title: 'Dashboard', href: route('laboratorio.index') },
+            { title: 'Prácticas', href: route('laboratorio.practicas') },
+            { title: 'Laboratorios', href: route('laboratorio.laboratorios') },
+            { title: 'Equipos', href: route('laboratorio.equipos') },
+            { title: 'Reactivos', href: route('laboratorio.reactivos') },
+            { title: 'Por carrera', href: route('laboratorio.porCarrera') },
+        ],
+    },
+    {
+        title: 'Notificaciones',
+        href: route('notificaciones.index'),
+        icon: Bell,
+    },
+];
+
 /** Rol Coordinador: supervisión de investigación, titulación y vinculación. */
 export const coordinadorNavItems: NavItem[] = [
     {
@@ -251,6 +294,13 @@ export const navByRole: Record<string, NavItem[]> = {
 /**
  * Resuelve qué debe pintar el Sidebar para un set de roles del usuario actual.
  * - SystemAdministrador -> modo "god view": grupos colapsables por rol.
+ *   El grupo "Docente" muestra la vista de supervisión (todos los sílabos e
+ *   informes) en vez de "Mis Sílabos"/"Mis Informes" en primera persona,
+ *   salvo que el SystemAdministrador también tenga el rol docente. El grupo
+ *   "Estudiante" (autoservicio en primera persona) se omite por completo,
+ *   salvo que también tenga el rol estudiante, ya que sus equivalentes de
+ *   supervisión (expediente, justificaciones, documentos) ya están cubiertos
+ *   por los grupos Secretaría/Coordinador.
  * - Cualquier otro rol reconocido -> lista plana combinando los menús de
  *   TODOS los roles que tenga (ej. alguien con docente + coordinador ve
  *   ambos menús seguidos, no solo el primero que coincida).
@@ -258,7 +308,19 @@ export const navByRole: Record<string, NavItem[]> = {
  */
 export function resolveSidebarNav(userRoles: string[] = []): { mode: 'grouped' | 'flat'; groups?: NavRoleGroup[]; items?: NavItem[] } {
     if (userRoles.includes(ROLES.SYSTEM_ADMINISTRADOR)) {
-        return { mode: 'grouped', groups: roleNavGroups };
+        const isAlsoDocente = userRoles.includes(ROLES.DOCENTE);
+        const isAlsoEstudiante = userRoles.includes(ROLES.ESTUDIANTE);
+
+        const groups = roleNavGroups
+            .filter((group) => group.key !== 'estudiante' || isAlsoEstudiante)
+            .map((group) => {
+                if (group.key === 'docente' && !isAlsoDocente) {
+                    return { ...group, items: docenteAdminOverviewNavItems };
+                }
+                return group;
+            });
+
+        return { mode: 'grouped', groups };
     }
 
     const matchedRoles = Object.keys(navByRole).filter((role) => userRoles.includes(role));

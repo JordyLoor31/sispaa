@@ -5,11 +5,22 @@ import { Head, router } from '@inertiajs/vue3';
 import { toTypedSchema } from '@vee-validate/zod';
 import { useForm } from 'vee-validate';
 import * as z from 'zod';
-import { computed, ref } from 'vue';
-import { Search, UserCheck } from 'lucide-vue-next';
+import { computed, ref, watch } from 'vue';
+import { Check, ChevronsUpDown, Search, UserCheck, Calendar } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import {
+    Combobox,
+    ComboboxAnchor,
+    ComboboxEmpty,
+    ComboboxGroup,
+    ComboboxInput,
+    ComboboxItem,
+    ComboboxItemIndicator,
+    ComboboxList,
+    ComboboxTrigger,
+} from '@/components/ui/combobox';
 import { toast } from 'vue-sonner';
 import type { Estudiante, Periodo, Carrera } from './types';
 
@@ -52,8 +63,20 @@ const { handleSubmit, setErrors, defineField, values } = useForm({
 });
 
 const [estudianteId] = defineField('estudiante_id');
+const [periodoId] = defineField('periodo_id');
+const [carreraId] = defineField('carrera_id');
 
 const selectedEstudiante = computed(() => props.estudiantes.find((e) => e.id === estudianteId.value));
+
+const selectedPeriodoObj = ref<{ value: string | number; label: string } | null>(null);
+watch(selectedPeriodoObj, (newVal) => {
+    periodoId.value = newVal ? newVal.value : '';
+});
+
+const selectedCarreraObj = ref<{ value: string | number; label: string } | null>(null);
+watch(selectedCarreraObj, (newVal) => {
+    carreraId.value = newVal ? newVal.value : '';
+});
 
 const processing = ref(false);
 
@@ -92,15 +115,10 @@ const onSubmit = handleSubmit((submitValues) => {
                     <FormField v-slot="{ errorMessage }" name="estudiante_id">
                         <FormItem>
                             <FormLabel>Estudiante *</FormLabel>
-                            <div class="relative">
-                                <Search class="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                                <input
-                                    v-model="estudianteSearch"
-                                    type="text"
-                                    placeholder="Buscar por nombre o cédula..."
-                                    class="w-full rounded-lg border-slate-300 bg-white pl-9 text-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
-                                />
-                            </div>
+                            <InputGroup>
+                                <InputGroupAddon><Search class="h-4 w-4" /></InputGroupAddon>
+                                <InputGroupInput v-model="estudianteSearch" type="text" placeholder="Buscar por nombre o cédula..." />
+                            </InputGroup>
                             <div
                                 v-if="estudianteSearch || !estudianteId"
                                 class="mt-1 max-h-48 overflow-y-auto rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900"
@@ -130,40 +148,72 @@ const onSubmit = handleSubmit((submitValues) => {
                         </FormItem>
                     </FormField>
 
-                    <FormField v-slot="{ componentField }" name="periodo_id">
+                    <FormField v-slot="{ errorMessage }" name="periodo_id">
                         <FormItem>
                             <FormLabel>Período Académico *</FormLabel>
-                            <Select v-bind="componentField">
-                                <FormControl>
-                                    <SelectTrigger class="w-full">
-                                        <SelectValue placeholder="Selecciona un período..." />
-                                    </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                    <SelectItem v-for="p in periodos" :key="p.id" :value="p.id">
-                                        {{ p.nombre }}
-                                        <span v-if="p.activo" class="ml-1 text-xs text-emerald-500">(activo)</span>
-                                    </SelectItem>
-                                </SelectContent>
-                            </Select>
-                            <FormMessage />
+                            <Combobox v-model="selectedPeriodoObj" by="value">
+                                <ComboboxAnchor as-child>
+                                    <ComboboxTrigger as-child>
+                                        <FormControl>
+                                            <Button type="button" variant="outline" class="w-full justify-between text-left text-sm font-normal">
+                                                {{ selectedPeriodoObj ? selectedPeriodoObj.label : 'Selecciona un período...' }}
+                                                <ChevronsUpDown class="h-4 w-4 opacity-50" />
+                                            </Button>
+                                        </FormControl>
+                                    </ComboboxTrigger>
+                                </ComboboxAnchor>
+                                <ComboboxList class="w-[var(--reka-combobox-trigger-width)] min-w-[250px] rounded-lg border border-slate-100 bg-white shadow-lg dark:border-slate-900 dark:bg-slate-950">
+                                    <ComboboxInput placeholder="Buscar período..." class="w-full border-0 border-b border-slate-105 bg-transparent px-3 py-2.5 text-sm focus:ring-0 dark:border-slate-850" />
+                                    <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron períodos.</ComboboxEmpty>
+                                    <ComboboxGroup class="max-h-60 overflow-y-auto p-1">
+                                        <ComboboxItem
+                                            v-for="p in periodos"
+                                            :key="p.id"
+                                            :value="{ value: p.id, label: p.activo ? `${p.nombre} (activo)` : p.nombre }"
+                                            class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800"
+                                        >
+                                            {{ p.nombre }}
+                                            <span v-if="p.activo" class="ml-1 text-xs text-emerald-500">(activo)</span>
+                                            <ComboboxItemIndicator><Check class="h-4 w-4 text-indigo-650" /></ComboboxItemIndicator>
+                                        </ComboboxItem>
+                                    </ComboboxGroup>
+                                </ComboboxList>
+                            </Combobox>
+                            <FormMessage v-if="errorMessage" />
                         </FormItem>
                     </FormField>
 
-                    <FormField v-slot="{ componentField }" name="carrera_id">
+                    <FormField v-slot="{ errorMessage }" name="carrera_id">
                         <FormItem>
                             <FormLabel>Carrera *</FormLabel>
-                            <Select v-bind="componentField">
-                                <FormControl>
-                                    <SelectTrigger class="w-full">
-                                        <SelectValue placeholder="Selecciona una carrera..." />
-                                    </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                    <SelectItem v-for="c in carreras" :key="c.id" :value="c.id"> {{ c.codigo }} — {{ c.nombre }} </SelectItem>
-                                </SelectContent>
-                            </Select>
-                            <FormMessage />
+                            <Combobox v-model="selectedCarreraObj" by="value">
+                                <ComboboxAnchor as-child>
+                                    <ComboboxTrigger as-child>
+                                        <FormControl>
+                                            <Button type="button" variant="outline" class="w-full justify-between text-left text-sm font-normal">
+                                                {{ selectedCarreraObj ? selectedCarreraObj.label : 'Selecciona una carrera...' }}
+                                                <ChevronsUpDown class="h-4 w-4 opacity-50" />
+                                            </Button>
+                                        </FormControl>
+                                    </ComboboxTrigger>
+                                </ComboboxAnchor>
+                                <ComboboxList class="w-[var(--reka-combobox-trigger-width)] min-w-[250px] rounded-lg border border-slate-100 bg-white shadow-lg dark:border-slate-900 dark:bg-slate-950">
+                                    <ComboboxInput placeholder="Buscar carrera..." class="w-full border-0 border-b border-slate-105 bg-transparent px-3 py-2.5 text-sm focus:ring-0 dark:border-slate-850" />
+                                    <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron carreras.</ComboboxEmpty>
+                                    <ComboboxGroup class="max-h-60 overflow-y-auto p-1">
+                                        <ComboboxItem
+                                            v-for="c in carreras"
+                                            :key="c.id"
+                                            :value="{ value: c.id, label: `${c.codigo} — ${c.nombre}` }"
+                                            class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800"
+                                        >
+                                            {{ c.codigo }} — {{ c.nombre }}
+                                            <ComboboxItemIndicator><Check class="h-4 w-4 text-indigo-650" /></ComboboxItemIndicator>
+                                        </ComboboxItem>
+                                    </ComboboxGroup>
+                                </ComboboxList>
+                            </Combobox>
+                            <FormMessage v-if="errorMessage" />
                         </FormItem>
                     </FormField>
 
@@ -171,11 +221,10 @@ const onSubmit = handleSubmit((submitValues) => {
                         <FormItem>
                             <FormLabel>Fecha de Matrícula *</FormLabel>
                             <FormControl>
-                                <input
-                                    v-bind="componentField"
-                                    type="date"
-                                    class="w-full rounded-lg border-slate-300 bg-white text-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
-                                />
+                                <InputGroup>
+                                    <InputGroupAddon><Calendar class="h-4 w-4" /></InputGroupAddon>
+                                    <InputGroupInput type="date" v-bind="componentField" />
+                                </InputGroup>
                             </FormControl>
                             <FormMessage />
                         </FormItem>

@@ -1,7 +1,9 @@
 import type { ColumnDef } from '@tanstack/vue-table';
 import { h } from 'vue';
 import { Link } from '@inertiajs/vue3';
-import { CheckCircle2, XCircle, Clock, Eye } from 'lucide-vue-next';
+import { CheckCircle2, XCircle, Clock, Eye, MoreHorizontal, ArrowUpRight } from 'lucide-vue-next';
+import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 export interface ArchivoMeta { name: string; size: string | null }
 export interface Estudiante {
@@ -102,10 +104,32 @@ export function makeExpedienteColumns(): ColumnDef<DocumentoRow>[] {
             cell: ({ row }) => {
                 const d = row.original;
                 return h('div', { class: 'flex justify-end' }, [
-                    h(Link, {
-                        href: route('secretaria.expediente.show', d.id),
-                        class: 'inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 rounded-lg px-2.5 py-1.5 transition-colors',
-                    }, () => [h(Eye, { class: 'h-3.5 w-3.5' }), d.estado === 'pendiente' ? 'Revisar' : 'Ver']),
+                    h(DropdownMenu, {}, () => [
+                        h(DropdownMenuTrigger, { asChild: true }, () =>
+                            h(Button, { variant: 'ghost', size: 'sm', class: 'h-8 w-8 p-0' }, () => [
+                                h('span', { class: 'sr-only' }, 'Abrir menú'),
+                                h(MoreHorizontal, { class: 'h-4 w-4' }),
+                            ]),
+                        ),
+                        h(DropdownMenuContent, { align: 'end' }, () => [
+                            h(DropdownMenuItem, { asChild: true }, () =>
+                                h(
+                                    Link,
+                                    { href: route('secretaria.expediente.show', d.id), class: 'w-full flex items-center' },
+                                    () => [h(Eye, { class: 'mr-2 h-4 w-4' }), d.estado === 'pendiente' ? 'Revisar' : 'Ver'],
+                                ),
+                            ),
+                            d.archivo_url
+                                ? h(DropdownMenuItem, { asChild: true }, () =>
+                                      h(
+                                          'a',
+                                          { href: d.archivo_url as string, target: '_blank', rel: 'noopener', class: 'w-full flex items-center' },
+                                          [h(ArrowUpRight, { class: 'mr-2 h-4 w-4' }), 'Ver archivo'],
+                                      ),
+                                  )
+                                : null,
+                        ]),
+                    ]),
                 ]);
             },
         },

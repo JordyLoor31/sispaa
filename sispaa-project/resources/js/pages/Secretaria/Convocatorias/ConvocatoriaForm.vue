@@ -5,9 +5,10 @@ import { useForm } from 'vee-validate';
 import * as z from 'zod';
 import { ref } from 'vue';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupTextarea } from '@/components/ui/input-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Megaphone, FileText, Calendar } from 'lucide-vue-next';
 import type { Convocatoria } from './types';
 
 const props = defineProps<{
@@ -76,7 +77,10 @@ const onSubmit = handleSubmit((values) => {
             <FormItem>
                 <FormLabel>Título *</FormLabel>
                 <FormControl>
-                    <Input type="text" v-bind="componentField" />
+                    <InputGroup>
+                        <InputGroupAddon><Megaphone class="h-4 w-4" /></InputGroupAddon>
+                        <InputGroupInput type="text" v-bind="componentField" />
+                    </InputGroup>
                 </FormControl>
                 <FormMessage />
             </FormItem>
@@ -101,7 +105,10 @@ const onSubmit = handleSubmit((values) => {
             <FormItem>
                 <FormLabel>Tipo de documento (opcional)</FormLabel>
                 <FormControl>
-                    <Input type="text" v-bind="componentField" />
+                    <InputGroup>
+                        <InputGroupAddon><FileText class="h-4 w-4" /></InputGroupAddon>
+                        <InputGroupInput type="text" v-bind="componentField" />
+                    </InputGroup>
                 </FormControl>
                 <FormMessage />
             </FormItem>
@@ -111,11 +118,9 @@ const onSubmit = handleSubmit((values) => {
             <FormItem>
                 <FormLabel>Descripción</FormLabel>
                 <FormControl>
-                    <textarea
-                        v-bind="componentField"
-                        rows="3"
-                        class="w-full rounded-lg border-slate-300 bg-white text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
-                    ></textarea>
+                    <InputGroup>
+                        <InputGroupTextarea v-bind="componentField" rows="3" />
+                    </InputGroup>
                 </FormControl>
                 <FormMessage />
             </FormItem>
@@ -126,7 +131,10 @@ const onSubmit = handleSubmit((values) => {
                 <FormItem>
                     <FormLabel>Inicio *</FormLabel>
                     <FormControl>
-                        <Input type="date" v-bind="componentField" />
+                        <InputGroup>
+                            <InputGroupAddon><Calendar class="h-4 w-4" /></InputGroupAddon>
+                            <InputGroupInput type="date" v-bind="componentField" />
+                        </InputGroup>
                     </FormControl>
                     <FormMessage />
                 </FormItem>
@@ -136,7 +144,10 @@ const onSubmit = handleSubmit((values) => {
                 <FormItem>
                     <FormLabel>Fin *</FormLabel>
                     <FormControl>
-                        <Input type="date" v-bind="componentField" />
+                        <InputGroup>
+                            <InputGroupAddon><Calendar class="h-4 w-4" /></InputGroupAddon>
+                            <InputGroupInput type="date" v-bind="componentField" />
+                        </InputGroup>
                     </FormControl>
                     <FormMessage />
                 </FormItem>

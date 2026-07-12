@@ -6,8 +6,9 @@ import { toTypedSchema } from '@vee-validate/zod';
 import { useForm } from 'vee-validate';
 import * as z from 'zod';
 import { ref } from 'vue';
-import { Plus, X } from 'lucide-vue-next';
+import { Plus, X, FolderOpen, ListChecks } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
+import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupTextarea } from '@/components/ui/input-group';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'vue-sonner';
 
@@ -83,12 +84,10 @@ const onSubmit = handleSubmit((values) => {
                         <FormItem>
                             <FormLabel>Nombre *</FormLabel>
                             <FormControl>
-                                <input
-                                    v-bind="componentField"
-                                    type="text"
-                                    placeholder="Ej: Expediente SGA"
-                                    class="w-full rounded-lg border-slate-300 bg-white text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
-                                />
+                                <InputGroup>
+                                    <InputGroupAddon><FolderOpen class="h-4 w-4" /></InputGroupAddon>
+                                    <InputGroupInput type="text" placeholder="Ej: Expediente SGA" v-bind="componentField" />
+                                </InputGroup>
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -98,11 +97,9 @@ const onSubmit = handleSubmit((values) => {
                         <FormItem>
                             <FormLabel>Descripción</FormLabel>
                             <FormControl>
-                                <textarea
-                                    v-bind="componentField"
-                                    rows="2"
-                                    class="w-full rounded-lg border-slate-300 bg-white text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
-                                ></textarea>
+                                <InputGroup>
+                                    <InputGroupTextarea v-bind="componentField" rows="2" />
+                                </InputGroup>
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -112,12 +109,10 @@ const onSubmit = handleSubmit((values) => {
                         <label class="mb-1.5 block text-sm font-semibold text-slate-700 dark:text-slate-300">Requisitos *</label>
                         <div class="space-y-2">
                             <div v-for="(_, index) in requisitosDraft" :key="index" class="flex items-center gap-2">
-                                <input
-                                    v-model="requisitosDraft[index]"
-                                    type="text"
-                                    placeholder="Ej: Cédula de identidad"
-                                    class="w-full rounded-lg border-slate-300 bg-white text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
-                                />
+                                <InputGroup>
+                                    <InputGroupAddon><ListChecks class="h-4 w-4" /></InputGroupAddon>
+                                    <InputGroupInput v-model="requisitosDraft[index]" type="text" placeholder="Ej: Cédula de identidad" />
+                                </InputGroup>
                                 <button
                                     v-if="requisitosDraft.length > 1"
                                     type="button"

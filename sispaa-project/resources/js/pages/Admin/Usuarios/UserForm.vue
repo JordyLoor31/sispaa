@@ -5,9 +5,9 @@ import { useForm } from 'vee-validate';
 import * as z from 'zod';
 import { computed, ref, watch } from 'vue';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Check, ChevronsUpDown, ArrowLeft } from 'lucide-vue-next';
+import { Check, ChevronsUpDown, ArrowLeft, User, Mail, Lock, IdCard, Phone } from 'lucide-vue-next';
 import {
     Combobox,
     ComboboxAnchor,
@@ -124,7 +124,10 @@ const onSubmit = handleSubmit((values) => {
                 <FormItem class="col-span-2">
                     <FormLabel>Nombre Completo *</FormLabel>
                     <FormControl>
-                        <Input type="text" v-bind="componentField" />
+                        <InputGroup>
+                            <InputGroupAddon><User class="h-4 w-4" /></InputGroupAddon>
+                            <InputGroupInput type="text" v-bind="componentField" />
+                        </InputGroup>
                     </FormControl>
                     <FormMessage />
                 </FormItem>
@@ -134,7 +137,10 @@ const onSubmit = handleSubmit((values) => {
                 <FormItem class="col-span-2">
                     <FormLabel>Correo Electrónico *</FormLabel>
                     <FormControl>
-                        <Input type="email" v-bind="componentField" />
+                        <InputGroup>
+                            <InputGroupAddon><Mail class="h-4 w-4" /></InputGroupAddon>
+                            <InputGroupInput type="email" v-bind="componentField" />
+                        </InputGroup>
                     </FormControl>
                     <FormMessage />
                 </FormItem>
@@ -144,7 +150,10 @@ const onSubmit = handleSubmit((values) => {
                 <FormItem class="col-span-2">
                     <FormLabel>Contraseña *</FormLabel>
                     <FormControl>
-                        <Input type="password" v-bind="componentField" />
+                        <InputGroup>
+                            <InputGroupAddon><Lock class="h-4 w-4" /></InputGroupAddon>
+                            <InputGroupInput type="password" v-bind="componentField" />
+                        </InputGroup>
                     </FormControl>
                     <FormMessage />
                 </FormItem>
@@ -154,7 +163,10 @@ const onSubmit = handleSubmit((values) => {
                 <FormItem>
                     <FormLabel>Cédula</FormLabel>
                     <FormControl>
-                        <Input type="text" maxlength="10" v-bind="componentField" />
+                        <InputGroup>
+                            <InputGroupAddon><IdCard class="h-4 w-4" /></InputGroupAddon>
+                            <InputGroupInput type="text" maxlength="10" v-bind="componentField" />
+                        </InputGroup>
                     </FormControl>
                     <FormMessage />
                 </FormItem>
@@ -164,7 +176,10 @@ const onSubmit = handleSubmit((values) => {
                 <FormItem>
                     <FormLabel>Teléfono</FormLabel>
                     <FormControl>
-                        <Input type="text" v-bind="componentField" />
+                        <InputGroup>
+                            <InputGroupAddon><Phone class="h-4 w-4" /></InputGroupAddon>
+                            <InputGroupInput type="text" v-bind="componentField" />
+                        </InputGroup>
                     </FormControl>
                     <FormMessage />
                 </FormItem>

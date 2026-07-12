@@ -58,7 +58,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                 </p>
             </div>
 
-            <div v-if="!titulacion" class="rounded-2xl border border-slate-200/80 bg-white p-12 shadow-sm text-center dark:border-slate-800 dark:bg-slate-950 max-w-2xl">
+            <div v-if="!titulacion" class="rounded-2xl border border-slate-200/80 bg-white p-12 shadow-sm text-center dark:border-slate-800 dark:bg-slate-950 max-w-2xl w-full mx-auto">
                 <GraduationCap class="h-16 w-16 text-slate-300 dark:text-slate-700 mx-auto mb-4" />
                 <h3 class="text-lg font-bold text-slate-900 dark:text-white">Sin proceso de titulación activo</h3>
                 <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">

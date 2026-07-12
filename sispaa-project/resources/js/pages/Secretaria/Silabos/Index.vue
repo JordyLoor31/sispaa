@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import AppSidebarLayout from '@/layouts/app/AppSidebarLayout.vue';
 import { type BreadcrumbItemType } from '@/types';
-import { Head, Link, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
-import { Search, BookOpen, ArrowUpRight, Eye } from 'lucide-vue-next';
+import { Head, router } from '@inertiajs/vue3';
+import { ref, reactive } from 'vue';
+import { Search, BookOpen } from 'lucide-vue-next';
+import { FlexRender, getCoreRowModel, useVueTable } from '@tanstack/vue-table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useDebounceFn } from '@vueuse/core';
+import makeSilaboColumns from './columns';
 import type { SilaboItem } from './types';
 
 interface Paginated<T> { data: T[]; current_page: number; last_page: number; per_page: number; total: number; links: any[] }
@@ -22,22 +25,29 @@ const search = ref(props.filters.q || '');
 const filterEstado = ref(props.filters.estado || 'all');
 
 const applyFilters = () => {
-    router.get(route('secretaria.silabos.index'), {
-        q: search.value || undefined,
-        estado: filterEstado.value !== 'all' ? filterEstado.value : undefined,
-        per_page: props.silabos.per_page,
-    }, { preserveState: true, replace: true });
+    router.get(
+        route('secretaria.silabos.index'),
+        {
+            q: search.value || undefined,
+            estado: filterEstado.value !== 'all' ? filterEstado.value : undefined,
+            per_page: props.silabos.per_page,
+        },
+        { preserveState: true, replace: true },
+    );
 };
 const debouncedSearch = useDebounceFn(applyFilters, 300);
 
-const estadoBadge = (estado: string) => {
-    const map: Record<string, string> = {
-        aprobado: 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-400',
-        subido: 'bg-amber-50 text-amber-800 dark:bg-amber-950/30 dark:text-amber-400',
-        pendiente: 'bg-slate-100 text-slate-500 dark:bg-slate-900 dark:text-slate-500',
-    };
-    return map[estado] ?? map.pendiente;
-};
+const columns = makeSilaboColumns();
+
+const table = useVueTable(
+    reactive({
+        get data() {
+            return props.silabos.data;
+        },
+        columns,
+        getCoreRowModel: getCoreRowModel(),
+    }),
+);
 
 const navigateToPage = (url: string | null) => {
     if (url) router.get(url, {}, { preserveState: true });
@@ -69,12 +79,17 @@ const navigateToPage = (url: string | null) => {
                 </div>
             </div>
 
-            <div class="max-w-5xl w-full space-y-4">
-                <div class="flex flex-col sm:flex-row gap-3 bg-white dark:bg-slate-950 p-4 rounded-xl border border-slate-200/80 dark:border-slate-800">
-                    <div class="flex-1 relative min-w-[200px]">
+            <div class="w-full space-y-4">
+                <div class="flex flex-col gap-3 rounded-xl border border-slate-200/80 bg-white p-4 sm:flex-row dark:border-slate-800 dark:bg-slate-950">
+                    <div class="relative min-w-[200px] flex-1">
                         <Search class="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                        <input v-model="search" @input="debouncedSearch" type="text" placeholder="Buscar docente..."
-                            class="pl-9 w-full rounded-lg border-slate-200 bg-slate-50/30 text-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-200" />
+                        <input
+                            v-model="search"
+                            type="text"
+                            placeholder="Buscar docente..."
+                            class="w-full rounded-lg border-slate-200 bg-slate-50/30 pl-9 text-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-200"
+                            @input="debouncedSearch"
+                        />
                     </div>
                     <Select v-model="filterEstado" @update:model-value="applyFilters">
                         <SelectTrigger class="w-[160px]"><SelectValue placeholder="Estado" /></SelectTrigger>
@@ -87,47 +102,48 @@ const navigateToPage = (url: string | null) => {
                     </Select>
                 </div>
 
-                <div class="grid gap-4 md:grid-cols-2">
-                    <div v-for="item in silabos.data" :key="item.id"
-                        class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950 flex flex-col gap-3">
-                        <div class="flex items-start justify-between">
-                            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 dark:bg-indigo-950/30 dark:text-indigo-400">
-                                <BookOpen class="h-4.5 w-4.5" />
-                            </div>
-                            <span :class="['inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold', estadoBadge(item.estado)]">
-                                {{ item.estado.charAt(0).toUpperCase() + item.estado.slice(1) }}
-                            </span>
-                        </div>
-                        <div>
-                            <h3 class="text-sm font-bold text-slate-900 dark:text-white">{{ item.materia }}</h3>
-                            <p class="text-xs text-slate-500 mt-0.5">{{ item.carrera }} — {{ item.periodo }}</p>
-                            <p class="text-xs text-slate-400 mt-1">{{ item.docente.name }} · {{ item.docente.email }}</p>
-                            <p v-if="item.fecha_subida" class="text-xs text-slate-400">Subido: {{ item.fecha_subida }}</p>
-                        </div>
-                        <div class="flex items-center gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
-                            <a v-if="item.archivo_url" :href="item.archivo_url" target="_blank"
-                                class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-500 dark:border-slate-800 dark:text-slate-400 dark:hover:bg-slate-900">
-                                <ArrowUpRight class="h-4 w-4" />
-                            </a>
-                            <Link :href="route('secretaria.silabos.show', item.id)"
-                                class="inline-flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-500 border border-indigo-200 hover:border-indigo-300 dark:border-indigo-900/40 rounded-lg px-2.5 py-1.5 transition-colors">
-                                <Eye class="h-3.5 w-3.5" /> {{ item.estado === 'aprobado' ? 'Ver' : 'Revisar' }}
-                            </Link>
-                        </div>
+                <div class="overflow-hidden rounded-lg border border-slate-200/80 bg-white dark:border-slate-800 dark:bg-slate-950">
+                    <div class="overflow-x-auto">
+                        <Table>
+                            <TableHeader>
+                                <TableRow v-for="hg in table.getHeaderGroups()" :key="hg.id" class="border-b border-slate-200/80 dark:border-slate-800">
+                                    <TableHead v-for="header in hg.headers" :key="header.id" class="h-12 px-4 text-sm font-medium text-slate-500 dark:text-slate-400">
+                                        <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header" :props="header.getContext()" />
+                                    </TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody class="divide-y divide-slate-100 text-sm dark:divide-slate-800">
+                                <template v-if="table.getRowModel().rows.length">
+                                    <TableRow v-for="row in table.getRowModel().rows" :key="row.id" class="transition-colors hover:bg-slate-50/40 dark:hover:bg-slate-900/20">
+                                        <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id" class="px-4 py-4">
+                                            <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
+                                        </TableCell>
+                                    </TableRow>
+                                </template>
+                                <TableRow v-else>
+                                    <TableCell :colspan="columns.length" class="h-32 text-center">
+                                        <div class="flex flex-col items-center gap-2 text-slate-400">
+                                            <BookOpen class="h-8 w-8" />
+                                            <span class="text-sm font-medium">No hay sílabos que coincidan con el filtro</span>
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            </TableBody>
+                        </Table>
                     </div>
-
-                    <div v-if="silabos.data.length === 0" class="col-span-full rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 p-10 text-center text-sm text-slate-400">
-                        No hay sílabos que coincidan con el filtro.
-                    </div>
-                </div>
-
-                <div class="flex items-center justify-between px-2">
-                    <span class="text-xs text-slate-500">Mostrando {{ silabos.data.length }} de {{ silabos.total }} sílabos</span>
-                    <div class="flex items-center gap-1">
-                        <button v-for="link in silabos.links" :key="link.label" @click="navigateToPage(link.url)"
-                            :disabled="!link.url || link.active" v-html="link.label"
-                            class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
-                            :class="[link.active ? 'bg-indigo-600 text-white' : 'border border-slate-200/80 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 disabled:opacity-40']" />
+                    <div class="flex items-center justify-between border-t border-slate-100 px-6 py-4 dark:border-slate-800">
+                        <span class="text-xs text-slate-500">Mostrando {{ silabos.data.length }} de {{ silabos.total }} sílabos</span>
+                        <div class="flex items-center gap-1">
+                            <button
+                                v-for="link in silabos.links"
+                                :key="link.label"
+                                :disabled="!link.url || link.active"
+                                v-html="link.label"
+                                class="rounded-lg px-3 py-1.5 text-xs font-semibold transition-all"
+                                :class="[link.active ? 'bg-indigo-600 text-white' : 'border border-slate-200/80 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 disabled:opacity-40']"
+                                @click="navigateToPage(link.url)"
+                            />
+                        </div>
                     </div>
                 </div>
             </div>

@@ -117,7 +117,7 @@ const submitRequest = () => {
                     </button>
                 </div>
 
-                <form @submit.prevent="submitRequest" class="mt-6 space-y-4 max-w-xl">
+                <form @submit.prevent="submitRequest" class="mt-6 space-y-4 max-w-xl mx-auto">
                     <!-- Seleccionar Falta -->
                     <div>
                         <label for="falta" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">

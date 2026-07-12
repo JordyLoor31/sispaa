@@ -55,7 +55,7 @@ const formatDate = (date?: string) => {
                 </div>
             </div>
 
-            <div class="max-w-2xl w-full grid gap-6 md:grid-cols-2">
+            <div class="max-w-2xl w-full mx-auto grid gap-6 md:grid-cols-2">
                 <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
                     <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Estado</h4>
                     <span :class="['mt-2 inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold', estadoBadge(titulacion.estado)]">
@@ -69,12 +69,12 @@ const formatDate = (date?: string) => {
                 </div>
             </div>
 
-            <div class="max-w-2xl w-full rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+            <div class="max-w-2xl w-full mx-auto rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
                 <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Tema</h4>
                 <p class="text-sm text-slate-700 dark:text-slate-300">{{ titulacion.tema }}</p>
             </div>
 
-            <div class="max-w-2xl w-full rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+            <div class="max-w-2xl w-full mx-auto rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
                 <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Auditoría</h4>
                 <div class="grid gap-4 sm:grid-cols-2">
                     <div>

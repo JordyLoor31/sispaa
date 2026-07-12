@@ -5,14 +5,26 @@ import { Head, router } from '@inertiajs/vue3';
 import { toTypedSchema } from '@vee-validate/zod';
 import { useForm } from 'vee-validate';
 import * as z from 'zod';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupTextarea } from '@/components/ui/input-group';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Check, ChevronsUpDown, FlaskConical } from 'lucide-vue-next';
+import {
+    Combobox,
+    ComboboxAnchor,
+    ComboboxEmpty,
+    ComboboxGroup,
+    ComboboxInput,
+    ComboboxItem,
+    ComboboxItemIndicator,
+    ComboboxList,
+    ComboboxTrigger,
+} from '@/components/ui/combobox';
 import { toast } from 'vue-sonner';
 import type { Catalogo } from './types';
 
-defineProps<{
+const props = defineProps<{
     periodos: Catalogo[];
     coordinadores: Catalogo[];
     breadcrumbs?: BreadcrumbItemType[];
@@ -30,7 +42,7 @@ const formSchema = toTypedSchema(
     }),
 );
 
-const { handleSubmit, setErrors } = useForm({
+const { handleSubmit, setErrors, defineField } = useForm({
     validationSchema: formSchema,
     initialValues: {
         titulo: '',
@@ -38,6 +50,19 @@ const { handleSubmit, setErrors } = useForm({
         periodo_id: '',
         coordinador_id: '',
     },
+});
+
+const [periodoId] = defineField('periodo_id');
+const [coordinadorId] = defineField('coordinador_id');
+
+const selectedPeriodoObj = ref<{ value: string | number; label: string } | null>(null);
+watch(selectedPeriodoObj, (newVal) => {
+    periodoId.value = newVal ? newVal.value : '';
+});
+
+const selectedCoordinadorObj = ref<{ value: string | number; label: string } | null>(null);
+watch(selectedCoordinadorObj, (newVal) => {
+    coordinadorId.value = newVal ? newVal.value : '';
 });
 
 const processing = ref(false);
@@ -75,11 +100,10 @@ const onSubmit = handleSubmit((values) => {
                         <FormItem>
                             <FormLabel>Título *</FormLabel>
                             <FormControl>
-                                <input
-                                    v-bind="componentField"
-                                    type="text"
-                                    class="w-full rounded-lg border-slate-300 bg-white text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
-                                />
+                                <InputGroup>
+                                    <InputGroupAddon><FlaskConical class="h-4 w-4" /></InputGroupAddon>
+                                    <InputGroupInput type="text" v-bind="componentField" />
+                                </InputGroup>
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -89,43 +113,79 @@ const onSubmit = handleSubmit((values) => {
                         <FormItem>
                             <FormLabel>Objetivo</FormLabel>
                             <FormControl>
-                                <textarea
-                                    v-bind="componentField"
-                                    rows="3"
-                                    class="w-full rounded-lg border-slate-300 bg-white text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
-                                ></textarea>
+                                <InputGroup>
+                                    <InputGroupTextarea v-bind="componentField" rows="3" />
+                                </InputGroup>
                             </FormControl>
                             <FormMessage />
                         </FormItem>
                     </FormField>
 
-                    <FormField v-slot="{ componentField }" name="periodo_id">
+                    <FormField v-slot="{ errorMessage }" name="periodo_id">
                         <FormItem>
                             <FormLabel>Período *</FormLabel>
-                            <Select v-bind="componentField">
-                                <FormControl>
-                                    <SelectTrigger class="w-full"><SelectValue placeholder="Selecciona un período..." /></SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                    <SelectItem v-for="per in periodos" :key="per.id" :value="per.id">{{ per.nombre }}</SelectItem>
-                                </SelectContent>
-                            </Select>
-                            <FormMessage />
+                            <Combobox v-model="selectedPeriodoObj" by="value">
+                                <ComboboxAnchor as-child>
+                                    <ComboboxTrigger as-child>
+                                        <FormControl>
+                                            <Button type="button" variant="outline" class="w-full justify-between text-left text-sm font-normal">
+                                                {{ selectedPeriodoObj ? selectedPeriodoObj.label : 'Selecciona un período...' }}
+                                                <ChevronsUpDown class="h-4 w-4 opacity-50" />
+                                            </Button>
+                                        </FormControl>
+                                    </ComboboxTrigger>
+                                </ComboboxAnchor>
+                                <ComboboxList class="w-[var(--reka-combobox-trigger-width)] min-w-[250px] rounded-lg border border-slate-100 bg-white shadow-lg dark:border-slate-900 dark:bg-slate-950">
+                                    <ComboboxInput placeholder="Buscar período..." class="w-full border-0 border-b border-slate-105 bg-transparent px-3 py-2.5 text-sm focus:ring-0 dark:border-slate-850" />
+                                    <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron períodos.</ComboboxEmpty>
+                                    <ComboboxGroup class="max-h-60 overflow-y-auto p-1">
+                                        <ComboboxItem
+                                            v-for="per in periodos"
+                                            :key="per.id"
+                                            :value="{ value: per.id, label: per.nombre }"
+                                            class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800"
+                                        >
+                                            {{ per.nombre }}
+                                            <ComboboxItemIndicator><Check class="h-4 w-4 text-indigo-650" /></ComboboxItemIndicator>
+                                        </ComboboxItem>
+                                    </ComboboxGroup>
+                                </ComboboxList>
+                            </Combobox>
+                            <FormMessage v-if="errorMessage" />
                         </FormItem>
                     </FormField>
 
-                    <FormField v-slot="{ componentField }" name="coordinador_id">
+                    <FormField v-slot="{ errorMessage }" name="coordinador_id">
                         <FormItem>
                             <FormLabel>Coordinador supervisor *</FormLabel>
-                            <Select v-bind="componentField">
-                                <FormControl>
-                                    <SelectTrigger class="w-full"><SelectValue placeholder="Selecciona un coordinador..." /></SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                    <SelectItem v-for="c in coordinadores" :key="c.id" :value="c.id">{{ c.name }}</SelectItem>
-                                </SelectContent>
-                            </Select>
-                            <FormMessage />
+                            <Combobox v-model="selectedCoordinadorObj" by="value">
+                                <ComboboxAnchor as-child>
+                                    <ComboboxTrigger as-child>
+                                        <FormControl>
+                                            <Button type="button" variant="outline" class="w-full justify-between text-left text-sm font-normal">
+                                                {{ selectedCoordinadorObj ? selectedCoordinadorObj.label : 'Selecciona un coordinador...' }}
+                                                <ChevronsUpDown class="h-4 w-4 opacity-50" />
+                                            </Button>
+                                        </FormControl>
+                                    </ComboboxTrigger>
+                                </ComboboxAnchor>
+                                <ComboboxList class="w-[var(--reka-combobox-trigger-width)] min-w-[250px] rounded-lg border border-slate-100 bg-white shadow-lg dark:border-slate-900 dark:bg-slate-950">
+                                    <ComboboxInput placeholder="Buscar coordinador..." class="w-full border-0 border-b border-slate-105 bg-transparent px-3 py-2.5 text-sm focus:ring-0 dark:border-slate-850" />
+                                    <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron coordinadores.</ComboboxEmpty>
+                                    <ComboboxGroup class="max-h-60 overflow-y-auto p-1">
+                                        <ComboboxItem
+                                            v-for="c in coordinadores"
+                                            :key="c.id"
+                                            :value="{ value: c.id, label: c.name }"
+                                            class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800"
+                                        >
+                                            {{ c.name }}
+                                            <ComboboxItemIndicator><Check class="h-4 w-4 text-indigo-650" /></ComboboxItemIndicator>
+                                        </ComboboxItem>
+                                    </ComboboxGroup>
+                                </ComboboxList>
+                            </Combobox>
+                            <FormMessage v-if="errorMessage" />
                         </FormItem>
                     </FormField>
 

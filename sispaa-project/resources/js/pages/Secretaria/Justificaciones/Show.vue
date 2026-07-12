@@ -59,7 +59,7 @@ const submitReview = (accion: 'aprobar' | 'rechazar') => {
                 </Button>
             </div>
 
-            <div class="max-w-2xl w-full grid gap-6 md:grid-cols-2">
+            <div class="max-w-2xl w-full mx-auto grid gap-6 md:grid-cols-2">
                 <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
                     <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Estado</h4>
                     <span :class="['mt-2 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold', estadoClasses[justificacion.estado]]">
@@ -80,7 +80,7 @@ const submitReview = (accion: 'aprobar' | 'rechazar') => {
                 </div>
             </div>
 
-            <div class="max-w-2xl w-full rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+            <div class="max-w-2xl w-full mx-auto rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
                 <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Motivo del estudiante</h4>
                 <p class="text-sm text-slate-700 dark:text-slate-300">{{ justificacion.motivo_estudiante }}</p>
                 <a v-if="justificacion.archivo_adjunto" :href="justificacion.archivo_adjunto" target="_blank"
@@ -90,7 +90,7 @@ const submitReview = (accion: 'aprobar' | 'rechazar') => {
             </div>
 
             <!-- Revisión: solo si está pendiente -->
-            <div v-if="justificacion.estado === 'pendiente'" class="max-w-2xl w-full rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+            <div v-if="justificacion.estado === 'pendiente'" class="max-w-2xl w-full mx-auto rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
                 <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Revisar solicitud</h4>
                 <div class="space-y-4">
                     <div>
@@ -115,7 +115,7 @@ const submitReview = (accion: 'aprobar' | 'rechazar') => {
             </div>
 
             <!-- Ya revisado -->
-            <div v-else class="max-w-2xl w-full rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+            <div v-else class="max-w-2xl w-full mx-auto rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
                 <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Comentario del revisor</h4>
                 <p class="text-sm text-slate-700 dark:text-slate-300">{{ justificacion.comentario_revisor ?? '—' }}</p>
             </div>

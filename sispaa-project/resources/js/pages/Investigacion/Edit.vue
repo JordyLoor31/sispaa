@@ -7,7 +7,9 @@ import { useForm } from 'vee-validate';
 import * as z from 'zod';
 import { ref } from 'vue';
 import { Button } from '@/components/ui/button';
+import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupTextarea } from '@/components/ui/input-group';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { FlaskConical } from 'lucide-vue-next';
 import { toast } from 'vue-sonner';
 
 const props = defineProps<{
@@ -62,11 +64,10 @@ const onSubmit = handleSubmit((values) => {
                         <FormItem>
                             <FormLabel>Título *</FormLabel>
                             <FormControl>
-                                <input
-                                    v-bind="componentField"
-                                    type="text"
-                                    class="w-full rounded-lg border-slate-300 bg-white text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
-                                />
+                                <InputGroup>
+                                    <InputGroupAddon><FlaskConical class="h-4 w-4" /></InputGroupAddon>
+                                    <InputGroupInput type="text" v-bind="componentField" />
+                                </InputGroup>
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -76,11 +77,9 @@ const onSubmit = handleSubmit((values) => {
                         <FormItem>
                             <FormLabel>Objetivo</FormLabel>
                             <FormControl>
-                                <textarea
-                                    v-bind="componentField"
-                                    rows="3"
-                                    class="w-full rounded-lg border-slate-300 bg-white text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
-                                ></textarea>
+                                <InputGroup>
+                                    <InputGroupTextarea v-bind="componentField" rows="3" />
+                                </InputGroup>
                             </FormControl>
                             <FormMessage />
                         </FormItem>

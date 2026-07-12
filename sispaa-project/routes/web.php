@@ -61,8 +61,8 @@ Route::middleware(['auth', 'verified'])
     });
 
 
-// DOCENCIA (vista de gestión/coordinación, sin restricción de rol específica)
-Route::middleware(['auth', 'verified'])->prefix('docencia')->group(function () {
+// DOCENCIA (vista de gestión/supervisión: todos los informes de todos los docentes)
+Route::middleware(['auth', 'verified', 'role:secretaria|SystemAdministrador'])->prefix('docencia')->group(function () {
     Route::get('informes-asignatura', [\App\Http\Controllers\Admin\AdminPortalController::class, 'informesAsignatura'])
         ->name('docencia.informes-asignaturas');
 });

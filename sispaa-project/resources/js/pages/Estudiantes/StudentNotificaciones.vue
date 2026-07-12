@@ -67,7 +67,7 @@ const hasUnread = () => {
             </div>
 
             <!-- Listado de Notificaciones -->
-            <div class="max-w-3xl rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+            <div class="max-w-3xl w-full mx-auto rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
                 <div v-if="notificaciones.length === 0" class="flex flex-col items-center justify-center py-16 text-center">
                     <Inbox class="h-14 w-14 text-slate-350 dark:text-slate-700 mb-3" />
                     <p class="text-sm font-bold text-slate-700 dark:text-slate-300">Bandeja de entrada vacía</p>

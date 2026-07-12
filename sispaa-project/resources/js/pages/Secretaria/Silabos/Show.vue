@@ -61,7 +61,7 @@ const submitReview = (accion: 'aprobar' | 'rechazar') => {
                 </Button>
             </div>
 
-            <div class="max-w-2xl w-full grid gap-6 md:grid-cols-2">
+            <div class="max-w-2xl w-full mx-auto grid gap-6 md:grid-cols-2">
                 <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
                     <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Estado</h4>
                     <span :class="['mt-2 inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold', estadoBadge(silabo.estado)]">
@@ -75,7 +75,7 @@ const submitReview = (accion: 'aprobar' | 'rechazar') => {
                 </div>
             </div>
 
-            <div class="max-w-2xl w-full rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+            <div class="max-w-2xl w-full mx-auto rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
                 <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Archivo</h4>
                 <p v-if="silabo.fecha_subida" class="text-xs text-slate-400 mb-2">Subido: {{ silabo.fecha_subida }}</p>
                 <a v-if="silabo.archivo_url" :href="silabo.archivo_url" target="_blank"
@@ -86,7 +86,7 @@ const submitReview = (accion: 'aprobar' | 'rechazar') => {
             </div>
 
             <!-- Revisión: solo si no está aprobado -->
-            <div v-if="silabo.estado !== 'aprobado'" class="max-w-2xl w-full rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+            <div v-if="silabo.estado !== 'aprobado'" class="max-w-2xl w-full mx-auto rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
                 <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Revisar sílabo</h4>
                 <div class="space-y-4">
                     <div>
@@ -111,7 +111,7 @@ const submitReview = (accion: 'aprobar' | 'rechazar') => {
             </div>
 
             <!-- Ya aprobado -->
-            <div v-else-if="silabo.observaciones" class="max-w-2xl w-full rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+            <div v-else-if="silabo.observaciones" class="max-w-2xl w-full mx-auto rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
                 <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Observaciones</h4>
                 <p class="text-sm text-slate-700 dark:text-slate-300">{{ silabo.observaciones }}</p>
             </div>

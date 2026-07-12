@@ -52,7 +52,7 @@ const submitNuevoRequisito = () => {
                 </Button>
             </div>
 
-            <div class="max-w-2xl w-full grid gap-6 md:grid-cols-2">
+            <div class="max-w-2xl w-full mx-auto grid gap-6 md:grid-cols-2">
                 <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
                     <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Estado</h4>
                     <p class="mt-2 text-sm font-semibold" :class="grupo.activo ? 'text-emerald-600' : 'text-slate-400'">
@@ -68,7 +68,7 @@ const submitNuevoRequisito = () => {
                 </div>
             </div>
 
-            <div class="max-w-2xl w-full rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+            <div class="max-w-2xl w-full mx-auto rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
                 <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Requisitos</h4>
                 <ul class="space-y-2">
                     <li v-for="r in grupo.requisitos" :key="r.id" class="text-sm text-slate-700 dark:text-slate-300 flex items-center gap-2">

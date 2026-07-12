@@ -45,7 +45,7 @@ const breadcrumbs: BreadcrumbItem[] = [
             </div>
 
             <!-- Profile Info Cards -->
-            <div class="max-w-3xl rounded-2xl border border-slate-200/80 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+            <div class="max-w-3xl w-full mx-auto rounded-2xl border border-slate-200/80 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-950">
                 <!-- User Initials / Avatar Circle -->
                 <div class="flex flex-col sm:flex-row items-center gap-6 pb-8 border-b border-slate-100 dark:border-slate-800/85">
                     <div class="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 text-white text-3xl font-black shadow-lg">

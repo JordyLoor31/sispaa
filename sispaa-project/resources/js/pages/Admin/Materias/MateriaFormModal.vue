@@ -5,9 +5,9 @@ import { useForm } from 'vee-validate';
 import * as z from 'zod';
 import { ref, watch } from 'vue';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Check, ChevronsUpDown } from 'lucide-vue-next';
+import { Check, ChevronsUpDown, BookOpen, Hash, Award, Layers } from 'lucide-vue-next';
 import {
     Combobox,
     ComboboxAnchor,
@@ -202,7 +202,10 @@ const onSubmit = handleSubmit((values) => {
                     <FormItem>
                         <FormLabel>Nombre de la Asignatura *</FormLabel>
                         <FormControl>
-                            <Input type="text" v-bind="componentField" />
+                            <InputGroup>
+                                <InputGroupAddon><BookOpen class="h-4 w-4" /></InputGroupAddon>
+                                <InputGroupInput type="text" v-bind="componentField" />
+                            </InputGroup>
                         </FormControl>
                         <FormMessage />
                     </FormItem>
@@ -212,7 +215,10 @@ const onSubmit = handleSubmit((values) => {
                     <FormItem>
                         <FormLabel>Código de Asignatura *</FormLabel>
                         <FormControl>
-                            <Input type="text" v-bind="componentField" />
+                            <InputGroup>
+                                <InputGroupAddon><Hash class="h-4 w-4" /></InputGroupAddon>
+                                <InputGroupInput type="text" v-bind="componentField" />
+                            </InputGroup>
                         </FormControl>
                         <FormMessage />
                     </FormItem>
@@ -223,7 +229,10 @@ const onSubmit = handleSubmit((values) => {
                         <FormItem>
                             <FormLabel>Créditos *</FormLabel>
                             <FormControl>
-                                <Input type="number" min="1" v-bind="componentField" />
+                                <InputGroup>
+                                    <InputGroupAddon><Award class="h-4 w-4" /></InputGroupAddon>
+                                    <InputGroupInput type="number" min="1" v-bind="componentField" />
+                                </InputGroup>
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -233,7 +242,10 @@ const onSubmit = handleSubmit((values) => {
                         <FormItem>
                             <FormLabel>Nivel / Semestre *</FormLabel>
                             <FormControl>
-                                <Input type="number" min="1" max="10" v-bind="componentField" />
+                                <InputGroup>
+                                    <InputGroupAddon><Layers class="h-4 w-4" /></InputGroupAddon>
+                                    <InputGroupInput type="number" min="1" max="10" v-bind="componentField" />
+                                </InputGroup>
                             </FormControl>
                             <FormMessage />
                         </FormItem>
