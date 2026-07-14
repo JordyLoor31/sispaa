@@ -2,7 +2,7 @@
 import AppSidebarLayout from '@/layouts/app/AppSidebarLayout.vue';
 import { type BreadcrumbItemType } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { ArrowLeft, CheckCircle2, XCircle, Clock, FileText } from 'lucide-vue-next';
+import { ArrowLeft, CheckCircle2, XCircle, Clock, FileText, Eye } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 import { toast } from 'vue-sonner';
 import type { DocumentoRow } from './columns';
@@ -92,7 +92,12 @@ const submitReview = (accion: 'aprobar' | 'rechazar') => {
                         <p class="font-semibold text-slate-700 dark:text-slate-200 truncate">{{ documento.archivo_meta.name }}</p>
                         <p class="text-slate-400">{{ documento.archivo_meta.size }}</p>
                     </div>
-                    <a v-if="documento.archivo_url" :href="documento.archivo_url" target="_blank" class="shrink-0 text-xs font-semibold text-indigo-600 hover:underline">Ver PDF</a>
+                    <Button v-if="documento.archivo_url" as-child variant="outline" size="sm" class="shrink-0 inline-flex items-center gap-1.5">
+                        <a :href="documento.archivo_url" target="_blank" rel="noopener noreferrer">
+                            <Eye class="h-4 w-4" /> Ver documento
+                        </a>
+                    </Button>
+                    <span v-else class="shrink-0 text-xs text-rose-500 font-semibold">Archivo no disponible</span>
                 </div>
                 <p v-else class="text-sm text-slate-400">Sin archivo adjunto.</p>
             </div>

@@ -57,9 +57,16 @@ class DocumentoEstudiante extends Model
     }
 
     /**
-     * URL pública del archivo almacenado en storage/public
+     * URL pública del archivo almacenado en storage/public.
+     *
+     * IMPORTANTE: el nombre del accessor debe coincidir exactamente con
+     * "archivo_publico_url" (con "o"), que es como lo consumen
+     * ExpedienteController y StudentPortalController. Antes se llamaba
+     * getArchivoPublicUrlAttribute() (inglés, sin "o"), lo que generaba un
+     * accessor distinto (archivo_public_url) que nunca se resolvía: el
+     * enlace para ver el documento subido nunca aparecía en pantalla.
      */
-    public function getArchivoPublicUrlAttribute(): ?string
+    public function getArchivoPublicoUrlAttribute(): ?string
     {
         if (!$this->archivo_url) return null;
         $data = is_array($this->archivo_url) ? $this->archivo_url : json_decode($this->archivo_url, true);
