@@ -11,12 +11,18 @@ class PeriodoAcademico extends Model
 
     protected $table = 'periodos_academicos';
 
+    /** Ciclo de vida de un período académico: se planifica, se activa y finalmente se finaliza. */
+    public const ESTADO_PLANIFICADO = 'planificado';
+    public const ESTADO_ACTIVO = 'activo';
+    public const ESTADO_FINALIZADO = 'finalizado';
+    public const ESTADOS = [self::ESTADO_PLANIFICADO, self::ESTADO_ACTIVO, self::ESTADO_FINALIZADO];
+
     protected $fillable = [
         'nombre',
         'fecha_inicio',
         'fecha_fin',
         'tipo',
-        'activo',
+        'estado',
         'fecha_limite_silabo',
         'fecha_limite_informe',
     ];
@@ -24,10 +30,14 @@ class PeriodoAcademico extends Model
     protected $casts = [
         'fecha_inicio' => 'date',
         'fecha_fin' => 'date',
-        'activo' => 'boolean',
         'fecha_limite_silabo' => 'date',
         'fecha_limite_informe' => 'date',
     ];
+
+    public function scopeActivo($query)
+    {
+        return $query->where('estado', self::ESTADO_ACTIVO);
+    }
 
     /**
      * Un periodo académico es una entidad global compartida por todas las

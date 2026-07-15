@@ -7,6 +7,7 @@ import type { Coordinador } from './columns';
 
 defineProps<{
     coordinadores: Coordinador[];
+    paletaColores?: string[];
     breadcrumbs?: BreadcrumbItemType[];
 }>();
 </script>
@@ -26,7 +27,7 @@ defineProps<{
             </div>
 
             <div class="max-w-xl mx-auto rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                <CarreraForm :coordinadores="coordinadores" />
+                <CarreraForm :coordinadores="coordinadores" :paleta-colores="paletaColores" />
             </div>
         </div>
     </AppSidebarLayout>

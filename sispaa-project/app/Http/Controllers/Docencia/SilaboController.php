@@ -25,7 +25,7 @@ class SilaboController extends Controller
 
         $asignaciones = AsignacionDocente::with(['materia.carrera', 'periodo'])
             ->where('docente_id', $docenteId)
-            ->whereHas('periodo', fn ($q) => $q->where('activo', true))
+            ->whereHas('periodo', fn ($q) => $q->where('estado', 'activo'))
             ->get();
 
         $silabos = Silabo::where('docente_id', $docenteId)

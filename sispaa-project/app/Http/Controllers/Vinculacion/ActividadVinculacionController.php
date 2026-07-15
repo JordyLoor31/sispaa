@@ -28,7 +28,7 @@ class ActividadVinculacionController extends Controller
         return [
             'docentes' => User::role('docente')->get(['id', 'name']),
             'carreras' => Carrera::get(['id', 'nombre']),
-            'periodos' => PeriodoAcademico::where('activo', true)->get(['id', 'nombre']),
+            'periodos' => PeriodoAcademico::where('estado', 'activo')->get(['id', 'nombre']),
             'empresas' => Empresa::orderBy('nombre')->get(['id', 'nombre']),
         ];
     }

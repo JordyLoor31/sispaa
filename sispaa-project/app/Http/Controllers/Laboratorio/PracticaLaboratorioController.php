@@ -44,7 +44,7 @@ class PracticaLaboratorioController extends Controller
         return [
             'materias' => Materia::where('activa', true)->orderBy('nombre')->get(['id', 'nombre']),
             'laboratorios' => Laboratorio::where('estado', 'activo')->orderBy('nombre')->get(['id', 'nombre']),
-            'periodos' => PeriodoAcademico::where('activo', true)->get(['id', 'nombre']),
+            'periodos' => PeriodoAcademico::where('estado', 'activo')->get(['id', 'nombre']),
             'equiposCatalogo' => Equipo::orderBy('nombre')->get(['id', 'nombre']),
             'reactivosCatalogo' => Reactivo::orderBy('nombre')->get(['id', 'nombre']),
         ];

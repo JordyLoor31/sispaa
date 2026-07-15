@@ -91,7 +91,7 @@ class InvestigacionController extends Controller
 
         return Inertia::render('Investigacion/Index', [
             'proyectos' => $proyectos,
-            'periodos' => PeriodoAcademico::where('activo', true)->get(['id', 'nombre']),
+            'periodos' => PeriodoAcademico::where('estado', 'activo')->get(['id', 'nombre']),
             'coordinadores' => User::role('coordinador')->get(['id', 'name']),
             'filters' => ['estado' => $estado],
             'breadcrumbs' => $this->investigacionBreadcrumbs('Mis Proyectos'),
@@ -101,7 +101,7 @@ class InvestigacionController extends Controller
     public function create(): Response
     {
         return Inertia::render('Investigacion/Create', [
-            'periodos' => PeriodoAcademico::where('activo', true)->get(['id', 'nombre']),
+            'periodos' => PeriodoAcademico::where('estado', 'activo')->get(['id', 'nombre']),
             'coordinadores' => User::role('coordinador')->get(['id', 'name']),
             'breadcrumbs' => $this->investigacionBreadcrumbs('Mis Proyectos', 'Nuevo Proyecto', route('investigacion.index')),
         ]);

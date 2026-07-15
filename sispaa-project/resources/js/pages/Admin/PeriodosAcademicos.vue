@@ -3,7 +3,7 @@ import AppSidebarLayout from '@/layouts/app/AppSidebarLayout.vue';
 import { type BreadcrumbItemType } from '@/types';
 import { Head, useForm, router } from '@inertiajs/vue3';
 import { ref, computed, watch } from 'vue';
-import { Calendar, Plus, Edit, Clock, X, Check, Save, ChevronsUpDown } from 'lucide-vue-next';
+import { Calendar, Plus, Edit, Clock, X, Check, Save, ChevronsUpDown, PlayCircle, FlagTriangleRight } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 import {
     Combobox,
@@ -24,16 +24,24 @@ import {
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 
+type EstadoPeriodo = 'planificado' | 'activo' | 'finalizado';
+
 interface Periodo {
     id: number;
     nombre: string;
     fecha_inicio: string;
     fecha_fin: string;
     tipo: 'semestral' | 'anual' | string;
-    activo: boolean;
+    estado: EstadoPeriodo;
     fecha_limite_silabo: string | null;
     fecha_limite_informe: string | null;
 }
+
+const ESTADO_LABELS: Record<EstadoPeriodo, string> = {
+    planificado: 'Planificado',
+    activo: 'Activo',
+    finalizado: 'Finalizado',
+};
 
 const props = defineProps<{
     periodos: Periodo[];
@@ -56,7 +64,7 @@ const periodForm = useForm({
     fecha_inicio: '',
     fecha_fin: '',
     tipo: 'semestral',
-    activo: false
+    estado: 'planificado' as EstadoPeriodo
 });
 
 // Form for Deadlines
@@ -80,6 +88,16 @@ watch(selectedTipoObj, (newVal) => {
     periodForm.tipo = newVal ? newVal.value : 'semestral';
 });
 
+const selectedEstadoObj = ref<{ value: EstadoPeriodo, label: string } | null>(null);
+
+watch(() => periodForm.estado, (newVal) => {
+    selectedEstadoObj.value = { value: newVal, label: ESTADO_LABELS[newVal] };
+}, { immediate: true });
+
+watch(selectedEstadoObj, (newVal) => {
+    if (newVal) periodForm.estado = newVal.value;
+});
+
 // Period actions
 const openAddPeriod = () => {
     periodForm.reset();
@@ -94,7 +112,7 @@ const openEditPeriod = (period: Periodo) => {
     periodForm.fecha_inicio = period.fecha_inicio;
     periodForm.fecha_fin = period.fecha_fin;
     periodForm.tipo = period.tipo;
-    periodForm.activo = period.activo;
+    periodForm.estado = period.estado;
     periodForm.clearErrors();
     showPeriodModal.value = true;
 };
@@ -137,16 +155,19 @@ const submitDeadlines = () => {
     });
 };
 
-const togglePeriodActive = (period: Periodo) => {
+const cambiarEstadoPeriodo = (period: Periodo, estado: EstadoPeriodo) => {
     router.put(route('admin.periodos.update', period.id), {
         nombre: period.nombre,
         fecha_inicio: period.fecha_inicio,
         fecha_fin: period.fecha_fin,
-        activo: !period.activo
+        estado
     }, {
         preserveScroll: true
     });
 };
+
+const activarPeriodo = (period: Periodo) => cambiarEstadoPeriodo(period, 'activo');
+const finalizarPeriodo = (period: Periodo) => cambiarEstadoPeriodo(period, 'finalizado');
 </script>
 
 <template>
@@ -180,13 +201,27 @@ const togglePeriodActive = (period: Periodo) => {
                     :key="period.id"
                     class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950 flex flex-col justify-between hover:shadow-md transition-shadow relative overflow-hidden"
                 >
-                    <!-- Ribbon de Activo -->
+                    <!-- Ribbon de Estado -->
                     <div
-                        v-if="period.activo"
+                        v-if="period.estado === 'activo'"
                         class="absolute top-0 right-0 bg-emerald-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-xl flex items-center gap-1 shadow-sm"
                     >
                         <Check class="h-3 w-3" />
                         Activo
+                    </div>
+                    <div
+                        v-else-if="period.estado === 'planificado'"
+                        class="absolute top-0 right-0 bg-amber-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-xl flex items-center gap-1 shadow-sm"
+                    >
+                        <Clock class="h-3 w-3" />
+                        Planificado
+                    </div>
+                    <div
+                        v-else
+                        class="absolute top-0 right-0 bg-slate-400 text-white text-[10px] font-bold px-3 py-1 rounded-bl-xl flex items-center gap-1 shadow-sm"
+                    >
+                        <FlagTriangleRight class="h-3 w-3" />
+                        Finalizado
                     </div>
 
                     <div class="space-y-4">
@@ -223,14 +258,26 @@ const togglePeriodActive = (period: Periodo) => {
 
                     <!-- Acciones -->
                     <div class="mt-6 flex items-center justify-between border-t border-slate-100 pt-4 dark:border-slate-850">
-                        <!-- Toggle Activo -->
+                        <!-- Acción contextual según estado -->
                         <button
-                            @click="togglePeriodActive(period)"
-                            class="text-xs font-semibold"
-                            :class="[period.activo ? 'text-rose-500 hover:text-rose-600' : 'text-emerald-600 hover:text-emerald-500']"
+                            v-if="period.estado === 'planificado'"
+                            @click="activarPeriodo(period)"
+                            class="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 hover:text-emerald-500"
                         >
-                            {{ period.activo ? 'Desactivar' : 'Activar' }}
+                            <PlayCircle class="h-3.5 w-3.5" />
+                            Activar
                         </button>
+                        <button
+                            v-else-if="period.estado === 'activo'"
+                            @click="finalizarPeriodo(period)"
+                            class="inline-flex items-center gap-1 text-xs font-semibold text-rose-500 hover:text-rose-600"
+                        >
+                            <FlagTriangleRight class="h-3.5 w-3.5" />
+                            Finalizar
+                        </button>
+                        <span v-else class="text-xs font-semibold text-slate-400 italic">
+                            Sin acciones
+                        </span>
 
                         <div class="flex items-center gap-2">
                             <!-- Botón Configurar Plazos -->
@@ -316,6 +363,40 @@ const togglePeriodActive = (period: Periodo) => {
                                     </ComboboxGroup>
                                 </ComboboxList>
                             </Combobox>
+                        </div>
+
+                        <div v-if="editingPeriod">
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Estado *</label>
+                            <Combobox v-model="selectedEstadoObj" by="value">
+                                <ComboboxAnchor as-child>
+                                    <ComboboxTrigger as-child>
+                                        <Button type="button" variant="outline" class="w-full justify-between text-left text-sm font-normal border-slate-200 focus:ring-indigo-500 focus:border-indigo-500 dark:border-slate-850 dark:bg-slate-950 dark:text-slate-350 mt-1">
+                                            {{ selectedEstadoObj ? selectedEstadoObj.label : 'Planificado' }}
+                                            <ChevronsUpDown class="h-4 w-4 opacity-50" />
+                                        </Button>
+                                    </ComboboxTrigger>
+                                </ComboboxAnchor>
+
+                                <ComboboxList class="w-[var(--reka-combobox-trigger-width)] min-w-[200px] bg-white dark:bg-slate-950 border border-slate-100 dark:border-slate-900 rounded-lg shadow-lg">
+                                    <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron estados.</ComboboxEmpty>
+                                    <ComboboxGroup class="p-1">
+                                        <ComboboxItem
+                                            v-for="opt in (['planificado', 'activo', 'finalizado'] as EstadoPeriodo[])"
+                                            :key="opt"
+                                            :value="{ value: opt, label: ESTADO_LABELS[opt] }"
+                                            class="flex items-center justify-between px-3 py-2 text-sm rounded-md cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 data-[state=checked]:bg-slate-100 dark:data-[state=checked]:bg-slate-800"
+                                        >
+                                            {{ ESTADO_LABELS[opt] }}
+                                            <ComboboxItemIndicator>
+                                                <Check class="h-4 w-4 text-indigo-650" />
+                                            </ComboboxItemIndicator>
+                                        </ComboboxItem>
+                                    </ComboboxGroup>
+                                </ComboboxList>
+                            </Combobox>
+                            <p class="mt-1 text-[11px] text-slate-400">
+                                Al activar este periodo, cualquier otro periodo activo pasará automáticamente a Finalizado.
+                            </p>
                         </div>
 
                         <div class="flex justify-end gap-3 border-t border-slate-100 pt-4 mt-6 dark:border-slate-850">

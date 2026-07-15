@@ -169,11 +169,11 @@ const onSubmit = handleSubmit((submitValues) => {
                                         <ComboboxItem
                                             v-for="p in periodos"
                                             :key="p.id"
-                                            :value="{ value: p.id, label: p.activo ? `${p.nombre} (activo)` : p.nombre }"
+                                            :value="{ value: p.id, label: p.estado === 'activo' ? `${p.nombre} (activo)` : p.nombre }"
                                             class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800"
                                         >
                                             {{ p.nombre }}
-                                            <span v-if="p.activo" class="ml-1 text-xs text-emerald-500">(activo)</span>
+                                            <span v-if="p.estado === 'activo'" class="ml-1 text-xs text-emerald-500">(activo)</span>
                                             <ComboboxItemIndicator><Check class="h-4 w-4 text-indigo-650" /></ComboboxItemIndicator>
                                         </ComboboxItem>
                                     </ComboboxGroup>

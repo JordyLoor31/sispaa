@@ -45,6 +45,7 @@ class CarreraController extends Controller
     {
         return Inertia::render('Admin/Carreras/Create', [
             'coordinadores' => User::role(['coordinador', 'docente'])->select('id', 'name')->orderBy('name')->get(),
+            'paletaColores' => Carrera::PALETA_COLORES,
             'breadcrumbs' => $this->adminBreadcrumbs('Carreras', 'Nueva Carrera', route('admin.carreras.index')),
         ]);
     }
@@ -55,6 +56,7 @@ class CarreraController extends Controller
             'nombre' => 'required|string|max:255',
             'codigo' => 'required|string|max:10|unique:carreras',
             'coordinador_id' => 'nullable|exists:users,id',
+            'color' => 'nullable|regex:/^#[0-9A-Fa-f]{6}$/',
         ]);
 
         Carrera::create([...$validated, 'activa' => true]);
@@ -78,6 +80,7 @@ class CarreraController extends Controller
         return Inertia::render('Admin/Carreras/Edit', [
             'carrera' => $carrera,
             'coordinadores' => User::role(['coordinador', 'docente'])->select('id', 'name')->orderBy('name')->get(),
+            'paletaColores' => Carrera::PALETA_COLORES,
             'breadcrumbs' => $this->adminBreadcrumbs('Carreras', 'Editar Carrera', route('admin.carreras.index'), $carrera->nombre),
         ]);
     }
@@ -88,6 +91,7 @@ class CarreraController extends Controller
             'nombre' => 'required|string|max:255',
             'codigo' => 'required|string|max:10|unique:carreras,codigo,' . $carrera->id,
             'coordinador_id' => 'nullable|exists:users,id',
+            'color' => 'nullable|regex:/^#[0-9A-Fa-f]{6}$/',
         ]);
 
         $carrera->update($validated);

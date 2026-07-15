@@ -7,7 +7,7 @@ import { ref, watch } from 'vue';
 import { Button } from '@/components/ui/button';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Check, ChevronsUpDown, ArrowLeft, GraduationCap, Hash } from 'lucide-vue-next';
+import { Check, ChevronsUpDown, ArrowLeft, GraduationCap, Hash, Palette } from 'lucide-vue-next';
 import {
     Combobox,
     ComboboxAnchor,
@@ -24,7 +24,15 @@ import type { Carrera, Coordinador } from './columns';
 const props = defineProps<{
     carrera?: Carrera | null;
     coordinadores: Coordinador[];
+    paletaColores?: string[];
 }>();
+
+const PALETA_DEFECTO = [
+    '#6366f1', '#f59e0b', '#10b981', '#ef4444', '#0ea5e9',
+    '#8b5cf6', '#ec4899', '#14b8a6', '#f97316', '#84cc16',
+];
+
+const paleta = props.paletaColores?.length ? props.paletaColores : PALETA_DEFECTO;
 
 const formSchema = toTypedSchema(
     z.object({
@@ -37,6 +45,9 @@ const formSchema = toTypedSchema(
             .min(1, 'El código es obligatorio.')
             .max(10, 'El código no puede superar los 10 caracteres.'),
         coordinador_id: z.union([z.string(), z.number()]).nullable(),
+        color: z
+            .string()
+            .regex(/^#[0-9A-Fa-f]{6}$/, 'El color debe ser un hexadecimal válido (ej: #6366f1).'),
     }),
 );
 
@@ -46,10 +57,12 @@ const { handleSubmit, setErrors, defineField } = useForm({
         nombre: props.carrera?.nombre ?? '',
         codigo: props.carrera?.codigo ?? '',
         coordinador_id: props.carrera?.coordinador_id ?? null,
+        color: props.carrera?.color ?? paleta[0],
     },
 });
 
 const [coordinadorId] = defineField('coordinador_id');
+const [colorField] = defineField('color');
 
 const processing = ref(false);
 
@@ -157,6 +170,31 @@ const onSubmit = handleSubmit((values) => {
                         </ComboboxGroup>
                     </ComboboxList>
                 </Combobox>
+                <FormMessage v-if="errorMessage" />
+            </FormItem>
+        </FormField>
+
+        <FormField v-slot="{ errorMessage }" name="color">
+            <FormItem>
+                <FormLabel class="flex items-center gap-1.5"><Palette class="h-3.5 w-3.5" /> Etiqueta / Color *</FormLabel>
+                <FormControl>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button
+                            v-for="swatch in paleta"
+                            :key="swatch"
+                            type="button"
+                            class="h-7 w-7 rounded-full border-2 transition-transform"
+                            :class="colorField === swatch ? 'border-slate-900 dark:border-white scale-110' : 'border-transparent hover:scale-105'"
+                            :style="{ backgroundColor: swatch }"
+                            :aria-label="`Color ${swatch}`"
+                            @click="colorField = swatch"
+                        />
+                        <label class="ml-1 flex items-center gap-2 rounded-lg border border-slate-200 px-2 py-1 dark:border-slate-800">
+                            <input type="color" v-model="colorField" class="h-6 w-8 cursor-pointer border-0 bg-transparent p-0" />
+                            <span class="text-xs font-mono text-slate-500 dark:text-slate-400">{{ colorField }}</span>
+                        </label>
+                    </div>
+                </FormControl>
                 <FormMessage v-if="errorMessage" />
             </FormItem>
         </FormField>

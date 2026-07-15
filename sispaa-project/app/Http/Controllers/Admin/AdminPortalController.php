@@ -238,13 +238,14 @@ class AdminPortalController extends Controller
         ]);
 
         // Un periodo es una sola entidad compartida por todas las carreras
-        // (ej. "2026-1"), no un registro por carrera.
+        // (ej. "2026-1"), no un registro por carrera. Todo periodo nuevo nace
+        // en estado "planificado" y se activa explícitamente después.
         PeriodoAcademico::create([
             'nombre' => $request->nombre,
             'fecha_inicio' => $request->fecha_inicio,
             'fecha_fin' => $request->fecha_fin,
             'tipo' => $request->tipo,
-            'activo' => false,
+            'estado' => PeriodoAcademico::ESTADO_PLANIFICADO,
         ]);
 
         return redirect()->back()->with('success', 'Periodo académico creado.');
@@ -256,19 +257,23 @@ class AdminPortalController extends Controller
             'nombre' => 'required|string|max:255|unique:periodos_academicos,nombre,' . $periodo->id,
             'fecha_inicio' => 'required|date',
             'fecha_fin' => 'required|date|after:fecha_inicio',
-            'activo' => 'required|boolean',
+            'estado' => 'required|in:' . implode(',', PeriodoAcademico::ESTADOS),
         ]);
 
-        if ($request->activo) {
-            // Solo un periodo puede estar activo a la vez a nivel institucional.
-            PeriodoAcademico::where('id', '!=', $periodo->id)->update(['activo' => false]);
+        if ($request->estado === PeriodoAcademico::ESTADO_ACTIVO) {
+            // Solo un periodo puede estar activo a la vez a nivel institucional:
+            // al activar este, cualquier otro que estuviera activo pasa a
+            // finalizado (activar uno nuevo implica que el anterior concluyó).
+            PeriodoAcademico::where('id', '!=', $periodo->id)
+                ->where('estado', PeriodoAcademico::ESTADO_ACTIVO)
+                ->update(['estado' => PeriodoAcademico::ESTADO_FINALIZADO]);
         }
 
         $periodo->update([
             'nombre' => $request->nombre,
             'fecha_inicio' => $request->fecha_inicio,
             'fecha_fin' => $request->fecha_fin,
-            'activo' => $request->activo,
+            'estado' => $request->estado,
         ]);
 
         return redirect()->back()->with('success', 'Periodo académico actualizado.');

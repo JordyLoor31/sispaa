@@ -33,8 +33,8 @@ class LaboratorioReporteController extends Controller
 
         $porCarrera = (clone $base)
             ->join('carreras', 'carreras.id', '=', 'materias.carrera_id')
-            ->selectRaw('carreras.nombre as label, count(*) as total')
-            ->groupBy('carreras.nombre')
+            ->selectRaw('carreras.nombre as label, carreras.color as color, count(*) as total')
+            ->groupBy('carreras.nombre', 'carreras.color')
             ->orderByDesc('total')
             ->get();
 
@@ -63,7 +63,7 @@ class LaboratorioReporteController extends Controller
                 'total_reactivos' => Reactivo::count(),
             ],
             'charts' => [
-                'practicasPorCarrera' => ['labels' => $porCarrera->pluck('label'), 'series' => $porCarrera->pluck('total')],
+                'practicasPorCarrera' => ['labels' => $porCarrera->pluck('label'), 'series' => $porCarrera->pluck('total'), 'colors' => $porCarrera->pluck('color')],
                 'practicasPorLaboratorio' => ['labels' => $porLaboratorio->pluck('label'), 'series' => $porLaboratorio->pluck('total')],
                 'equiposPorEstado' => ['labels' => $equiposPorEstado->pluck('label'), 'series' => $equiposPorEstado->pluck('total')],
                 'reactivosPorEstado' => ['labels' => $reactivosPorEstado->pluck('label'), 'series' => $reactivosPorEstado->pluck('total')],

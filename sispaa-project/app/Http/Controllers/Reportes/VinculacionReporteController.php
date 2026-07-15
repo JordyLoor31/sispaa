@@ -37,8 +37,8 @@ class VinculacionReporteController extends Controller
 
         $porCarrera = (clone $base)
             ->join('carreras', 'carreras.id', '=', 'actividades_vinculacion.carrera_id')
-            ->selectRaw('carreras.nombre as label, count(*) as total')
-            ->groupBy('carreras.nombre')
+            ->selectRaw('carreras.nombre as label, carreras.color as color, count(*) as total')
+            ->groupBy('carreras.nombre', 'carreras.color')
             ->orderByDesc('total')
             ->get();
 
@@ -60,7 +60,7 @@ class VinculacionReporteController extends Controller
             ],
             'charts' => [
                 'porEstado' => ['labels' => $porEstado->pluck('label'), 'series' => $porEstado->pluck('total')],
-                'porCarrera' => ['labels' => $porCarrera->pluck('label'), 'series' => $porCarrera->pluck('total')],
+                'porCarrera' => ['labels' => $porCarrera->pluck('label'), 'series' => $porCarrera->pluck('total'), 'colors' => $porCarrera->pluck('color')],
                 'empresasPorSector' => ['labels' => $empresasPorSector->pluck('label'), 'series' => $empresasPorSector->pluck('total')],
             ],
             'periodos' => PeriodoAcademico::orderByDesc('fecha_inicio')->get(['id', 'nombre']),

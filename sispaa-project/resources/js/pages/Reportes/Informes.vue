@@ -9,7 +9,7 @@ import ApexChartCard from '@/components/charts/ApexChartCard.vue';
 import type { ApexOptions } from 'apexcharts';
 
 interface Catalogo { id: number; nombre: string }
-interface ChartData { labels: string[]; series: number[] }
+interface ChartData { labels: string[]; series: number[]; colors?: (string | null)[] }
 
 const props = defineProps<{
     kpis: { total: number; aprobados: number; porcentaje_aprobados: number };
@@ -45,6 +45,17 @@ const barOptions = (labels: string[], colors?: string[]): ApexOptions => ({
     xaxis: { categories: labels, labels: { style: { colors: '#64748b' } } },
     yaxis: { labels: { style: { colors: '#64748b' } } },
     colors: colors ?? ['#6366f1'],
+    grid: { borderColor: '#e2e8f0' },
+});
+
+const barOptionsPorCarrera = (labels: string[], colors?: (string | null)[]): ApexOptions => ({
+    chart: { type: 'bar' },
+    plotOptions: { bar: { borderRadius: 6, columnWidth: '55%', distributed: true } },
+    dataLabels: { enabled: true },
+    legend: { show: false },
+    xaxis: { categories: labels, labels: { style: { colors: '#64748b' } } },
+    yaxis: { labels: { style: { colors: '#64748b' } } },
+    colors: colors?.length ? colors.map((c) => c ?? '#6366f1') : ['#6366f1'],
     grid: { borderColor: '#e2e8f0' },
 });
 
@@ -131,7 +142,7 @@ const hasData = (c: ChartData) => c.series.length > 0 && c.series.some((v) => v 
                     title="Informes por carrera"
                     type="bar"
                     :series="[{ name: 'Informes', data: charts.porCarrera.series }]"
-                    :options="barOptions(charts.porCarrera.labels)"
+                    :options="barOptionsPorCarrera(charts.porCarrera.labels, charts.porCarrera.colors)"
                     :empty="!hasData(charts.porCarrera)"
                 />
                 <ApexChartCard

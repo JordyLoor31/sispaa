@@ -12,6 +12,7 @@ export interface Carrera {
     id: number;
     nombre: string;
     codigo: string;
+    color?: string | null;
     activa: boolean;
     coordinador_id: number | null;
     coordinador?: Coordinador | null;
@@ -30,7 +31,14 @@ export function makeCarreraColumns({ onToggleStatus }: CarreraColumnsOptions): C
             accessorKey: 'codigo',
             meta: { label: 'Código' },
             header: 'Código',
-            cell: ({ row }) => h('span', { class: 'font-bold text-slate-800 dark:text-slate-350' }, row.original.codigo),
+            cell: ({ row }) => h('div', { class: 'flex items-center gap-2' }, [
+                h('span', {
+                    class: 'inline-block h-3 w-3 shrink-0 rounded-full border border-black/10',
+                    style: { backgroundColor: row.original.color ?? '#94a3b8' },
+                    title: row.original.color ?? 'Sin color asignado',
+                }),
+                h('span', { class: 'font-bold text-slate-800 dark:text-slate-350' }, row.original.codigo),
+            ]),
         },
         {
             accessorKey: 'nombre',

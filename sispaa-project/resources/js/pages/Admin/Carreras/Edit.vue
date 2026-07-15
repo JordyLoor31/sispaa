@@ -8,6 +8,7 @@ import type { Carrera, Coordinador } from './columns';
 const props = defineProps<{
     carrera: Carrera;
     coordinadores: Coordinador[];
+    paletaColores?: string[];
     breadcrumbs?: BreadcrumbItemType[];
 }>();
 </script>
@@ -27,7 +28,7 @@ const props = defineProps<{
             </div>
 
             <div class="max-w-xl mx-auto rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                <CarreraForm :carrera="carrera" :coordinadores="coordinadores" />
+                <CarreraForm :carrera="carrera" :coordinadores="coordinadores" :paleta-colores="paletaColores" />
             </div>
         </div>
     </AppSidebarLayout>

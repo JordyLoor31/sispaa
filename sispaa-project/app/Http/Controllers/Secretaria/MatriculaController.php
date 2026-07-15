@@ -59,7 +59,7 @@ class MatriculaController extends Controller
             ->paginate($perPage)
             ->withQueryString();
 
-        $periodos = PeriodoAcademico::orderBy('id', 'desc')->get(['id', 'nombre', 'activo']);
+        $periodos = PeriodoAcademico::orderBy('id', 'desc')->get(['id', 'nombre', 'estado']);
         $carreras = Carrera::where('activa', true)->get(['id', 'nombre', 'codigo']);
 
         return Inertia::render('Secretaria/Matriculas/Index', [
@@ -80,7 +80,7 @@ class MatriculaController extends Controller
     public function create(): Response
     {
         return Inertia::render('Secretaria/Matriculas/Create', [
-            'periodos' => PeriodoAcademico::orderBy('id', 'desc')->get(['id', 'nombre', 'activo']),
+            'periodos' => PeriodoAcademico::orderBy('id', 'desc')->get(['id', 'nombre', 'estado']),
             'carreras' => Carrera::where('activa', true)->get(['id', 'nombre', 'codigo']),
             'estudiantes' => User::role('estudiante')
                 ->where('is_active', true)

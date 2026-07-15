@@ -41,8 +41,8 @@ class EstudiantesReporteController extends Controller
         // Matriculados por carrera
         $porCarrera = (clone $matriculasQuery)
             ->join('carreras', 'carreras.id', '=', 'matriculas.carrera_id')
-            ->selectRaw('carreras.nombre as label, count(*) as total')
-            ->groupBy('carreras.nombre')
+            ->selectRaw('carreras.nombre as label, carreras.color as color, count(*) as total')
+            ->groupBy('carreras.nombre', 'carreras.color')
             ->orderByDesc('total')
             ->get();
 
@@ -89,6 +89,7 @@ class EstudiantesReporteController extends Controller
                 'matriculadosPorCarrera' => [
                     'labels' => $porCarrera->pluck('label'),
                     'series' => $porCarrera->pluck('total'),
+                    'colors' => $porCarrera->pluck('color'),
                 ],
                 'matriculadosPorEstado' => [
                     'labels' => $porEstado->pluck('label'),

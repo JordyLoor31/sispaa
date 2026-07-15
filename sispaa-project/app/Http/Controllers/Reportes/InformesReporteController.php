@@ -36,8 +36,8 @@ class InformesReporteController extends Controller
 
         $porCarrera = (clone $base)
             ->join('carreras', 'carreras.id', '=', 'materias.carrera_id')
-            ->selectRaw('carreras.nombre as label, count(*) as total')
-            ->groupBy('carreras.nombre')
+            ->selectRaw('carreras.nombre as label, carreras.color as color, count(*) as total')
+            ->groupBy('carreras.nombre', 'carreras.color')
             ->orderByDesc('total')
             ->get();
 
@@ -59,7 +59,7 @@ class InformesReporteController extends Controller
             ],
             'charts' => [
                 'porEstado' => ['labels' => $porEstado->pluck('label'), 'series' => $porEstado->pluck('total')],
-                'porCarrera' => ['labels' => $porCarrera->pluck('label'), 'series' => $porCarrera->pluck('total')],
+                'porCarrera' => ['labels' => $porCarrera->pluck('label'), 'series' => $porCarrera->pluck('total'), 'colors' => $porCarrera->pluck('color')],
                 'porPeriodo' => ['labels' => $porPeriodo->pluck('label'), 'series' => $porPeriodo->pluck('total')],
             ],
             'periodos' => PeriodoAcademico::orderByDesc('fecha_inicio')->get(['id', 'nombre']),

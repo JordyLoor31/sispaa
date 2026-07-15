@@ -14,6 +14,7 @@ interface Carrera {
     id: number;
     nombre: string;
     codigo: string;
+    color?: string | null;
     activa: boolean;
     coordinador?: { id: number; name: string } | null;
     materias_count?: number;
@@ -63,12 +64,24 @@ const formatDate = (date?: string) => {
                 </div>
             </div>
 
-            <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                 <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
                     <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Estado</h4>
                     <p class="mt-2 text-sm font-semibold" :class="carrera.activa ? 'text-emerald-600' : 'text-slate-400'">
                         {{ carrera.activa ? 'Activa' : 'Inactiva' }}
                     </p>
+                </div>
+                <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Etiqueta / Color</h4>
+                    <div class="mt-2 flex items-center gap-2">
+                        <span
+                            class="inline-block h-4 w-4 shrink-0 rounded-full border border-black/10"
+                            :style="{ backgroundColor: carrera.color ?? '#94a3b8' }"
+                        />
+                        <p class="text-sm font-semibold text-slate-800 dark:text-slate-200">
+                            {{ carrera.color ?? 'Sin asignar' }}
+                        </p>
+                    </div>
                 </div>
                 <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
                     <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Coordinador</h4>
