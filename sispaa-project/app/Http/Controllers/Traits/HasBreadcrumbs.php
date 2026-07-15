@@ -14,9 +14,9 @@ namespace App\Http\Controllers\Traits;
  *       'breadcrumbs' => $this->titulacionBreadcrumbs('Titulación'),
  *   ]);
  *
- *   return Inertia::render('Admin/PeriodosAcademicos', [
+ *   return Inertia::render('Admin/Periodos/Edit', [
  *       ...
- *       'breadcrumbs' => $this->adminBreadcrumbs('Fechas y Convocatorias', 'Editar Período'),
+ *       'breadcrumbs' => $this->adminBreadcrumbs('Gestión de Periodos', 'Editar Período'),
  *   ]);
  */
 trait HasBreadcrumbs

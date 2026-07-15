@@ -270,11 +270,17 @@ Route::middleware(['auth', 'verified', 'role:SystemAdministrador'])
         Route::delete('/materias/{materia}', [\App\Http\Controllers\Admin\AdminPortalController::class, 'materiaDestroy'])->name('materias.destroy');
         Route::post('/materias/{materia}/toggle-status', [\App\Http\Controllers\Admin\AdminPortalController::class, 'materiaToggleStatus'])->name('materias.toggle-status');
 
-        // Fechas Límite y Convocatorias
-        Route::get('/fechas', [\App\Http\Controllers\Admin\AdminPortalController::class, 'fechasIndex'])->name('fechas.index');
-        Route::post('/fechas/periodos', [\App\Http\Controllers\Admin\AdminPortalController::class, 'periodoStore'])->name('periodos.store');
-        Route::put('/fechas/periodos/{periodo}', [\App\Http\Controllers\Admin\AdminPortalController::class, 'periodoUpdate'])->name('periodos.update');
-        Route::put('/fechas/periodos/{periodo}/deadlines', [\App\Http\Controllers\Admin\AdminPortalController::class, 'periodoDeadlinesUpdate'])->name('periodos.deadlines.update');
+        // Gestión de Periodos (CRUD completo, ver PeriodoAcademicoController).
+        // Reemplaza la antigua pantalla "Fechas y Convocatorias": aquí se crea
+        // y edita el periodo junto con sus fechas límite de sílabos/informes.
+        Route::get('/periodos', [\App\Http\Controllers\Admin\PeriodoAcademicoController::class, 'index'])->name('periodos.index');
+        Route::get('/periodos/crear', [\App\Http\Controllers\Admin\PeriodoAcademicoController::class, 'create'])->name('periodos.create');
+        Route::post('/periodos', [\App\Http\Controllers\Admin\PeriodoAcademicoController::class, 'store'])->name('periodos.store');
+        Route::get('/periodos/{periodo}', [\App\Http\Controllers\Admin\PeriodoAcademicoController::class, 'show'])->name('periodos.show');
+        Route::get('/periodos/{periodo}/editar', [\App\Http\Controllers\Admin\PeriodoAcademicoController::class, 'edit'])->name('periodos.edit');
+        Route::put('/periodos/{periodo}', [\App\Http\Controllers\Admin\PeriodoAcademicoController::class, 'update'])->name('periodos.update');
+        Route::post('/periodos/{periodo}/activar', [\App\Http\Controllers\Admin\PeriodoAcademicoController::class, 'activate'])->name('periodos.activate');
+        Route::post('/periodos/{periodo}/finalizar', [\App\Http\Controllers\Admin\PeriodoAcademicoController::class, 'finalize'])->name('periodos.finalize');
     });
 
 

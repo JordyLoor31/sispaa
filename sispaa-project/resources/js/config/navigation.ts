@@ -47,8 +47,8 @@ export const systemAdministradorNavItems: NavItem[] = [
         icon: Book,
     },
     {
-        title: 'Fechas y Convocatorias',
-        href: '/admin/fechas',
+        title: 'Gestión de Periodos',
+        href: route('admin.periodos.index'),
         icon: Calendar,
     },
     {
