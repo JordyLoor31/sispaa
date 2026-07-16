@@ -402,11 +402,29 @@ class StudentPortalController extends Controller
     public function readNotificaciones(Request $request)
     {
         $user = Auth::user();
-        
+
         Notificacion::where('user_id', $user->id)
             ->where('leido', false)
             ->update(['leido' => true]);
 
         return redirect()->back()->with('success', 'Notificaciones marcadas como leídas.');
+    }
+
+    /**
+     * JSON liviano para la campanita del header (AppSidebarHeader.vue), misma
+     * idea que NotificacionController::recientes() pero bajo el prefijo del
+     * portal del estudiante.
+     */
+    public function recientesNotificaciones()
+    {
+        $notificaciones = Notificacion::where('user_id', Auth::id())
+            ->orderByDesc('created_at')
+            ->limit(10)
+            ->get(['id', 'titulo', 'mensaje', 'leido', 'created_at']);
+
+        return response()->json([
+            'notificaciones' => $notificaciones,
+            'unread_count' => $notificaciones->where('leido', false)->count(),
+        ]);
     }
 }

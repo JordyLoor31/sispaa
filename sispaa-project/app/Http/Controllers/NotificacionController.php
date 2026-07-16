@@ -38,4 +38,22 @@ class NotificacionController extends Controller
 
         return redirect()->back()->with('success', 'Notificaciones marcadas como leídas.');
     }
+
+    /**
+     * JSON liviano para la campanita del header (AppSidebarHeader.vue): a
+     * diferencia de index(), no renderiza una página Inertia completa, solo
+     * las últimas notificaciones para mostrarlas en el AlertDialog.
+     */
+    public function recientes()
+    {
+        $notificaciones = Notificacion::where('user_id', Auth::id())
+            ->orderByDesc('created_at')
+            ->limit(10)
+            ->get(['id', 'titulo', 'mensaje', 'leido', 'created_at']);
+
+        return response()->json([
+            'notificaciones' => $notificaciones,
+            'unread_count' => $notificaciones->where('leido', false)->count(),
+        ]);
+    }
 }

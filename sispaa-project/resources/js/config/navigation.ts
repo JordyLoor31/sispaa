@@ -11,7 +11,7 @@
 // "todo" de SystemAdministrador.
 
 import { type NavItem } from '@/types';
-import { BarChart3, Bell, Book, BookOpen, Calendar, Feather, FileText, FlaskConical, FolderOpen, GraduationCap, Handshake, LayoutGrid, Megaphone, Search, Settings, User, Users, type LucideIcon } from 'lucide-vue-next';
+import { BarChart3, Bell, Book, BookOpen, Calendar, ClipboardCheck, Feather, FileText, FlaskConical, FolderOpen, GraduationCap, Handshake, LayoutGrid, Megaphone, Search, Settings, User, Users, type LucideIcon } from 'lucide-vue-next';
 
 /** Nombres de rol tal como están sembrados en Spatie (roles.name). */
 export const ROLES = {
@@ -28,6 +28,21 @@ export const dashboardNavItem: NavItem = {
     href: '/dashboard',
     icon: LayoutGrid,
 };
+
+/**
+ * Menú cascada exclusivo de la vista "todo" de SystemAdministrador: agrupa
+ * en un solo lugar todos los documentos que sube cada rol (docente,
+ * coordinador, estudiante...) para revisión, en vez de repetirlos sueltos
+ * dentro de los bloques de Docente/Secretaría como pasaba antes. Reutiliza
+ * 100% las rutas/controladores/vistas de Secretaría y Docencia: no hay
+ * pantallas nuevas, solo una entrada de menú distinta.
+ */
+export const revisionDocumentosNavItems: NavItem[] = [
+    { title: 'Sílabos', href: route('secretaria.silabos.index') },
+    { title: 'Informes de Asignatura', href: route('docencia.informes-asignaturas') },
+    { title: 'Justificaciones', href: route('secretaria.justificaciones.index') },
+    { title: 'Expediente / Documentos del Estudiante', href: route('secretaria.expediente.index') },
+];
 
 /** Exclusivo de SystemAdministrador (gestión del sistema en sí). */
 export const systemAdministradorNavItems: NavItem[] = [
@@ -52,9 +67,10 @@ export const systemAdministradorNavItems: NavItem[] = [
         icon: Calendar,
     },
     {
-        title: 'Notificaciones',
-        href: route('notificaciones.index'),
-        icon: Bell,
+        title: 'Revisión de Documentos',
+        href: route('secretaria.silabos.index'),
+        icon: ClipboardCheck,
+        items: revisionDocumentosNavItems,
     },
 ];
 
@@ -87,31 +103,18 @@ export const docenteNavItems: NavItem[] = [
             { title: 'Por carrera', href: route('laboratorio.porCarrera') },
         ],
     },
-    {
-        title: 'Notificaciones',
-        href: route('notificaciones.index'),
-        icon: Bell,
-    },
 ];
 
 /**
  * Variante del bloque "Docente" para SystemAdministrador cuando NO tiene
- * también el rol docente: reemplaza los accesos en primera persona ("Mis
- * Sílabos", "Mis Informes") por las vistas de supervisión de TODOS los
- * docentes (mismo patrón de data table que usa Secretaría). Investigación,
- * Laboratorio y Notificaciones ya son vistas de panel/overview, no de
- * autoservicio, así que se reutilizan sin cambios.
+ * también el rol docente: Investigación y Laboratorio ya son vistas de
+ * panel/overview, no de autoservicio, así que se reutilizan sin cambios. El
+ * antiguo item "Docencia" (Sílabos subidos / Informes de Asignatura) se quitó
+ * de aquí porque ahora vive, seccionado junto al resto de documentos que
+ * suben otros roles, dentro de "Revisión de Documentos" (ver
+ * revisionDocumentosNavItems / systemAdministradorNavItems).
  */
 export const docenteAdminOverviewNavItems: NavItem[] = [
-    {
-        title: 'Docencia',
-        href: route('secretaria.silabos.index'),
-        icon: Feather,
-        items: [
-            { title: 'Sílabos subidos', href: route('secretaria.silabos.index') },
-            { title: 'Informes de Asignatura', href: route('docencia.informes-asignaturas') },
-        ],
-    },
     {
         title: 'Investigación',
         href: route('investigacion.index'),
@@ -129,11 +132,6 @@ export const docenteAdminOverviewNavItems: NavItem[] = [
             { title: 'Reactivos', href: route('laboratorio.reactivos') },
             { title: 'Por carrera', href: route('laboratorio.porCarrera') },
         ],
-    },
-    {
-        title: 'Notificaciones',
-        href: route('notificaciones.index'),
-        icon: Bell,
     },
 ];
 
@@ -157,11 +155,6 @@ export const coordinadorNavItems: NavItem[] = [
             { title: 'Actividades', href: route('vinculacion.actividades') },
             { title: 'Empresas beneficiadas', href: route('vinculacion.empresas') },
         ],
-    },
-    {
-        title: 'Notificaciones',
-        href: route('notificaciones.index'),
-        icon: Bell,
     },
 ];
 
@@ -217,12 +210,22 @@ export const secretariaNavItems: NavItem[] = [
             { title: 'Laboratorio', href: route('reportes.laboratorio') },
         ],
     },
-    {
-        title: 'Notificaciones',
-        href: route('notificaciones.index'),
-        icon: Bell,
-    },
 ];
+
+/**
+ * Variante de secretariaNavItems solo para la vista "todo" de
+ * SystemAdministrador: quita los 3 items que ahora viven, seccionados junto
+ * al resto de documentos que suben otros roles, dentro de "Revisión de
+ * Documentos" (Expediente SGA, Justificaciones, Revisión de Sílabos). Se
+ * deriva por filtro (no se duplica a mano) para no desincronizarse si
+ * secretariaNavItems cambia. secretariaNavItems en sí queda intacto: el
+ * personal real de Secretaría lo sigue necesitando completo en su propio
+ * menú (navByRole).
+ */
+const TITULOS_EN_REVISION_DOCUMENTOS = new Set(['Expediente SGA', 'Justificaciones', 'Revisión de Sílabos']);
+export const secretariaAdminOverviewNavItems: NavItem[] = secretariaNavItems.filter(
+    (item) => !TITULOS_EN_REVISION_DOCUMENTOS.has(item.title),
+);
 
 /** Rol Estudiante: portal propio del estudiante. */
 export const estudianteNavItems: NavItem[] = [
@@ -250,11 +253,6 @@ export const estudianteNavItems: NavItem[] = [
         title: 'Mi Perfil',
         href: '/estudiante/perfil',
         icon: User,
-    },
-    {
-        title: 'Notificaciones',
-        href: '/estudiante/notificaciones',
-        icon: Bell,
     },
 ];
 
@@ -288,7 +286,7 @@ export const roleNavGroups: NavRoleGroup[] = [
     { key: 'administracion', label: 'Administración', items: systemAdministradorNavItems, icon: Settings },
     { key: 'docente', label: 'Docente', items: docenteNavItems, icon: Feather },
     { key: 'coordinador', label: 'Coordinador', items: [...coordinadorNavItems, ...gestionEstudiantesNavItems], icon: Users },
-    { key: 'secretaria', label: 'Secretaría', items: secretariaNavItems, icon: FileText },
+    { key: 'secretaria', label: 'Secretaría', items: secretariaAdminOverviewNavItems, icon: FileText },
     { key: 'estudiante', label: 'Estudiante', items: estudianteNavItems, icon: User },
 ];
 

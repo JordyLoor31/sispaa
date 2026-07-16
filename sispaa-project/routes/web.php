@@ -44,6 +44,7 @@ Route::middleware(['auth', 'verified', 'role:docente|coordinador|secretaria|Syst
     ->group(function () {
         Route::get('/', [NotificacionController::class, 'index'])->name('index');
         Route::post('/read', [NotificacionController::class, 'markRead'])->name('read');
+        Route::get('/recientes', [NotificacionController::class, 'recientes'])->name('recientes');
     });
 
 
@@ -250,6 +251,7 @@ Route::middleware(['auth', 'verified', 'role:estudiante|SystemAdministrador'])
 
         Route::get('/notificaciones', [\App\Http\Controllers\Estudiantes\StudentPortalController::class, 'notificaciones'])->name('notificaciones');
         Route::post('/notificaciones/read', [\App\Http\Controllers\Estudiantes\StudentPortalController::class, 'readNotificaciones'])->name('notificaciones.read');
+        Route::get('/notificaciones/recientes', [\App\Http\Controllers\Estudiantes\StudentPortalController::class, 'recientesNotificaciones'])->name('notificaciones.recientes');
     });
 
 // PORTAL DEL ADMINISTRADOR (Rutas específicas para SystemAdministrador)
