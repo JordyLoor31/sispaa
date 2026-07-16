@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/vue3';
-import { User, Mail, Shield, Phone, Bookmark, BookOpen } from 'lucide-vue-next';
+import { Head, Link } from '@inertiajs/vue3';
+import { User, Mail, Shield, Phone, Bookmark, BookOpen, ClipboardEdit } from 'lucide-vue-next';
+import { Button } from '@/components/ui/button';
 
 interface UserData {
     name: string;
@@ -35,13 +36,20 @@ const breadcrumbs: BreadcrumbItem[] = [
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-6 p-6 bg-slate-50/50 dark:bg-slate-900/50">
             <!-- Header -->
-            <div>
-                <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-                    Mi Perfil
-                </h1>
-                <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                    Visualiza y corrobora tus datos personales e institucionales registrados en el sistema.
-                </p>
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+                        Mi Perfil
+                    </h1>
+                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                        Visualiza y corrobora tus datos personales e institucionales registrados en el sistema.
+                    </p>
+                </div>
+                <Button as-child class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold shrink-0">
+                    <Link :href="route('student.perfil.edit')">
+                        <ClipboardEdit class="h-4 w-4 mr-1.5" /> Completar / Editar Perfil
+                    </Link>
+                </Button>
             </div>
 
             <!-- Profile Info Cards -->

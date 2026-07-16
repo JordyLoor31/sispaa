@@ -57,4 +57,25 @@ class User extends Authenticatable
     {
         return $this->belongsTo(\App\Models\Admin\Carrera::class, 'carrera_id');
     }
+
+    /**
+     * Módulo de perfil de estudiante (perfiles_estudiantes,
+     * estudiante_datos_adicionales, estudiante_familiares). Cualquier
+     * usuario puede tener estas relaciones, aunque hoy solo se usan para
+     * quienes tienen el rol "estudiante".
+     */
+    public function perfilEstudiante()
+    {
+        return $this->hasOne(\App\Models\Estudiantes\PerfilEstudiante::class);
+    }
+
+    public function datosAdicionales()
+    {
+        return $this->hasOne(\App\Models\Estudiantes\EstudianteDatosAdicionales::class);
+    }
+
+    public function familiares()
+    {
+        return $this->hasMany(\App\Models\Estudiantes\EstudianteFamiliar::class);
+    }
 }

@@ -236,6 +236,15 @@ Route::middleware(['auth', 'verified', 'role:estudiante|SystemAdministrador'])
 
         Route::get('/perfil', [\App\Http\Controllers\Estudiantes\StudentPortalController::class, 'perfil'])->name('perfil');
 
+        // Wizard "Completar mi perfil" (perfiles_estudiantes + estudiante_datos_adicionales)
+        Route::get('/perfil/editar', [\App\Http\Controllers\Estudiantes\PerfilEstudianteController::class, 'edit'])->name('perfil.edit');
+        Route::put('/perfil', [\App\Http\Controllers\Estudiantes\PerfilEstudianteController::class, 'update'])->name('perfil.update');
+
+        // Familiares/representantes (estudiante_familiares), CRUD inline dentro del paso 4 del wizard
+        Route::post('/perfil/familiares', [\App\Http\Controllers\Estudiantes\EstudianteFamiliarController::class, 'store'])->name('familiares.store');
+        Route::put('/perfil/familiares/{familiar}', [\App\Http\Controllers\Estudiantes\EstudianteFamiliarController::class, 'update'])->name('familiares.update');
+        Route::delete('/perfil/familiares/{familiar}', [\App\Http\Controllers\Estudiantes\EstudianteFamiliarController::class, 'destroy'])->name('familiares.destroy');
+
         Route::get('/notificaciones', [\App\Http\Controllers\Estudiantes\StudentPortalController::class, 'notificaciones'])->name('notificaciones');
         Route::post('/notificaciones/read', [\App\Http\Controllers\Estudiantes\StudentPortalController::class, 'readNotificaciones'])->name('notificaciones.read');
     });
@@ -281,6 +290,13 @@ Route::middleware(['auth', 'verified', 'role:SystemAdministrador'])
         Route::put('/periodos/{periodo}', [\App\Http\Controllers\Admin\PeriodoAcademicoController::class, 'update'])->name('periodos.update');
         Route::post('/periodos/{periodo}/activar', [\App\Http\Controllers\Admin\PeriodoAcademicoController::class, 'activate'])->name('periodos.activate');
         Route::post('/periodos/{periodo}/finalizar', [\App\Http\Controllers\Admin\PeriodoAcademicoController::class, 'finalize'])->name('periodos.finalize');
+
+        // Perfiles de estudiantes (solo lectura por ahora: acceso de Secretaría/
+        // SystemAdministrador al mismo módulo que ve el estudiante en su portal.
+        // {estudiante} llega ya resuelto por route model binding al mismo
+        // PerfilEstudianteController que usa el wizard de autoservicio.)
+        Route::get('/estudiantes/perfiles', [\App\Http\Controllers\Estudiantes\PerfilEstudianteController::class, 'index'])->name('estudiantes.perfiles.index');
+        Route::get('/estudiantes/perfiles/{estudiante}', [\App\Http\Controllers\Estudiantes\PerfilEstudianteController::class, 'show'])->name('estudiantes.perfiles.show');
     });
 
 
