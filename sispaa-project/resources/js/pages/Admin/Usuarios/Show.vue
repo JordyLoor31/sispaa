@@ -2,7 +2,7 @@
 import AppSidebarLayout from '@/layouts/app/AppSidebarLayout.vue';
 import { type BreadcrumbItemType } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
-import { ArrowLeft, Pencil, Shield } from 'lucide-vue-next';
+import { ArrowLeft, FileText, Pencil, Shield } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 import type { Usuario } from './columns';
 
@@ -15,6 +15,8 @@ const formatDate = (date?: string) => {
     if (!date) return '—';
     return new Date(date).toLocaleDateString('es-EC', { day: '2-digit', month: '2-digit', year: 'numeric' });
 };
+
+const esEstudiante = props.usuario.roles.some((rol) => rol.name === 'estudiante');
 </script>
 
 <template>
@@ -35,6 +37,11 @@ const formatDate = (date?: string) => {
                     <Button as-child variant="outline">
                         <Link :href="route('admin.usuarios.index')">
                             <ArrowLeft class="h-4 w-4 mr-1.5" /> Volver
+                        </Link>
+                    </Button>
+                    <Button v-if="esEstudiante" as-child variant="outline">
+                        <Link :href="route('admin.estudiantes.perfiles.show', usuario.id)">
+                            <FileText class="h-4 w-4 mr-1.5" /> Ver Datos Adicionales
                         </Link>
                     </Button>
                     <Button as-child class="bg-indigo-600 hover:bg-indigo-500 text-white">

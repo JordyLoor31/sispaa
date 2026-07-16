@@ -236,6 +236,9 @@ Route::middleware(['auth', 'verified', 'role:estudiante|SystemAdministrador'])
 
         Route::get('/perfil', [\App\Http\Controllers\Estudiantes\StudentPortalController::class, 'perfil'])->name('perfil');
 
+        // "Mis Datos": vista de solo lectura con todo lo completado en el wizard
+        Route::get('/perfil/datos', [\App\Http\Controllers\Estudiantes\PerfilEstudianteController::class, 'misDatos'])->name('perfil.show');
+
         // Wizard "Completar mi perfil" (perfiles_estudiantes + estudiante_datos_adicionales)
         Route::get('/perfil/editar', [\App\Http\Controllers\Estudiantes\PerfilEstudianteController::class, 'edit'])->name('perfil.edit');
         Route::put('/perfil', [\App\Http\Controllers\Estudiantes\PerfilEstudianteController::class, 'update'])->name('perfil.update');
@@ -291,11 +294,11 @@ Route::middleware(['auth', 'verified', 'role:SystemAdministrador'])
         Route::post('/periodos/{periodo}/activar', [\App\Http\Controllers\Admin\PeriodoAcademicoController::class, 'activate'])->name('periodos.activate');
         Route::post('/periodos/{periodo}/finalizar', [\App\Http\Controllers\Admin\PeriodoAcademicoController::class, 'finalize'])->name('periodos.finalize');
 
-        // Perfiles de estudiantes (solo lectura por ahora: acceso de Secretaría/
-        // SystemAdministrador al mismo módulo que ve el estudiante en su portal.
-        // {estudiante} llega ya resuelto por route model binding al mismo
-        // PerfilEstudianteController que usa el wizard de autoservicio.)
-        Route::get('/estudiantes/perfiles', [\App\Http\Controllers\Estudiantes\PerfilEstudianteController::class, 'index'])->name('estudiantes.perfiles.index');
+        // Datos adicionales de un estudiante (solo lectura): se llega desde
+        // Admin/Usuarios/Show.vue con el botón "Ver Datos Adicionales", no
+        // desde un listado propio. {estudiante} llega ya resuelto por route
+        // model binding al mismo PerfilEstudianteController que usa el
+        // wizard de autoservicio.
         Route::get('/estudiantes/perfiles/{estudiante}', [\App\Http\Controllers\Estudiantes\PerfilEstudianteController::class, 'show'])->name('estudiantes.perfiles.show');
     });
 

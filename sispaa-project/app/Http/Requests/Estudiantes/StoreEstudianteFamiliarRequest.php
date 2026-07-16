@@ -25,7 +25,6 @@ class StoreEstudianteFamiliarRequest extends FormRequest
         return [
             'parentesco' => ['required', 'string', Rule::in(EstudianteFamiliar::PARENTESCOS)],
             'nombres' => ['required', 'string', 'max:255'],
-            'cedula' => ['nullable', 'digits:10'],
             'telefono' => ['nullable', 'string', 'max:15'],
             'correo' => ['nullable', 'email', 'max:255'],
             'ocupacion' => ['nullable', 'string', 'max:150'],

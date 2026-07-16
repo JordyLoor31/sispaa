@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import AppSidebarLayout from '@/layouts/app/AppSidebarLayout.vue';
-import { type BreadcrumbItemType } from '@/types';
+import AppLayout from '@/layouts/AppLayout.vue';
+import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
-import { ArrowLeft, GraduationCap, Home, IdCard, Users } from 'lucide-vue-next';
+import { ArrowLeft, ClipboardEdit, GraduationCap, Home, IdCard, Users } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 import { PARENTESCO_LABELS, type Familiar } from './columns';
 
@@ -56,38 +56,51 @@ interface EstudianteDetalle {
 
 const props = defineProps<{
     estudiante: EstudianteDetalle;
-    breadcrumbs?: BreadcrumbItemType[];
 }>();
 
 const perfil = props.estudiante.perfilEstudiante;
 const datos = props.estudiante.datosAdicionales;
 
 const dato = (valor: string | number | null | undefined) => (valor === null || valor === undefined || valor === '' ? '—' : String(valor));
+
+const breadcrumbs: BreadcrumbItem[] = [
+    { title: 'Estudiante', href: '/dashboard' },
+    { title: 'Mi Perfil', href: '/estudiante/perfil' },
+    { title: 'Mis Datos', href: '/estudiante/perfil/datos' },
+];
 </script>
 
 <template>
-    <AppSidebarLayout :breadcrumbs="breadcrumbs">
-        <Head :title="`Perfil de ${estudiante.name}`" />
+    <Head title="Mis Datos" />
 
+    <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-6 p-6 bg-slate-50/50 dark:bg-slate-900/50">
             <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div>
                     <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-                        {{ estudiante.name }}
+                        Mis Datos
                     </h1>
                     <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                        {{ estudiante.email }} <span v-if="estudiante.cedula">· Cédula {{ estudiante.cedula }}</span>
+                        Todo lo que has registrado en tu perfil académico, de residencia, adicional y familiar.
                     </p>
                 </div>
-                <Button as-child variant="outline">
-                    <Link :href="route('admin.usuarios.show', estudiante.id)">
-                        <ArrowLeft class="h-4 w-4 mr-1.5" /> Volver al Usuario
-                    </Link>
-                </Button>
+                <div class="flex items-center gap-2">
+                    <Button as-child variant="outline">
+                        <Link :href="route('student.perfil')">
+                            <ArrowLeft class="h-4 w-4 mr-1.5" /> Volver
+                        </Link>
+                    </Button>
+                    <Button as-child class="bg-indigo-600 hover:bg-indigo-500 text-white">
+                        <Link :href="route('student.perfil.edit')">
+                            <ClipboardEdit class="h-4 w-4 mr-1.5" /> Editar Perfil
+                        </Link>
+                    </Button>
+                </div>
             </div>
 
             <div v-if="!perfil" class="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-700 dark:border-amber-900/40 dark:bg-amber-950/20 dark:text-amber-400">
-                Este estudiante todavía no ha completado su perfil.
+                Todavía no has completado tu perfil.
+                <Link :href="route('student.perfil.edit')" class="font-semibold underline">Complétalo aquí</Link>.
             </div>
 
             <template v-else>
@@ -172,5 +185,5 @@ const dato = (valor: string | number | null | undefined) => (valor === null || v
                 </div>
             </template>
         </div>
-    </AppSidebarLayout>
+    </AppLayout>
 </template>

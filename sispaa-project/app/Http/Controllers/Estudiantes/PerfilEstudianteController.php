@@ -34,16 +34,18 @@ class PerfilEstudianteController extends Controller
 
     /**
      * Hoy todos los estudiantes pertenecen a una sola facultad
-     * institucional: no se elige en el formulario, se fuerza aquí (ver
-     * migración seed_default_facultad). Si en el futuro se necesitan más
-     * facultades seleccionables, basta con quitar este forzado y volver a
-     * mostrar el combobox en el wizard.
+     * institucional: no se elige en el formulario, se fuerza aquí. No se
+     * busca por un código fijo (antes era 'CVT') porque ese código es un
+     * dato de la base y puede no coincidir exactamente con lo sembrado por
+     * la migración (ej. se insertó manualmente con otro código) — eso
+     * causaba que facultad_id se guardara como null sin ningún error
+     * visible. Al haber una sola facultad activa hoy, basta con tomar esa.
+     * Si en el futuro se necesitan más facultades seleccionables, hay que
+     * quitar este forzado y volver a mostrar el combobox en el wizard.
      */
-    private const FACULTAD_DEFAULT_CODIGO = 'CVT';
-
     private function facultadPorDefecto(): ?Facultad
     {
-        return Facultad::where('codigo', self::FACULTAD_DEFAULT_CODIGO)->first();
+        return Facultad::where('activa', true)->orderBy('id')->first();
     }
 
     private function resolverEstudiante(Request $request, ?User $estudiante): User
@@ -59,44 +61,66 @@ class PerfilEstudianteController extends Controller
     }
 
     /**
-     * Listado paginado de perfiles (reservado para cuando Secretaría/
-     * SystemAdministrador tengan acceso a este módulo; hoy no está
-     * enrutado desde ningún sidebar).
+     * Carga las relaciones que necesita cualquier pantalla de "solo lectura"
+     * del perfil (Show de Secretaría/SystemAdministrador y "Mis Datos" del
+     * propio estudiante), para no repetir el load() en cada método.
      */
-    public function index(Request $request): Response
+    private function cargarDetalle(User $estudiante): User
     {
-        $query = PerfilEstudiante::with(['user:id,name,email,cedula', 'facultad:id,nombre', 'carrera:id,nombre']);
-
-        if ($carreraId = $request->input('carrera_id')) {
-            $query->porCarrera((int) $carreraId);
-        }
-
-        if ($facultadId = $request->input('facultad_id')) {
-            $query->porFacultad((int) $facultadId);
-        }
-
-        $perfiles = $query->paginate($request->input('per_page', 15))->withQueryString();
-
-        return Inertia::render('Estudiantes/Perfil/Index', [
-            'perfiles' => $perfiles,
-            'filters' => $request->only(['carrera_id', 'facultad_id', 'per_page']),
-            'breadcrumbs' => $this->estudiantesBreadcrumbs('Perfiles de Estudiantes'),
-        ]);
+        return tap($estudiante)->load(['perfilEstudiante.facultad', 'perfilEstudiante.carrera', 'datosAdicionales', 'familiares']);
     }
 
+    /**
+     * Convierte el usuario y sus relaciones en una estructura estable para
+     * Inertia. Así evitamos depender de cómo Eloquent serializa los nombres
+     * de las relaciones anidadas.
+     */
+    private function serializarDetalle(User $estudiante): array
+    {
+        return [
+            'id' => $estudiante->id,
+            'name' => $estudiante->name,
+            'email' => $estudiante->email,
+            'cedula' => $estudiante->cedula,
+            'perfilEstudiante' => $estudiante->perfilEstudiante?->toArray(),
+            'datosAdicionales' => $estudiante->datosAdicionales?->toArray(),
+            'familiares' => $estudiante->familiares->values()->toArray(),
+        ];
+    }
+
+    /**
+     * Vista de solo lectura para Secretaría/SystemAdministrador: se llega
+     * desde el data table de Usuarios (Admin/Usuarios/Show.vue) con el
+     * botón "Ver Datos Adicionales", no desde un listado propio del módulo.
+     */
     public function show(Request $request, ?User $estudiante = null): Response
     {
         $estudiante = $this->resolverEstudiante($request, $estudiante);
-        $estudiante->load(['perfilEstudiante.facultad', 'perfilEstudiante.carrera', 'datosAdicionales', 'familiares']);
+        $this->cargarDetalle($estudiante);
 
         return Inertia::render('Estudiantes/Perfil/Show', [
-            'estudiante' => $estudiante,
-            'breadcrumbs' => $this->estudiantesBreadcrumbs(
-                'Perfiles de Estudiantes',
-                'Ver Perfil',
-                route('admin.estudiantes.perfiles.index'),
+            'estudiante' => $this->serializarDetalle($estudiante),
+            'breadcrumbs' => $this->adminBreadcrumbs(
+                'Usuarios',
+                'Datos Adicionales',
+                route('admin.usuarios.show', $estudiante->id),
                 $estudiante->name,
             ),
+        ]);
+    }
+
+    /**
+     * "Mis Datos": vista de solo lectura del propio estudiante con todo lo
+     * completado en el wizard (académico, residencia, adicionales,
+     * familiares). Siempre resuelve al usuario autenticado: no hay
+     * {estudiante} en la URL porque es autoservicio.
+     */
+    public function misDatos(Request $request): Response
+    {
+        $estudiante = $this->cargarDetalle($request->user());
+
+        return Inertia::render('Estudiantes/Perfil/MisDatos', [
+            'estudiante' => $this->serializarDetalle($estudiante),
         ]);
     }
 

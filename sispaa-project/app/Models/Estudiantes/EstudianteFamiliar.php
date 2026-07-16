@@ -17,15 +17,16 @@ class EstudianteFamiliar extends Model
 
     public const PARENTESCO_PADRE = 'padre';
     public const PARENTESCO_MADRE = 'madre';
-    public const PARENTESCO_REPRESENTANTE = 'representante';
     public const PARENTESCO_CONYUGE = 'conyuge';
     public const PARENTESCO_HIJO = 'hijo';
     public const PARENTESCO_OTRO = 'otro';
 
+    // 'representante' ya no es una opción seleccionable (se quitó del
+    // formulario); filas existentes con ese valor no se tocan, pero no
+    // vuelve a ofrecerse como opción.
     public const PARENTESCOS = [
         self::PARENTESCO_PADRE,
         self::PARENTESCO_MADRE,
-        self::PARENTESCO_REPRESENTANTE,
         self::PARENTESCO_CONYUGE,
         self::PARENTESCO_HIJO,
         self::PARENTESCO_OTRO,
@@ -35,7 +36,6 @@ class EstudianteFamiliar extends Model
         'user_id',
         'parentesco',
         'nombres',
-        'cedula',
         'telefono',
         'correo',
         'ocupacion',
@@ -54,11 +54,6 @@ class EstudianteFamiliar extends Model
     public function scopePorParentesco($query, string $parentesco)
     {
         return $query->where('parentesco', $parentesco);
-    }
-
-    public function scopeRepresentantes($query)
-    {
-        return $query->where('parentesco', self::PARENTESCO_REPRESENTANTE);
     }
 
     public function scopePorUsuario($query, int $userId)

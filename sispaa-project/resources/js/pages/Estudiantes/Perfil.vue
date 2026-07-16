@@ -2,7 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
-import { User, Mail, Shield, Phone, Bookmark, BookOpen, ClipboardEdit } from 'lucide-vue-next';
+import { User, Mail, Shield, Phone, Bookmark, BookOpen, ClipboardEdit, FileText } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 
 interface UserData {
@@ -45,11 +45,18 @@ const breadcrumbs: BreadcrumbItem[] = [
                         Visualiza y corrobora tus datos personales e institucionales registrados en el sistema.
                     </p>
                 </div>
-                <Button as-child class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold shrink-0">
-                    <Link :href="route('student.perfil.edit')">
-                        <ClipboardEdit class="h-4 w-4 mr-1.5" /> Completar / Editar Perfil
-                    </Link>
-                </Button>
+                <div class="flex items-center gap-2 shrink-0">
+                    <Button as-child variant="outline">
+                        <Link :href="route('student.perfil.show')">
+                            <FileText class="h-4 w-4 mr-1.5" /> Mis Datos
+                        </Link>
+                    </Button>
+                    <Button as-child class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold">
+                        <Link :href="route('student.perfil.edit')">
+                            <ClipboardEdit class="h-4 w-4 mr-1.5" /> Completar / Editar Perfil
+                        </Link>
+                    </Button>
+                </div>
             </div>
 
             <!-- Profile Info Cards -->

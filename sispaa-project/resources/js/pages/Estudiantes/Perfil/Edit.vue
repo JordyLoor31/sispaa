@@ -22,9 +22,15 @@ import {
     Stepper, StepperDescription, StepperItem, StepperSeparator, StepperTitle, StepperTrigger,
 } from '@/components/ui/stepper';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+    AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription,
+    AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { FlexRender, getCoreRowModel, useVueTable } from '@tanstack/vue-table';
 import { useProvinciasCiudadesEcuador } from '@/composables/provincias_ciudades_ecuador';
 import { makeFamiliarColumns, PARENTESCO_LABELS, type Familiar, type Parentesco } from './columns';
+import paisesData from '@/data/countries.json';
+import etniasData from '@/data/etnias_ecuador.json';
 
 interface Catalogo { id: number; nombre: string }
 
@@ -80,7 +86,12 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Completar Perfil', href: '/estudiante/perfil/editar' },
 ];
 
-const { provincias: PROVINCIAS_ECUADOR, ciudadesDeProvincia } = useProvinciasCiudadesEcuador();
+const { provincias: PROVINCIAS_ECUADOR, ciudadesDeProvincia, todasLasCiudades: CIUDADES_ECUADOR } = useProvinciasCiudadesEcuador();
+
+const NIVELES_ACADEMICOS = [
+    '1er Semestre', '2do Semestre', '3er Semestre', '4to Semestre', '5to Semestre',
+    '6to Semestre', '7mo Semestre', '8vo Semestre', '9no Semestre', '10mo Semestre',
+];
 
 const SEDES_ULEAM = ['Matriz Manta', 'Extensión Bahía de Caráquez', 'Extensión Chone', 'Extensión El Carmen', 'Extensión Pedernales', 'Extensión Sucre'];
 const SEDE_DEFECTO = 'Matriz Manta';
@@ -92,6 +103,16 @@ const ESTADOS_CIVILES: { value: string; label: string }[] = [
     { value: 'viudo', label: 'Viudo/a' },
     { value: 'union_libre', label: 'Unión libre' },
 ];
+
+interface Pais { code: string; nombre: string; gentilicio: string }
+interface Etnia { code: string; nombre: string }
+
+const PAISES = paisesData as Pais[];
+const capitalizar = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
+const NOMBRES_PAISES = [...PAISES].map((p) => p.nombre).sort((a, b) => a.localeCompare(b, 'es'));
+const GENTILICIOS = [...new Set(PAISES.map((p) => capitalizar(p.gentilicio)))].sort((a, b) => a.localeCompare(b, 'es'));
+const NOMBRES_ETNIAS = (etniasData as Etnia[]).map((e) => e.nombre);
 
 /* ---------------------------------------------------------------
  | Wizard: pasos 1-3 (perfil + datos adicionales) via vee-validate + zod.
@@ -110,7 +131,7 @@ const steps = [
 const STEP_FIELDS: Record<number, string[]> = {
     1: ['tipo_alumno', 'nivel', 'sede', 'carrera_id', 'anio_ingreso', 'graduado_pregrado', 'fecha_graduacion', 'colegio', 'anio_graduacion_colegio', 'provincia_colegio', 'universidad_procedencia', 'provincia_universidad'],
     2: ['residente', 'direccion', 'provincia_residencia', 'canton_residencia', 'telefono_casa'],
-    3: ['religion', 'estado_civil', 'cantidad_hijos', 'etnia', 'tipo_beca', 'nacionalidad', 'pais_nacimiento', 'provincia_nacimiento', 'canton_nacimiento', 'empresa', 'direccion_empresa', 'telefono_empresa', 'cargo', 'ciudad_laboral'],
+    3: ['religion', 'estado_civil', 'cantidad_hijos', 'etnia', 'tipo_beca', 'nacionalidad', 'pais_nacimiento', 'provincia_nacimiento', 'canton_nacimiento', 'trabaja_actualmente', 'empresa', 'direccion_empresa', 'telefono_empresa', 'cargo', 'ciudad_laboral'],
     4: [],
 };
 
@@ -148,11 +169,33 @@ const formSchema = toTypedSchema(
         pais_nacimiento: z.string().optional().nullable(),
         provincia_nacimiento: z.string().optional().nullable(),
         canton_nacimiento: z.string().optional().nullable(),
+        trabaja_actualmente: z.boolean(),
         empresa: z.string().optional().nullable(),
         direccion_empresa: z.string().optional().nullable(),
         telefono_empresa: z.string().optional().nullable(),
         cargo: z.string().optional().nullable(),
         ciudad_laboral: z.string().optional().nullable(),
+    }).superRefine((data, ctx) => {
+        // El switch "¿Trabajas actualmente?" hace obligatorios estos 5
+        // campos solo cuando está activado; si no, quedan libres.
+        if (data.trabaja_actualmente) {
+            const camposLaborales: { key: 'empresa' | 'cargo' | 'direccion_empresa' | 'telefono_empresa' | 'ciudad_laboral' }[] = [
+                { key: 'empresa' }, { key: 'cargo' }, { key: 'direccion_empresa' }, { key: 'telefono_empresa' }, { key: 'ciudad_laboral' },
+            ];
+            for (const campo of camposLaborales) {
+                if (!data[campo.key]) {
+                    ctx.addIssue({ code: z.ZodIssueCode.custom, path: [campo.key], message: 'Requerido.' });
+                }
+            }
+        }
+
+        // Espejo del required_if:graduado_pregrado,1 del servidor: si no se
+        // valida también aquí, el estudiante puede pasar los 4 pasos sin
+        // darse cuenta de que falta la fecha, y el guardado se rechaza recién
+        // en el servidor sin que el wizard lo señale en el paso correcto.
+        if (data.graduado_pregrado && !data.fecha_graduacion) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['fecha_graduacion'], message: 'Requerido.' });
+        }
     }),
 );
 
@@ -187,6 +230,9 @@ const { handleSubmit, setErrors, defineField, validateField } = useForm({
         pais_nacimiento: props.datosAdicionales?.pais_nacimiento ?? '',
         provincia_nacimiento: props.datosAdicionales?.provincia_nacimiento ?? '',
         canton_nacimiento: props.datosAdicionales?.canton_nacimiento ?? '',
+        // Siempre arranca en "off": aunque ya haya datos laborales guardados,
+        // el estudiante debe activar el switch explícitamente para verlos/editarlos.
+        trabaja_actualmente: false,
         empresa: props.datosAdicionales?.empresa ?? '',
         direccion_empresa: props.datosAdicionales?.direccion_empresa ?? '',
         telefono_empresa: props.datosAdicionales?.telefono_empresa ?? '',
@@ -223,6 +269,7 @@ const [nacionalidad] = defineField('nacionalidad');
 const [paisNacimiento] = defineField('pais_nacimiento');
 const [provinciaNacimiento] = defineField('provincia_nacimiento');
 const [cantonNacimiento] = defineField('canton_nacimiento');
+const [trabajaActualmente] = defineField('trabaja_actualmente');
 const [empresa] = defineField('empresa');
 const [direccionEmpresa] = defineField('direccion_empresa');
 const [telefonoEmpresa] = defineField('telefono_empresa');
@@ -243,12 +290,17 @@ function comboProxy(fieldRef: { value: string | null | undefined }) {
 }
 
 const selectedSede = comboProxy(sede);
+const selectedNivel = comboProxy(nivel);
+const selectedCiudadLaboral = comboProxy(ciudadLaboral);
 const selectedProvinciaColegio = comboProxy(provinciaColegio);
 const selectedProvinciaUniversidad = comboProxy(provinciaUniversidad);
 const selectedProvinciaResidencia = comboProxy(provinciaResidencia);
 const selectedCantonResidencia = comboProxy(cantonResidencia);
 const selectedProvinciaNacimiento = comboProxy(provinciaNacimiento);
 const selectedCantonNacimiento = comboProxy(cantonNacimiento);
+const selectedPaisNacimiento = comboProxy(paisNacimiento);
+const selectedNacionalidad = comboProxy(nacionalidad);
+const selectedEtnia = comboProxy(etnia);
 
 // Estado civil: value !== label, se maneja aparte con su propia lista.
 const selectedEstadoCivil = ref<{ value: string; label: string } | null>(
@@ -295,27 +347,102 @@ async function irAlPaso(destino: number) {
 const siguiente = () => irAlPaso(currentStep.value + 1);
 const anterior = () => { currentStep.value = Math.max(1, currentStep.value - 1); };
 
-const onSubmit = handleSubmit((formValues) => {
-    processing.value = true;
+// Paso 4 (familiares) no vive en el schema de vee-validate porque se
+// persiste aparte; se exige al menos un familiar completo antes de poder
+// finalizar (también se valida en el servidor como defensa adicional).
+const tieneFamiliares = computed(() => (props.familiares?.length ?? 0) > 0);
 
-    const payload = {
-        ...formValues,
-        carrera_id: formValues.carrera_id ? Number(formValues.carrera_id) : null,
-        anio_ingreso: formValues.anio_ingreso ? Number(formValues.anio_ingreso) : null,
-        anio_graduacion_colegio: formValues.anio_graduacion_colegio ? Number(formValues.anio_graduacion_colegio) : null,
-        cantidad_hijos: formValues.cantidad_hijos ? Number(formValues.cantidad_hijos) : 0,
-        fecha_graduacion: formValues.fecha_graduacion || null,
-    };
+// Alert-dialog con el detalle de qué falta llenar: antes esto solo saltaba
+// de paso en silencio y el estudiante no entendía por qué no se guardaba.
+const mostrarAlertaFaltantes = ref(false);
+const camposFaltantes = ref<string[]>([]);
 
-    router.put(route('student.perfil.update'), payload, {
-        preserveScroll: true,
-        onError: (serverErrors: Record<string, string>) => {
-            setErrors(serverErrors);
-            processing.value = false;
-        },
-        onFinish: () => { processing.value = false; },
-    });
-});
+const ETIQUETAS_CAMPOS: Record<string, string> = {
+    tipo_alumno: 'Tipo de Alumno',
+    nivel: 'Nivel',
+    sede: 'Sede',
+    carrera_id: 'Carrera',
+    anio_ingreso: 'Año de Ingreso',
+    fecha_graduacion: 'Fecha de Graduación',
+    empresa: 'Empresa donde Laboras',
+    cargo: 'Cargo',
+    direccion_empresa: 'Dirección de la Empresa',
+    telefono_empresa: 'Teléfono de la Empresa',
+    ciudad_laboral: 'Ciudad donde Laboras',
+};
+
+function abrirAlertaFaltantes(campos: string[]) {
+    camposFaltantes.value = campos;
+    mostrarAlertaFaltantes.value = true;
+}
+
+// Salta al primer paso (1-3) que tenga un campo dentro de las claves dadas,
+// para que el estudiante caiga justo donde está el dato que falta.
+function irAlPrimerPasoConError(claves: string[]) {
+    const primerPasoConError = ([1, 2, 3] as const).find((paso) =>
+        STEP_FIELDS[paso].some((campo) => claves.includes(campo)),
+    );
+    if (primerPasoConError) {
+        currentStep.value = primerPasoConError;
+        highestStepVisited.value = Math.max(highestStepVisited.value, primerPasoConError);
+    } else if (claves.includes('familiares')) {
+        currentStep.value = 4;
+        highestStepVisited.value = Math.max(highestStepVisited.value, 4);
+    }
+}
+
+const onSubmit = handleSubmit(
+    (formValues) => {
+        if (!tieneFamiliares.value) {
+            abrirAlertaFaltantes(['Al menos un familiar con sus datos completos (paso 4: Familiares)']);
+            irAlPrimerPasoConError(['familiares']);
+            return;
+        }
+
+        processing.value = true;
+
+        const payload = {
+            ...formValues,
+            carrera_id: formValues.carrera_id ? Number(formValues.carrera_id) : null,
+            anio_ingreso: formValues.anio_ingreso ? Number(formValues.anio_ingreso) : null,
+            anio_graduacion_colegio: formValues.anio_graduacion_colegio ? Number(formValues.anio_graduacion_colegio) : null,
+            cantidad_hijos: formValues.cantidad_hijos ? Number(formValues.cantidad_hijos) : 0,
+            fecha_graduacion: formValues.fecha_graduacion || null,
+        };
+
+        // eslint-disable-next-line no-console
+        console.log('[Perfil] Enviando al servidor:', payload);
+
+        router.put(route('student.perfil.update'), payload, {
+            preserveScroll: true,
+            onError: (serverErrors: Record<string, string>) => {
+                const claves = Object.keys(serverErrors);
+                if (claves.length > 0) {
+                    // eslint-disable-next-line no-console
+                    console.warn('[Perfil] El servidor rechazó el guardado, datos faltantes/ inválidos:', serverErrors);
+                    abrirAlertaFaltantes(
+                        serverErrors.familiares
+                            ? [serverErrors.familiares]
+                            : claves.map((campo) => ETIQUETAS_CAMPOS[campo] ?? campo),
+                    );
+                    irAlPrimerPasoConError(claves);
+                }
+                setErrors(serverErrors);
+                processing.value = false;
+            },
+            onFinish: () => { processing.value = false; },
+        });
+    },
+    ({ errors }) => {
+        // Envío inválido: en vez de saltar de paso en silencio, se explica
+        // exactamente qué falta antes de mover al estudiante al paso correcto.
+        const claves = Object.keys(errors);
+        // eslint-disable-next-line no-console
+        console.warn('[Perfil] Validación del formulario falló antes de enviar, campos faltantes/inválidos:', errors);
+        abrirAlertaFaltantes(claves.map((campo) => ETIQUETAS_CAMPOS[campo] ?? campo));
+        irAlPrimerPasoConError(claves);
+    },
+);
 
 /* ---------------------------------------------------------------
  | Paso 4: Familiares — CRUD inline, persistencia inmediata por fila,
@@ -328,7 +455,6 @@ const editandoFamiliarId = ref<number | null>(null);
 const familiarForm = useInertiaForm({
     parentesco: 'padre' as Parentesco,
     nombres: '',
-    cedula: '',
     telefono: '',
     correo: '',
     ocupacion: '',
@@ -349,7 +475,6 @@ function editarFamiliar(familiar: Familiar) {
     editandoFamiliarId.value = familiar.id;
     familiarForm.parentesco = familiar.parentesco;
     familiarForm.nombres = familiar.nombres;
-    familiarForm.cedula = familiar.cedula ?? '';
     familiarForm.telefono = familiar.telefono ?? '';
     familiarForm.correo = familiar.correo ?? '';
     familiarForm.ocupacion = familiar.ocupacion ?? '';
@@ -441,6 +566,10 @@ const comboboxListClass = 'w-[var(--reka-combobox-trigger-width)] min-w-[220px] 
                     </StepperItem>
                 </Stepper>
 
+                <p class="mb-5 text-xs text-slate-400">
+                    Los campos marcados con <span class="font-bold text-rose-500">*</span> son obligatorios.
+                </p>
+
                 <form @submit="onSubmit">
                     <!-- Paso 1: Académico -->
                     <div v-show="currentStep === 1" class="space-y-5">
@@ -462,11 +591,31 @@ const comboboxListClass = 'w-[var(--reka-combobox-trigger-width)] min-w-[220px] 
                                     <FormMessage />
                                 </FormItem>
                             </FormField>
-                            <FormField name="nivel">
+                            <FormField v-slot="{ errorMessage }" name="nivel">
                                 <FormItem>
                                     <FormLabel>Nivel *</FormLabel>
-                                    <FormControl><input v-model="nivel" type="text" :class="inputClass" placeholder="Ej: Pregrado" /></FormControl>
-                                    <FormMessage />
+                                    <Combobox v-model="selectedNivel" by="value">
+                                        <ComboboxAnchor as-child>
+                                            <ComboboxTrigger as-child>
+                                                <FormControl>
+                                                    <Button type="button" variant="outline" :class="comboboxTriggerClass">
+                                                        {{ selectedNivel ? selectedNivel.label : 'Selecciona un nivel' }}
+                                                        <ChevronsUpDown class="h-4 w-4 opacity-50" />
+                                                    </Button>
+                                                </FormControl>
+                                            </ComboboxTrigger>
+                                        </ComboboxAnchor>
+                                        <ComboboxList :class="comboboxListClass">
+                                            <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron niveles.</ComboboxEmpty>
+                                            <ComboboxGroup class="p-1">
+                                                <ComboboxItem v-for="n in NIVELES_ACADEMICOS" :key="n" :value="{ value: n, label: n }" class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800">
+                                                    {{ n }}
+                                                    <ComboboxItemIndicator><Check class="h-4 w-4 text-indigo-650" /></ComboboxItemIndicator>
+                                                </ComboboxItem>
+                                            </ComboboxGroup>
+                                        </ComboboxList>
+                                    </Combobox>
+                                    <FormMessage v-if="errorMessage" />
                                 </FormItem>
                             </FormField>
 
@@ -772,11 +921,31 @@ const comboboxListClass = 'w-[var(--reka-combobox-trigger-width)] min-w-[220px] 
                                     <FormMessage />
                                 </FormItem>
                             </FormField>
-                            <FormField name="etnia">
+                            <FormField v-slot="{ errorMessage }" name="etnia">
                                 <FormItem>
                                     <FormLabel>Etnia</FormLabel>
-                                    <FormControl><input v-model="etnia" type="text" :class="inputClass" /></FormControl>
-                                    <FormMessage />
+                                    <Combobox v-model="selectedEtnia" by="value">
+                                        <ComboboxAnchor as-child>
+                                            <ComboboxTrigger as-child>
+                                                <FormControl>
+                                                    <Button type="button" variant="outline" :class="comboboxTriggerClass">
+                                                        {{ selectedEtnia ? selectedEtnia.label : 'Sin especificar' }}
+                                                        <ChevronsUpDown class="h-4 w-4 opacity-50" />
+                                                    </Button>
+                                                </FormControl>
+                                            </ComboboxTrigger>
+                                        </ComboboxAnchor>
+                                        <ComboboxList :class="comboboxListClass">
+                                            <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron etnias.</ComboboxEmpty>
+                                            <ComboboxGroup class="p-1">
+                                                <ComboboxItem v-for="e in NOMBRES_ETNIAS" :key="e" :value="{ value: e, label: e }" class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800">
+                                                    {{ e }}
+                                                    <ComboboxItemIndicator><Check class="h-4 w-4 text-indigo-650" /></ComboboxItemIndicator>
+                                                </ComboboxItem>
+                                            </ComboboxGroup>
+                                        </ComboboxList>
+                                    </Combobox>
+                                    <FormMessage v-if="errorMessage" />
                                 </FormItem>
                             </FormField>
                             <FormField name="tipo_beca">
@@ -786,18 +955,60 @@ const comboboxListClass = 'w-[var(--reka-combobox-trigger-width)] min-w-[220px] 
                                     <FormMessage />
                                 </FormItem>
                             </FormField>
-                            <FormField name="nacionalidad">
+                            <FormField v-slot="{ errorMessage }" name="nacionalidad">
                                 <FormItem>
                                     <FormLabel>Nacionalidad</FormLabel>
-                                    <FormControl><input v-model="nacionalidad" type="text" :class="inputClass" placeholder="Ecuatoriana" /></FormControl>
-                                    <FormMessage />
+                                    <Combobox v-model="selectedNacionalidad" by="value">
+                                        <ComboboxAnchor as-child>
+                                            <ComboboxTrigger as-child>
+                                                <FormControl>
+                                                    <Button type="button" variant="outline" :class="comboboxTriggerClass">
+                                                        {{ selectedNacionalidad ? selectedNacionalidad.label : 'Sin especificar' }}
+                                                        <ChevronsUpDown class="h-4 w-4 opacity-50" />
+                                                    </Button>
+                                                </FormControl>
+                                            </ComboboxTrigger>
+                                        </ComboboxAnchor>
+                                        <ComboboxList :class="comboboxListClass">
+                                            <ComboboxInput placeholder="Buscar nacionalidad..." class="w-full border-0 border-b border-slate-105 bg-transparent px-3 py-2.5 text-sm focus:ring-0 dark:border-slate-850" />
+                                            <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron nacionalidades.</ComboboxEmpty>
+                                            <ComboboxGroup class="max-h-60 overflow-y-auto p-1">
+                                                <ComboboxItem v-for="g in GENTILICIOS" :key="g" :value="{ value: g, label: g }" class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800">
+                                                    {{ g }}
+                                                    <ComboboxItemIndicator><Check class="h-4 w-4 text-indigo-650" /></ComboboxItemIndicator>
+                                                </ComboboxItem>
+                                            </ComboboxGroup>
+                                        </ComboboxList>
+                                    </Combobox>
+                                    <FormMessage v-if="errorMessage" />
                                 </FormItem>
                             </FormField>
-                            <FormField name="pais_nacimiento">
+                            <FormField v-slot="{ errorMessage }" name="pais_nacimiento">
                                 <FormItem>
                                     <FormLabel>País de Nacimiento</FormLabel>
-                                    <FormControl><input v-model="paisNacimiento" type="text" :class="inputClass" placeholder="Ecuador" /></FormControl>
-                                    <FormMessage />
+                                    <Combobox v-model="selectedPaisNacimiento" by="value">
+                                        <ComboboxAnchor as-child>
+                                            <ComboboxTrigger as-child>
+                                                <FormControl>
+                                                    <Button type="button" variant="outline" :class="comboboxTriggerClass">
+                                                        {{ selectedPaisNacimiento ? selectedPaisNacimiento.label : 'Sin especificar' }}
+                                                        <ChevronsUpDown class="h-4 w-4 opacity-50" />
+                                                    </Button>
+                                                </FormControl>
+                                            </ComboboxTrigger>
+                                        </ComboboxAnchor>
+                                        <ComboboxList :class="comboboxListClass">
+                                            <ComboboxInput placeholder="Buscar país..." class="w-full border-0 border-b border-slate-105 bg-transparent px-3 py-2.5 text-sm focus:ring-0 dark:border-slate-850" />
+                                            <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron países.</ComboboxEmpty>
+                                            <ComboboxGroup class="max-h-60 overflow-y-auto p-1">
+                                                <ComboboxItem v-for="p in NOMBRES_PAISES" :key="p" :value="{ value: p, label: p }" class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800">
+                                                    {{ p }}
+                                                    <ComboboxItemIndicator><Check class="h-4 w-4 text-indigo-650" /></ComboboxItemIndicator>
+                                                </ComboboxItem>
+                                            </ComboboxGroup>
+                                        </ComboboxList>
+                                    </Combobox>
+                                    <FormMessage v-if="errorMessage" />
                                 </FormItem>
                             </FormField>
 
@@ -861,40 +1072,68 @@ const comboboxListClass = 'w-[var(--reka-combobox-trigger-width)] min-w-[220px] 
                         </div>
 
                         <h3 class="text-sm font-bold text-slate-900 dark:text-white pt-2 border-t border-slate-100 dark:border-slate-850">Datos Laborales</h3>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="flex items-center gap-3 rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 dark:border-slate-850 dark:bg-slate-900">
+                            <Switch v-model="trabajaActualmente" />
+                            <div>
+                                <p class="text-sm font-semibold text-slate-800 dark:text-slate-200">¿Trabajas actualmente?</p>
+                                <p class="text-xs text-slate-400">Actívalo para registrar dónde laboras; al hacerlo, esos datos pasan a ser obligatorios.</p>
+                            </div>
+                        </div>
+                        <div v-if="trabajaActualmente" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <FormField name="empresa">
                                 <FormItem>
-                                    <FormLabel>Empresa donde Laboras</FormLabel>
+                                    <FormLabel>Empresa donde Laboras *</FormLabel>
                                     <FormControl><input v-model="empresa" type="text" :class="inputClass" /></FormControl>
                                     <FormMessage />
                                 </FormItem>
                             </FormField>
                             <FormField name="cargo">
                                 <FormItem>
-                                    <FormLabel>Cargo</FormLabel>
+                                    <FormLabel>Cargo *</FormLabel>
                                     <FormControl><input v-model="cargo" type="text" :class="inputClass" /></FormControl>
                                     <FormMessage />
                                 </FormItem>
                             </FormField>
                             <FormField name="direccion_empresa">
                                 <FormItem>
-                                    <FormLabel>Dirección de la Empresa</FormLabel>
+                                    <FormLabel>Dirección de la Empresa *</FormLabel>
                                     <FormControl><input v-model="direccionEmpresa" type="text" :class="inputClass" /></FormControl>
                                     <FormMessage />
                                 </FormItem>
                             </FormField>
                             <FormField name="telefono_empresa">
                                 <FormItem>
-                                    <FormLabel>Teléfono de la Empresa</FormLabel>
+                                    <FormLabel>Teléfono de la Empresa *</FormLabel>
                                     <FormControl><input v-model="telefonoEmpresa" type="text" :class="inputClass" /></FormControl>
                                     <FormMessage />
                                 </FormItem>
                             </FormField>
-                            <FormField name="ciudad_laboral">
+                            <FormField v-slot="{ errorMessage }" name="ciudad_laboral">
                                 <FormItem>
-                                    <FormLabel>Ciudad donde Laboras</FormLabel>
-                                    <FormControl><input v-model="ciudadLaboral" type="text" :class="inputClass" /></FormControl>
-                                    <FormMessage />
+                                    <FormLabel>Ciudad donde Laboras *</FormLabel>
+                                    <Combobox v-model="selectedCiudadLaboral" by="value">
+                                        <ComboboxAnchor as-child>
+                                            <ComboboxTrigger as-child>
+                                                <FormControl>
+                                                    <Button type="button" variant="outline" :class="comboboxTriggerClass">
+                                                        {{ selectedCiudadLaboral ? selectedCiudadLaboral.label : 'Sin especificar' }}
+                                                        <ChevronsUpDown class="h-4 w-4 opacity-50" />
+                                                    </Button>
+                                                </FormControl>
+                                            </ComboboxTrigger>
+                                        </ComboboxAnchor>
+                                        <ComboboxList :class="comboboxListClass">
+                                            <ComboboxInput placeholder="Buscar ciudad..." class="w-full border-0 border-b border-slate-105 bg-transparent px-3 py-2.5 text-sm focus:ring-0 dark:border-slate-850" />
+                                            <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron ciudades.</ComboboxEmpty>
+                                            <ComboboxGroup class="max-h-60 overflow-y-auto p-1">
+                                                <ComboboxItem v-for="c in CIUDADES_ECUADOR" :key="c" :value="{ value: c, label: c }" class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800">
+                                                    {{ c }}
+                                                    <ComboboxItemIndicator><Check class="h-4 w-4 text-indigo-650" /></ComboboxItemIndicator>
+                                                </ComboboxItem>
+                                            </ComboboxGroup>
+                                        </ComboboxList>
+                                    </Combobox>
+                                    <FormMessage v-if="errorMessage" />
                                 </FormItem>
                             </FormField>
                         </div>
@@ -914,6 +1153,13 @@ const comboboxListClass = 'w-[var(--reka-combobox-trigger-width)] min-w-[220px] 
                 <!-- Paso 4: Familiares (fuera del <form> del wizard: persiste aparte) -->
                 <div v-show="currentStep === 4" class="space-y-5">
                     <h3 class="text-sm font-bold text-slate-900 dark:text-white">Familiares y Representantes</h3>
+                    <p class="text-xs text-slate-400">
+                        Debes registrar al menos <span class="font-bold text-rose-500">*</span> un familiar con sus datos completos para poder finalizar.
+                    </p>
+
+                    <div v-if="!tieneFamiliares" class="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700 dark:border-amber-900/40 dark:bg-amber-950/20 dark:text-amber-400">
+                        Aún no has agregado ningún familiar. Agrega al menos uno con el formulario de abajo antes de finalizar tu perfil.
+                    </div>
 
                     <div class="rounded-xl border border-slate-100 dark:border-slate-850 overflow-hidden">
                         <Table>
@@ -985,11 +1231,6 @@ const comboboxListClass = 'w-[var(--reka-combobox-trigger-width)] min-w-[220px] 
                                 <p v-if="familiarForm.errors.nombres" class="mt-1 text-xs text-rose-500">{{ familiarForm.errors.nombres }}</p>
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Cédula</label>
-                                <input v-model="familiarForm.cedula" type="text" maxlength="10" class="flex h-9 w-full rounded-md border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm focus:ring-1 focus:ring-indigo-500 dark:border-slate-850 dark:bg-slate-950" />
-                                <p v-if="familiarForm.errors.cedula" class="mt-1 text-xs text-rose-500">{{ familiarForm.errors.cedula }}</p>
-                            </div>
-                            <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Teléfono</label>
                                 <input v-model="familiarForm.telefono" type="text" class="flex h-9 w-full rounded-md border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm focus:ring-1 focus:ring-indigo-500 dark:border-slate-850 dark:bg-slate-950" />
                             </div>
@@ -1021,7 +1262,12 @@ const comboboxListClass = 'w-[var(--reka-combobox-trigger-width)] min-w-[220px] 
                         <Button type="button" variant="outline" @click="anterior">
                             <ArrowLeft class="mr-1.5 h-4 w-4" /> Atrás
                         </Button>
-                        <Button type="button" :disabled="processing" class="bg-emerald-600 hover:bg-emerald-500 text-white" @click="onSubmit">
+                        <Button
+                            type="button"
+                            :disabled="processing"
+                            class="bg-emerald-600 hover:bg-emerald-500 text-white disabled:opacity-50"
+                            @click="onSubmit"
+                        >
                             <Save class="mr-1.5 h-4 w-4" /> Finalizar y Guardar Perfil
                         </Button>
                     </div>
@@ -1034,5 +1280,22 @@ const comboboxListClass = 'w-[var(--reka-combobox-trigger-width)] min-w-[220px] 
                 </Link>
             </div>
         </div>
+
+        <AlertDialog v-model:open="mostrarAlertaFaltantes">
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Faltan datos por completar</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        Antes de guardar tu perfil, completa lo siguiente:
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <ul class="list-disc space-y-1 pl-5 text-sm text-slate-600 dark:text-slate-300">
+                    <li v-for="campo in camposFaltantes" :key="campo">{{ campo }}</li>
+                </ul>
+                <AlertDialogFooter>
+                    <AlertDialogAction @click="mostrarAlertaFaltantes = false">Entendido</AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
     </AppLayout>
 </template>

@@ -1,0 +1,12 @@
+[
+  { "code": "mestizo", "nombre": "Mestizo/a" },
+  { "code": "indigena", "nombre": "Indígena" },
+  { "code": "afroecuatoriano", "nombre": "Afroecuatoriano/a" },
+  { "code": "montubio", "nombre": "Montubio/a" },
+  { "code": "blanco", "nombre": "Blanco/a" },
+  { "code": "mulato", "nombre": "Mulato/a" },
+  { "code": "negro", "nombre": "Negro/a" },
+  { "code": "otro", "nombre": "Otro" },
+  { "code": "extranjero", "nombre": "Extranjero/a" },
+  { "code": "prefiero_no_decir", "nombre": "Prefiero no decir" }
+]
