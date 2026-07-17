@@ -39,7 +39,7 @@ export const dashboardNavItem: NavItem = {
  */
 export const revisionDocumentosNavItems: NavItem[] = [
     { title: 'Sílabos', href: route('secretaria.silabos.index') },
-    { title: 'Informes de Asignatura', href: route('docencia.informes-asignaturas') },
+    { title: 'Informes de Asignatura', href: route('secretaria.informes.index') },
     { title: 'Justificaciones', href: route('secretaria.justificaciones.index') },
     { title: 'Expediente / Documentos del Estudiante', href: route('secretaria.expediente.index') },
 ];

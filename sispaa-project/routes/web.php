@@ -72,11 +72,10 @@ Route::middleware(['auth', 'verified', 'role:coordinador|secretaria|docente|Syst
     });
 
 
-// DOCENCIA (vista de gestión/supervisión: todos los informes de todos los docentes)
-Route::middleware(['auth', 'verified', 'role:secretaria|SystemAdministrador'])->prefix('docencia')->group(function () {
-    Route::get('informes-asignatura', [\App\Http\Controllers\Admin\AdminPortalController::class, 'informesAsignatura'])
-        ->name('docencia.informes-asignaturas');
-});
+// Nota: la vista de gestión/supervisión de Informes de Asignatura (todos los
+// docentes) vivía aquí como docencia.informes-asignaturas. Se reemplazó por
+// secretaria.informes.* (InformeRevisionController), que sigue el mismo
+// patrón Index+Show con revisión que Sílabos/Justificaciones.
 
 // DOCENCIA - Autoservicio del Docente (Mis Sílabos / Mis Informes)
 Route::middleware(['auth', 'verified', 'role:docente|SystemAdministrador'])
@@ -397,6 +396,16 @@ Route::middleware(['auth', 'verified', 'role:secretaria|SystemAdministrador'])
             ->name('silabos.show');
         Route::patch('/silabos/{silabo}/review', [\App\Http\Controllers\Secretaria\SilaboRevisionController::class, 'review'])
             ->name('silabos.review');
+
+        // Revisión de Informes de Asignatura (mismo patrón que Sílabos)
+        Route::get('/informes', [\App\Http\Controllers\Secretaria\InformeRevisionController::class, 'index'])
+            ->name('informes.index');
+        Route::get('/informes/{informe}', [\App\Http\Controllers\Secretaria\InformeRevisionController::class, 'show'])
+            ->name('informes.show');
+        Route::patch('/informes/{informe}/review', [\App\Http\Controllers\Secretaria\InformeRevisionController::class, 'review'])
+            ->name('informes.review');
+        Route::get('/informes/{informe}/ver', [\App\Http\Controllers\Secretaria\InformeRevisionController::class, 'ver'])
+            ->name('informes.ver');
 
         // Asignación de Docentes (vincula docente + materia + período + grupo;
         // alimenta Mis Sílabos/Mis Informes/Mis Estudiantes/Titulación del docente)

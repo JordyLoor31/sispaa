@@ -18,6 +18,7 @@ interface InformeItem {
     archivo_url: string | null;
     ver_url: string | null;
     fecha_subida: string | null;
+    subido_por: string | null;
 }
 
 const props = defineProps<{
@@ -128,6 +129,9 @@ const estadoBadge = (estado: string) => {
                         <h3 class="text-sm font-bold text-slate-900 dark:text-white">{{ item.materia }}</h3>
                         <p class="text-xs text-slate-500 mt-0.5">{{ item.carrera }} — {{ item.periodo }}<span v-if="item.grupo"> · Grupo {{ item.grupo }}</span></p>
                         <p class="text-xs text-slate-400 mt-1">{{ item.fecha_subida ? 'Subido: ' + item.fecha_subida : 'Aún no subido' }}</p>
+                        <p v-if="item.subido_por" class="text-xs text-indigo-500 dark:text-indigo-400 mt-1">
+                            Subido por: {{ item.subido_por }} (otro paralelo)
+                        </p>
                     </div>
                     <div class="flex items-center gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
                         <a v-if="item.ver_url" :href="item.ver_url" target="_blank"

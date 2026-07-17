@@ -19,6 +19,7 @@ interface SilaboItem {
     ver_url: string | null;
     observaciones: string | null;
     fecha_subida: string | null;
+    subido_por: string | null;
 }
 
 const props = defineProps<{
@@ -129,6 +130,9 @@ const estadoBadge = (estado: string) => {
                         <h3 class="text-sm font-bold text-slate-900 dark:text-white">{{ item.materia }}</h3>
                         <p class="text-xs text-slate-500 mt-0.5">{{ item.carrera }} — {{ item.periodo }}<span v-if="item.grupo"> · Grupo {{ item.grupo }}</span></p>
                         <p class="text-xs text-slate-400 mt-1">{{ item.fecha_subida ? 'Subido: ' + item.fecha_subida : 'Aún no subido' }}</p>
+                        <p v-if="item.subido_por" class="text-xs text-indigo-500 dark:text-indigo-400 mt-1">
+                            Subido por: {{ item.subido_por }} (otro paralelo)
+                        </p>
                         <div v-if="item.estado !== 'aprobado' && item.observaciones" class="mt-2 text-xs border-l-2 border-rose-500 pl-2 text-rose-600 dark:text-rose-400 font-medium">
                             Observación: {{ item.observaciones }}
                         </div>

@@ -20,6 +20,10 @@ class SilaboController extends Controller
     /**
      * Mis Sílabos: materias asignadas al docente en el período activo,
      * junto con el estado de su sílabo (si ya lo subió o no).
+     *
+     * El sílabo se comparte por materia+período: si otro docente que
+     * dicta la misma materia (en otro paralelo) ya lo subió, se muestra
+     * aquí también, aunque este docente no lo haya subido él mismo.
      */
     public function index(): Response
     {
@@ -30,12 +34,22 @@ class SilaboController extends Controller
             ->whereHas('periodo', fn ($q) => $q->where('estado', 'activo'))
             ->get();
 
-        $silabos = Silabo::where('docente_id', $docenteId)
-            ->whereIn('materia_id', $asignaciones->pluck('materia_id'))
+        $pares = $asignaciones
+            ->map(fn ($a) => [$a->materia_id, $a->periodo_id])
+            ->unique(fn ($p) => $p[0] . '-' . $p[1]);
+
+        $silabos = Silabo::with('docente:id,name')
+            ->where(function ($query) use ($pares) {
+                foreach ($pares as $par) {
+                    $query->orWhere(function ($q) use ($par) {
+                        $q->where('materia_id', $par[0])->where('periodo_id', $par[1]);
+                    });
+                }
+            })
             ->get()
             ->keyBy(fn ($s) => $s->materia_id . '-' . $s->periodo_id);
 
-        $items = $asignaciones->map(function ($asig) use ($silabos) {
+        $items = $asignaciones->map(function ($asig) use ($silabos, $docenteId) {
             $silabo = $silabos->get($asig->materia_id . '-' . $asig->periodo_id);
 
             return [
@@ -53,6 +67,9 @@ class SilaboController extends Controller
                 'ver_url' => $silabo ? route('docencia.mis-silabos.ver', $silabo->id) : null,
                 'observaciones' => $silabo->observaciones ?? null,
                 'fecha_subida' => $silabo?->fecha_subida?->diffForHumans(),
+                // Nombre del docente que efectivamente subió el archivo,
+                // solo cuando fue otro (mismo materia+período, otro paralelo).
+                'subido_por' => ($silabo && $silabo->docente_id !== $docenteId) ? $silabo->docente?->name : null,
             ];
         })->values();
 
@@ -86,13 +103,17 @@ class SilaboController extends Controller
 
         $path = $request->file('archivo')->store('silabos', 'public');
 
+        // La clave es materia+período (sin docente_id): si otro docente del
+        // mismo paralelo/materia ya tenía una fila, se actualiza esa misma
+        // fila en vez de crear una nueva. docente_id queda registrado como
+        // "quién subió la versión vigente".
         Silabo::updateOrCreate(
             [
-                'docente_id' => $docenteId,
                 'materia_id' => $request->materia_id,
                 'periodo_id' => $request->periodo_id,
             ],
             [
+                'docente_id' => $docenteId,
                 'estado' => 'subido',
                 'archivo_url' => '/storage/' . $path,
                 'fecha_subida' => now(),
@@ -113,13 +134,19 @@ class SilaboController extends Controller
      * navegador recibe un 403 al abrir /storage/silabos/archivo.pdf aunque
      * el archivo exista y el usuario sea el dueño. Sirviéndolo desde aquí,
      * PHP lee el archivo directo del disco (sin pasar por ese symlink) y
-     * además permite controlar el acceso: solo el docente dueño del
-     * sílabo o SystemAdministrador pueden abrirlo.
+     * además permite controlar el acceso: solo un docente asignado a la
+     * misma materia+período (cualquier paralelo) o SystemAdministrador
+     * pueden abrirlo.
      */
     public function ver(Silabo $silabo)
     {
+        $tieneAcceso = AsignacionDocente::where('docente_id', Auth::id())
+            ->where('materia_id', $silabo->materia_id)
+            ->where('periodo_id', $silabo->periodo_id)
+            ->exists();
+
         abort_unless(
-            $silabo->docente_id === Auth::id() || Auth::user()->hasRole('SystemAdministrador'),
+            $tieneAcceso || Auth::user()->hasRole('SystemAdministrador'),
             403,
             'No tienes permiso para ver este documento.'
         );

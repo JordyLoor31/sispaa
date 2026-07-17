@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Secretaria;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Traits\HasBreadcrumbs;
 use App\Models\Admin\Notificacion;
+use App\Models\Docencia\AsignacionDocente;
 use App\Models\Docencia\Silabo;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -115,16 +116,26 @@ class SilaboRevisionController extends Controller
 
         $silabo->load('materia');
 
-        Notificacion::create([
-            'user_id' => $silabo->docente_id,
-            'titulo' => $nuevoEstado === 'aprobado'
-                ? "Sílabo aprobado: {$silabo->materia->nombre}"
-                : "Sílabo rechazado: {$silabo->materia->nombre}",
-            'mensaje' => $nuevoEstado === 'aprobado'
-                ? "Tu sílabo de \"{$silabo->materia->nombre}\" ha sido aprobado por Secretaría."
-                : "Tu sílabo de \"{$silabo->materia->nombre}\" fue rechazado. Motivo: {$request->observaciones}. Vuelve a subirlo corregido.",
-            'leido' => false,
-        ]);
+        // El sílabo es compartido por materia+período: se notifica a todos
+        // los docentes asignados a esa materia en ese período (todos los
+        // paralelos), no solo a quien lo subió.
+        $docentesANotificar = AsignacionDocente::where('materia_id', $silabo->materia_id)
+            ->where('periodo_id', $silabo->periodo_id)
+            ->pluck('docente_id')
+            ->unique();
+
+        foreach ($docentesANotificar as $docenteId) {
+            Notificacion::create([
+                'user_id' => $docenteId,
+                'titulo' => $nuevoEstado === 'aprobado'
+                    ? "Sílabo aprobado: {$silabo->materia->nombre}"
+                    : "Sílabo rechazado: {$silabo->materia->nombre}",
+                'mensaje' => $nuevoEstado === 'aprobado'
+                    ? "Tu sílabo de \"{$silabo->materia->nombre}\" ha sido aprobado por Secretaría."
+                    : "Tu sílabo de \"{$silabo->materia->nombre}\" fue rechazado. Motivo: {$request->observaciones}. Vuelve a subirlo corregido.",
+                'leido' => false,
+            ]);
+        }
 
         return redirect()->route('secretaria.silabos.index')->with('success',
             $nuevoEstado === 'aprobado'

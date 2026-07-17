@@ -19,6 +19,7 @@ class InformeDocente extends Model
         'tipo',
         'estado',
         'archivo_url',
+        'observaciones',
         'fecha_subida',
     ];
 

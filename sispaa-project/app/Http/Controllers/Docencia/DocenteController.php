@@ -36,6 +36,10 @@ class DocenteController extends Controller
     /**
      * Mis Informes de Asignatura: materias asignadas al docente en el
      * período activo, junto con el estado de su informe (si ya lo subió).
+     *
+     * El informe se comparte por materia+período: si otro docente que
+     * dicta la misma materia (en otro paralelo) ya lo subió, se muestra
+     * aquí también, aunque este docente no lo haya subido él mismo.
      */
     public function informes(): Response
     {
@@ -46,13 +50,23 @@ class DocenteController extends Controller
             ->whereHas('periodo', fn ($q) => $q->where('estado', 'activo'))
             ->get();
 
-        $informes = InformeDocente::where('docente_id', $docenteId)
+        $pares = $asignaciones
+            ->map(fn ($a) => [$a->materia_id, $a->periodo_id])
+            ->unique(fn ($p) => $p[0] . '-' . $p[1]);
+
+        $informes = InformeDocente::with('docente:id,name')
             ->where('tipo', 'asignatura')
-            ->whereIn('materia_id', $asignaciones->pluck('materia_id'))
+            ->where(function ($query) use ($pares) {
+                foreach ($pares as $par) {
+                    $query->orWhere(function ($q) use ($par) {
+                        $q->where('materia_id', $par[0])->where('periodo_id', $par[1]);
+                    });
+                }
+            })
             ->get()
             ->keyBy(fn ($i) => $i->materia_id . '-' . $i->periodo_id);
 
-        $items = $asignaciones->map(function ($asig) use ($informes) {
+        $items = $asignaciones->map(function ($asig) use ($informes, $docenteId) {
             $informe = $informes->get($asig->materia_id . '-' . $asig->periodo_id);
 
             return [
@@ -68,6 +82,9 @@ class DocenteController extends Controller
                 // del symlink public/storage (causa típica de 403 en XAMPP).
                 'ver_url' => $informe ? route('docencia.mis-informes.ver', $informe->id) : null,
                 'fecha_subida' => $informe?->fecha_subida?->diffForHumans(),
+                // Nombre del docente que efectivamente subió el archivo,
+                // solo cuando fue otro (mismo materia+período, otro paralelo).
+                'subido_por' => ($informe && $informe->docente_id !== $docenteId) ? $informe->docente?->name : null,
             ];
         })->values();
 
@@ -102,14 +119,17 @@ class DocenteController extends Controller
 
         $path = $request->file('archivo')->store('informes', 'public');
 
+        // Clave materia+período+tipo (sin docente_id): igual que en Sílabos,
+        // cualquier docente del mismo paralelo/materia actualiza la misma
+        // fila compartida. docente_id registra quién subió la versión vigente.
         InformeDocente::updateOrCreate(
             [
-                'docente_id' => $docenteId,
                 'materia_id' => $request->materia_id,
                 'periodo_id' => $request->periodo_id,
                 'tipo' => 'asignatura',
             ],
             [
+                'docente_id' => $docenteId,
                 'estado' => 'subido',
                 'archivo_url' => '/storage/' . $path,
                 'fecha_subida' => now(),
@@ -123,11 +143,18 @@ class DocenteController extends Controller
      * Sirve el archivo del informe a través de Laravel. Ver el comentario
      * en SilaboController::ver() para el detalle de por qué no se usa el
      * enlace directo /storage/... (403 típico en XAMPP por symlink).
+     * El acceso se valida por materia+período (cualquier paralelo), igual
+     * que en SilaboController::ver().
      */
     public function verInforme(InformeDocente $informe)
     {
+        $tieneAcceso = AsignacionDocente::where('docente_id', Auth::id())
+            ->where('materia_id', $informe->materia_id)
+            ->where('periodo_id', $informe->periodo_id)
+            ->exists();
+
         abort_unless(
-            $informe->docente_id === Auth::id() || Auth::user()->hasRole('SystemAdministrador'),
+            $tieneAcceso || Auth::user()->hasRole('SystemAdministrador'),
             403,
             'No tienes permiso para ver este documento.'
         );

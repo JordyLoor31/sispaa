@@ -215,45 +215,8 @@ class AdminPortalController extends Controller
         return redirect()->back()->with('success', 'Estado de la asignatura actualizado.');
     }
 
-    /**
-     * Informes de Asignatura (Paginado y Real)
-     */
-    public function informesAsignatura(Request $request): Response
-    {
-        $carreraId = $request->input('carrera_id');
-        $estado = $request->input('estado');
-        $perPage = (int) $request->input('per_page', 8);
-        $perPage = $perPage > 0 ? min(100, $perPage) : 8;
-
-        $query = InformeDocente::with(['docente', 'materia.carrera', 'periodo']);
-
-        if ($carreraId && $carreraId !== 'all') {
-            $query->whereHas('materia', function($q) use ($carreraId) {
-                $q->where('carrera_id', $carreraId);
-            });
-        }
-
-        if ($estado && $estado !== 'all') {
-            // Mapear los estados del frontend ('Cumplido', 'Pendiente', 'Incumplido') a la DB
-            // DB tiene ['pendiente', 'subido', 'aprobado']
-            // Cumplido -> aprobado, Pendiente -> subido / pendiente
-            if ($estado === 'Cumplido') {
-                $query->where('estado', 'aprobado');
-            } elseif ($estado === 'Pendiente') {
-                $query->where('estado', 'subido');
-            } elseif ($estado === 'Incumplido') {
-                $query->where('estado', 'pendiente');
-            }
-        }
-
-        $informesPaginated = $query->orderBy('id', 'desc')->paginate($perPage)->withQueryString();
-
-        $carreras = Carrera::all();
-
-        return Inertia::render('Docencia/Informes', [
-            'informesPaginated' => $informesPaginated,
-            'carreras' => $carreras,
-            'filters' => $request->only(['carrera_id', 'estado', 'per_page'])
-        ]);
-    }
+    // La supervisión de "Informes de Asignatura" (antes informesAsignatura()
+    // aquí) se movió a Secretaria\InformeRevisionController, con el mismo
+    // patrón Index+Show con revisión que Sílabos/Justificaciones. Ver
+    // rutas secretaria.informes.*.
 }
