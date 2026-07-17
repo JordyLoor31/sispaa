@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Estudiantes;
 
 use App\Http\Controllers\Controller;
 use App\Models\Documentos\DocumentoEstudiante;
+use App\Models\Documentos\PlantillaDocumento;
 use App\Models\Documentos\RequisitoGrupo;
 use App\Models\Estudiantes\Falta;
 use App\Models\Estudiantes\JustificacionSolicitud;
@@ -133,6 +134,26 @@ class StudentPortalController extends Controller
 
         return Inertia::render('Estudiantes/StudentDocumentos', [
             'expediente' => $expediente
+        ]);
+    }
+
+    /**
+     * Plantillas de Documentos publicadas por Secretaría: solo lectura +
+     * descarga (la descarga en sí vive en la ruta compartida
+     * plantillas.descargar, ver Secretaria\PlantillaDocumentoController::descargar()).
+     */
+    public function plantillas(): Response
+    {
+        $plantillas = PlantillaDocumento::orderBy('nombre_doc')
+            ->get()
+            ->map(fn ($p) => [
+                'id' => $p->id,
+                'nombre_doc' => $p->nombre_doc,
+                'descargar_url' => route('plantillas.descargar', $p->id),
+            ]);
+
+        return Inertia::render('Estudiantes/StudentPlantillas', [
+            'plantillas' => $plantillas,
         ]);
     }
 

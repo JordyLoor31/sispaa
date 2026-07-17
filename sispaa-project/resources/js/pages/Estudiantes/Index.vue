@@ -1,9 +1,12 @@
 <template>
   <Head title="Estudiantes" />
 
-  <AppLayout :breadcrumbs="breadcrumbs">
-    <div class="min-h-screen pt-2 pr-3 pl-3 sm:px-6 lg:px-8" :style="{ backgroundColor: 'var(--sispaa-background)', color: 'var(--sispaa-text)' }">
-    <div class="mx-auto flex w-full max-w-7xl flex-col gap-6">
+  <AppSidebarLayout :breadcrumbs="breadcrumbs">
+    <!-- Mismo contenedor (p-6, ancho completo hasta el sidebar) que el resto
+         de vistas del módulo (Matriculados, Faltas, Justificaciones): antes
+         esta vista usaba mx-auto max-w-7xl, lo que dejaba un espacio extra
+         entre el sidebar y el contenido que no coincidía con las demás. -->
+    <div class="flex h-full flex-1 flex-col gap-6 p-6" :style="{ backgroundColor: 'var(--sispaa-background)', color: 'var(--sispaa-text)' }">
       <header class="rounded-3xl p-6 shadow-sm" :style="{ backgroundColor: 'var(--sispaa-surface)' }">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -17,19 +20,19 @@
           <div class="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
             <div class="rounded-2xl border px-4 py-3" :style="{ borderColor: '#c8c8c8', backgroundColor: 'var(--sispaa-background)' }">
               <p :style="{ color: '#666' }">Total</p>
-              <p class="mt-1 text-2xl font-semibold" :style="{ color: 'var(--sispaa-text)' }">1,248</p>
+              <p class="mt-1 text-2xl font-semibold" :style="{ color: 'var(--sispaa-text)' }">{{ stats.total.toLocaleString('es-EC') }}</p>
             </div>
             <div class="rounded-2xl border px-4 py-3" :style="{ borderColor: '#c8c8c8', backgroundColor: 'var(--sispaa-background)' }">
               <p :style="{ color: '#666' }">Activos</p>
-              <p class="mt-1 text-2xl font-semibold" :style="{ color: '#88C273' }">1,102</p>
+              <p class="mt-1 text-2xl font-semibold" :style="{ color: '#88C273' }">{{ stats.activos.toLocaleString('es-EC') }}</p>
             </div>
             <div class="rounded-2xl border px-4 py-3" :style="{ borderColor: '#c8c8c8', backgroundColor: 'var(--sispaa-background)' }">
               <p :style="{ color: '#666' }">Faltas</p>
-              <p class="mt-1 text-2xl font-semibold" :style="{ color: '#D4BDAC' }">86</p>
+              <p class="mt-1 text-2xl font-semibold" :style="{ color: '#D4BDAC' }">{{ stats.faltas.toLocaleString('es-EC') }}</p>
             </div>
             <div class="rounded-2xl border px-4 py-3" :style="{ borderColor: '#c8c8c8', backgroundColor: 'var(--sispaa-background)' }">
               <p :style="{ color: '#666' }">Justificadas</p>
-              <p class="mt-1 text-2xl font-semibold" :style="{ color: '#536493' }">24</p>
+              <p class="mt-1 text-2xl font-semibold" :style="{ color: '#536493' }">{{ stats.justificadas.toLocaleString('es-EC') }}</p>
             </div>
           </div>
         </div>
@@ -44,11 +47,13 @@
             </div>
           </div>
           <ApexChart
+            v-if="stats.total > 0"
             type="donut"
             height="320"
             :options="statusChartOptions"
             :series="statusSeries"
           />
+          <p v-else class="py-16 text-center text-sm" :style="{ color: '#888' }">Aún no hay estudiantes registrados.</p>
         </article>
 
         <article class="rounded-3xl border p-5 xl:col-span-2" :style="{ borderColor: '#c8c8c8', backgroundColor: 'var(--sispaa-surface)' }">
@@ -59,18 +64,20 @@
             </div>
           </div>
           <ApexChart
+            v-if="porCarrera.length > 0"
             type="bar"
             height="320"
             :options="careerChartOptions"
             :series="careerSeries"
           />
+          <p v-else class="py-16 text-center text-sm" :style="{ color: '#888' }">Aún no hay estudiantes matriculados por carrera.</p>
         </article>
       </section>
 
       <section class="grid gap-6 lg:grid-cols-3">
         <article class="rounded-3xl border p-5 lg:col-span-2" :style="{ borderColor: '#c8c8c8', backgroundColor: 'var(--sispaa-surface)' }">
           <h2 class="text-lg font-semibold" :style="{ color: 'var(--sispaa-text)' }">Últimos registros</h2>
-          <p class="mt-1 text-sm" :style="{ color: '#666' }">Ejemplo de tabla para alimentar el index</p>
+          <p class="mt-1 text-sm" :style="{ color: '#666' }">Los 5 estudiantes registrados más recientemente</p>
 
           <div class="mt-4 overflow-hidden rounded-2xl border" :style="{ borderColor: '#c8c8c8' }">
             <table class="min-w-full text-left text-sm">
@@ -83,18 +90,21 @@
                 </tr>
               </thead>
               <tbody :style="{ backgroundColor: 'var(--sispaa-background)', color: 'var(--sispaa-text)' }">
-                <tr v-for="student in recentStudents" :key="student.name">
+                <tr v-for="student in ultimosRegistros" :key="student.name">
                   <td class="px-4 py-3 font-medium">{{ student.name }}</td>
                   <td class="px-4 py-3">{{ student.career }}</td>
                   <td class="px-4 py-3">
                     <span
                       class="rounded-full px-3 py-1 text-xs font-medium"
-                      :class="student.badgeClass"
+                      :class="badgeClass(student.status)"
                     >
                       {{ student.status }}
                     </span>
                   </td>
                   <td class="px-4 py-3" :style="{ color: '#666' }">{{ student.lastActivity }}</td>
+                </tr>
+                <tr v-if="ultimosRegistros.length === 0">
+                  <td colspan="4" class="px-4 py-6 text-center" :style="{ color: '#888' }">Aún no hay estudiantes registrados.</td>
                 </tr>
               </tbody>
             </table>
@@ -115,28 +125,55 @@
         </article>--> 
       </section>
     </div>
-  </div>
-  </AppLayout>
+  </AppSidebarLayout>
 </template>
 
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
-import type { BreadcrumbItem } from '@/types';
+import AppSidebarLayout from '@/layouts/app/AppSidebarLayout.vue';
+import type { BreadcrumbItemType } from '@/types';
 import { Head } from '@inertiajs/vue3';
+import { computed } from 'vue';
 import type { ApexOptions } from 'apexcharts';
 import ApexChart from 'vue3-apexcharts';
 
-const breadcrumbs: BreadcrumbItem[] = [
-  {
-    title: 'Estudiantes',
-    href: '/estudiantes',
-  },{
-    title: 'Panel de estudiantes',
-    href: '/estudiantes/panel de estudiantes',
-  }
-];
+interface Stats {
+    total: number;
+    activos: number;
+    faltas: number;
+    justificadas: number;
+}
 
-const statusSeries = [1102, 86, 60];
+interface EstadoMatricula {
+    activos: number;
+    conFaltas: number;
+    retirados: number;
+}
+
+interface CarreraCount {
+    carrera: string;
+    total: number;
+}
+
+interface RegistroReciente {
+    name: string;
+    career: string;
+    status: string;
+    lastActivity: string;
+}
+
+const props = defineProps<{
+    stats: Stats;
+    estadoMatricula: EstadoMatricula;
+    porCarrera: CarreraCount[];
+    ultimosRegistros: RegistroReciente[];
+    breadcrumbs?: BreadcrumbItemType[];
+}>();
+
+const statusSeries = computed(() => [
+    props.estadoMatricula.activos,
+    props.estadoMatricula.conFaltas,
+    props.estadoMatricula.retirados,
+]);
 
 const statusChartOptions: ApexOptions = {
   chart: {
@@ -166,14 +203,14 @@ const statusChartOptions: ApexOptions = {
   },
 };
 
-const careerSeries = [
+const careerSeries = computed(() => [
   {
     name: 'Estudiantes',
-    data: [420, 310, 260],
+    data: props.porCarrera.map((c) => c.total),
   },
-];
+]);
 
-const careerChartOptions: ApexOptions = {
+const careerChartOptions = computed<ApexOptions>(() => ({
   chart: {
     background: 'transparent',
     foreColor: '#353535',
@@ -192,7 +229,7 @@ const careerChartOptions: ApexOptions = {
     borderColor: '#cfcfcf',
   },
   xaxis: {
-    categories: ['Agroindustrial', 'Agronegocios', 'Agropecuaria'],
+    categories: props.porCarrera.map((c) => c.carrera),
     labels: {
       style: {
         colors: '#666',
@@ -212,31 +249,17 @@ const careerChartOptions: ApexOptions = {
   tooltip: {
     theme: 'dark',
   },
-};
+}));
 
-const recentStudents = [
-  {
-    name: 'Andrea Paredes',
-    career: 'Agroindustrial',
-    status: 'Activo',
-    lastActivity: 'Matrícula 2026-A',
-    badgeClass: 'bg-[#88C273]/20 text-[#3b6b2b]',
-  },
-  {
-    name: 'Carlos Mena',
-    career: 'Agronegocios',
-    status: 'Con faltas',
-    lastActivity: '3 faltas este mes',
-    badgeClass: 'bg-[#D4BDAC]/30 text-[#7c5c47]',
-  },
-  {
-    name: 'María López',
-    career: 'Agropecuaria',
-    status: 'Justificada',
-    lastActivity: 'Solicitud aprobada',
-    badgeClass: 'bg-[#536493]/20 text-[#2e3f69]',
-  },
-];
+const badgeClass = (status: string) => {
+    const map: Record<string, string> = {
+        Activo: 'bg-[#88C273]/20 text-[#3b6b2b]',
+        'Con faltas': 'bg-[#D4BDAC]/30 text-[#7c5c47]',
+        Retirado: 'bg-[#e0e0e0] text-[#555]',
+        Egresado: 'bg-[#536493]/20 text-[#2e3f69]',
+    };
+    return map[status] ?? 'bg-[#e0e0e0] text-[#555]';
+};
 </script>
 
 <style scoped>

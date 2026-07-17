@@ -11,7 +11,7 @@
 // "todo" de SystemAdministrador.
 
 import { type NavItem } from '@/types';
-import { BarChart3, Bell, Book, BookOpen, Calendar, ClipboardCheck, Feather, FileText, FolderOpen, GraduationCap, Handshake, LayoutGrid, Megaphone, Search, Settings, User, UserCog, Users, type LucideIcon } from 'lucide-vue-next';
+import { BarChart3, Bell, Book, BookOpen, Calendar, ClipboardCheck, Feather, FileText, Files, FolderOpen, GraduationCap, Handshake, LayoutGrid, Megaphone, Search, Settings, User, UserCog, Users, type LucideIcon } from 'lucide-vue-next';
 
 /** Nombres de rol tal como están sembrados en Spatie (roles.name). */
 export const ROLES = {
@@ -191,6 +191,11 @@ export const secretariaNavItems: NavItem[] = [
         icon: UserCog,
     },
     {
+        title: 'Plantillas de Documentos',
+        href: route('secretaria.plantillas.index'),
+        icon: Files,
+    },
+    {
         title: 'Matrículas',
         href: route('secretaria.matriculas.index'),
         icon: Book,
@@ -233,16 +238,25 @@ export const secretariaNavItems: NavItem[] = [
  * - 'Expediente SGA' / 'Justificaciones' / 'Revisión de Sílabos' ahora
  *   viven, seccionados junto al resto de documentos que suben otros
  *   roles, dentro de "Revisión de Documentos".
- * - 'Estudiantes' ya aparece en el bloque "Coordinador" (gestionEstudiantesNavItems).
- * Se deriva por filtro (no se duplica a mano) para no desincronizarse si
- * secretariaNavItems cambia. secretariaNavItems en sí queda intacto: el
+ * - 'Estudiantes': Panel/Faltas/Justificaciones ya aparecen en el bloque
+ *   "Coordinador" (gestionEstudiantesNavItems); 'Estudiantes matriculados'
+ *   en cambio es exclusivo de Secretaría/SysAdmin (ya no de Coordinador),
+ *   así que aquí SÍ se muestra, solo, dentro del bloque Secretaría.
+ * Se deriva por filtro/map (no se duplica a mano) para no desincronizarse
+ * si secretariaNavItems cambia. secretariaNavItems en sí queda intacto: el
  * personal real de Secretaría lo sigue necesitando completo en su propio
  * menú (navByRole).
  */
-const TITULOS_YA_CUBIERTOS_EN_VISTA_ADMIN = new Set(['Expediente SGA', 'Justificaciones', 'Revisión de Sílabos', 'Estudiantes']);
-export const secretariaAdminOverviewNavItems: NavItem[] = secretariaNavItems.filter(
-    (item) => !TITULOS_YA_CUBIERTOS_EN_VISTA_ADMIN.has(item.title),
-);
+const TITULOS_YA_CUBIERTOS_EN_VISTA_ADMIN = new Set(['Expediente SGA', 'Justificaciones', 'Revisión de Sílabos']);
+const SUBITEMS_ESTUDIANTES_YA_CUBIERTOS_EN_VISTA_ADMIN = new Set(['Panel Estudiantes', 'Faltas', 'Justificaciones de faltas']);
+export const secretariaAdminOverviewNavItems: NavItem[] = secretariaNavItems
+    .filter((item) => !TITULOS_YA_CUBIERTOS_EN_VISTA_ADMIN.has(item.title))
+    .map((item) => {
+        if (item.title === 'Estudiantes' && item.items) {
+            return { ...item, items: item.items.filter((sub) => !SUBITEMS_ESTUDIANTES_YA_CUBIERTOS_EN_VISTA_ADMIN.has(sub.title)) };
+        }
+        return item;
+    });
 
 /** Rol Estudiante: portal propio del estudiante. */
 export const estudianteNavItems: NavItem[] = [
@@ -267,6 +281,11 @@ export const estudianteNavItems: NavItem[] = [
         icon: Feather,
     },
     {
+        title: 'Plantillas',
+        href: '/estudiante/plantillas',
+        icon: Files,
+    },
+    {
         title: 'Mi Perfil',
         href: '/estudiante/perfil',
         icon: User,
@@ -284,7 +303,10 @@ export const gestionEstudiantesNavItems: NavItem[] = [
         icon: Book,
         items: [
             { title: 'Panel Estudiantes', href: route('estudiantes.index') },
-            { title: 'Estudiantes matriculados', href: route('estudiantes.matriculados') },
+            // 'Estudiantes matriculados' (estudiantes.matriculados) ya no
+            // aparece para Coordinador: a pedido, el listado institucional
+            // general queda exclusivo de Secretaría/SystemAdministrador (ver
+            // secretariaNavItems y el guard en EstudianteController::matriculados()).
             { title: 'Faltas', href: route('estudiantes.faltas') },
             { title: 'Justificaciones de faltas', href: route('estudiantes.justificaciones') },
         ],

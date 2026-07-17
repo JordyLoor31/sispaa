@@ -251,6 +251,10 @@ Route::middleware(['auth', 'verified', 'role:estudiante|SystemAdministrador'])
 
         Route::get('/asistencias', [\App\Http\Controllers\Estudiantes\StudentPortalController::class, 'asistencias'])->name('asistencias');
 
+        // Plantillas de Documentos publicadas por Secretaría (solo lectura +
+        // descarga; la descarga en sí vive en la ruta compartida plantillas.descargar).
+        Route::get('/plantillas', [\App\Http\Controllers\Estudiantes\StudentPortalController::class, 'plantillas'])->name('plantillas');
+
         Route::get('/perfil', [\App\Http\Controllers\Estudiantes\StudentPortalController::class, 'perfil'])->name('perfil');
 
         // "Mis Datos": vista de solo lectura con todo lo completado en el wizard
@@ -421,7 +425,31 @@ Route::middleware(['auth', 'verified', 'role:secretaria|SystemAdministrador'])
             ->name('asignaciones-docente.update');
         Route::delete('/asignaciones-docente/{asignacion}', [\App\Http\Controllers\Secretaria\AsignacionDocenteController::class, 'destroy'])
             ->name('asignaciones-docente.destroy');
+
+        // Plantillas de Documentos (formatos institucionales que sube
+        // Secretaría y cualquier estudiante puede descargar desde su portal;
+        // ver también la ruta compartida plantillas.descargar más abajo).
+        Route::get('/plantillas', [\App\Http\Controllers\Secretaria\PlantillaDocumentoController::class, 'index'])
+            ->name('plantillas.index');
+        Route::get('/plantillas/crear', [\App\Http\Controllers\Secretaria\PlantillaDocumentoController::class, 'create'])
+            ->name('plantillas.create');
+        Route::post('/plantillas', [\App\Http\Controllers\Secretaria\PlantillaDocumentoController::class, 'store'])
+            ->name('plantillas.store');
+        Route::get('/plantillas/{plantilla}/editar', [\App\Http\Controllers\Secretaria\PlantillaDocumentoController::class, 'edit'])
+            ->name('plantillas.edit');
+        Route::put('/plantillas/{plantilla}', [\App\Http\Controllers\Secretaria\PlantillaDocumentoController::class, 'update'])
+            ->name('plantillas.update');
+        Route::delete('/plantillas/{plantilla}', [\App\Http\Controllers\Secretaria\PlantillaDocumentoController::class, 'destroy'])
+            ->name('plantillas.destroy');
     });
+
+// Descarga de Plantillas de Documentos: compartida entre Secretaría (las
+// administra) y cualquier estudiante (las descarga desde su portal, ver
+// student.plantillas). No es información sensible por estudiante, así que
+// basta con estar autenticado (sin restricción de rol).
+Route::middleware(['auth', 'verified'])
+    ->get('/plantillas/{plantilla}/descargar', [\App\Http\Controllers\Secretaria\PlantillaDocumentoController::class, 'descargar'])
+    ->name('plantillas.descargar');
 
 
 // ARCHIVOS EXTRA
