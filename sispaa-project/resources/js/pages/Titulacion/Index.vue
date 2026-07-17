@@ -3,26 +3,40 @@ import AppSidebarLayout from '@/layouts/app/AppSidebarLayout.vue';
 import { type BreadcrumbItemType } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { reactive, ref } from 'vue';
-import { Plus } from 'lucide-vue-next';
+import { Plus, Search, GraduationCap } from 'lucide-vue-next';
 import { FlexRender, getCoreRowModel, useVueTable } from '@tanstack/vue-table';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useDebounceFn } from '@vueuse/core';
 import { toast } from 'vue-sonner';
 import makeTitulacionColumns, { type Titulacion } from './columns';
 
+interface Paginated<T> { data: T[]; current_page: number; last_page: number; per_page: number; total: number; links: any[] }
+
 const props = defineProps<{
-    titulaciones: Titulacion[];
-    filters: { estado?: string };
+    titulaciones: Paginated<Titulacion>;
+    filters: { estado?: string; q?: string; per_page?: string };
     stats: { en_proceso: number; defendido: number; graduado: number; total: number };
     puedeGestionar: boolean;
     breadcrumbs?: BreadcrumbItemType[];
 }>();
 
+const search = ref(props.filters.q || '');
 const filterEstado = ref(props.filters.estado || 'all');
+
 const applyFilter = () => {
-    router.get(route('titulacion.index'), { estado: filterEstado.value !== 'all' ? filterEstado.value : undefined }, { preserveState: true, replace: true });
+    router.get(
+        route('titulacion.index'),
+        {
+            estado: filterEstado.value !== 'all' ? filterEstado.value : undefined,
+            q: search.value || undefined,
+            per_page: props.titulaciones.per_page,
+        },
+        { preserveState: true, replace: true },
+    );
 };
+const debouncedSearch = useDebounceFn(applyFilter, 300);
 
 const changeEstado = (t: Titulacion, estado: string) => {
     router.put(route('titulacion.update', t.id), { estado }, {
@@ -34,10 +48,14 @@ const changeEstado = (t: Titulacion, estado: string) => {
 const columns = makeTitulacionColumns({ onChangeEstado: changeEstado, puedeGestionar: props.puedeGestionar });
 
 const table = useVueTable(reactive({
-    get data() { return props.titulaciones; },
+    get data() { return props.titulaciones.data; },
     columns,
     getCoreRowModel: getCoreRowModel(),
 }));
+
+const navigateToPage = (url: string | null) => {
+    if (url) router.get(url, {}, { preserveState: true });
+};
 </script>
 
 <template>
@@ -77,7 +95,17 @@ const table = useVueTable(reactive({
             </div>
 
             <div class="w-full space-y-4">
-                <div class="flex gap-3 bg-white dark:bg-slate-950 p-4 rounded-xl border border-slate-200/80 dark:border-slate-800">
+                <div class="flex flex-col gap-3 sm:flex-row bg-white dark:bg-slate-950 p-4 rounded-xl border border-slate-200/80 dark:border-slate-800">
+                    <div class="relative min-w-[220px] flex-1">
+                        <Search class="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                        <input
+                            v-model="search"
+                            type="text"
+                            placeholder="Buscar por tema, estudiante o tutor..."
+                            class="w-full rounded-lg border-slate-200 bg-slate-50/30 pl-9 text-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-200"
+                            @input="debouncedSearch"
+                        />
+                    </div>
                     <Select v-model="filterEstado" @update:model-value="applyFilter">
                         <SelectTrigger class="w-[200px]"><SelectValue placeholder="Estado" /></SelectTrigger>
                         <SelectContent>
@@ -111,12 +139,29 @@ const table = useVueTable(reactive({
                                     </TableRow>
                                 </template>
                                 <TableRow v-else>
-                                    <TableCell :colspan="columns.length" class="h-32 text-center text-sm text-slate-400">
-                                        No hay procesos de titulación registrados.
+                                    <TableCell :colspan="columns.length" class="h-32 text-center">
+                                        <div class="flex flex-col items-center gap-2 text-slate-400">
+                                            <GraduationCap class="h-8 w-8" />
+                                            <span class="text-sm font-medium">No hay procesos de titulación que coincidan con el filtro</span>
+                                        </div>
                                     </TableCell>
                                 </TableRow>
                             </TableBody>
                         </Table>
+                    </div>
+                    <div class="flex items-center justify-between border-t border-slate-100 dark:border-slate-800 px-6 py-4">
+                        <span class="text-xs text-slate-500">Mostrando {{ titulaciones.data.length }} de {{ titulaciones.total }} procesos</span>
+                        <div class="flex items-center gap-1">
+                            <button
+                                v-for="link in titulaciones.links"
+                                :key="link.label"
+                                @click="navigateToPage(link.url)"
+                                :disabled="!link.url || link.active"
+                                v-html="link.label"
+                                class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+                                :class="[link.active ? 'bg-indigo-600 text-white' : 'border border-slate-200/80 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 disabled:opacity-40']"
+                            />
+                        </div>
                     </div>
                 </div>
             </div>

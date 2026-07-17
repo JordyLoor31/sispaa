@@ -51,11 +51,8 @@ const activar = (periodo: Periodo) => {
     router.post(route('admin.periodos.activar', periodo.id), {}, { preserveScroll: true });
 };
 
-const finalizar = (periodo: Periodo) => {
-    router.post(route('admin.periodos.finalizar', periodo.id), {}, { preserveScroll: true });
-};
-
-const columns = makePeriodoColumns({ onActivar: activar, onFinalizar: finalizar });
+// 'Finalizar' se movió a la vista de Edición del periodo (ya no vive en la tabla, a pedido).
+const columns = makePeriodoColumns({ onActivar: activar });
 
 const table = useVueTable({
     get data() { return props.periodos?.data || [] },

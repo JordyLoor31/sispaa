@@ -119,14 +119,14 @@ export const docenteNavItems: NavItem[] = [
  * junto al resto de documentos que suben otros roles, dentro de "Revisión
  * de Documentos" (ver revisionDocumentosNavItems / systemAdministradorNavItems).
  * El bloque "Laboratorio" se ocultó a pedido (no se usa por ahora).
+ * 'Investigación' también se quitó de aquí: ya aparece en el bloque
+ * Coordinador (coordinadorNavItems), que es quien la supervisa a nivel
+ * institucional; mostrarla también aquí la duplicaba en la vista
+ * consolidada de SystemAdministrador. Si en el futuro este array vuelve a
+ * quedar vacío, resolveSidebarNav() omite el grupo completo (ver más abajo),
+ * así que no hace falta dejar aquí un item "de relleno".
  */
-export const docenteAdminOverviewNavItems: NavItem[] = [
-    {
-        title: 'Investigación',
-        href: route('investigacion.index'),
-        icon: Search,
-    },
-];
+export const docenteAdminOverviewNavItems: NavItem[] = [];
 
 /** Rol Coordinador: supervisión de investigación, titulación y vinculación. */
 export const coordinadorNavItems: NavItem[] = [
@@ -238,6 +238,9 @@ export const secretariaNavItems: NavItem[] = [
  * - 'Expediente SGA' / 'Justificaciones' / 'Revisión de Sílabos' ahora
  *   viven, seccionados junto al resto de documentos que suben otros
  *   roles, dentro de "Revisión de Documentos".
+ * - 'Titulación' ya aparece en el bloque "Coordinador" (coordinadorNavItems),
+ *   que es quien la supervisa a nivel institucional; se quita de aquí para
+ *   no repetirla (mismo caso que 'Investigación', ver docenteAdminOverviewNavItems).
  * - 'Estudiantes': Panel/Faltas/Justificaciones ya aparecen en el bloque
  *   "Coordinador" (gestionEstudiantesNavItems); 'Estudiantes matriculados'
  *   en cambio es exclusivo de Secretaría/SysAdmin (ya no de Coordinador),
@@ -247,7 +250,7 @@ export const secretariaNavItems: NavItem[] = [
  * personal real de Secretaría lo sigue necesitando completo en su propio
  * menú (navByRole).
  */
-const TITULOS_YA_CUBIERTOS_EN_VISTA_ADMIN = new Set(['Expediente SGA', 'Justificaciones', 'Revisión de Sílabos']);
+const TITULOS_YA_CUBIERTOS_EN_VISTA_ADMIN = new Set(['Expediente SGA', 'Justificaciones', 'Revisión de Sílabos', 'Titulación']);
 const SUBITEMS_ESTUDIANTES_YA_CUBIERTOS_EN_VISTA_ADMIN = new Set(['Panel Estudiantes', 'Faltas', 'Justificaciones de faltas']);
 export const secretariaAdminOverviewNavItems: NavItem[] = secretariaNavItems
     .filter((item) => !TITULOS_YA_CUBIERTOS_EN_VISTA_ADMIN.has(item.title))
@@ -364,7 +367,11 @@ export function resolveSidebarNav(userRoles: string[] = []): { mode: 'grouped' |
                     return { ...group, items: docenteAdminOverviewNavItems };
                 }
                 return group;
-            });
+            })
+            // Un grupo sin items (ej. "Docente" cuando todo su contenido ya
+            // se ve en otro bloque, como Investigación en Coordinador) no se
+            // muestra: evita un encabezado colapsable vacío en el sidebar.
+            .filter((group) => group.items.length > 0);
 
         return { mode: 'grouped', groups };
     }

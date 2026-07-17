@@ -31,10 +31,9 @@ const ESTADO_LABEL: Record<EstadoPeriodo, string> = {
 
 interface PeriodoColumnsOptions {
     onActivar: (periodo: Periodo) => void;
-    onFinalizar: (periodo: Periodo) => void;
 }
 
-export function makePeriodoColumns({ onActivar, onFinalizar }: PeriodoColumnsOptions): ColumnDef<Periodo>[] {
+export function makePeriodoColumns({ onActivar }: PeriodoColumnsOptions): ColumnDef<Periodo>[] {
     return [
         {
             accessorKey: 'nombre',
@@ -68,9 +67,8 @@ export function makePeriodoColumns({ onActivar, onFinalizar }: PeriodoColumnsOpt
                     periodo.estado === 'planificado'
                         ? h(Button, { size: 'sm', variant: 'outline', class: 'h-7 px-2 text-xs', onClick: () => onActivar(periodo) }, () => 'Activar')
                         : null,
-                    periodo.estado === 'activo'
-                        ? h(Button, { size: 'sm', variant: 'outline', class: 'h-7 px-2 text-xs text-rose-500 hover:text-rose-600', onClick: () => onFinalizar(periodo) }, () => 'Finalizar')
-                        : null,
+                    // 'Finalizar' se movió a la vista de Edición del periodo
+                    // (no vive más en la tabla, a pedido).
                 ]);
             },
         },

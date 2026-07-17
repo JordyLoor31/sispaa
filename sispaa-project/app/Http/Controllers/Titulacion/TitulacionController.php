@@ -47,6 +47,8 @@ class TitulacionController extends Controller
     public function index(Request $request): Response
     {
         $estado = $request->input('estado', 'all');
+        $q = $request->input('q');
+        $perPage = max(1, min(100, (int) $request->input('per_page', 15)));
         $veTodos = $this->veTodosLosProcesos();
 
         $query = Titulacion::with(['estudiante', 'tutor']);
@@ -56,24 +58,35 @@ class TitulacionController extends Controller
         if ($estado !== 'all') {
             $query->where('estado', $estado);
         }
+        if ($q) {
+            $query->where(function ($w) use ($q) {
+                $w->where('tema', 'ilike', "%{$q}%")
+                    ->orWhereHas('estudiante', fn ($e) => $e->where('name', 'ilike', "%{$q}%"))
+                    ->orWhereHas('tutor', fn ($e) => $e->where('name', 'ilike', "%{$q}%"));
+            });
+        }
 
-        $titulaciones = $query->orderByDesc('created_at')->get()->map(fn ($t) => [
-            'id' => $t->id,
-            'tema' => $t->tema,
-            'estado' => $t->estado,
-            'fecha_inicio' => $t->fecha_inicio?->format('Y-m-d'),
-            'fecha_graduacion' => $t->fecha_graduacion?->format('Y-m-d'),
-            'estudiante' => ['id' => $t->estudiante->id, 'name' => $t->estudiante->name],
-            'tutor' => ['id' => $t->tutor->id, 'name' => $t->tutor->name],
-        ]);
+        $titulaciones = $query->orderByDesc('created_at')
+            ->paginate($perPage)
+            ->withQueryString()
+            ->through(fn ($t) => [
+                'id' => $t->id,
+                'tema' => $t->tema,
+                'estado' => $t->estado,
+                'fecha_inicio' => $t->fecha_inicio?->format('Y-m-d'),
+                'fecha_graduacion' => $t->fecha_graduacion?->format('Y-m-d'),
+                'estudiante' => ['id' => $t->estudiante->id, 'name' => $t->estudiante->name],
+                'tutor' => ['id' => $t->tutor->id, 'name' => $t->tutor->name],
+            ]);
 
         // Los contadores del header también se acotan al alcance del
-        // usuario: un docente no debe ver el total institucional.
-        $statsQuery = fn () => Titulacion::when(!$veTodos, fn ($q) => $q->where('tutor_id', Auth::id()));
+        // usuario (no al filtro de búsqueda/estado de la tabla): un docente
+        // no debe ver el total institucional.
+        $statsQuery = fn () => Titulacion::when(!$veTodos, fn ($q2) => $q2->where('tutor_id', Auth::id()));
 
         return Inertia::render('Titulacion/Index', [
             'titulaciones' => $titulaciones,
-            'filters' => ['estado' => $estado],
+            'filters' => ['estado' => $estado, 'q' => $q, 'per_page' => $perPage],
             'stats' => [
                 'en_proceso' => $statsQuery()->where('estado', 'en_proceso')->count(),
                 'defendido' => $statsQuery()->where('estado', 'defendido')->count(),
