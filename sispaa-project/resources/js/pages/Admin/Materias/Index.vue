@@ -24,6 +24,7 @@ interface MateriaItem {
     creditos: number;
     nivel: number;
     carrera_id: number;
+    activa?: boolean;
     carrera?: CarreraItem;
 }
 

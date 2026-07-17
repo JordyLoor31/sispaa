@@ -8,6 +8,8 @@ use App\Models\Docencia\AsignacionDocente;
 use App\Models\Docencia\InformeDocente;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -62,6 +64,9 @@ class DocenteController extends Controller
                 'grupo' => $asig->grupo,
                 'estado' => $informe->estado ?? 'pendiente',
                 'archivo_url' => $informe->archivo_url ?? null,
+                // Ver comentario en SilaboController::ver(): evita depender
+                // del symlink public/storage (causa típica de 403 en XAMPP).
+                'ver_url' => $informe ? route('docencia.mis-informes.ver', $informe->id) : null,
                 'fecha_subida' => $informe?->fecha_subida?->diffForHumans(),
             ];
         })->values();
@@ -112,5 +117,25 @@ class DocenteController extends Controller
         );
 
         return redirect()->back()->with('success', 'Informe subido correctamente.');
+    }
+
+    /**
+     * Sirve el archivo del informe a través de Laravel. Ver el comentario
+     * en SilaboController::ver() para el detalle de por qué no se usa el
+     * enlace directo /storage/... (403 típico en XAMPP por symlink).
+     */
+    public function verInforme(InformeDocente $informe)
+    {
+        abort_unless(
+            $informe->docente_id === Auth::id() || Auth::user()->hasRole('SystemAdministrador'),
+            403,
+            'No tienes permiso para ver este documento.'
+        );
+
+        $ruta = $informe->archivo_url ? Str::after($informe->archivo_url, '/storage/') : null;
+
+        abort_unless($ruta && Storage::disk('public')->exists($ruta), 404, 'El archivo ya no está disponible.');
+
+        return Storage::disk('public')->response($ruta);
     }
 }

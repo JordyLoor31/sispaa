@@ -8,6 +8,7 @@ import type { Titulacion } from './columns';
 
 const props = defineProps<{
     titulacion: Titulacion;
+    puedeGestionar: boolean;
     breadcrumbs?: BreadcrumbItemType[];
 }>();
 
@@ -47,7 +48,7 @@ const formatDate = (date?: string) => {
                             <ArrowLeft class="h-4 w-4 mr-1.5" /> Volver
                         </Link>
                     </Button>
-                    <Button as-child class="bg-indigo-600 hover:bg-indigo-500 text-white">
+                    <Button v-if="puedeGestionar" as-child class="bg-indigo-600 hover:bg-indigo-500 text-white">
                         <Link :href="route('titulacion.edit', titulacion.id)">
                             <Pencil class="h-4 w-4 mr-1.5" /> Editar
                         </Link>

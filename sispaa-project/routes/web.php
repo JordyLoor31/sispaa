@@ -48,8 +48,12 @@ Route::middleware(['auth', 'verified', 'role:docente|coordinador|secretaria|Syst
     });
 
 
-// ESTUDIANTES
-Route::middleware(['auth', 'verified'])
+// ESTUDIANTES (gestión/staff: coordinador y secretaría ven todo el listado
+// institucional; docente ve únicamente, en Faltas/Justificaciones, a los
+// estudiantes de las materias que tiene asignadas -- scoping en el
+// controlador. 'Matriculados' es información general y queda reservada a
+// secretaría/coordinador/SystemAdministrador).
+Route::middleware(['auth', 'verified', 'role:coordinador|secretaria|docente|SystemAdministrador'])
     ->prefix('estudiantes')
     ->name('estudiantes.')
     ->group(function () {
@@ -81,9 +85,11 @@ Route::middleware(['auth', 'verified', 'role:docente|SystemAdministrador'])
     ->group(function () {
         Route::get('/mis-silabos', [SilaboController::class, 'index'])->name('mis-silabos');
         Route::post('/mis-silabos/upload', [SilaboController::class, 'store'])->name('mis-silabos.upload');
+        Route::get('/mis-silabos/{silabo}/ver', [SilaboController::class, 'ver'])->name('mis-silabos.ver');
 
         Route::get('/mis-informes', [DocenteController::class, 'informes'])->name('mis-informes');
         Route::post('/mis-informes/upload', [DocenteController::class, 'storeInforme'])->name('mis-informes.upload');
+        Route::get('/mis-informes/{informe}/ver', [DocenteController::class, 'verInforme'])->name('mis-informes.ver');
     });
 
 
@@ -160,14 +166,25 @@ Route::middleware(['auth', 'verified', 'role:docente|SystemAdministrador'])
 
 
 // TITULACIÓN (panel único del coordinador; consolida temas/en-proceso/graduados)
-Route::middleware(['auth', 'verified', 'role:coordinador|SystemAdministrador'])
+// Ver (index/show): coordinador y SystemAdministrador ven todos los procesos;
+// secretaría también ve todos (solo lectura); docente ve únicamente los
+// procesos donde él es el tutor asignado (scoping en el controlador).
+// Gestionar (crear/editar/eliminar/cambiar estado): solo coordinador y
+// SystemAdministrador, como antes.
+Route::middleware(['auth', 'verified', 'role:coordinador|secretaria|docente|SystemAdministrador'])
     ->prefix('titulacion')
     ->name('titulacion.')
     ->group(function () {
         Route::get('/', [TitulacionController::class, 'index'])->name('index');
+        Route::get('/{titulacion}', [TitulacionController::class, 'show'])->name('show');
+    });
+
+Route::middleware(['auth', 'verified', 'role:coordinador|SystemAdministrador'])
+    ->prefix('titulacion')
+    ->name('titulacion.')
+    ->group(function () {
         Route::get('/crear', [TitulacionController::class, 'create'])->name('create');
         Route::post('/', [TitulacionController::class, 'store'])->name('store');
-        Route::get('/{titulacion}', [TitulacionController::class, 'show'])->name('show');
         Route::get('/{titulacion}/editar', [TitulacionController::class, 'edit'])->name('edit');
         Route::put('/{titulacion}', [TitulacionController::class, 'update'])->name('update');
         Route::delete('/{titulacion}', [TitulacionController::class, 'destroy'])->name('destroy');
@@ -380,6 +397,21 @@ Route::middleware(['auth', 'verified', 'role:secretaria|SystemAdministrador'])
             ->name('silabos.show');
         Route::patch('/silabos/{silabo}/review', [\App\Http\Controllers\Secretaria\SilaboRevisionController::class, 'review'])
             ->name('silabos.review');
+
+        // Asignación de Docentes (vincula docente + materia + período + grupo;
+        // alimenta Mis Sílabos/Mis Informes/Mis Estudiantes/Titulación del docente)
+        Route::get('/asignaciones-docente', [\App\Http\Controllers\Secretaria\AsignacionDocenteController::class, 'index'])
+            ->name('asignaciones-docente.index');
+        Route::get('/asignaciones-docente/crear', [\App\Http\Controllers\Secretaria\AsignacionDocenteController::class, 'create'])
+            ->name('asignaciones-docente.create');
+        Route::post('/asignaciones-docente', [\App\Http\Controllers\Secretaria\AsignacionDocenteController::class, 'store'])
+            ->name('asignaciones-docente.store');
+        Route::get('/asignaciones-docente/{asignacion}/editar', [\App\Http\Controllers\Secretaria\AsignacionDocenteController::class, 'edit'])
+            ->name('asignaciones-docente.edit');
+        Route::put('/asignaciones-docente/{asignacion}', [\App\Http\Controllers\Secretaria\AsignacionDocenteController::class, 'update'])
+            ->name('asignaciones-docente.update');
+        Route::delete('/asignaciones-docente/{asignacion}', [\App\Http\Controllers\Secretaria\AsignacionDocenteController::class, 'destroy'])
+            ->name('asignaciones-docente.destroy');
     });
 
 

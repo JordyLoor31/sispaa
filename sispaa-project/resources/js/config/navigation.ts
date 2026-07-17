@@ -11,7 +11,7 @@
 // "todo" de SystemAdministrador.
 
 import { type NavItem } from '@/types';
-import { BarChart3, Bell, Book, BookOpen, Calendar, ClipboardCheck, Feather, FileText, FlaskConical, FolderOpen, GraduationCap, Handshake, LayoutGrid, Megaphone, Search, Settings, User, Users, type LucideIcon } from 'lucide-vue-next';
+import { BarChart3, Bell, Book, BookOpen, Calendar, ClipboardCheck, Feather, FileText, FolderOpen, GraduationCap, Handshake, LayoutGrid, Megaphone, Search, Settings, User, UserCog, Users, type LucideIcon } from 'lucide-vue-next';
 
 /** Nombres de rol tal como están sembrados en Spatie (roles.name). */
 export const ROLES = {
@@ -74,7 +74,13 @@ export const systemAdministradorNavItems: NavItem[] = [
     },
 ];
 
-/** Rol Docente: docencia, investigación y laboratorio. */
+/**
+ * Rol Docente: docencia e investigación. El bloque "Laboratorio" se ocultó
+ * a pedido (no se usa por ahora); las rutas/vistas siguen existiendo, solo
+ * se quitó la entrada del menú. Para reactivarlo, restaurar el item que
+ * enlazaba a laboratorio.index (con sus 6 sub-items) en este array y en
+ * docenteAdminOverviewNavItems.
+ */
 export const docenteNavItems: NavItem[] = [
     {
         title: 'Docencia',
@@ -91,47 +97,34 @@ export const docenteNavItems: NavItem[] = [
         icon: Search,
     },
     {
-        title: 'Laboratorio',
-        href: route('laboratorio.index'),
-        icon: FlaskConical,
+        title: 'Titulación',
+        href: route('titulacion.index'),
+        icon: GraduationCap,
+    },
+    {
+        title: 'Mis Estudiantes',
+        href: route('estudiantes.faltas'),
+        icon: Book,
         items: [
-            { title: 'Dashboard', href: route('laboratorio.index') },
-            { title: 'Prácticas', href: route('laboratorio.practicas') },
-            { title: 'Laboratorios', href: route('laboratorio.laboratorios') },
-            { title: 'Equipos', href: route('laboratorio.equipos') },
-            { title: 'Reactivos', href: route('laboratorio.reactivos') },
-            { title: 'Por carrera', href: route('laboratorio.porCarrera') },
+            { title: 'Faltas', href: route('estudiantes.faltas') },
+            { title: 'Justificaciones de faltas', href: route('estudiantes.justificaciones') },
         ],
     },
 ];
 
 /**
  * Variante del bloque "Docente" para SystemAdministrador cuando NO tiene
- * también el rol docente: Investigación y Laboratorio ya son vistas de
- * panel/overview, no de autoservicio, así que se reutilizan sin cambios. El
- * antiguo item "Docencia" (Sílabos subidos / Informes de Asignatura) se quitó
- * de aquí porque ahora vive, seccionado junto al resto de documentos que
- * suben otros roles, dentro de "Revisión de Documentos" (ver
- * revisionDocumentosNavItems / systemAdministradorNavItems).
+ * también el rol docente. El antiguo item "Docencia" (Sílabos subidos /
+ * Informes de Asignatura) se quitó de aquí porque ahora vive, seccionado
+ * junto al resto de documentos que suben otros roles, dentro de "Revisión
+ * de Documentos" (ver revisionDocumentosNavItems / systemAdministradorNavItems).
+ * El bloque "Laboratorio" se ocultó a pedido (no se usa por ahora).
  */
 export const docenteAdminOverviewNavItems: NavItem[] = [
     {
         title: 'Investigación',
         href: route('investigacion.index'),
         icon: Search,
-    },
-    {
-        title: 'Laboratorio',
-        href: route('laboratorio.index'),
-        icon: FlaskConical,
-        items: [
-            { title: 'Dashboard', href: route('laboratorio.index') },
-            { title: 'Prácticas', href: route('laboratorio.practicas') },
-            { title: 'Laboratorios', href: route('laboratorio.laboratorios') },
-            { title: 'Equipos', href: route('laboratorio.equipos') },
-            { title: 'Reactivos', href: route('laboratorio.reactivos') },
-            { title: 'Por carrera', href: route('laboratorio.porCarrera') },
-        ],
     },
 ];
 
@@ -177,6 +170,27 @@ export const secretariaNavItems: NavItem[] = [
         icon: BookOpen,
     },
     {
+        title: 'Titulación',
+        href: route('titulacion.index'),
+        icon: GraduationCap,
+    },
+    {
+        title: 'Estudiantes',
+        href: route('estudiantes.index'),
+        icon: Book,
+        items: [
+            { title: 'Panel Estudiantes', href: route('estudiantes.index') },
+            { title: 'Estudiantes matriculados', href: route('estudiantes.matriculados') },
+            { title: 'Faltas', href: route('estudiantes.faltas') },
+            { title: 'Justificaciones de faltas', href: route('estudiantes.justificaciones') },
+        ],
+    },
+    {
+        title: 'Asignación de Docentes',
+        href: route('secretaria.asignaciones-docente.index'),
+        icon: UserCog,
+    },
+    {
         title: 'Matrículas',
         href: route('secretaria.matriculas.index'),
         icon: Book,
@@ -207,24 +221,27 @@ export const secretariaNavItems: NavItem[] = [
             { title: 'Informes de Asignatura', href: route('reportes.informes') },
             { title: 'Vinculación', href: route('reportes.vinculacion') },
             { title: 'Titulación', href: route('reportes.titulacion') },
-            { title: 'Laboratorio', href: route('reportes.laboratorio') },
+            // 'Laboratorio' (reportes.laboratorio) oculto a pedido: no se usa por ahora.
         ],
     },
 ];
 
 /**
  * Variante de secretariaNavItems solo para la vista "todo" de
- * SystemAdministrador: quita los 3 items que ahora viven, seccionados junto
- * al resto de documentos que suben otros roles, dentro de "Revisión de
- * Documentos" (Expediente SGA, Justificaciones, Revisión de Sílabos). Se
- * deriva por filtro (no se duplica a mano) para no desincronizarse si
+ * SystemAdministrador: quita items que ya se ven en otro bloque de esa
+ * misma vista consolidada, para no repetirlos dos veces en el sidebar.
+ * - 'Expediente SGA' / 'Justificaciones' / 'Revisión de Sílabos' ahora
+ *   viven, seccionados junto al resto de documentos que suben otros
+ *   roles, dentro de "Revisión de Documentos".
+ * - 'Estudiantes' ya aparece en el bloque "Coordinador" (gestionEstudiantesNavItems).
+ * Se deriva por filtro (no se duplica a mano) para no desincronizarse si
  * secretariaNavItems cambia. secretariaNavItems en sí queda intacto: el
  * personal real de Secretaría lo sigue necesitando completo en su propio
  * menú (navByRole).
  */
-const TITULOS_EN_REVISION_DOCUMENTOS = new Set(['Expediente SGA', 'Justificaciones', 'Revisión de Sílabos']);
+const TITULOS_YA_CUBIERTOS_EN_VISTA_ADMIN = new Set(['Expediente SGA', 'Justificaciones', 'Revisión de Sílabos', 'Estudiantes']);
 export const secretariaAdminOverviewNavItems: NavItem[] = secretariaNavItems.filter(
-    (item) => !TITULOS_EN_REVISION_DOCUMENTOS.has(item.title),
+    (item) => !TITULOS_YA_CUBIERTOS_EN_VISTA_ADMIN.has(item.title),
 );
 
 /** Rol Estudiante: portal propio del estudiante. */

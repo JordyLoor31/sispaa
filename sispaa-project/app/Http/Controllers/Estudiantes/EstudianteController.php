@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Traits\HasBreadcrumbs;
 use App\Models\Admin\Carrera;
 use App\Models\Admin\PeriodoAcademico;
+use App\Models\Docencia\AsignacionDocente;
 use App\Models\Estudiantes\Falta;
 use App\Models\Estudiantes\JustificacionSolicitud;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -17,10 +19,37 @@ use Inertia\Response;
  * Vistas de gestión/staff sobre estudiantes: listado de matriculados,
  * reporte de faltas y reporte de justificaciones (solo lectura; la
  * aprobación/rechazo de justificaciones vive en Secretaría).
+ *
+ * Alcance por rol: coordinador, secretaría y SystemAdministrador ven todo
+ * lo general (incluye Matriculados). Un docente que NO tenga también uno
+ * de esos roles solo ve, en Faltas/Justificaciones, a los estudiantes de
+ * las materias que tiene asignadas en asignaciones_docente; Matriculados
+ * le queda bloqueado por ser información institucional general.
  */
 class EstudianteController extends Controller
 {
     use HasBreadcrumbs;
+
+    /**
+     * true si el usuario solo tiene el rol docente (sin coordinador,
+     * secretaría ni SystemAdministrador): dispara el alcance acotado a sus
+     * propias materias en vez del listado general.
+     */
+    private function esSoloDocente(): bool
+    {
+        $user = Auth::user();
+
+        return $user->hasRole('docente') && !$user->hasAnyRole(['coordinador', 'secretaria', 'SystemAdministrador']);
+    }
+
+    /**
+     * IDs de las materias asignadas al docente autenticado (cualquier
+     * período), usados para acotar Faltas/Justificaciones.
+     */
+    private function materiaIdsDelDocente(): array
+    {
+        return AsignacionDocente::where('docente_id', Auth::id())->pluck('materia_id')->all();
+    }
 
     public function index(): Response
     {
@@ -29,6 +58,8 @@ class EstudianteController extends Controller
 
     public function matriculados(Request $request): Response
     {
+        abort_if($this->esSoloDocente(), 403, 'El listado general de estudiantes matriculados es exclusivo de Secretaría, Coordinación y SystemAdministrador.');
+
         $perPage = (int) $request->input('per_page', 12);
         $perPage = $perPage > 0 ? min(100, $perPage) : 12;
 
@@ -104,6 +135,11 @@ class EstudianteController extends Controller
 
         $query = Falta::with(['estudiante:id,name,email,carrera_id', 'estudiante.carrera:id,nombre', 'materia:id,nombre', 'periodo:id,nombre', 'justificacion']);
 
+        // Docente sin otro rol de staff: solo las materias que tiene asignadas.
+        if ($this->esSoloDocente()) {
+            $query->whereIn('materia_id', $this->materiaIdsDelDocente());
+        }
+
         if ($carreraId) {
             $query->whereHas('estudiante', fn ($q) => $q->where('carrera_id', $carreraId));
         }
@@ -146,6 +182,12 @@ class EstudianteController extends Controller
         $estado = $request->input('estado');
 
         $query = JustificacionSolicitud::with(['falta.estudiante:id,name', 'falta.materia:id,nombre']);
+
+        // Docente sin otro rol de staff: solo justificaciones de faltas en sus materias.
+        if ($this->esSoloDocente()) {
+            $materiaIds = $this->materiaIdsDelDocente();
+            $query->whereHas('falta', fn ($q) => $q->whereIn('materia_id', $materiaIds));
+        }
 
         if ($estado) {
             $query->where('estado', $estado);

@@ -15,6 +15,7 @@ const props = defineProps<{
     titulaciones: Titulacion[];
     filters: { estado?: string };
     stats: { en_proceso: number; defendido: number; graduado: number; total: number };
+    puedeGestionar: boolean;
     breadcrumbs?: BreadcrumbItemType[];
 }>();
 
@@ -30,7 +31,7 @@ const changeEstado = (t: Titulacion, estado: string) => {
     });
 };
 
-const columns = makeTitulacionColumns({ onChangeEstado: changeEstado });
+const columns = makeTitulacionColumns({ onChangeEstado: changeEstado, puedeGestionar: props.puedeGestionar });
 
 const table = useVueTable(reactive({
     get data() { return props.titulaciones; },
@@ -49,7 +50,7 @@ const table = useVueTable(reactive({
                     <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">Titulación</h1>
                     <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Temas, procesos en curso y estudiantes titulados.</p>
                 </div>
-                <Button as-child class="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold">
+                <Button v-if="puedeGestionar" as-child class="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold">
                     <Link :href="route('titulacion.create')">
                         <Plus class="h-4 w-4" /> Registrar Tema
                     </Link>

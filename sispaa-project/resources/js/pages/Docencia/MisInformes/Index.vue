@@ -16,6 +16,7 @@ interface InformeItem {
     grupo: string | null;
     estado: 'pendiente' | 'subido' | 'aprobado' | string;
     archivo_url: string | null;
+    ver_url: string | null;
     fecha_subida: string | null;
 }
 
@@ -129,7 +130,7 @@ const estadoBadge = (estado: string) => {
                         <p class="text-xs text-slate-400 mt-1">{{ item.fecha_subida ? 'Subido: ' + item.fecha_subida : 'Aún no subido' }}</p>
                     </div>
                     <div class="flex items-center gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
-                        <a v-if="item.archivo_url" :href="item.archivo_url" target="_blank"
+                        <a v-if="item.ver_url" :href="item.ver_url" target="_blank"
                             class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-500 dark:border-slate-800 dark:text-slate-400 dark:hover:bg-slate-900">
                             <ArrowUpRight class="h-4 w-4" />
                         </a>

@@ -2,10 +2,14 @@
 import Heading from '@/components/Heading.vue';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
 
-const sidebarNavItems: NavItem[] = [
+interface SidebarNavItem {
+    title: string;
+    href: string;
+}
+
+const sidebarNavItems: SidebarNavItem[] = [
     {
         title: 'Perfil',
         href: '/settings/profile',

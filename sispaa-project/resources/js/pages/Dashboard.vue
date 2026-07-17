@@ -2,7 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
-import { FlaskConical, GraduationCap, Handshake, Search, AlertTriangle, Users, BookOpen, Layers, TrendingDown } from 'lucide-vue-next';
+import { GraduationCap, Handshake, Search, Users, BookOpen, Layers, TrendingDown } from 'lucide-vue-next';
 import { computed } from 'vue';
 import type { ApexOptions } from 'apexcharts';
 import ApexChart from 'vue3-apexcharts';
@@ -237,45 +237,7 @@ const porcentaje = (parte: number, total: number) => (total > 0 ? Math.round((pa
                         </div>
                     </div>
 
-                    <!-- Inventario Laboratorio -->
-                    <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                        <h3 class="text-base font-bold text-slate-900 dark:text-white border-b border-slate-100 pb-3 dark:border-slate-850">
-                            Inventario de Laboratorios
-                        </h3>
-                        
-                        <div class="mt-6 space-y-4">
-                            <div class="flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900">
-                                <div class="flex items-center gap-3">
-                                    <FlaskConical class="h-5 w-5 text-orange-500" />
-                                    <div>
-                                        <h4 class="text-xs font-semibold text-slate-500">Total Reactivos</h4>
-                                        <p class="text-lg font-bold text-slate-800 dark:text-slate-200">{{ stats.inventario.total_reactivos }}</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900">
-                                <div class="flex items-center gap-3">
-                                    <Layers class="h-5 w-5 text-blue-500" />
-                                    <div>
-                                        <h4 class="text-xs font-semibold text-slate-500">Total Equipos</h4>
-                                        <p class="text-lg font-bold text-slate-800 dark:text-slate-200">{{ stats.inventario.total_equipos }}</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Alerta de Bajo Stock -->
-                            <div v-if="stats.inventario.reactivos_bajo_stock > 0" class="flex items-start gap-3 p-4 rounded-xl border border-rose-100 bg-rose-50/30 dark:border-rose-950/20 dark:bg-rose-950/10">
-                                <AlertTriangle class="h-5 w-5 text-rose-500 shrink-0 mt-0.5" />
-                                <div>
-                                    <h4 class="text-xs font-bold text-rose-800 dark:text-rose-400">Atención: Stock Bajo</h4>
-                                    <p class="text-xxs text-rose-700/80 dark:text-rose-400/80 mt-0.5">
-                                        Hay {{ stats.inventario.reactivos_bajo_stock }} reactivos por debajo del stock de seguridad en laboratorio.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Tarjeta 'Inventario de Laboratorios' oculta a pedido (no se usa por ahora). -->
                 </div>
 
                 <!-- Indicadores agregados por módulo -->
@@ -297,20 +259,7 @@ const porcentaje = (parte: number, total: number) => (total > 0 ? Math.round((pa
                         </div>
                     </div>
 
-                    <!-- Prácticas de Laboratorio -->
-                    <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                        <div class="flex items-center justify-between">
-                            <span class="text-sm font-semibold text-slate-500">Prácticas de Laboratorio</span>
-                            <FlaskConical class="h-5 w-5 text-orange-500" />
-                        </div>
-                        <div class="mt-4">
-                            <span class="text-3xl font-extrabold text-slate-900 dark:text-white">{{ stats.laboratorio.total_practicas }}</span>
-                        </div>
-                        <p class="mt-2 text-xs text-slate-400">Prácticas registradas</p>
-                        <div class="mt-4 space-y-1.5 border-t border-slate-100 dark:border-slate-800 pt-3 text-xs">
-                            <div class="flex justify-between"><span class="text-slate-500">Estudiantes atendidos</span><span class="font-bold text-slate-800 dark:text-slate-200">{{ stats.laboratorio.estudiantes_atendidos }}</span></div>
-                        </div>
-                    </div>
+                    <!-- Tarjeta 'Prácticas de Laboratorio' oculta a pedido (no se usa por ahora). -->
 
                     <!-- Vinculación -->
                     <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">

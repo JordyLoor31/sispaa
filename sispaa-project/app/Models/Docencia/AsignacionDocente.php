@@ -13,6 +13,7 @@ class AsignacionDocente extends Model
         'materia_id',
         'periodo_id',
         'tipo_rol',
+        'grupo',
     ];
 
     public function docente()

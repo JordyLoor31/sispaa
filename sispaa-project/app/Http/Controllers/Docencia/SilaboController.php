@@ -8,6 +8,8 @@ use App\Models\Docencia\AsignacionDocente;
 use App\Models\Docencia\Silabo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -45,6 +47,10 @@ class SilaboController extends Controller
                 'grupo' => $asig->grupo,
                 'estado' => $silabo->estado ?? 'pendiente',
                 'archivo_url' => $silabo->archivo_url ?? null,
+                // URL de visualización servida por Laravel (no depende del
+                // symlink public/storage ni de que Apache siga symlinks):
+                // ver comentario en el método ver() más abajo.
+                'ver_url' => $silabo ? route('docencia.mis-silabos.ver', $silabo->id) : null,
                 'observaciones' => $silabo->observaciones ?? null,
                 'fecha_subida' => $silabo?->fecha_subida?->diffForHumans(),
             ];
@@ -95,5 +101,33 @@ class SilaboController extends Controller
         );
 
         return redirect()->back()->with('success', 'Sílabo subido correctamente.');
+    }
+
+    /**
+     * Sirve el archivo del sílabo a través de Laravel (streaming desde el
+     * disco 'public'), en vez de depender del enlace estático
+     * public/storage -> storage/app/public que crea `storage:link`. Ese
+     * enlace es un symlink: si Apache no tiene "Options FollowSymLinks"
+     * habilitado para la carpeta public/ (algo común en instalaciones
+     * XAMPP por defecto) o el symlink no se creó correctamente, el
+     * navegador recibe un 403 al abrir /storage/silabos/archivo.pdf aunque
+     * el archivo exista y el usuario sea el dueño. Sirviéndolo desde aquí,
+     * PHP lee el archivo directo del disco (sin pasar por ese symlink) y
+     * además permite controlar el acceso: solo el docente dueño del
+     * sílabo o SystemAdministrador pueden abrirlo.
+     */
+    public function ver(Silabo $silabo)
+    {
+        abort_unless(
+            $silabo->docente_id === Auth::id() || Auth::user()->hasRole('SystemAdministrador'),
+            403,
+            'No tienes permiso para ver este documento.'
+        );
+
+        $ruta = $silabo->archivo_url ? Str::after($silabo->archivo_url, '/storage/') : null;
+
+        abort_unless($ruta && Storage::disk('public')->exists($ruta), 404, 'El archivo ya no está disponible.');
+
+        return Storage::disk('public')->response($ruta);
     }
 }

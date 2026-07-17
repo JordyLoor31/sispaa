@@ -6,8 +6,8 @@ import { Switch } from '@/components/ui/switch';
 interface CarreraItem {
     id: number;
     nombre: string;
-    codigo: string;
-    coordinador_id: number | null;
+    codigo?: string;
+    coordinador_id?: number | null;
     coordinador?: { id: number; name: string } | null;
     activa?: boolean;
 }
@@ -19,7 +19,7 @@ interface MateriaItem {
     creditos: number;
     nivel: number;
     carrera_id: number;
-    activa: boolean;
+    activa?: boolean;
     carrera?: CarreraItem;
 }
 

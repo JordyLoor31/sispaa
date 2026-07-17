@@ -7,12 +7,36 @@ use App\Http\Controllers\Traits\HasBreadcrumbs;
 use App\Models\Titulacion\Titulacion;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class TitulacionController extends Controller
 {
     use HasBreadcrumbs;
+
+    /**
+     * true si el usuario autenticado ve TODOS los procesos de titulación
+     * (coordinador, secretaría, SystemAdministrador) en vez de solo los
+     * propios. Controla el ALCANCE de lectura (qué filas devuelve la
+     * consulta), no si puede editarlas.
+     */
+    private function veTodosLosProcesos(): bool
+    {
+        return Auth::user()->hasAnyRole(['coordinador', 'secretaria', 'SystemAdministrador']);
+    }
+
+    /**
+     * true si el usuario autenticado puede crear/editar/eliminar procesos
+     * de titulación (coordinador, SystemAdministrador). Secretaría y
+     * docente solo tienen acceso de lectura: las rutas de escritura ya
+     * están restringidas a nivel de middleware, pero esto también se usa
+     * para ocultar los controles de edición en el frontend.
+     */
+    private function puedeGestionar(): bool
+    {
+        return Auth::user()->hasAnyRole(['coordinador', 'SystemAdministrador']);
+    }
 
     /**
      * Panel único de Titulación para el coordinador: consolida lo que en el
@@ -23,8 +47,12 @@ class TitulacionController extends Controller
     public function index(Request $request): Response
     {
         $estado = $request->input('estado', 'all');
+        $veTodos = $this->veTodosLosProcesos();
 
         $query = Titulacion::with(['estudiante', 'tutor']);
+        if (!$veTodos) {
+            $query->where('tutor_id', Auth::id());
+        }
         if ($estado !== 'all') {
             $query->where('estado', $estado);
         }
@@ -39,15 +67,20 @@ class TitulacionController extends Controller
             'tutor' => ['id' => $t->tutor->id, 'name' => $t->tutor->name],
         ]);
 
+        // Los contadores del header también se acotan al alcance del
+        // usuario: un docente no debe ver el total institucional.
+        $statsQuery = fn () => Titulacion::when(!$veTodos, fn ($q) => $q->where('tutor_id', Auth::id()));
+
         return Inertia::render('Titulacion/Index', [
             'titulaciones' => $titulaciones,
             'filters' => ['estado' => $estado],
             'stats' => [
-                'en_proceso' => Titulacion::where('estado', 'en_proceso')->count(),
-                'defendido' => Titulacion::where('estado', 'defendido')->count(),
-                'graduado' => Titulacion::where('estado', 'graduado')->count(),
-                'total' => Titulacion::count(),
+                'en_proceso' => $statsQuery()->where('estado', 'en_proceso')->count(),
+                'defendido' => $statsQuery()->where('estado', 'defendido')->count(),
+                'graduado' => $statsQuery()->where('estado', 'graduado')->count(),
+                'total' => $statsQuery()->count(),
             ],
+            'puedeGestionar' => $this->puedeGestionar(),
             'breadcrumbs' => $this->titulacionBreadcrumbs('Procesos de Titulación'),
         ]);
     }
@@ -86,10 +119,17 @@ class TitulacionController extends Controller
 
     public function show(Titulacion $titulacion): Response
     {
+        abort_unless(
+            $this->veTodosLosProcesos() || $titulacion->tutor_id === Auth::id(),
+            403,
+            'No tienes permiso para ver este proceso de titulación.'
+        );
+
         $titulacion->load(['estudiante', 'tutor', 'creator', 'updater']);
 
         return Inertia::render('Titulacion/Show', [
             'titulacion' => $titulacion,
+            'puedeGestionar' => $this->puedeGestionar(),
             'breadcrumbs' => $this->titulacionBreadcrumbs('Procesos de Titulación', 'Ver Proceso', route('titulacion.index'), $titulacion->estudiante->name),
         ]);
     }

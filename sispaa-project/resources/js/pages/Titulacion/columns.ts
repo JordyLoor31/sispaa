@@ -33,9 +33,11 @@ const estadoBadge = (estado: string) => {
 
 interface TitulacionColumnsOptions {
     onChangeEstado: (titulacion: Titulacion, estado: string) => void;
+    /** false para docente/secretaría (solo lectura): oculta el selector de estado y las acciones de editar/eliminar. */
+    puedeGestionar: boolean;
 }
 
-export function makeTitulacionColumns({ onChangeEstado }: TitulacionColumnsOptions): ColumnDef<Titulacion>[] {
+export function makeTitulacionColumns({ onChangeEstado, puedeGestionar }: TitulacionColumnsOptions): ColumnDef<Titulacion>[] {
     return [
         {
             id: 'estudiante',
@@ -64,6 +66,11 @@ export function makeTitulacionColumns({ onChangeEstado }: TitulacionColumnsOptio
             header: 'Estado',
             cell: ({ row }) => {
                 const t = row.original;
+
+                if (!puedeGestionar) {
+                    return h('span', { class: `inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${estadoBadge(t.estado)}` }, t.estado.replace('_', ' '));
+                }
+
                 return h(Select, {
                     modelValue: t.estado,
                     'onUpdate:modelValue': (val: string) => onChangeEstado(t, val),
@@ -98,8 +105,8 @@ export function makeTitulacionColumns({ onChangeEstado }: TitulacionColumnsOptio
                 return h(ResourceActionsDropdown, {
                     resourceName: 'el proceso de titulación',
                     showRoute: 'titulacion.show',
-                    editRoute: 'titulacion.edit',
-                    deleteRoute: 'titulacion.destroy',
+                    editRoute: puedeGestionar ? 'titulacion.edit' : undefined,
+                    deleteRoute: puedeGestionar ? 'titulacion.destroy' : undefined,
                     routeParams: t.id,
                     itemLabel: `el proceso de "${t.estudiante.name}"`,
                 });

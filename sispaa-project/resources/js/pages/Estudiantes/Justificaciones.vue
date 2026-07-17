@@ -26,6 +26,7 @@ interface SolicitudJustificacion {
     archivo_adjunto: string | null;
     estado: 'pendiente' | 'aprobada' | 'rechazada' | string;
     comentario_docente: string | null;
+    comentario_revisor?: string | null;
     created_at: string;
 }
 
