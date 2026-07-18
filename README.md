@@ -37,7 +37,7 @@ Extensiones de PHP requeridas por Laravel: `pdo_pgsql`, `mbstring`, `openssl`, `
 2. **Instalar dependencias PHP**
 
    ```bash
-   composer install
+   composer update
    ```
 
 3. **Instalar dependencias de Node**

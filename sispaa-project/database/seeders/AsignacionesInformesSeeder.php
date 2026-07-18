@@ -66,15 +66,19 @@ class AsignacionesInformesSeeder extends Seeder
                         $fechaSubida = now()->subDays(rand(1, 5));
                     }
 
-                    InformeDocente::create([
-                        'docente_id' => $docente->id,
-                        'materia_id' => $materia->id,
-                        'periodo_id' => $periodo->id,
-                        'tipo' => 'asignatura',
-                        'estado' => $estado,
-                        'archivo_url' => $url,
-                        'fecha_subida' => $fechaSubida,
-                    ]);
+                    InformeDocente::firstOrCreate(
+                        [
+                            'materia_id' => $materia->id,
+                            'periodo_id' => $periodo->id,
+                            'tipo' => 'asignatura',
+                        ],
+                        [
+                            'docente_id' => $docente->id,
+                            'estado' => $estado,
+                            'archivo_url' => $url,
+                            'fecha_subida' => $fechaSubida,
+                        ]
+                    );
                     $createdReports++;
                 }
             }

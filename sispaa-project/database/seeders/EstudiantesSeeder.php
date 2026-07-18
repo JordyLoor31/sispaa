@@ -40,7 +40,7 @@ class EstudiantesSeeder extends Seeder
                 'fecha_inicio' => Carbon::now()->startOfMonth()->toDateString(),
                 'fecha_fin' => Carbon::now()->addMonths(5)->endOfMonth()->toDateString(),
                 'tipo' => 'semestral',
-                'activo' => true,
+                'estado' => true,
             ]
         );
 
