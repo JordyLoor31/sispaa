@@ -17,19 +17,19 @@ const breadcrumbItems: BreadcrumbItem[] = [
 const teamMembers = [
     {
         name: 'Jesús Bosada',
-        email: 'e1351344765@live.uleam.edu.ec'
+        email: 'jesusbosada2003@gmail.com'
     },
     {
         name: 'Jordy Loor',
-        email: 'e1317238366@live.uleam.edu.ec'
+        email: 'loorjordy62@gmail.com'
     },
     {
         name: 'Douglas Parrales',
-        email: 'e1317025755@live.uleam.edu.ec'
+        email: 'douglas.app.26@gmail.com'
     },
     {
         name: 'José Santos',
-        email: 'e1317851911@live.uleam.edu.ec'
+        email: 'josetoala623@gmail.com'
     },
 ];
 </script>
