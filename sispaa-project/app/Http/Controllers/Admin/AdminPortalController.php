@@ -35,10 +35,30 @@ class AdminPortalController extends Controller
         $informesEntregados = InformeDocente::whereIn('estado', ['subido', 'aprobado'])->count();
         $cumplimientoDocente = $totalInformes > 0 ? round(($informesEntregados / $totalInformes) * 100) : 0;
 
+        // Informes vencidos: pendientes cuyo periodo ya superó la fecha límite de entrega
+        $informesIncumplidos = InformeDocente::where('estado', 'pendiente')
+            ->whereHas('periodo', function ($q) {
+                $q->whereNotNull('fecha_limite_informe')->where('fecha_limite_informe', '<', now());
+            })->count();
+        $informesPendientes = InformeDocente::where('estado', 'pendiente')->count() - $informesIncumplidos;
+
+        $docenciaStats = [
+            'informes_cumplidos' => $informesEntregados,
+            'informes_pendientes' => $informesPendientes,
+            'informes_incumplidos' => $informesIncumplidos,
+        ];
+
         // 2. Deserción estudiantil
         $totalMatriculados = Matricula::count();
         $totalRetirados = Matricula::where('estado', 'retirado')->count();
         $desercionEstudiantil = $totalMatriculados > 0 ? round(($totalRetirados / $totalMatriculados) * 100, 2) : 0;
+
+        $estudiantesStats = [
+            'matriculados' => $totalMatriculados,
+            'activos' => Matricula::where('estado', 'activo')->count(),
+            'retirados' => $totalRetirados,
+            'egresados' => Matricula::where('estado', 'egresado')->count(),
+        ];
 
         // 3. Inventario de Laboratorio (real, ya no simulado)
         $inventarioStats = [
@@ -58,9 +78,17 @@ class AdminPortalController extends Controller
         ];
 
         // 5. Prácticas de Laboratorio
+        $practicasPorCarrera = PracticaLaboratorio::join('materias', 'materias.id', '=', 'practicas_laboratorio.materia_id')
+            ->join('carreras', 'carreras.id', '=', 'materias.carrera_id')
+            ->select('carreras.nombre as carrera', DB::raw('count(*) as total'))
+            ->groupBy('carreras.nombre')
+            ->orderByDesc('total')
+            ->get();
+
         $laboratorioStats = [
             'total_practicas' => PracticaLaboratorio::count(),
             'estudiantes_atendidos' => (int) PracticaLaboratorio::sum('numero_estudiantes'),
+            'por_carrera' => $practicasPorCarrera,
         ];
 
         // 6. Vinculación
@@ -68,6 +96,10 @@ class AdminPortalController extends Controller
             'total_actividades' => ActividadVinculacion::count(),
             'ejecutadas' => ActividadVinculacion::where('estado', 'ejecutado')->count(),
             'pendientes' => ActividadVinculacion::where('estado', 'pendiente')->count(),
+            'empresas_beneficiadas' => ActividadVinculacion::where('estado', 'ejecutado')
+                ->whereNotNull('empresa_id')
+                ->distinct('empresa_id')
+                ->count('empresa_id'),
         ];
 
         // 7. Titulación
@@ -93,32 +125,12 @@ class AdminPortalController extends Controller
             'laboratorio' => $laboratorioStats,
             'vinculacion' => $vinculacionStats,
             'titulacion' => $titulacionStats,
+            'docencia' => $docenciaStats,
+            'estudiantes' => $estudiantesStats,
         ];
-
-        // Cumplimiento por carreras
-        $carreras = Carrera::all();
-        $cumplimientoPorCarrera = [];
-        foreach ($carreras as $carrera) {
-            $totalCarrera = InformeDocente::whereHas('materia', function($q) use ($carrera) {
-                $q->where('carrera_id', $carrera->id);
-            })->count();
-            
-            $entregadosCarrera = InformeDocente::whereIn('estado', ['subido', 'aprobado'])
-                ->whereHas('materia', function($q) use ($carrera) {
-                    $q->where('carrera_id', $carrera->id);
-                })->count();
-
-            $pct = $totalCarrera > 0 ? round(($entregadosCarrera / $totalCarrera) * 100) : 0;
-            $cumplimientoPorCarrera[] = [
-                'carrera' => $carrera->nombre,
-                'codigo' => $carrera->codigo,
-                'porcentaje' => $pct
-            ];
-        }
 
         return Inertia::render('Dashboard', [
             'stats' => $stats,
-            'cumplimientoPorCarrera' => $cumplimientoPorCarrera
         ]);
     }
 
