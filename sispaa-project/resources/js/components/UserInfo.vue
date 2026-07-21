@@ -21,14 +21,14 @@ const avatarSrc = computed(() => props.user.avatar ?? '');
 </script>
 
 <template>
-    <Avatar class="h-8 w-8 overflow-hidden rounded-lg">
+    <Avatar class="h-8 w-8 shrink-0 overflow-hidden rounded-lg">
         <AvatarImage v-if="showAvatar" :src="avatarSrc" :alt="user.name" />
         <AvatarFallback class="rounded-lg text-black dark:text-white">
             {{ getInitials(user.name) }}
         </AvatarFallback>
     </Avatar>
 
-    <div class="grid flex-1 text-left text-sm leading-tight">
+    <div class="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
         <span class="truncate font-medium">{{ user.name }}</span>
         <span v-if="showEmail" class="truncate text-xs text-muted-foreground">{{ user.email }}</span>
     </div>
