@@ -9,6 +9,7 @@ import type { ColumnDef } from '@tanstack/vue-table';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { toast } from 'vue-sonner';
@@ -73,11 +74,11 @@ const submitChangeEstado = () => {
 
 const estadoBadge = (estado: string) => {
     const map: Record<string, string> = {
-        activo: 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-400',
-        retirado: 'bg-rose-50 text-rose-800 dark:bg-rose-950/30 dark:text-rose-400',
-        egresado: 'bg-blue-50 text-blue-800 dark:bg-blue-950/30 dark:text-blue-400',
+        activo: 'bg-[color:color-mix(in_srgb,var(--sispaa-secondary)_30%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]',
+        retirado: 'bg-rose-50 text-rose-800',
+        egresado: 'bg-[color:color-mix(in_srgb,var(--sispaa-accent)_25%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-accent)_75%,black)]',
     };
-    return map[estado] ?? 'bg-slate-100 text-slate-500';
+    return map[estado] ?? 'bg-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-text)_60%,transparent)]';
 };
 
 const columns: ColumnDef<MatriculaItem>[] = [
@@ -104,17 +105,17 @@ const navigateToPage = (url: string | null) => {
     <AppSidebarLayout :breadcrumbs="breadcrumbs">
         <Head title="Registro de Matrículas" />
 
-        <div class="flex h-full flex-1 flex-col gap-6 p-6 bg-slate-50/50 dark:bg-slate-900/50">
+        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[var(--sispaa-background)]">
             <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div>
-                    <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+                    <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">
                         Registro de Matrículas
                     </h1>
-                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                    <p class="mt-1 text-sm opacity-60 text-[var(--sispaa-text)]">
                         Inscribe estudiantes en materias y períodos académicos.
                     </p>
                 </div>
-                <Button as-child class="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold">
+                <Button as-child class="inline-flex items-center gap-1.5 font-semibold text-white bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)]">
                     <Link :href="route('secretaria.matriculas.create')">
                         <Plus class="h-4 w-4" />
                         Nueva Matrícula
@@ -122,39 +123,39 @@ const navigateToPage = (url: string | null) => {
                 </Button>
             </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                    <p class="text-xs font-semibold text-slate-500 uppercase">Total</p>
-                    <p class="mt-1 text-3xl font-extrabold text-slate-900 dark:text-white">{{ stats.total }}</p>
+            <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
+                <div class="rounded-2xl p-5 shadow-sm bg-[var(--sispaa-surface)]">
+                    <p class="text-xs font-semibold uppercase opacity-60 text-[var(--sispaa-text)]">Total</p>
+                    <p class="mt-1 text-3xl font-extrabold text-[var(--sispaa-text)]">{{ stats.total }}</p>
                 </div>
-                <div class="rounded-2xl border border-emerald-200/60 bg-emerald-50/40 p-5 shadow-sm dark:border-emerald-900/30 dark:bg-emerald-950/10">
-                    <p class="text-xs font-semibold text-emerald-700 uppercase">Activos</p>
-                    <p class="mt-1 text-3xl font-extrabold text-emerald-700 dark:text-emerald-300">{{ stats.activos }}</p>
+                <div class="rounded-2xl p-5 shadow-sm bg-[var(--sispaa-surface)]">
+                    <p class="text-xs font-semibold uppercase text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]">Activos</p>
+                    <p class="mt-1 text-3xl font-extrabold text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]">{{ stats.activos }}</p>
                 </div>
-                <div class="rounded-2xl border border-rose-200/60 bg-rose-50/40 p-5 shadow-sm dark:border-rose-900/30 dark:bg-rose-950/10">
-                    <p class="text-xs font-semibold text-rose-700 uppercase">Retirados</p>
-                    <p class="mt-1 text-3xl font-extrabold text-rose-700 dark:text-rose-300">{{ stats.retirados }}</p>
+                <div class="rounded-2xl p-5 shadow-sm bg-[var(--sispaa-surface)]">
+                    <p class="text-xs font-semibold uppercase text-rose-700">Retirados</p>
+                    <p class="mt-1 text-3xl font-extrabold text-rose-700">{{ stats.retirados }}</p>
                 </div>
-                <div class="rounded-2xl border border-blue-200/60 bg-blue-50/40 p-5 shadow-sm dark:border-blue-900/30 dark:bg-blue-950/10">
-                    <p class="text-xs font-semibold text-blue-700 uppercase">Egresados</p>
-                    <p class="mt-1 text-3xl font-extrabold text-blue-700 dark:text-blue-300">{{ stats.egresados }}</p>
+                <div class="rounded-2xl p-5 shadow-sm bg-[var(--sispaa-surface)]">
+                    <p class="text-xs font-semibold uppercase text-[color:color-mix(in_srgb,var(--sispaa-accent)_75%,black)]">Egresados</p>
+                    <p class="mt-1 text-3xl font-extrabold text-[color:color-mix(in_srgb,var(--sispaa-accent)_75%,black)]">{{ stats.egresados }}</p>
                 </div>
             </div>
 
             <div class="w-full space-y-4">
-                <div class="flex flex-col sm:flex-row gap-3 flex-wrap bg-white dark:bg-slate-950 p-4 rounded-xl border border-slate-200/80 dark:border-slate-800">
-                    <div class="flex-1 relative min-w-[200px]">
-                        <Search class="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                        <input
+                <div class="flex flex-col flex-wrap gap-3 rounded-xl p-4 bg-[var(--sispaa-surface)] sm:flex-row">
+                    <div class="relative min-w-[200px] flex-1">
+                        <Search class="absolute left-3 top-2.5 h-4 w-4 opacity-40 text-[var(--sispaa-text)]" />
+                        <Input
                             v-model="search"
                             @input="debouncedSearch"
                             type="text"
                             placeholder="Buscar estudiante, cédula..."
-                            class="pl-9 w-full rounded-lg border-slate-200 bg-slate-50/30 text-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-200"
+                            class="bg-[var(--sispaa-background)] pl-9"
                         />
                     </div>
                     <Select v-model="filterEstado" @update:model-value="applyFilters">
-                        <SelectTrigger class="w-[140px]"><SelectValue placeholder="Estado" /></SelectTrigger>
+                        <SelectTrigger class="w-full bg-[var(--sispaa-background)] sm:w-[140px]"><SelectValue placeholder="Estado" /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">Todos</SelectItem>
                             <SelectItem value="activo">Activo</SelectItem>
@@ -163,14 +164,14 @@ const navigateToPage = (url: string | null) => {
                         </SelectContent>
                     </Select>
                     <Select v-model="filterPeriodo" @update:model-value="applyFilters">
-                        <SelectTrigger class="w-[180px]"><SelectValue placeholder="Período" /></SelectTrigger>
+                        <SelectTrigger class="w-full bg-[var(--sispaa-background)] sm:w-[180px]"><SelectValue placeholder="Período" /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">Todos los períodos</SelectItem>
                             <SelectItem v-for="p in periodos" :key="p.id" :value="String(p.id)">{{ p.nombre }}</SelectItem>
                         </SelectContent>
                     </Select>
                     <Select v-model="filterCarrera" @update:model-value="applyFilters">
-                        <SelectTrigger class="w-[180px]"><SelectValue placeholder="Carrera" /></SelectTrigger>
+                        <SelectTrigger class="w-full bg-[var(--sispaa-background)] sm:w-[180px]"><SelectValue placeholder="Carrera" /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">Todas las carreras</SelectItem>
                             <SelectItem v-for="c in carreras" :key="c.id" :value="String(c.id)">{{ c.codigo }} — {{ c.nombre }}</SelectItem>
@@ -178,39 +179,39 @@ const navigateToPage = (url: string | null) => {
                     </Select>
                 </div>
 
-                <div class="rounded-lg border border-slate-200/80 bg-white dark:border-slate-800 dark:bg-slate-950 overflow-hidden">
+                <div class="overflow-hidden rounded-lg bg-[var(--sispaa-surface)]">
                     <div class="overflow-x-auto">
                         <Table>
                             <TableHeader>
                                 <TableRow v-for="hg in table.getHeaderGroups()" :key="hg.id"
-                                    class="border-b border-slate-200/80 dark:border-slate-800">
+                                    class="border-b border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
                                     <TableHead v-for="header in hg.headers" :key="header.id"
-                                        class="h-12 px-4 text-sm font-medium text-slate-500 dark:text-slate-400">
+                                        class="h-12 px-4 text-sm font-medium opacity-60 text-[var(--sispaa-text)]">
                                         <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header" :props="header.getContext()" />
                                     </TableHead>
                                 </TableRow>
                             </TableHeader>
-                            <TableBody class="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
+                            <TableBody class="divide-y divide-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)] text-sm">
                                 <template v-if="table.getRowModel().rows.length">
                                     <TableRow v-for="row in table.getRowModel().rows" :key="row.id"
-                                        class="hover:bg-slate-50/40 dark:hover:bg-slate-900/20 transition-colors">
-                                        <TableCell class="py-4 px-4">
-                                            <div class="font-semibold text-slate-900 dark:text-white">{{ row.original.estudiante.name }}</div>
-                                            <div class="text-xs text-slate-400">{{ row.original.estudiante.cedula ?? row.original.estudiante.email }}</div>
+                                        class="transition-colors hover:bg-[color:color-mix(in_srgb,var(--sispaa-text)_5%,transparent)]">
+                                        <TableCell class="px-4 py-4">
+                                            <div class="font-semibold text-[var(--sispaa-text)]">{{ row.original.estudiante.name }}</div>
+                                            <div class="text-xs opacity-50 text-[var(--sispaa-text)]">{{ row.original.estudiante.cedula ?? row.original.estudiante.email }}</div>
                                         </TableCell>
-                                        <TableCell class="py-4 px-4 text-xs text-slate-600 dark:text-slate-300">
+                                        <TableCell class="px-4 py-4 text-xs opacity-70 text-[var(--sispaa-text)]">
                                             {{ row.original.carrera.codigo }} — {{ row.original.carrera.nombre }}
                                         </TableCell>
-                                        <TableCell class="py-4 px-4 text-xs text-slate-600 dark:text-slate-300">
+                                        <TableCell class="px-4 py-4 text-xs opacity-70 text-[var(--sispaa-text)]">
                                             {{ row.original.periodo.nombre }}
                                         </TableCell>
-                                        <TableCell class="py-4 px-4">
+                                        <TableCell class="px-4 py-4">
                                             <span :class="['inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold', estadoBadge(row.original.estado)]">
                                                 {{ row.original.estado.charAt(0).toUpperCase() + row.original.estado.slice(1) }}
                                             </span>
                                         </TableCell>
-                                        <TableCell class="py-4 px-4 text-xs text-slate-500">{{ row.original.fecha_matricula }}</TableCell>
-                                        <TableCell class="py-4 px-4 text-right">
+                                        <TableCell class="px-4 py-4 text-xs opacity-60 text-[var(--sispaa-text)]">{{ row.original.fecha_matricula }}</TableCell>
+                                        <TableCell class="px-4 py-4 text-right">
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger as-child>
                                                     <Button variant="ghost" size="sm" class="h-8 w-8 p-0">
@@ -229,7 +230,7 @@ const navigateToPage = (url: string | null) => {
                                 </template>
                                 <TableRow v-else>
                                     <TableCell :colspan="6" class="h-32 text-center">
-                                        <div class="flex flex-col items-center gap-2 text-slate-400">
+                                        <div class="flex flex-col items-center gap-2 opacity-40 text-[var(--sispaa-text)]">
                                             <ClipboardList class="h-8 w-8" />
                                             <span class="text-sm font-medium">No hay matrículas registradas</span>
                                         </div>
@@ -238,17 +239,17 @@ const navigateToPage = (url: string | null) => {
                             </TableBody>
                         </Table>
                     </div>
-                    <div class="flex items-center justify-between border-t border-slate-100 dark:border-slate-800 px-6 py-4">
-                        <span class="text-xs text-slate-500">Mostrando {{ matriculas.data.length }} de {{ matriculas.total }} matrículas</span>
-                        <div class="flex items-center gap-1">
+                    <div class="flex flex-col gap-2 border-t px-4 py-4 border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)] sm:flex-row sm:items-center sm:justify-between sm:px-6">
+                        <span class="text-xs opacity-60 text-[var(--sispaa-text)]">Mostrando {{ matriculas.data.length }} de {{ matriculas.total }} matrículas</span>
+                        <div class="flex flex-wrap items-center gap-1">
                             <button
                                 v-for="link in matriculas.links"
                                 :key="link.label"
                                 @click="navigateToPage(link.url)"
                                 :disabled="!link.url || link.active"
                                 v-html="link.label"
-                                class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
-                                :class="[link.active ? 'bg-indigo-600 text-white' : 'border border-slate-200/80 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 disabled:opacity-40']"
+                                class="rounded-lg px-3 py-1.5 text-xs font-semibold transition-all"
+                                :class="[link.active ? 'bg-[var(--sispaa-primary)] text-white' : 'bg-[var(--sispaa-background)] text-[var(--sispaa-text)] opacity-70 hover:opacity-100 disabled:opacity-40']"
                             />
                         </div>
                     </div>
@@ -266,7 +267,7 @@ const navigateToPage = (url: string | null) => {
                     </DialogDescription>
                 </DialogHeader>
                 <div class="py-4">
-                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Nuevo estado</label>
+                    <label class="block text-sm font-semibold text-[var(--sispaa-text)] mb-1.5">Nuevo estado</label>
                     <Select v-model="estadoForm.estado">
                         <SelectTrigger class="w-full">
                             <SelectValue />
@@ -280,7 +281,7 @@ const navigateToPage = (url: string | null) => {
                 </div>
                 <DialogFooter class="gap-2">
                     <Button variant="outline" @click="changeEstadoItem = null">Cancelar</Button>
-                    <Button @click="submitChangeEstado" :disabled="estadoForm.processing" class="bg-indigo-600 hover:bg-indigo-500 text-white">
+                    <Button @click="submitChangeEstado" :disabled="estadoForm.processing" class="text-white bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)]">
                         {{ estadoForm.processing ? 'Guardando...' : 'Guardar cambio' }}
                     </Button>
                 </DialogFooter>

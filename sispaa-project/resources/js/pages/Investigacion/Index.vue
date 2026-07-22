@@ -43,9 +43,9 @@ const confirmDelete = () => {
 
 const estadoBadge = (estado: string) => {
     const map: Record<string, string> = {
-        en_curso: 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/30 dark:text-indigo-400',
-        pausada: 'bg-amber-50 text-amber-800 dark:bg-amber-950/30 dark:text-amber-400',
-        finalizada: 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-400',
+        en_curso: 'bg-[color:color-mix(in_srgb,var(--sispaa-accent)_20%,transparent)] text-[var(--sispaa-accent)]',
+        pausada: 'bg-[color:color-mix(in_srgb,#E4BC57_45%,transparent)] text-[color:color-mix(in_srgb,#E4BC57_60%,black)]',
+        finalizada: 'bg-[color:color-mix(in_srgb,var(--sispaa-secondary)_30%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]',
     };
     return map[estado] ?? map.en_curso;
 };
@@ -55,15 +55,15 @@ const estadoBadge = (estado: string) => {
     <AppSidebarLayout :breadcrumbs="breadcrumbs">
         <Head title="Investigación" />
 
-        <div class="flex h-full flex-1 flex-col gap-6 p-6 bg-slate-50/50 dark:bg-slate-900/50">
+        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[var(--sispaa-background)]">
             <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div>
-                    <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">Investigación</h1>
-                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                    <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">Investigación</h1>
+                    <p class="mt-1 text-sm opacity-60 text-[var(--sispaa-text)]">
                         Tus proyectos de investigación y los que supervisas como coordinador.
                     </p>
                 </div>
-                <Button as-child class="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold">
+                <Button as-child class="inline-flex items-center gap-1.5 font-semibold text-white bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)]">
                     <Link :href="route('investigacion.create')">
                         <Plus class="h-4 w-4" />
                         Nuevo Proyecto
@@ -71,10 +71,10 @@ const estadoBadge = (estado: string) => {
                 </Button>
             </div>
 
-            <div class="max-w-5xl w-full mx-auto space-y-4">
-                <div class="flex gap-3 bg-white dark:bg-slate-950 p-4 rounded-xl border border-slate-200/80 dark:border-slate-800">
+            <div class="w-full max-w-5xl mx-auto space-y-4">
+                <div class="flex gap-3 p-4 rounded-xl bg-[var(--sispaa-surface)]">
                     <Select v-model="filterEstado" @update:model-value="applyFilter">
-                        <SelectTrigger class="w-[180px]"><SelectValue placeholder="Estado" /></SelectTrigger>
+                        <SelectTrigger class="w-full bg-[var(--sispaa-background)] sm:w-[180px]"><SelectValue placeholder="Estado" /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">Todos los estados</SelectItem>
                             <SelectItem value="en_curso">En curso</SelectItem>
@@ -86,9 +86,9 @@ const estadoBadge = (estado: string) => {
 
                 <div class="grid gap-4 md:grid-cols-2">
                     <div v-for="p in proyectos" :key="p.id"
-                        class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950 flex flex-col gap-3">
+                        class="flex flex-col gap-3 rounded-2xl p-5 shadow-sm bg-[var(--sispaa-surface)]">
                         <div class="flex items-start justify-between">
-                            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 dark:bg-indigo-950/30 dark:text-indigo-400">
+                            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-[var(--sispaa-primary)] bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]">
                                 <FlaskConical class="h-4.5 w-4.5" />
                             </div>
                             <span :class="['inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold', estadoBadge(p.estado)]">
@@ -96,16 +96,16 @@ const estadoBadge = (estado: string) => {
                             </span>
                         </div>
                         <div>
-                            <h3 class="text-sm font-bold text-slate-900 dark:text-white">{{ p.titulo }}</h3>
-                            <p v-if="p.objetivo" class="text-xs text-slate-500 mt-1 line-clamp-2">{{ p.objetivo }}</p>
-                            <p class="text-xs text-slate-400 mt-2">Docente: {{ p.docente.name }}</p>
-                            <p class="text-xs text-slate-400">Coordinador: {{ p.coordinador.name }} · {{ p.periodo }}</p>
-                            <p class="text-xs text-slate-400 mt-1">Hitos: {{ p.hitos_completados }}/{{ p.total_hitos }} completados</p>
+                            <h3 class="text-sm font-bold text-[var(--sispaa-text)]">{{ p.titulo }}</h3>
+                            <p v-if="p.objetivo" class="mt-1 text-xs opacity-70 text-[var(--sispaa-text)] line-clamp-2">{{ p.objetivo }}</p>
+                            <p class="mt-2 text-xs opacity-60 text-[var(--sispaa-text)]">Docente: {{ p.docente.name }}</p>
+                            <p class="text-xs opacity-60 text-[var(--sispaa-text)]">Coordinador: {{ p.coordinador.name }} · {{ p.periodo }}</p>
+                            <p class="mt-1 text-xs opacity-60 text-[var(--sispaa-text)]">Hitos: {{ p.hitos_completados }}/{{ p.total_hitos }} completados</p>
                         </div>
 
                         <div v-if="p.es_propio || p.es_coordinador" class="flex items-center gap-2">
                             <Select :model-value="p.estado" @update:model-value="val => changeEstado(p, val as string)">
-                                <SelectTrigger class="w-full h-8 text-xs"><SelectValue /></SelectTrigger>
+                                <SelectTrigger class="h-8 w-full bg-[var(--sispaa-background)] text-xs"><SelectValue /></SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="en_curso">En curso</SelectItem>
                                     <SelectItem value="pausada">Pausada</SelectItem>
@@ -114,23 +114,23 @@ const estadoBadge = (estado: string) => {
                             </Select>
                         </div>
 
-                        <div class="flex items-center gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                        <div class="flex flex-wrap items-center gap-2 border-t pt-2 border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
                             <Link :href="route('investigacion.hitos', p.id)"
-                                class="inline-flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-500 font-semibold">
+                                class="inline-flex items-center gap-1 text-xs font-semibold text-[var(--sispaa-primary)] hover:opacity-80">
                                 Ver hitos y seguimiento <ChevronRight class="h-3.5 w-3.5" />
                             </Link>
                             <div class="ml-auto flex items-center gap-1" v-if="p.es_propio">
-                                <Link :href="route('investigacion.edit', p.id)" class="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900">
+                                <Link :href="route('investigacion.edit', p.id)" class="rounded-lg p-1.5 opacity-60 text-[var(--sispaa-text)] hover:opacity-100 hover:bg-[color:color-mix(in_srgb,var(--sispaa-background)_60%,transparent)]">
                                     <Pencil class="h-3.5 w-3.5" />
                                 </Link>
-                                <button @click="deleteTarget = p" class="rounded-lg p-1.5 text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/20">
+                                <button @click="deleteTarget = p" class="rounded-lg p-1.5 text-rose-500 hover:bg-rose-50">
                                     <Trash2 class="h-3.5 w-3.5" />
                                 </button>
                             </div>
                         </div>
                     </div>
 
-                    <div v-if="proyectos.length === 0" class="col-span-full rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 p-10 text-center text-sm text-slate-400">
+                    <div v-if="proyectos.length === 0" class="col-span-full rounded-2xl border border-dashed p-10 text-center text-sm opacity-50 border-[color:color-mix(in_srgb,var(--sispaa-text)_25%,transparent)] text-[var(--sispaa-text)]">
                         No hay proyectos de investigación todavía.
                     </div>
                 </div>

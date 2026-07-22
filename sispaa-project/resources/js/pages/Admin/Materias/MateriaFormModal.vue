@@ -150,13 +150,13 @@ const onSubmit = handleSubmit((values) => {
 
 <template>
     <AlertDialog :open="open" @update:open="(val) => emit('update:open', val)">
-        <AlertDialogContent class="w-full max-w-md rounded-2xl border border-slate-100 bg-white p-6 shadow-xl dark:border-slate-900 dark:bg-slate-950">
-            <AlertDialogHeader class="flex items-center justify-between border-b border-slate-100 pb-4 dark:border-slate-800/85">
+        <AlertDialogContent class="w-full max-w-md rounded-2xl border p-6 shadow-xl bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]">
+            <AlertDialogHeader class="flex items-center justify-between border-b pb-4 border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]">
                 <div class="flex w-full flex-col gap-1 text-left">
-                    <AlertDialogTitle class="text-lg font-bold text-slate-900 dark:text-white">
+                    <AlertDialogTitle class="text-lg font-bold text-[var(--sispaa-text)]">
                         {{ materia ? 'Editar Asignatura' : 'Nueva Asignatura' }}
                     </AlertDialogTitle>
-                    <AlertDialogDescription class="text-xs text-slate-400">
+                    <AlertDialogDescription class="text-xs opacity-60 text-[var(--sispaa-text)]">
                         Complete los datos para configurar la asignatura de la malla.
                     </AlertDialogDescription>
                 </div>
@@ -176,19 +176,19 @@ const onSubmit = handleSubmit((values) => {
                                 </ComboboxTrigger>
                             </ComboboxAnchor>
 
-                            <ComboboxList class="w-[var(--reka-combobox-trigger-width)] min-w-[250px] rounded-lg border border-slate-100 bg-white shadow-lg dark:border-slate-900 dark:bg-slate-950">
-                                <ComboboxInput placeholder="Buscar carrera..." class="w-full border-0 border-b border-slate-105 bg-transparent px-3 py-2.5 text-sm focus:ring-0 dark:border-slate-850" />
-                                <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron carreras.</ComboboxEmpty>
+                            <ComboboxList class="w-[var(--reka-combobox-trigger-width)] min-w-[250px] rounded-lg border shadow-lg bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]">
+                                <ComboboxInput placeholder="Buscar carrera..." class="w-full border-0 border-b bg-transparent px-3 py-2.5 text-sm text-[var(--sispaa-text)] focus:ring-0 border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]" />
+                                <ComboboxEmpty class="py-2 text-center text-xs opacity-60 text-[var(--sispaa-text)]">No se encontraron carreras.</ComboboxEmpty>
                                 <ComboboxGroup class="max-h-60 overflow-y-auto p-1">
                                     <ComboboxItem
                                         v-for="c in carreras"
                                         :key="c.id"
                                         :value="{ value: c.id, label: c.nombre }"
-                                        class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800"
+                                        class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm text-[var(--sispaa-text)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-text)_6%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]"
                                     >
                                         {{ c.nombre }}
                                         <ComboboxItemIndicator>
-                                            <Check class="h-4 w-4 text-indigo-650" />
+                                            <Check class="h-4 w-4 text-[var(--sispaa-primary)]" />
                                         </ComboboxItemIndicator>
                                     </ComboboxItem>
                                 </ComboboxGroup>
@@ -224,7 +224,7 @@ const onSubmit = handleSubmit((values) => {
                     </FormItem>
                 </FormField>
 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <FormField v-slot="{ componentField }" name="creditos">
                         <FormItem>
                             <FormLabel>Créditos *</FormLabel>
@@ -252,9 +252,9 @@ const onSubmit = handleSubmit((values) => {
                     </FormField>
                 </div>
 
-                <div class="mt-6 flex justify-end gap-3 border-t border-slate-100 pt-4 dark:border-slate-850">
+                <div class="mt-6 flex flex-col-reverse justify-end gap-3 border-t pt-4 sm:flex-row border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]">
                     <Button type="button" variant="outline" @click="emit('update:open', false)"> Cancelar </Button>
-                    <Button type="submit" :disabled="processing" class="bg-indigo-600 text-white hover:bg-indigo-500">
+                    <Button type="submit" :disabled="processing" class="text-white bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)]">
                         {{ materia ? 'Guardar Cambios' : 'Crear Asignatura' }}
                     </Button>
                 </div>

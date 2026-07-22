@@ -102,15 +102,15 @@ const onSubmit = handleSubmit((submitValues) => {
     <AppSidebarLayout :breadcrumbs="breadcrumbs">
         <Head title="Nueva Matrícula" />
 
-        <div class="flex h-full flex-1 flex-col gap-6 p-6 bg-slate-50/50 dark:bg-slate-900/50">
+        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[var(--sispaa-background)]">
             <div>
-                <h1 class="flex items-center gap-2 text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-                    <UserCheck class="h-6 w-6 text-indigo-500" /> Nueva Matrícula
+                <h1 class="flex items-center gap-2 text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">
+                    <UserCheck class="h-6 w-6 text-[var(--sispaa-primary)]" /> Nueva Matrícula
                 </h1>
-                <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Inscribe un estudiante en un período académico y carrera.</p>
+                <p class="mt-1 text-sm opacity-60 text-[var(--sispaa-text)]">Inscribe un estudiante en un período académico y carrera.</p>
             </div>
 
-            <div class="max-w-xl mx-auto rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+            <div class="max-w-xl w-full mx-auto rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
                 <form class="space-y-5" @submit="onSubmit">
                     <FormField v-slot="{ errorMessage }" name="estudiante_id">
                         <FormItem>
@@ -121,14 +121,14 @@ const onSubmit = handleSubmit((submitValues) => {
                             </InputGroup>
                             <div
                                 v-if="estudianteSearch || !estudianteId"
-                                class="mt-1 max-h-48 overflow-y-auto rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900"
+                                class="mt-1 max-h-48 overflow-y-auto rounded-lg shadow-sm bg-[var(--sispaa-background)] border border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]"
                             >
                                 <button
                                     v-for="e in filteredEstudiantes"
                                     :key="e.id"
                                     type="button"
-                                    class="w-full border-b border-slate-100 px-3 py-2.5 text-left text-sm transition-colors last:border-0 hover:bg-indigo-50 dark:border-slate-800 dark:hover:bg-indigo-950/20"
-                                    :class="{ 'bg-indigo-50 dark:bg-indigo-950/20': estudianteId === e.id }"
+                                    class="w-full border-b px-3 py-2.5 text-left text-sm transition-colors last:border-0 border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_10%,transparent)]"
+                                    :class="{ 'bg-[color:color-mix(in_srgb,var(--sispaa-primary)_10%,transparent)]': estudianteId === e.id }"
                                     @click="
                                         () => {
                                             estudianteId = e.id;
@@ -136,12 +136,12 @@ const onSubmit = handleSubmit((submitValues) => {
                                         }
                                     "
                                 >
-                                    <p class="font-semibold text-slate-800 dark:text-slate-200">{{ e.name }}</p>
-                                    <p class="text-xs text-slate-400">{{ e.cedula ?? e.email }}</p>
+                                    <p class="font-semibold text-[var(--sispaa-text)]">{{ e.name }}</p>
+                                    <p class="text-xs opacity-50 text-[var(--sispaa-text)]">{{ e.cedula ?? e.email }}</p>
                                 </button>
-                                <p v-if="filteredEstudiantes.length === 0" class="px-3 py-4 text-center text-sm text-slate-400">Sin resultados</p>
+                                <p v-if="filteredEstudiantes.length === 0" class="px-3 py-4 text-center text-sm opacity-50 text-[var(--sispaa-text)]">Sin resultados</p>
                             </div>
-                            <div v-if="estudianteId && !estudianteSearch.length" class="mt-1 text-xs font-semibold text-emerald-600">
+                            <div v-if="estudianteId && !estudianteSearch.length" class="mt-1 text-xs font-semibold text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]">
                                 ✓ {{ selectedEstudiante?.name }}
                             </div>
                             <p v-if="errorMessage" class="mt-1 text-sm font-medium text-destructive">{{ errorMessage }}</p>
@@ -162,19 +162,19 @@ const onSubmit = handleSubmit((submitValues) => {
                                         </FormControl>
                                     </ComboboxTrigger>
                                 </ComboboxAnchor>
-                                <ComboboxList class="w-[var(--reka-combobox-trigger-width)] min-w-[250px] rounded-lg border border-slate-100 bg-white shadow-lg dark:border-slate-900 dark:bg-slate-950">
-                                    <ComboboxInput placeholder="Buscar período..." class="w-full border-0 border-b border-slate-105 bg-transparent px-3 py-2.5 text-sm focus:ring-0 dark:border-slate-850" />
-                                    <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron períodos.</ComboboxEmpty>
+                                <ComboboxList class="w-[var(--reka-combobox-trigger-width)] min-w-[250px] rounded-lg shadow-lg bg-[var(--sispaa-background)] border border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]">
+                                    <ComboboxInput placeholder="Buscar período..." class="w-full border-0 border-b bg-transparent px-3 py-2.5 text-sm focus:ring-0 border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]" />
+                                    <ComboboxEmpty class="py-2 text-center text-xs opacity-50 text-[var(--sispaa-text)]">No se encontraron períodos.</ComboboxEmpty>
                                     <ComboboxGroup class="max-h-60 overflow-y-auto p-1">
                                         <ComboboxItem
                                             v-for="p in periodos"
                                             :key="p.id"
                                             :value="{ value: p.id, label: p.estado === 'activo' ? `${p.nombre} (activo)` : p.nombre }"
-                                            class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800"
+                                            class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-[color:color-mix(in_srgb,var(--sispaa-text)_6%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]"
                                         >
                                             {{ p.nombre }}
-                                            <span v-if="p.estado === 'activo'" class="ml-1 text-xs text-emerald-500">(activo)</span>
-                                            <ComboboxItemIndicator><Check class="h-4 w-4 text-indigo-650" /></ComboboxItemIndicator>
+                                            <span v-if="p.estado === 'activo'" class="ml-1 text-xs text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]">(activo)</span>
+                                            <ComboboxItemIndicator><Check class="h-4 w-4 text-[var(--sispaa-primary)]" /></ComboboxItemIndicator>
                                         </ComboboxItem>
                                     </ComboboxGroup>
                                 </ComboboxList>
@@ -197,18 +197,18 @@ const onSubmit = handleSubmit((submitValues) => {
                                         </FormControl>
                                     </ComboboxTrigger>
                                 </ComboboxAnchor>
-                                <ComboboxList class="w-[var(--reka-combobox-trigger-width)] min-w-[250px] rounded-lg border border-slate-100 bg-white shadow-lg dark:border-slate-900 dark:bg-slate-950">
-                                    <ComboboxInput placeholder="Buscar carrera..." class="w-full border-0 border-b border-slate-105 bg-transparent px-3 py-2.5 text-sm focus:ring-0 dark:border-slate-850" />
-                                    <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron carreras.</ComboboxEmpty>
+                                <ComboboxList class="w-[var(--reka-combobox-trigger-width)] min-w-[250px] rounded-lg shadow-lg bg-[var(--sispaa-background)] border border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]">
+                                    <ComboboxInput placeholder="Buscar carrera..." class="w-full border-0 border-b bg-transparent px-3 py-2.5 text-sm focus:ring-0 border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]" />
+                                    <ComboboxEmpty class="py-2 text-center text-xs opacity-50 text-[var(--sispaa-text)]">No se encontraron carreras.</ComboboxEmpty>
                                     <ComboboxGroup class="max-h-60 overflow-y-auto p-1">
                                         <ComboboxItem
                                             v-for="c in carreras"
                                             :key="c.id"
                                             :value="{ value: c.id, label: `${c.codigo} — ${c.nombre}` }"
-                                            class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800"
+                                            class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-[color:color-mix(in_srgb,var(--sispaa-text)_6%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]"
                                         >
                                             {{ c.codigo }} — {{ c.nombre }}
-                                            <ComboboxItemIndicator><Check class="h-4 w-4 text-indigo-650" /></ComboboxItemIndicator>
+                                            <ComboboxItemIndicator><Check class="h-4 w-4 text-[var(--sispaa-primary)]" /></ComboboxItemIndicator>
                                         </ComboboxItem>
                                     </ComboboxGroup>
                                 </ComboboxList>
@@ -234,7 +234,7 @@ const onSubmit = handleSubmit((submitValues) => {
                         <Button
                             type="submit"
                             :disabled="processing || !values.estudiante_id || !values.periodo_id || !values.carrera_id"
-                            class="bg-indigo-600 font-semibold text-white hover:bg-indigo-500 disabled:opacity-50"
+                            class="font-semibold text-white bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)] disabled:opacity-50"
                         >
                             {{ processing ? 'Registrando...' : 'Registrar Matrícula' }}
                         </Button>

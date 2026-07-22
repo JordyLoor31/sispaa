@@ -13,15 +13,15 @@ defineProps<{
     <AppSidebarLayout :breadcrumbs="breadcrumbs">
         <Head title="Nueva Plantilla" />
 
-        <div class="flex h-full flex-1 flex-col gap-6 p-6 bg-slate-50/50 dark:bg-slate-900/50">
+        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[var(--sispaa-background)]">
             <div>
-                <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">Nueva Plantilla de Documento</h1>
-                <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">Nueva Plantilla de Documento</h1>
+                <p class="mt-1 text-sm opacity-60 text-[var(--sispaa-text)]">
                     Sube un formato institucional para que cualquier estudiante pueda descargarlo desde su portal.
                 </p>
             </div>
 
-            <div class="max-w-xl mx-auto w-full rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+            <div class="max-w-xl mx-auto w-full rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
                 <PlantillaForm />
             </div>
         </div>

@@ -88,39 +88,39 @@ const onSubmit = handleSubmit((values) => {
     <AppSidebarLayout :breadcrumbs="breadcrumbs">
         <Head title="Registrar Tema de Titulación" />
 
-        <div class="flex h-full flex-1 flex-col gap-6 p-6 bg-slate-50/50 dark:bg-slate-900/50">
+        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[var(--sispaa-background)]">
             <div>
-                <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">Registrar Tema de Titulación</h1>
+                <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-3xl">Registrar Tema de Titulación</h1>
             </div>
 
-            <div class="max-w-xl mx-auto rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+            <div class="w-full max-w-xl mx-auto rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
                 <form class="space-y-5" @submit="onSubmit">
                     <FormField v-slot="{ errorMessage }" name="estudiante_id">
                         <FormItem>
-                            <FormLabel>Estudiante *</FormLabel>
+                            <FormLabel class="text-[var(--sispaa-text)]">Estudiante *</FormLabel>
                             <Combobox v-model="selectedEstudianteObj" by="value">
                                 <ComboboxAnchor as-child>
                                     <ComboboxTrigger as-child>
                                         <FormControl>
-                                            <Button type="button" variant="outline" class="w-full justify-between text-left text-sm font-normal">
+                                            <Button type="button" variant="outline" class="w-full justify-between text-left text-sm font-normal text-[var(--sispaa-text)]">
                                                 {{ selectedEstudianteObj ? selectedEstudianteObj.label : 'Selecciona un estudiante...' }}
                                                 <ChevronsUpDown class="h-4 w-4 opacity-50" />
                                             </Button>
                                         </FormControl>
                                     </ComboboxTrigger>
                                 </ComboboxAnchor>
-                                <ComboboxList class="w-[var(--reka-combobox-trigger-width)] min-w-[250px] rounded-lg border border-slate-100 bg-white shadow-lg dark:border-slate-900 dark:bg-slate-950">
-                                    <ComboboxInput placeholder="Buscar estudiante..." class="w-full border-0 border-b border-slate-105 bg-transparent px-3 py-2.5 text-sm focus:ring-0 dark:border-slate-850" />
-                                    <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron estudiantes.</ComboboxEmpty>
+                                <ComboboxList class="w-[var(--reka-combobox-trigger-width)] min-w-[250px] rounded-lg border shadow-lg bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]">
+                                    <ComboboxInput placeholder="Buscar estudiante..." class="w-full border-0 border-b bg-transparent px-3 py-2.5 text-sm text-[var(--sispaa-text)] focus:ring-0 border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]" />
+                                    <ComboboxEmpty class="py-2 text-center text-xs opacity-60 text-[var(--sispaa-text)]">No se encontraron estudiantes.</ComboboxEmpty>
                                     <ComboboxGroup class="max-h-60 overflow-y-auto p-1">
                                         <ComboboxItem
                                             v-for="e in estudiantes"
                                             :key="e.id"
                                             :value="{ value: e.id, label: e.name }"
-                                            class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800"
+                                            class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm text-[var(--sispaa-text)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-surface)_60%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-surface)_80%,transparent)]"
                                         >
                                             {{ e.name }}
-                                            <ComboboxItemIndicator><Check class="h-4 w-4 text-indigo-650" /></ComboboxItemIndicator>
+                                            <ComboboxItemIndicator><Check class="h-4 w-4 text-[var(--sispaa-primary)]" /></ComboboxItemIndicator>
                                         </ComboboxItem>
                                     </ComboboxGroup>
                                 </ComboboxList>
@@ -131,30 +131,30 @@ const onSubmit = handleSubmit((values) => {
 
                     <FormField v-slot="{ errorMessage }" name="tutor_id">
                         <FormItem>
-                            <FormLabel>Tutor *</FormLabel>
+                            <FormLabel class="text-[var(--sispaa-text)]">Tutor *</FormLabel>
                             <Combobox v-model="selectedTutorObj" by="value">
                                 <ComboboxAnchor as-child>
                                     <ComboboxTrigger as-child>
                                         <FormControl>
-                                            <Button type="button" variant="outline" class="w-full justify-between text-left text-sm font-normal">
+                                            <Button type="button" variant="outline" class="w-full justify-between text-left text-sm font-normal text-[var(--sispaa-text)]">
                                                 {{ selectedTutorObj ? selectedTutorObj.label : 'Selecciona un tutor...' }}
                                                 <ChevronsUpDown class="h-4 w-4 opacity-50" />
                                             </Button>
                                         </FormControl>
                                     </ComboboxTrigger>
                                 </ComboboxAnchor>
-                                <ComboboxList class="w-[var(--reka-combobox-trigger-width)] min-w-[250px] rounded-lg border border-slate-100 bg-white shadow-lg dark:border-slate-900 dark:bg-slate-950">
-                                    <ComboboxInput placeholder="Buscar tutor..." class="w-full border-0 border-b border-slate-105 bg-transparent px-3 py-2.5 text-sm focus:ring-0 dark:border-slate-850" />
-                                    <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron tutores.</ComboboxEmpty>
+                                <ComboboxList class="w-[var(--reka-combobox-trigger-width)] min-w-[250px] rounded-lg border shadow-lg bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]">
+                                    <ComboboxInput placeholder="Buscar tutor..." class="w-full border-0 border-b bg-transparent px-3 py-2.5 text-sm text-[var(--sispaa-text)] focus:ring-0 border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]" />
+                                    <ComboboxEmpty class="py-2 text-center text-xs opacity-60 text-[var(--sispaa-text)]">No se encontraron tutores.</ComboboxEmpty>
                                     <ComboboxGroup class="max-h-60 overflow-y-auto p-1">
                                         <ComboboxItem
                                             v-for="t in tutores"
                                             :key="t.id"
                                             :value="{ value: t.id, label: t.name }"
-                                            class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800"
+                                            class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm text-[var(--sispaa-text)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-surface)_60%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-surface)_80%,transparent)]"
                                         >
                                             {{ t.name }}
-                                            <ComboboxItemIndicator><Check class="h-4 w-4 text-indigo-650" /></ComboboxItemIndicator>
+                                            <ComboboxItemIndicator><Check class="h-4 w-4 text-[var(--sispaa-primary)]" /></ComboboxItemIndicator>
                                         </ComboboxItem>
                                     </ComboboxGroup>
                                 </ComboboxList>
@@ -165,7 +165,7 @@ const onSubmit = handleSubmit((values) => {
 
                     <FormField v-slot="{ componentField }" name="tema">
                         <FormItem>
-                            <FormLabel>Tema *</FormLabel>
+                            <FormLabel class="text-[var(--sispaa-text)]">Tema *</FormLabel>
                             <FormControl>
                                 <InputGroup>
                                     <InputGroupTextarea v-bind="componentField" rows="3" />
@@ -177,7 +177,7 @@ const onSubmit = handleSubmit((values) => {
 
                     <FormField v-slot="{ componentField }" name="fecha_inicio">
                         <FormItem>
-                            <FormLabel>Fecha de inicio</FormLabel>
+                            <FormLabel class="text-[var(--sispaa-text)]">Fecha de inicio</FormLabel>
                             <FormControl>
                                 <InputGroup>
                                     <InputGroupAddon><Calendar class="h-4 w-4" /></InputGroupAddon>
@@ -189,7 +189,7 @@ const onSubmit = handleSubmit((values) => {
                     </FormField>
 
                     <div class="flex items-center gap-2 pt-2">
-                        <Button type="submit" :disabled="processing" class="bg-indigo-600 font-semibold text-white hover:bg-indigo-500">
+                        <Button type="submit" :disabled="processing" class="font-semibold text-white bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)]">
                             {{ processing ? 'Guardando...' : 'Registrar' }}
                         </Button>
                     </div>

@@ -7,6 +7,7 @@ import { Search, FileText } from 'lucide-vue-next';
 import { FlexRender, getCoreRowModel, useVueTable } from '@tanstack/vue-table';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
 import { useDebounceFn } from '@vueuse/core';
 import makeExpedienteColumns, { type DocumentoRow } from './columns';
 
@@ -60,49 +61,49 @@ const navigateToPage = (url: string | null) => {
     <AppSidebarLayout :breadcrumbs="breadcrumbs">
         <Head title="Expediente SGA — Secretaría" />
 
-        <div class="flex h-full flex-1 flex-col gap-6 p-6 bg-slate-50/50 dark:bg-slate-900/50">
+        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[var(--sispaa-background)]">
             <div>
-                <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+                <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">
                     Expediente SGA
                 </h1>
-                <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                <p class="mt-1 text-sm opacity-60 text-[var(--sispaa-text)]">
                     Valida, aprueba o rechaza los documentos habilitantes subidos por los estudiantes.
                 </p>
             </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                    <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Total</p>
-                    <p class="mt-1 text-3xl font-extrabold text-slate-900 dark:text-white">{{ stats.total }}</p>
+            <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
+                <div class="rounded-2xl p-5 shadow-sm bg-[var(--sispaa-surface)]">
+                    <p class="text-xs font-semibold uppercase tracking-wide opacity-60 text-[var(--sispaa-text)]">Total</p>
+                    <p class="mt-1 text-3xl font-extrabold text-[var(--sispaa-text)]">{{ stats.total }}</p>
                 </div>
-                <div class="rounded-2xl border border-amber-200/60 bg-amber-50/40 p-5 shadow-sm dark:border-amber-900/30 dark:bg-amber-950/10">
-                    <p class="text-xs font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wide">Pendientes</p>
-                    <p class="mt-1 text-3xl font-extrabold text-amber-700 dark:text-amber-300">{{ stats.pendientes }}</p>
+                <div class="rounded-2xl p-5 shadow-sm bg-[var(--sispaa-surface)]">
+                    <p class="text-xs font-semibold uppercase tracking-wide text-[color:color-mix(in_srgb,#E4BC57_65%,black)]">Pendientes</p>
+                    <p class="mt-1 text-3xl font-extrabold text-[color:color-mix(in_srgb,#E4BC57_65%,black)]">{{ stats.pendientes }}</p>
                 </div>
-                <div class="rounded-2xl border border-emerald-200/60 bg-emerald-50/40 p-5 shadow-sm dark:border-emerald-900/30 dark:bg-emerald-950/10">
-                    <p class="text-xs font-semibold text-emerald-700 dark:text-emerald-400 uppercase tracking-wide">Aprobados</p>
-                    <p class="mt-1 text-3xl font-extrabold text-emerald-700 dark:text-emerald-300">{{ stats.aprobados }}</p>
+                <div class="rounded-2xl p-5 shadow-sm bg-[var(--sispaa-surface)]">
+                    <p class="text-xs font-semibold uppercase tracking-wide text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]">Aprobados</p>
+                    <p class="mt-1 text-3xl font-extrabold text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]">{{ stats.aprobados }}</p>
                 </div>
-                <div class="rounded-2xl border border-rose-200/60 bg-rose-50/40 p-5 shadow-sm dark:border-rose-900/30 dark:bg-rose-950/10">
-                    <p class="text-xs font-semibold text-rose-700 dark:text-rose-400 uppercase tracking-wide">Rechazados</p>
-                    <p class="mt-1 text-3xl font-extrabold text-rose-700 dark:text-rose-300">{{ stats.rechazados }}</p>
+                <div class="rounded-2xl p-5 shadow-sm bg-[var(--sispaa-surface)]">
+                    <p class="text-xs font-semibold uppercase tracking-wide text-rose-700">Rechazados</p>
+                    <p class="mt-1 text-3xl font-extrabold text-rose-700">{{ stats.rechazados }}</p>
                 </div>
             </div>
 
             <div class="w-full space-y-4">
-                <div class="flex flex-col sm:flex-row gap-3 bg-white dark:bg-slate-950 p-4 rounded-xl border border-slate-200/80 dark:border-slate-800">
-                    <div class="flex-1 relative">
-                        <Search class="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                        <input
+                <div class="flex flex-col gap-3 rounded-xl p-4 bg-[var(--sispaa-surface)] sm:flex-row">
+                    <div class="relative flex-1">
+                        <Search class="absolute left-3 top-2.5 h-4 w-4 opacity-40 text-[var(--sispaa-text)]" />
+                        <Input
                             v-model="search"
                             @input="debouncedSearch"
                             type="text"
                             placeholder="Buscar estudiante, cédula o correo..."
-                            class="pl-9 w-full rounded-lg border-slate-200 bg-slate-50/30 text-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-200"
+                            class="bg-[var(--sispaa-background)] pl-9"
                         />
                     </div>
                     <Select v-model="filterEstado" @update:model-value="applyFilters">
-                        <SelectTrigger class="w-[160px]"><SelectValue placeholder="Estado" /></SelectTrigger>
+                        <SelectTrigger class="w-full bg-[var(--sispaa-background)] sm:w-[160px]"><SelectValue placeholder="Estado" /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">Todos los estados</SelectItem>
                             <SelectItem value="pendiente">Pendiente</SelectItem>
@@ -111,7 +112,7 @@ const navigateToPage = (url: string | null) => {
                         </SelectContent>
                     </Select>
                     <Select v-model="filterTipo" @update:model-value="applyFilters">
-                        <SelectTrigger class="w-[220px]"><SelectValue placeholder="Tipo de documento" /></SelectTrigger>
+                        <SelectTrigger class="w-full bg-[var(--sispaa-background)] sm:w-[220px]"><SelectValue placeholder="Tipo de documento" /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">Todos los tipos</SelectItem>
                             <SelectItem v-for="t in tiposDocumento" :key="t" :value="t">{{ t }}</SelectItem>
@@ -119,17 +120,17 @@ const navigateToPage = (url: string | null) => {
                     </Select>
                 </div>
 
-                <div class="rounded-lg border border-slate-200/80 bg-white dark:border-slate-800 dark:bg-slate-950 overflow-hidden">
+                <div class="overflow-hidden rounded-lg bg-[var(--sispaa-surface)]">
                     <div class="overflow-x-auto">
                         <Table>
                             <TableHeader>
                                 <TableRow
                                     v-for="hg in table.getHeaderGroups()" :key="hg.id"
-                                    class="border-b border-slate-200/80 dark:border-slate-800"
+                                    class="border-b border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]"
                                 >
                                     <TableHead
                                         v-for="header in hg.headers" :key="header.id"
-                                        class="h-12 px-4 text-sm font-medium text-slate-500 dark:text-slate-400"
+                                        class="h-12 px-4 text-sm font-medium opacity-60 text-[var(--sispaa-text)]"
                                     >
                                         <FlexRender
                                             v-if="!header.isPlaceholder"
@@ -139,15 +140,15 @@ const navigateToPage = (url: string | null) => {
                                     </TableHead>
                                 </TableRow>
                             </TableHeader>
-                            <TableBody class="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
+                            <TableBody class="divide-y divide-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)] text-sm text-[var(--sispaa-text)]">
                                 <template v-if="table.getRowModel().rows?.length">
                                     <TableRow
                                         v-for="row in table.getRowModel().rows" :key="row.id"
-                                        class="hover:bg-slate-50/30 dark:hover:bg-slate-900/10 transition-colors"
+                                        class="transition-colors hover:bg-[color:color-mix(in_srgb,var(--sispaa-text)_5%,transparent)]"
                                     >
                                         <TableCell
                                             v-for="cell in row.getVisibleCells()" :key="cell.id"
-                                            class="py-4 px-4"
+                                            class="px-4 py-4"
                                         >
                                             <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
                                         </TableCell>
@@ -155,7 +156,7 @@ const navigateToPage = (url: string | null) => {
                                 </template>
                                 <TableRow v-else>
                                     <TableCell :colspan="columns.length" class="h-32 text-center">
-                                        <div class="flex flex-col items-center gap-2 text-slate-400">
+                                        <div class="flex flex-col items-center gap-2 opacity-40 text-[var(--sispaa-text)]">
                                             <FileText class="h-8 w-8" />
                                             <span class="text-sm font-medium">No hay documentos para mostrar</span>
                                             <span class="text-xs">Intenta cambiar los filtros de búsqueda</span>
@@ -166,22 +167,22 @@ const navigateToPage = (url: string | null) => {
                         </Table>
                     </div>
 
-                    <div class="flex items-center justify-between border-t border-slate-100 dark:border-slate-800 px-6 py-4">
-                        <span class="text-xs text-slate-500">
+                    <div class="flex flex-col gap-2 border-t px-4 py-4 border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)] sm:flex-row sm:items-center sm:justify-between sm:px-6">
+                        <span class="text-xs opacity-60 text-[var(--sispaa-text)]">
                             Mostrando {{ documentos.data.length }} de {{ documentos.total }} documentos
                         </span>
-                        <div class="flex items-center gap-1">
+                        <div class="flex flex-wrap items-center gap-1">
                             <button
                                 v-for="link in documentos.links"
                                 :key="link.label"
                                 @click="navigateToPage(link.url)"
                                 :disabled="!link.url || link.active"
                                 v-html="link.label"
-                                class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+                                class="rounded-lg px-3 py-1.5 text-xs font-semibold transition-all"
                                 :class="[
                                     link.active
-                                        ? 'bg-indigo-600 text-white'
-                                        : 'border border-slate-200/80 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 disabled:opacity-40'
+                                        ? 'bg-[var(--sispaa-primary)] text-white'
+                                        : 'bg-[var(--sispaa-background)] text-[var(--sispaa-text)] opacity-70 hover:opacity-100 disabled:opacity-40'
                                 ]"
                             />
                         </div>

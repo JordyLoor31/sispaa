@@ -88,17 +88,17 @@ const onSubmit = handleSubmit((values) => {
     <AppSidebarLayout :breadcrumbs="breadcrumbs">
         <Head title="Nuevo Proyecto de Investigación" />
 
-        <div class="flex h-full flex-1 flex-col gap-6 p-6 bg-slate-50/50 dark:bg-slate-900/50">
+        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[var(--sispaa-background)]">
             <div>
-                <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">Nuevo Proyecto de Investigación</h1>
-                <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Selecciona el coordinador que supervisará tu proyecto.</p>
+                <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-3xl">Nuevo Proyecto de Investigación</h1>
+                <p class="mt-1 text-sm opacity-60 text-[var(--sispaa-text)]">Selecciona el coordinador que supervisará tu proyecto.</p>
             </div>
 
-            <div class="max-w-xl mx-auto rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+            <div class="w-full max-w-xl mx-auto rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
                 <form class="space-y-5" @submit="onSubmit">
                     <FormField v-slot="{ componentField }" name="titulo">
                         <FormItem>
-                            <FormLabel>Título *</FormLabel>
+                            <FormLabel class="text-[var(--sispaa-text)]">Título *</FormLabel>
                             <FormControl>
                                 <InputGroup>
                                     <InputGroupAddon><FlaskConical class="h-4 w-4" /></InputGroupAddon>
@@ -111,7 +111,7 @@ const onSubmit = handleSubmit((values) => {
 
                     <FormField v-slot="{ componentField }" name="objetivo">
                         <FormItem>
-                            <FormLabel>Objetivo</FormLabel>
+                            <FormLabel class="text-[var(--sispaa-text)]">Objetivo</FormLabel>
                             <FormControl>
                                 <InputGroup>
                                     <InputGroupTextarea v-bind="componentField" rows="3" />
@@ -123,30 +123,30 @@ const onSubmit = handleSubmit((values) => {
 
                     <FormField v-slot="{ errorMessage }" name="periodo_id">
                         <FormItem>
-                            <FormLabel>Período *</FormLabel>
+                            <FormLabel class="text-[var(--sispaa-text)]">Período *</FormLabel>
                             <Combobox v-model="selectedPeriodoObj" by="value">
                                 <ComboboxAnchor as-child>
                                     <ComboboxTrigger as-child>
                                         <FormControl>
-                                            <Button type="button" variant="outline" class="w-full justify-between text-left text-sm font-normal">
+                                            <Button type="button" variant="outline" class="w-full justify-between text-left text-sm font-normal text-[var(--sispaa-text)]">
                                                 {{ selectedPeriodoObj ? selectedPeriodoObj.label : 'Selecciona un período...' }}
                                                 <ChevronsUpDown class="h-4 w-4 opacity-50" />
                                             </Button>
                                         </FormControl>
                                     </ComboboxTrigger>
                                 </ComboboxAnchor>
-                                <ComboboxList class="w-[var(--reka-combobox-trigger-width)] min-w-[250px] rounded-lg border border-slate-100 bg-white shadow-lg dark:border-slate-900 dark:bg-slate-950">
-                                    <ComboboxInput placeholder="Buscar período..." class="w-full border-0 border-b border-slate-105 bg-transparent px-3 py-2.5 text-sm focus:ring-0 dark:border-slate-850" />
-                                    <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron períodos.</ComboboxEmpty>
+                                <ComboboxList class="w-[var(--reka-combobox-trigger-width)] min-w-[250px] rounded-lg border shadow-lg bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]">
+                                    <ComboboxInput placeholder="Buscar período..." class="w-full border-0 border-b bg-transparent px-3 py-2.5 text-sm text-[var(--sispaa-text)] focus:ring-0 border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]" />
+                                    <ComboboxEmpty class="py-2 text-center text-xs opacity-60 text-[var(--sispaa-text)]">No se encontraron períodos.</ComboboxEmpty>
                                     <ComboboxGroup class="max-h-60 overflow-y-auto p-1">
                                         <ComboboxItem
                                             v-for="per in periodos"
                                             :key="per.id"
                                             :value="{ value: per.id, label: per.nombre }"
-                                            class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800"
+                                            class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm text-[var(--sispaa-text)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-surface)_60%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-surface)_80%,transparent)]"
                                         >
                                             {{ per.nombre }}
-                                            <ComboboxItemIndicator><Check class="h-4 w-4 text-indigo-650" /></ComboboxItemIndicator>
+                                            <ComboboxItemIndicator><Check class="h-4 w-4 text-[var(--sispaa-primary)]" /></ComboboxItemIndicator>
                                         </ComboboxItem>
                                     </ComboboxGroup>
                                 </ComboboxList>
@@ -157,30 +157,30 @@ const onSubmit = handleSubmit((values) => {
 
                     <FormField v-slot="{ errorMessage }" name="coordinador_id">
                         <FormItem>
-                            <FormLabel>Coordinador supervisor *</FormLabel>
+                            <FormLabel class="text-[var(--sispaa-text)]">Coordinador supervisor *</FormLabel>
                             <Combobox v-model="selectedCoordinadorObj" by="value">
                                 <ComboboxAnchor as-child>
                                     <ComboboxTrigger as-child>
                                         <FormControl>
-                                            <Button type="button" variant="outline" class="w-full justify-between text-left text-sm font-normal">
+                                            <Button type="button" variant="outline" class="w-full justify-between text-left text-sm font-normal text-[var(--sispaa-text)]">
                                                 {{ selectedCoordinadorObj ? selectedCoordinadorObj.label : 'Selecciona un coordinador...' }}
                                                 <ChevronsUpDown class="h-4 w-4 opacity-50" />
                                             </Button>
                                         </FormControl>
                                     </ComboboxTrigger>
                                 </ComboboxAnchor>
-                                <ComboboxList class="w-[var(--reka-combobox-trigger-width)] min-w-[250px] rounded-lg border border-slate-100 bg-white shadow-lg dark:border-slate-900 dark:bg-slate-950">
-                                    <ComboboxInput placeholder="Buscar coordinador..." class="w-full border-0 border-b border-slate-105 bg-transparent px-3 py-2.5 text-sm focus:ring-0 dark:border-slate-850" />
-                                    <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron coordinadores.</ComboboxEmpty>
+                                <ComboboxList class="w-[var(--reka-combobox-trigger-width)] min-w-[250px] rounded-lg border shadow-lg bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]">
+                                    <ComboboxInput placeholder="Buscar coordinador..." class="w-full border-0 border-b bg-transparent px-3 py-2.5 text-sm text-[var(--sispaa-text)] focus:ring-0 border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]" />
+                                    <ComboboxEmpty class="py-2 text-center text-xs opacity-60 text-[var(--sispaa-text)]">No se encontraron coordinadores.</ComboboxEmpty>
                                     <ComboboxGroup class="max-h-60 overflow-y-auto p-1">
                                         <ComboboxItem
                                             v-for="c in coordinadores"
                                             :key="c.id"
                                             :value="{ value: c.id, label: c.name }"
-                                            class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800"
+                                            class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm text-[var(--sispaa-text)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-surface)_60%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-surface)_80%,transparent)]"
                                         >
                                             {{ c.name }}
-                                            <ComboboxItemIndicator><Check class="h-4 w-4 text-indigo-650" /></ComboboxItemIndicator>
+                                            <ComboboxItemIndicator><Check class="h-4 w-4 text-[var(--sispaa-primary)]" /></ComboboxItemIndicator>
                                         </ComboboxItem>
                                     </ComboboxGroup>
                                 </ComboboxList>
@@ -190,7 +190,7 @@ const onSubmit = handleSubmit((values) => {
                     </FormField>
 
                     <div class="flex items-center gap-2 pt-2">
-                        <Button type="submit" :disabled="processing" class="bg-indigo-600 font-semibold text-white hover:bg-indigo-500">
+                        <Button type="submit" :disabled="processing" class="font-semibold text-white bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)]">
                             {{ processing ? 'Creando...' : 'Crear proyecto' }}
                         </Button>
                     </div>

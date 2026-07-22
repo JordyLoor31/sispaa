@@ -21,15 +21,15 @@ const formatDate = (date?: string) => {
     <AppSidebarLayout :breadcrumbs="breadcrumbs">
         <Head :title="props.reactivo.nombre" />
 
-        <div class="flex h-full flex-1 flex-col gap-6 p-6 bg-slate-50/50 dark:bg-slate-900/50">
+        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[var(--sispaa-background)]">
             <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div class="flex items-center gap-3">
-                    <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/30 dark:text-indigo-400">
+                    <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-[var(--sispaa-primary)] bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]">
                         <FlaskConical class="h-5 w-5" />
                     </div>
                     <div>
-                        <h1 class="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">{{ reactivo.nombre }}</h1>
-                        <p v-if="reactivo.formula" class="mt-0.5 text-sm text-slate-500 dark:text-slate-400">{{ reactivo.formula }}</p>
+                        <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">{{ reactivo.nombre }}</h1>
+                        <p v-if="reactivo.formula" class="mt-0.5 text-sm opacity-60 text-[var(--sispaa-text)]">{{ reactivo.formula }}</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
@@ -38,7 +38,7 @@ const formatDate = (date?: string) => {
                             <ArrowLeft class="h-4 w-4 mr-1.5" /> Volver
                         </Link>
                     </Button>
-                    <Button as-child class="bg-indigo-600 hover:bg-indigo-500 text-white">
+                    <Button as-child class="text-white bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)]">
                         <Link :href="route('laboratorio.reactivos.edit', reactivo.id)">
                             <Pencil class="h-4 w-4 mr-1.5" /> Editar
                         </Link>
@@ -46,32 +46,32 @@ const formatDate = (date?: string) => {
                 </div>
             </div>
 
-            <div class="max-w-2xl w-full mx-auto grid gap-6 md:grid-cols-2">
-                <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Laboratorio</h4>
-                    <p class="mt-2 text-sm font-semibold text-slate-800 dark:text-slate-200">{{ reactivo.laboratorio }}</p>
+            <div class="max-w-2xl w-full mx-auto grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
+                <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+                    <h4 class="text-xs font-bold opacity-60 text-[var(--sispaa-text)] uppercase tracking-wider">Laboratorio</h4>
+                    <p class="mt-2 text-sm font-semibold text-[var(--sispaa-text)]">{{ reactivo.laboratorio }}</p>
                 </div>
-                <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Cantidad</h4>
-                    <p class="mt-2 text-sm font-semibold text-slate-800 dark:text-slate-200">{{ reactivo.cantidad }}{{ reactivo.unidad ? ' ' + reactivo.unidad : '' }}</p>
+                <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+                    <h4 class="text-xs font-bold opacity-60 text-[var(--sispaa-text)] uppercase tracking-wider">Cantidad</h4>
+                    <p class="mt-2 text-sm font-semibold text-[var(--sispaa-text)]">{{ reactivo.cantidad }}{{ reactivo.unidad ? ' ' + reactivo.unidad : '' }}</p>
                 </div>
-                <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Estado</h4>
-                    <p class="mt-2 text-sm font-semibold text-slate-800 dark:text-slate-200 capitalize">{{ reactivo.estado }}</p>
+                <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+                    <h4 class="text-xs font-bold opacity-60 text-[var(--sispaa-text)] uppercase tracking-wider">Estado</h4>
+                    <p class="mt-2 text-sm font-semibold text-[var(--sispaa-text)] capitalize">{{ reactivo.estado }}</p>
                 </div>
             </div>
 
-            <div class="max-w-2xl w-full mx-auto rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Auditoría</h4>
+            <div class="max-w-2xl w-full mx-auto rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+                <h4 class="text-xs font-bold opacity-60 text-[var(--sispaa-text)] uppercase tracking-wider mb-3">Auditoría</h4>
                 <div class="grid gap-4 sm:grid-cols-2">
                     <div>
-                        <p class="text-xs text-slate-400">Creado por</p>
-                        <p class="text-sm font-semibold text-slate-800 dark:text-slate-200">{{ reactivo.creator?.name ?? '—' }}</p>
-                        <p class="text-xs text-slate-400 mt-0.5">{{ formatDate(reactivo.created_at) }}</p>
+                        <p class="text-xs opacity-50 text-[var(--sispaa-text)]">Creado por</p>
+                        <p class="text-sm font-semibold text-[var(--sispaa-text)]">{{ reactivo.creator?.name ?? '—' }}</p>
+                        <p class="text-xs opacity-50 text-[var(--sispaa-text)] mt-0.5">{{ formatDate(reactivo.created_at) }}</p>
                     </div>
                     <div>
-                        <p class="text-xs text-slate-400">Última actualización por</p>
-                        <p class="text-sm font-semibold text-slate-800 dark:text-slate-200">{{ reactivo.updater?.name ?? '—' }}</p>
+                        <p class="text-xs opacity-50 text-[var(--sispaa-text)]">Última actualización por</p>
+                        <p class="text-sm font-semibold text-[var(--sispaa-text)]">{{ reactivo.updater?.name ?? '—' }}</p>
                     </div>
                 </div>
             </div>

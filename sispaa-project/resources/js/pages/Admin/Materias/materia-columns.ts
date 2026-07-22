@@ -33,12 +33,12 @@ export function makeMateriaColumns({ onEditMateria, onToggleStatus }: MateriaCol
         {
             accessorKey: 'codigo',
             header: 'Código',
-            cell: ({ row }) => h('span', { class: 'font-bold text-slate-800 dark:text-slate-350' }, row.original.codigo),
+            cell: ({ row }) => h('span', { class: 'font-bold text-[var(--sispaa-text)]' }, row.original.codigo),
         },
         {
             accessorKey: 'nombre',
             header: 'Asignatura',
-            cell: ({ row }) => h('span', { class: 'font-semibold text-slate-900 dark:text-white' }, row.original.nombre),
+            cell: ({ row }) => h('span', { class: 'font-semibold text-[var(--sispaa-text)]' }, row.original.nombre),
         },
         {
             accessorKey: 'nivel',
@@ -53,7 +53,7 @@ export function makeMateriaColumns({ onEditMateria, onToggleStatus }: MateriaCol
         {
             id: 'carrera',
             header: 'Carrera',
-            cell: ({ row }) => h('span', { class: 'rounded bg-slate-105 dark:bg-slate-900 px-2 py-0.5 text-xs text-slate-700 dark:text-slate-400 font-semibold' }, row.original.carrera?.codigo || '-'),
+            cell: ({ row }) => h('span', { class: 'rounded px-2 py-0.5 text-xs font-semibold bg-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)] text-[var(--sispaa-text)]' }, row.original.carrera?.codigo || '-'),
         },
         {
             accessorKey: 'activa',
@@ -70,7 +70,7 @@ export function makeMateriaColumns({ onEditMateria, onToggleStatus }: MateriaCol
                         'onUpdate:modelValue': () => onToggleStatus(materia),
                     }),
                     h('span', {
-                        class: `text-xs font-semibold ${isActive ? 'text-emerald-650 dark:text-emerald-400' : 'text-slate-400'}`,
+                        class: `text-xs font-semibold ${isActive ? 'text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]' : 'opacity-50 text-[var(--sispaa-text)]'}`,
                     }, isActive ? 'Activo' : 'Inactivo'),
                 ]);
             },
@@ -84,7 +84,7 @@ export function makeMateriaColumns({ onEditMateria, onToggleStatus }: MateriaCol
                 return h('div', { class: 'text-right space-x-1.5' }, [
                     h('button', {
                         onClick: () => onEditMateria(materia),
-                        class: 'text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 p-1.5 rounded-lg border border-slate-100 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-900 transition-colors',
+                        class: 'p-1.5 rounded-lg border transition-colors opacity-70 text-[var(--sispaa-text)] border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)] hover:opacity-100 hover:text-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-text)_6%,transparent)]',
                     }, [
                         h(Edit, { class: 'h-4 w-4' }),
                     ]),

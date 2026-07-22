@@ -14,8 +14,8 @@ export function makePlantillaColumns(): ColumnDef<PlantillaItem>[] {
                 return h('div', { class: 'flex items-center gap-2.5' }, [
                     h(
                         'div',
-                        { class: 'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-indigo-50 dark:bg-indigo-950/30' },
-                        [h(FileText, { class: 'h-4 w-4 text-indigo-500' })],
+                        { class: 'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]' },
+                        [h(FileText, { class: 'h-4 w-4 text-[var(--sispaa-primary)]' })],
                     ),
                     h(
                         'a',
@@ -23,7 +23,7 @@ export function makePlantillaColumns(): ColumnDef<PlantillaItem>[] {
                             href: p.ver_url,
                             target: '_blank',
                             rel: 'noopener',
-                            class: 'inline-flex items-center gap-1 text-sm font-semibold text-slate-800 dark:text-slate-100 hover:text-indigo-600 dark:hover:text-indigo-400',
+                            class: 'inline-flex items-center gap-1 text-sm font-semibold text-[var(--sispaa-text)] hover:text-[var(--sispaa-primary)]',
                         },
                         [p.nombre_doc, h(ArrowUpRight, { class: 'h-3.5 w-3.5' })],
                     ),
@@ -36,8 +36,8 @@ export function makePlantillaColumns(): ColumnDef<PlantillaItem>[] {
             cell: ({ row }) => {
                 const p = row.original;
                 return h('div', {}, [
-                    h('p', { class: 'text-sm text-slate-700 dark:text-slate-300' }, p.creado_por ?? '—'),
-                    h('p', { class: 'text-xs text-slate-400' }, p.created_at ?? '—'),
+                    h('p', { class: 'text-sm opacity-80 text-[var(--sispaa-text)]' }, p.creado_por ?? '—'),
+                    h('p', { class: 'text-xs opacity-50 text-[var(--sispaa-text)]' }, p.created_at ?? '—'),
                 ]);
             },
         },
@@ -47,8 +47,8 @@ export function makePlantillaColumns(): ColumnDef<PlantillaItem>[] {
             cell: ({ row }) => {
                 const p = row.original;
                 return h('div', {}, [
-                    h('p', { class: 'text-sm text-slate-700 dark:text-slate-300' }, p.actualizado_por ?? '—'),
-                    h('p', { class: 'text-xs text-slate-400' }, p.updated_at ?? '—'),
+                    h('p', { class: 'text-sm opacity-80 text-[var(--sispaa-text)]' }, p.actualizado_por ?? '—'),
+                    h('p', { class: 'text-xs opacity-50 text-[var(--sispaa-text)]' }, p.updated_at ?? '—'),
                 ]);
             },
         },

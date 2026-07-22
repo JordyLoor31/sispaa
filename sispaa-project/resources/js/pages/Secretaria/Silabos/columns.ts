@@ -8,9 +8,9 @@ import type { SilaboItem } from './types';
 
 const estadoBadge = (estado: string) => {
     const map: Record<string, string> = {
-        aprobado: 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-400',
-        subido: 'bg-amber-50 text-amber-800 dark:bg-amber-950/30 dark:text-amber-400',
-        pendiente: 'bg-slate-100 text-slate-500 dark:bg-slate-900 dark:text-slate-500',
+        aprobado: 'bg-[color:color-mix(in_srgb,var(--sispaa-secondary)_30%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]',
+        subido: 'bg-[color:color-mix(in_srgb,#E4BC57_45%,transparent)] text-[color:color-mix(in_srgb,#E4BC57_60%,black)]',
+        pendiente: 'bg-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-text)_60%,transparent)]',
     };
     return map[estado] ?? map.pendiente;
 };
@@ -25,12 +25,12 @@ export function makeSilaboColumns(): ColumnDef<SilaboItem>[] {
                 return h('div', { class: 'flex items-center gap-2.5' }, [
                     h(
                         'div',
-                        { class: 'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-indigo-50 dark:bg-indigo-950/30' },
-                        [h(BookOpen, { class: 'h-4 w-4 text-indigo-500' })],
+                        { class: 'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]' },
+                        [h(BookOpen, { class: 'h-4 w-4 text-[var(--sispaa-primary)]' })],
                     ),
                     h('div', {}, [
-                        h('p', { class: 'text-sm font-semibold text-slate-800 dark:text-slate-100 leading-tight' }, s.materia),
-                        h('p', { class: 'text-xs text-slate-400 mt-0.5' }, `${s.carrera ?? '—'} · ${s.periodo}`),
+                        h('p', { class: 'text-sm font-semibold text-[var(--sispaa-text)] leading-tight' }, s.materia),
+                        h('p', { class: 'text-xs opacity-50 text-[var(--sispaa-text)] mt-0.5' }, `${s.carrera ?? '—'} · ${s.periodo}`),
                     ]),
                 ]);
             },
@@ -41,15 +41,15 @@ export function makeSilaboColumns(): ColumnDef<SilaboItem>[] {
             cell: ({ row }) => {
                 const d = row.original.docente;
                 return h('div', {}, [
-                    h('p', { class: 'text-sm font-semibold text-slate-800 dark:text-slate-200' }, d.name),
-                    h('p', { class: 'text-xs text-slate-400' }, d.email),
+                    h('p', { class: 'text-sm font-semibold text-[var(--sispaa-text)]' }, d.name),
+                    h('p', { class: 'text-xs opacity-50 text-[var(--sispaa-text)]' }, d.email),
                 ]);
             },
         },
         {
             id: 'fecha_subida',
             header: 'Subido',
-            cell: ({ row }) => h('span', { class: 'text-xs text-slate-500 dark:text-slate-400' }, row.original.fecha_subida ?? '—'),
+            cell: ({ row }) => h('span', { class: 'text-xs opacity-60 text-[var(--sispaa-text)]' }, row.original.fecha_subida ?? '—'),
         },
         {
             id: 'estado',

@@ -126,7 +126,7 @@ const onSubmit = handleSubmit((values) => {
             </FormItem>
         </FormField>
 
-        <div class="grid grid-cols-2 gap-3">
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <FormField v-slot="{ componentField }" name="fecha_inicio">
                 <FormItem>
                     <FormLabel>Inicio *</FormLabel>
@@ -155,12 +155,12 @@ const onSubmit = handleSubmit((values) => {
         </div>
 
         <div v-if="isEditing" class="flex items-center gap-2">
-            <input id="activa" v-model="activa" type="checkbox" class="rounded border-slate-300" />
-            <label for="activa" class="text-sm text-slate-700 dark:text-slate-300">Convocatoria activa</label>
+            <input id="activa" v-model="activa" type="checkbox" class="rounded border-0 accent-[var(--sispaa-primary)]" />
+            <label for="activa" class="text-sm text-[var(--sispaa-text)]">Convocatoria activa</label>
         </div>
 
         <div class="flex items-center gap-2 pt-2">
-            <Button type="submit" :disabled="processing" class="bg-indigo-600 font-semibold text-white hover:bg-indigo-500">
+            <Button type="submit" :disabled="processing" class="font-semibold text-white bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)]">
                 {{ processing ? 'Guardando...' : isEditing ? 'Guardar cambios' : 'Crear convocatoria' }}
             </Button>
         </div>

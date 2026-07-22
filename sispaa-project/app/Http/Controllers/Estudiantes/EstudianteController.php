@@ -239,6 +239,7 @@ class EstudianteController extends Controller
         $carreraId = $request->input('carrera_id');
         $periodoId = $request->input('periodo_id');
         $justificada = $request->input('justificada');
+        $q = $request->input('q');
 
         $query = Falta::with(['estudiante:id,name,email,carrera_id', 'estudiante.carrera:id,nombre', 'materia:id,nombre', 'periodo:id,nombre', 'justificacion']);
 
@@ -255,6 +256,13 @@ class EstudianteController extends Controller
         }
         if ($justificada !== null && $justificada !== '') {
             $query->where('justificada', $justificada === '1' || $justificada === 'true');
+        }
+        if ($q) {
+            $query->where(function ($w) use ($q) {
+                $w->whereHas('estudiante', fn ($e) => $e->where('name', 'ilike', "%{$q}%"))
+                    ->orWhereHas('materia', fn ($e) => $e->where('nombre', 'ilike', "%{$q}%"))
+                    ->orWhere('motivo', 'ilike', "%{$q}%");
+            });
         }
 
         $faltas = $query->orderByDesc('fecha')->paginate(15)->withQueryString();
@@ -275,7 +283,7 @@ class EstudianteController extends Controller
             'faltas' => $faltas,
             'carreras' => Carrera::orderBy('nombre')->get(['id', 'nombre']),
             'periodos' => PeriodoAcademico::orderByDesc('id')->get(['id', 'nombre']),
-            'filters' => ['carrera_id' => $carreraId, 'periodo_id' => $periodoId, 'justificada' => $justificada],
+            'filters' => ['carrera_id' => $carreraId, 'periodo_id' => $periodoId, 'justificada' => $justificada, 'q' => $q],
             'breadcrumbs' => $this->estudiantesBreadcrumbs('Faltas'),
         ]);
     }
@@ -287,6 +295,7 @@ class EstudianteController extends Controller
     public function justificaciones(Request $request): Response
     {
         $estado = $request->input('estado');
+        $q = $request->input('q');
 
         $query = JustificacionSolicitud::with(['falta.estudiante:id,name', 'falta.materia:id,nombre']);
 
@@ -298,6 +307,13 @@ class EstudianteController extends Controller
 
         if ($estado) {
             $query->where('estado', $estado);
+        }
+        if ($q) {
+            $query->where(function ($w) use ($q) {
+                $w->whereHas('falta.estudiante', fn ($e) => $e->where('name', 'ilike', "%{$q}%"))
+                    ->orWhereHas('falta.materia', fn ($e) => $e->where('nombre', 'ilike', "%{$q}%"))
+                    ->orWhere('motivo_estudiante', 'ilike', "%{$q}%");
+            });
         }
 
         $solicitudes = $query->orderByDesc('created_at')->paginate(15)->withQueryString();
@@ -315,7 +331,7 @@ class EstudianteController extends Controller
 
         return Inertia::render('Estudiantes/Justificaciones/Index', [
             'solicitudes' => $solicitudes,
-            'filters' => ['estado' => $estado],
+            'filters' => ['estado' => $estado, 'q' => $q],
             'breadcrumbs' => $this->estudiantesBreadcrumbs('Justificaciones'),
         ]);
     }

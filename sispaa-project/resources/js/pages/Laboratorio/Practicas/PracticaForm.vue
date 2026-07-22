@@ -151,7 +151,7 @@ const onSubmit = handleSubmit((values) => {
 
 <template>
     <form class="space-y-5" @submit="onSubmit">
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <FormField v-slot="{ errorMessage }" name="materia_id">
                 <FormItem>
                     <FormLabel>Materia *</FormLabel>
@@ -166,18 +166,18 @@ const onSubmit = handleSubmit((values) => {
                                 </FormControl>
                             </ComboboxTrigger>
                         </ComboboxAnchor>
-                        <ComboboxList class="w-[var(--reka-combobox-trigger-width)] min-w-[250px] rounded-lg border border-slate-100 bg-white shadow-lg dark:border-slate-900 dark:bg-slate-950">
-                            <ComboboxInput placeholder="Buscar materia..." class="w-full border-0 border-b border-slate-105 bg-transparent px-3 py-2.5 text-sm focus:ring-0 dark:border-slate-850" />
-                            <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron materias.</ComboboxEmpty>
+                        <ComboboxList class="w-[var(--reka-combobox-trigger-width)] min-w-[250px] rounded-lg border shadow-lg bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]">
+                            <ComboboxInput placeholder="Buscar materia..." class="w-full border-0 border-b bg-transparent px-3 py-2.5 text-sm focus:ring-0 border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]" />
+                            <ComboboxEmpty class="py-2 text-center text-xs opacity-50 text-[var(--sispaa-text)]">No se encontraron materias.</ComboboxEmpty>
                             <ComboboxGroup class="max-h-60 overflow-y-auto p-1">
                                 <ComboboxItem
                                     v-for="m in materias"
                                     :key="m.id"
                                     :value="{ value: m.id, label: m.nombre }"
-                                    class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800"
+                                    class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-[color:color-mix(in_srgb,var(--sispaa-text)_6%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]"
                                 >
                                     {{ m.nombre }}
-                                    <ComboboxItemIndicator><Check class="h-4 w-4 text-indigo-650" /></ComboboxItemIndicator>
+                                    <ComboboxItemIndicator><Check class="h-4 w-4 text-[var(--sispaa-primary)]" /></ComboboxItemIndicator>
                                 </ComboboxItem>
                             </ComboboxGroup>
                         </ComboboxList>
@@ -200,18 +200,18 @@ const onSubmit = handleSubmit((values) => {
                                 </FormControl>
                             </ComboboxTrigger>
                         </ComboboxAnchor>
-                        <ComboboxList class="w-[var(--reka-combobox-trigger-width)] min-w-[250px] rounded-lg border border-slate-100 bg-white shadow-lg dark:border-slate-900 dark:bg-slate-950">
-                            <ComboboxInput placeholder="Buscar período..." class="w-full border-0 border-b border-slate-105 bg-transparent px-3 py-2.5 text-sm focus:ring-0 dark:border-slate-850" />
-                            <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron períodos.</ComboboxEmpty>
+                        <ComboboxList class="w-[var(--reka-combobox-trigger-width)] min-w-[250px] rounded-lg border shadow-lg bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]">
+                            <ComboboxInput placeholder="Buscar período..." class="w-full border-0 border-b bg-transparent px-3 py-2.5 text-sm focus:ring-0 border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]" />
+                            <ComboboxEmpty class="py-2 text-center text-xs opacity-50 text-[var(--sispaa-text)]">No se encontraron períodos.</ComboboxEmpty>
                             <ComboboxGroup class="max-h-60 overflow-y-auto p-1">
                                 <ComboboxItem
                                     v-for="per in periodos"
                                     :key="per.id"
                                     :value="{ value: per.id, label: per.nombre }"
-                                    class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800"
+                                    class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-[color:color-mix(in_srgb,var(--sispaa-text)_6%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]"
                                 >
                                     {{ per.nombre }}
-                                    <ComboboxItemIndicator><Check class="h-4 w-4 text-indigo-650" /></ComboboxItemIndicator>
+                                    <ComboboxItemIndicator><Check class="h-4 w-4 text-[var(--sispaa-primary)]" /></ComboboxItemIndicator>
                                 </ComboboxItem>
                             </ComboboxGroup>
                         </ComboboxList>
@@ -234,25 +234,25 @@ const onSubmit = handleSubmit((values) => {
                                 </FormControl>
                             </ComboboxTrigger>
                         </ComboboxAnchor>
-                        <ComboboxList class="w-[var(--reka-combobox-trigger-width)] min-w-[250px] rounded-lg border border-slate-100 bg-white shadow-lg dark:border-slate-900 dark:bg-slate-950">
-                            <ComboboxInput placeholder="Buscar laboratorio..." class="w-full border-0 border-b border-slate-105 bg-transparent px-3 py-2.5 text-sm focus:ring-0 dark:border-slate-850" />
-                            <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron laboratorios.</ComboboxEmpty>
+                        <ComboboxList class="w-[var(--reka-combobox-trigger-width)] min-w-[250px] rounded-lg border shadow-lg bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]">
+                            <ComboboxInput placeholder="Buscar laboratorio..." class="w-full border-0 border-b bg-transparent px-3 py-2.5 text-sm focus:ring-0 border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]" />
+                            <ComboboxEmpty class="py-2 text-center text-xs opacity-50 text-[var(--sispaa-text)]">No se encontraron laboratorios.</ComboboxEmpty>
                             <ComboboxGroup class="max-h-60 overflow-y-auto p-1">
                                 <ComboboxItem
                                     :value="{ value: '', label: 'Sin asignar' }"
-                                    class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800"
+                                    class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-[color:color-mix(in_srgb,var(--sispaa-text)_6%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]"
                                 >
                                     Sin asignar
-                                    <ComboboxItemIndicator><Check class="h-4 w-4 text-indigo-650" /></ComboboxItemIndicator>
+                                    <ComboboxItemIndicator><Check class="h-4 w-4 text-[var(--sispaa-primary)]" /></ComboboxItemIndicator>
                                 </ComboboxItem>
                                 <ComboboxItem
                                     v-for="l in laboratorios"
                                     :key="l.id"
                                     :value="{ value: l.id, label: l.nombre }"
-                                    class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800"
+                                    class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-[color:color-mix(in_srgb,var(--sispaa-text)_6%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]"
                                 >
                                     {{ l.nombre }}
-                                    <ComboboxItemIndicator><Check class="h-4 w-4 text-indigo-650" /></ComboboxItemIndicator>
+                                    <ComboboxItemIndicator><Check class="h-4 w-4 text-[var(--sispaa-primary)]" /></ComboboxItemIndicator>
                                 </ComboboxItem>
                             </ComboboxGroup>
                         </ComboboxList>
@@ -314,7 +314,7 @@ const onSubmit = handleSubmit((values) => {
             </FormItem>
         </FormField>
 
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <FormField v-slot="{ componentField }" name="subtema">
                 <FormItem>
                     <FormLabel>Subtema</FormLabel>
@@ -414,28 +414,28 @@ const onSubmit = handleSubmit((values) => {
         </FormField>
 
         <div>
-            <label class="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">Equipos usados</label>
-            <div class="grid max-h-40 grid-cols-2 gap-2 overflow-y-auto rounded-lg border border-slate-200 p-3 dark:border-slate-800">
-                <label v-for="e in equiposCatalogo" :key="e.id" class="flex items-center gap-2 text-xs">
-                    <input type="checkbox" :checked="equipoChecked(e.id)" class="rounded accent-indigo-600" @change="toggleEquipo(e.id, ($event.target as HTMLInputElement).checked)" />
+            <label class="mb-2 block text-sm font-semibold text-[var(--sispaa-text)]">Equipos usados</label>
+            <div class="grid max-h-40 grid-cols-1 gap-2 overflow-y-auto rounded-lg p-3 sm:grid-cols-2 border border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
+                <label v-for="e in equiposCatalogo" :key="e.id" class="flex items-center gap-2 text-xs text-[var(--sispaa-text)]">
+                    <input type="checkbox" :checked="equipoChecked(e.id)" class="rounded accent-[var(--sispaa-primary)]" @change="toggleEquipo(e.id, ($event.target as HTMLInputElement).checked)" />
                     {{ e.nombre }}
                 </label>
-                <p v-if="equiposCatalogo.length === 0" class="col-span-2 text-xs text-slate-400">No hay equipos registrados.</p>
+                <p v-if="equiposCatalogo.length === 0" class="col-span-full text-xs opacity-50 text-[var(--sispaa-text)]">No hay equipos registrados.</p>
             </div>
         </div>
         <div>
-            <label class="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">Reactivos usados</label>
-            <div class="grid max-h-40 grid-cols-2 gap-2 overflow-y-auto rounded-lg border border-slate-200 p-3 dark:border-slate-800">
-                <label v-for="r in reactivosCatalogo" :key="r.id" class="flex items-center gap-2 text-xs">
-                    <input type="checkbox" :checked="reactivoChecked(r.id)" class="rounded accent-indigo-600" @change="toggleReactivo(r.id, ($event.target as HTMLInputElement).checked)" />
+            <label class="mb-2 block text-sm font-semibold text-[var(--sispaa-text)]">Reactivos usados</label>
+            <div class="grid max-h-40 grid-cols-1 gap-2 overflow-y-auto rounded-lg p-3 sm:grid-cols-2 border border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
+                <label v-for="r in reactivosCatalogo" :key="r.id" class="flex items-center gap-2 text-xs text-[var(--sispaa-text)]">
+                    <input type="checkbox" :checked="reactivoChecked(r.id)" class="rounded accent-[var(--sispaa-primary)]" @change="toggleReactivo(r.id, ($event.target as HTMLInputElement).checked)" />
                     {{ r.nombre }}
                 </label>
-                <p v-if="reactivosCatalogo.length === 0" class="col-span-2 text-xs text-slate-400">No hay reactivos registrados.</p>
+                <p v-if="reactivosCatalogo.length === 0" class="col-span-full text-xs opacity-50 text-[var(--sispaa-text)]">No hay reactivos registrados.</p>
             </div>
         </div>
 
         <div class="flex justify-end pt-2">
-            <Button type="submit" :disabled="processing" class="bg-indigo-600 font-semibold text-white hover:bg-indigo-500">
+            <Button type="submit" :disabled="processing" class="font-semibold text-white bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)]">
                 {{ processing ? 'Guardando...' : 'Guardar' }}
             </Button>
         </div>

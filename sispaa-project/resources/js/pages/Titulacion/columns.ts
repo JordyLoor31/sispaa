@@ -24,9 +24,9 @@ export interface Titulacion {
 
 const estadoBadge = (estado: string) => {
     const map: Record<string, string> = {
-        en_proceso: 'bg-amber-50 text-amber-800 dark:bg-amber-950/30 dark:text-amber-400',
-        defendido: 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/30 dark:text-indigo-400',
-        graduado: 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-400',
+        en_proceso: 'bg-[color:color-mix(in_srgb,#E4BC57_45%,transparent)] text-[color:color-mix(in_srgb,#E4BC57_60%,black)]',
+        defendido: 'bg-[color:color-mix(in_srgb,var(--sispaa-accent)_20%,transparent)] text-[var(--sispaa-accent)]',
+        graduado: 'bg-[color:color-mix(in_srgb,var(--sispaa-secondary)_30%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]',
     };
     return map[estado] ?? map.en_proceso;
 };
@@ -43,8 +43,8 @@ export function makeTitulacionColumns({ onChangeEstado, puedeGestionar }: Titula
             id: 'estudiante',
             meta: { label: 'Estudiante' },
             header: 'Estudiante',
-            cell: ({ row }) => h('div', { class: 'flex items-center gap-2 font-semibold text-slate-900 dark:text-white' }, [
-                h(GraduationCap, { class: 'h-4 w-4 text-indigo-500' }),
+            cell: ({ row }) => h('div', { class: 'flex items-center gap-2 font-semibold text-[var(--sispaa-text)]' }, [
+                h(GraduationCap, { class: 'h-4 w-4 text-[var(--sispaa-primary)]' }),
                 row.original.estudiante.name,
             ]),
         },
@@ -52,7 +52,7 @@ export function makeTitulacionColumns({ onChangeEstado, puedeGestionar }: Titula
             accessorKey: 'tema',
             meta: { label: 'Tema' },
             header: 'Tema',
-            cell: ({ row }) => h('span', { class: 'text-slate-600 dark:text-slate-300 max-w-xs truncate block' }, row.original.tema),
+            cell: ({ row }) => h('span', { class: 'block max-w-xs truncate text-[var(--sispaa-text)] opacity-80' }, row.original.tema),
         },
         {
             id: 'tutor',
@@ -88,13 +88,13 @@ export function makeTitulacionColumns({ onChangeEstado, puedeGestionar }: Titula
             accessorKey: 'fecha_inicio',
             meta: { label: 'Inicio' },
             header: 'Inicio',
-            cell: ({ row }) => h('span', { class: 'text-xs text-slate-400' }, row.original.fecha_inicio ?? '—'),
+            cell: ({ row }) => h('span', { class: 'text-xs opacity-60 text-[var(--sispaa-text)]' }, row.original.fecha_inicio ?? '—'),
         },
         {
             accessorKey: 'fecha_graduacion',
             meta: { label: 'Graduación' },
             header: 'Graduación',
-            cell: ({ row }) => h('span', { class: 'text-xs text-slate-400' }, row.original.fecha_graduacion ?? '—'),
+            cell: ({ row }) => h('span', { class: 'text-xs opacity-60 text-[var(--sispaa-text)]' }, row.original.fecha_graduacion ?? '—'),
         },
         {
             id: 'actions',

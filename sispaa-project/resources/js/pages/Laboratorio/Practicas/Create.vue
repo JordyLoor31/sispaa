@@ -19,12 +19,12 @@ defineProps<{
     <AppSidebarLayout :breadcrumbs="breadcrumbs">
         <Head title="Nueva Práctica de Laboratorio" />
 
-        <div class="flex h-full flex-1 flex-col gap-6 p-6 bg-slate-50/50 dark:bg-slate-900/50">
+        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[var(--sispaa-background)]">
             <div>
-                <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">Nueva Práctica de Laboratorio</h1>
+                <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">Nueva Práctica de Laboratorio</h1>
             </div>
 
-            <div class="max-w-2xl mx-auto rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+            <div class="w-full max-w-2xl mx-auto rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
                 <PracticaForm :materias="materias" :laboratorios="laboratorios" :periodos="periodos" :equipos-catalogo="equiposCatalogo" :reactivos-catalogo="reactivosCatalogo" />
             </div>
         </div>

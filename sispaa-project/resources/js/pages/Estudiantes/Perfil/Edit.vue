@@ -509,28 +509,28 @@ const familiarTable = useVueTable({
     getCoreRowModel: getCoreRowModel(),
 });
 
-const inputClass = 'flex h-9 w-full rounded-md border border-slate-200 bg-transparent px-3 py-1 text-sm shadow-sm focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 dark:border-slate-850 dark:bg-slate-950 dark:text-slate-350';
+const inputClass = 'flex h-9 w-full rounded-md border bg-[var(--sispaa-background)] text-[var(--sispaa-text)] px-3 py-1 text-sm shadow-sm border-[color:color-mix(in_srgb,var(--sispaa-text)_20%,transparent)] focus:ring-1 focus:ring-[var(--sispaa-primary)] focus:border-[var(--sispaa-primary)]';
 const comboboxTriggerClass = 'w-full justify-between text-left text-sm font-normal';
-const comboboxListClass = 'w-[var(--reka-combobox-trigger-width)] min-w-[220px] rounded-lg border border-slate-100 bg-white shadow-lg dark:border-slate-900 dark:bg-slate-950';
+const comboboxListClass = 'w-[var(--reka-combobox-trigger-width)] min-w-[220px] rounded-lg border bg-[var(--sispaa-background)] shadow-lg border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]';
 </script>
 
 <template>
     <Head title="Completar Mi Perfil" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-6 p-6 bg-slate-50/50 dark:bg-slate-900/50">
+        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[var(--sispaa-background)]">
             <div>
-                <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+                <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">
                     Completar Mi Perfil
                 </h1>
-                <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                <p class="mt-1 text-sm opacity-60 text-[var(--sispaa-text)]">
                     {{ estudiante.name }} — completa tus datos académicos, de residencia y familiares.
                 </p>
             </div>
 
-            <div class="max-w-4xl w-full mx-auto rounded-2xl border border-slate-200/80 bg-white p-6 sm:p-8 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+            <div class="mx-auto w-full max-w-4xl rounded-2xl p-5 shadow-sm sm:p-8 bg-[var(--sispaa-surface)]">
                 <!-- Indicador de pasos -->
-                <Stepper :model-value="currentStep" class="flex w-full items-start gap-2 mb-8">
+                <Stepper :model-value="currentStep" class="mb-8 flex w-full items-start gap-2">
                     <StepperItem
                         v-for="s in steps"
                         :key="s.step"
@@ -541,16 +541,16 @@ const comboboxListClass = 'w-[var(--reka-combobox-trigger-width)] min-w-[220px] 
                         <StepperSeparator
                             v-if="s.step !== steps.length"
                             class="absolute left-[calc(50%+20px)] right-[calc(-50%+10px)] top-5 block h-0.5 shrink-0 rounded-full"
-                            :class="s.step < highestStepVisited ? 'bg-indigo-500' : 'bg-slate-200 dark:bg-slate-800'"
+                            :class="s.step < highestStepVisited ? 'bg-[var(--sispaa-primary)]' : 'bg-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]'"
                         />
                         <StepperTrigger as-child>
                             <button
                                 type="button"
                                 class="z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 text-sm font-bold transition-colors"
                                 :class="[
-                                    s.step === currentStep ? 'border-indigo-600 bg-indigo-600 text-white' :
-                                    s.step < currentStep ? 'border-indigo-500 bg-indigo-50 text-indigo-600 dark:bg-indigo-950/40' :
-                                    'border-slate-200 text-slate-400 dark:border-slate-800',
+                                    s.step === currentStep ? 'border-[var(--sispaa-primary)] bg-[var(--sispaa-primary)] text-white' :
+                                    s.step < currentStep ? 'border-[var(--sispaa-primary)] bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)] text-[var(--sispaa-primary)]' :
+                                    'border-[color:color-mix(in_srgb,var(--sispaa-text)_20%,transparent)] opacity-50 text-[var(--sispaa-text)]',
                                     s.step <= highestStepVisited ? 'cursor-pointer' : 'cursor-not-allowed',
                                 ]"
                                 @click="irAlPaso(s.step)"
@@ -560,26 +560,26 @@ const comboboxListClass = 'w-[var(--reka-combobox-trigger-width)] min-w-[220px] 
                             </button>
                         </StepperTrigger>
                         <div class="mt-2 flex flex-col items-center text-center">
-                            <StepperTitle class="text-xs font-bold text-slate-700 dark:text-slate-300">{{ s.title }}</StepperTitle>
-                            <StepperDescription class="hidden sm:block text-[11px] text-slate-400">{{ s.description }}</StepperDescription>
+                            <StepperTitle class="text-xs font-bold opacity-80 text-[var(--sispaa-text)]">{{ s.title }}</StepperTitle>
+                            <StepperDescription class="hidden text-[11px] opacity-50 text-[var(--sispaa-text)] sm:block">{{ s.description }}</StepperDescription>
                         </div>
                     </StepperItem>
                 </Stepper>
 
-                <p class="mb-5 text-xs text-slate-400">
+                <p class="mb-5 text-xs opacity-50 text-[var(--sispaa-text)]">
                     Los campos marcados con <span class="font-bold text-rose-500">*</span> son obligatorios.
                 </p>
 
                 <form @submit="onSubmit">
                     <!-- Paso 1: Académico -->
                     <div v-show="currentStep === 1" class="space-y-5">
-                        <h3 class="text-sm font-bold text-slate-900 dark:text-white">Datos Académicos</h3>
+                        <h3 class="text-sm font-bold text-[var(--sispaa-text)]">Datos Académicos</h3>
 
-                        <div class="flex items-center gap-3 rounded-xl border border-indigo-100 bg-indigo-50/60 px-4 py-3 dark:border-indigo-900/40 dark:bg-indigo-950/20">
-                            <Building2 class="h-5 w-5 text-indigo-500 shrink-0" />
+                        <div class="flex items-center gap-3 rounded-xl border px-4 py-3 bg-[color:color-mix(in_srgb,var(--sispaa-primary)_10%,transparent)] border-[color:color-mix(in_srgb,var(--sispaa-primary)_25%,transparent)]">
+                            <Building2 class="h-5 w-5 shrink-0 text-[var(--sispaa-primary)]" />
                             <div>
-                                <p class="text-xs font-bold text-indigo-700 dark:text-indigo-400 uppercase tracking-wide">Facultad</p>
-                                <p class="text-sm font-semibold text-slate-800 dark:text-slate-200">{{ facultadNombre }}</p>
+                                <p class="text-xs font-bold uppercase tracking-wide text-[var(--sispaa-primary)]">Facultad</p>
+                                <p class="text-sm font-semibold text-[var(--sispaa-text)]">{{ facultadNombre }}</p>
                             </div>
                         </div>
 
@@ -606,11 +606,11 @@ const comboboxListClass = 'w-[var(--reka-combobox-trigger-width)] min-w-[220px] 
                                             </ComboboxTrigger>
                                         </ComboboxAnchor>
                                         <ComboboxList :class="comboboxListClass">
-                                            <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron niveles.</ComboboxEmpty>
+                                            <ComboboxEmpty class="py-2 text-center text-xs opacity-50 text-[var(--sispaa-text)]">No se encontraron niveles.</ComboboxEmpty>
                                             <ComboboxGroup class="p-1">
-                                                <ComboboxItem v-for="n in NIVELES_ACADEMICOS" :key="n" :value="{ value: n, label: n }" class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800">
+                                                <ComboboxItem v-for="n in NIVELES_ACADEMICOS" :key="n" :value="{ value: n, label: n }" class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm text-[var(--sispaa-text)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_10%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]">
                                                     {{ n }}
-                                                    <ComboboxItemIndicator><Check class="h-4 w-4 text-indigo-650" /></ComboboxItemIndicator>
+                                                    <ComboboxItemIndicator><Check class="h-4 w-4 text-[var(--sispaa-primary)]" /></ComboboxItemIndicator>
                                                 </ComboboxItem>
                                             </ComboboxGroup>
                                         </ComboboxList>
@@ -634,11 +634,11 @@ const comboboxListClass = 'w-[var(--reka-combobox-trigger-width)] min-w-[220px] 
                                             </ComboboxTrigger>
                                         </ComboboxAnchor>
                                         <ComboboxList :class="comboboxListClass">
-                                            <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron sedes.</ComboboxEmpty>
+                                            <ComboboxEmpty class="py-2 text-center text-xs opacity-50 text-[var(--sispaa-text)]">No se encontraron sedes.</ComboboxEmpty>
                                             <ComboboxGroup class="p-1">
-                                                <ComboboxItem v-for="s in SEDES_ULEAM" :key="s" :value="{ value: s, label: s }" class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800">
+                                                <ComboboxItem v-for="s in SEDES_ULEAM" :key="s" :value="{ value: s, label: s }" class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm text-[var(--sispaa-text)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_10%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]">
                                                     {{ s }}
-                                                    <ComboboxItemIndicator><Check class="h-4 w-4 text-indigo-650" /></ComboboxItemIndicator>
+                                                    <ComboboxItemIndicator><Check class="h-4 w-4 text-[var(--sispaa-primary)]" /></ComboboxItemIndicator>
                                                 </ComboboxItem>
                                             </ComboboxGroup>
                                         </ComboboxList>
@@ -668,13 +668,13 @@ const comboboxListClass = 'w-[var(--reka-combobox-trigger-width)] min-w-[220px] 
                                                 </FormControl>
                                             </ComboboxTrigger>
                                         </ComboboxAnchor>
-                                        <ComboboxList class="w-[var(--reka-combobox-trigger-width)] min-w-[250px] rounded-lg border border-slate-100 bg-white shadow-lg dark:border-slate-900 dark:bg-slate-950">
-                                            <ComboboxInput placeholder="Buscar carrera..." class="w-full border-0 border-b border-slate-105 bg-transparent px-3 py-2.5 text-sm focus:ring-0 dark:border-slate-850" />
-                                            <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron carreras.</ComboboxEmpty>
+                                        <ComboboxList class="w-[var(--reka-combobox-trigger-width)] min-w-[250px] rounded-lg border shadow-lg bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]">
+                                            <ComboboxInput placeholder="Buscar carrera..." class="w-full border-0 border-b bg-transparent px-3 py-2.5 text-sm text-[var(--sispaa-text)] focus:ring-0 border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]" />
+                                            <ComboboxEmpty class="py-2 text-center text-xs opacity-50 text-[var(--sispaa-text)]">No se encontraron carreras.</ComboboxEmpty>
                                             <ComboboxGroup class="max-h-60 overflow-y-auto p-1">
-                                                <ComboboxItem v-for="c in carreras" :key="c.id" :value="{ value: String(c.id), label: c.nombre }" class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800">
+                                                <ComboboxItem v-for="c in carreras" :key="c.id" :value="{ value: String(c.id), label: c.nombre }" class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm text-[var(--sispaa-text)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_10%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]">
                                                     {{ c.nombre }}
-                                                    <ComboboxItemIndicator><Check class="h-4 w-4 text-indigo-650" /></ComboboxItemIndicator>
+                                                    <ComboboxItemIndicator><Check class="h-4 w-4 text-[var(--sispaa-primary)]" /></ComboboxItemIndicator>
                                                 </ComboboxItem>
                                             </ComboboxGroup>
                                         </ComboboxList>
@@ -684,11 +684,11 @@ const comboboxListClass = 'w-[var(--reka-combobox-trigger-width)] min-w-[220px] 
                             </FormField>
                         </div>
 
-                        <div class="flex items-center gap-3 rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 dark:border-slate-850 dark:bg-slate-900">
+                        <div class="flex items-center gap-3 rounded-xl border px-4 py-3 bg-[var(--sispaa-surface)] border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
                             <Switch v-model="graduadoPregrado" />
                             <div>
-                                <p class="text-sm font-semibold text-slate-800 dark:text-slate-200">¿Ya te graduaste de un pregrado?</p>
-                                <p class="text-xs text-slate-400">Actívalo si ya cuentas con un título de tercer nivel previo.</p>
+                                <p class="text-sm font-semibold text-[var(--sispaa-text)]">¿Ya te graduaste de un pregrado?</p>
+                                <p class="text-xs opacity-50 text-[var(--sispaa-text)]">Actívalo si ya cuentas con un título de tercer nivel previo.</p>
                             </div>
                         </div>
                         <FormField v-if="graduadoPregrado" name="fecha_graduacion">
@@ -699,7 +699,7 @@ const comboboxListClass = 'w-[var(--reka-combobox-trigger-width)] min-w-[220px] 
                             </FormItem>
                         </FormField>
 
-                        <h3 class="text-sm font-bold text-slate-900 dark:text-white pt-2 border-t border-slate-100 dark:border-slate-850">Trayectoria Educativa Previa</h3>
+                        <h3 class="text-sm font-bold text-[var(--sispaa-text)] pt-2 border-t border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">Trayectoria Educativa Previa</h3>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <FormField name="colegio">
                                 <FormItem>
@@ -731,12 +731,12 @@ const comboboxListClass = 'w-[var(--reka-combobox-trigger-width)] min-w-[220px] 
                                             </ComboboxTrigger>
                                         </ComboboxAnchor>
                                         <ComboboxList :class="comboboxListClass">
-                                            <ComboboxInput placeholder="Buscar provincia..." class="w-full border-0 border-b border-slate-105 bg-transparent px-3 py-2.5 text-sm focus:ring-0 dark:border-slate-850" />
-                                            <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron provincias.</ComboboxEmpty>
+                                            <ComboboxInput placeholder="Buscar provincia..." class="w-full border-0 border-b bg-transparent px-3 py-2.5 text-sm text-[var(--sispaa-text)] focus:ring-0 border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]" />
+                                            <ComboboxEmpty class="py-2 text-center text-xs opacity-50 text-[var(--sispaa-text)]">No se encontraron provincias.</ComboboxEmpty>
                                             <ComboboxGroup class="max-h-60 overflow-y-auto p-1">
-                                                <ComboboxItem v-for="p in PROVINCIAS_ECUADOR" :key="p" :value="{ value: p, label: p }" class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800">
+                                                <ComboboxItem v-for="p in PROVINCIAS_ECUADOR" :key="p" :value="{ value: p, label: p }" class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm text-[var(--sispaa-text)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_10%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]">
                                                     {{ p }}
-                                                    <ComboboxItemIndicator><Check class="h-4 w-4 text-indigo-650" /></ComboboxItemIndicator>
+                                                    <ComboboxItemIndicator><Check class="h-4 w-4 text-[var(--sispaa-primary)]" /></ComboboxItemIndicator>
                                                 </ComboboxItem>
                                             </ComboboxGroup>
                                         </ComboboxList>
@@ -768,12 +768,12 @@ const comboboxListClass = 'w-[var(--reka-combobox-trigger-width)] min-w-[220px] 
                                             </ComboboxTrigger>
                                         </ComboboxAnchor>
                                         <ComboboxList :class="comboboxListClass">
-                                            <ComboboxInput placeholder="Buscar provincia..." class="w-full border-0 border-b border-slate-105 bg-transparent px-3 py-2.5 text-sm focus:ring-0 dark:border-slate-850" />
-                                            <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron provincias.</ComboboxEmpty>
+                                            <ComboboxInput placeholder="Buscar provincia..." class="w-full border-0 border-b bg-transparent px-3 py-2.5 text-sm text-[var(--sispaa-text)] focus:ring-0 border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]" />
+                                            <ComboboxEmpty class="py-2 text-center text-xs opacity-50 text-[var(--sispaa-text)]">No se encontraron provincias.</ComboboxEmpty>
                                             <ComboboxGroup class="max-h-60 overflow-y-auto p-1">
-                                                <ComboboxItem v-for="p in PROVINCIAS_ECUADOR" :key="p" :value="{ value: p, label: p }" class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800">
+                                                <ComboboxItem v-for="p in PROVINCIAS_ECUADOR" :key="p" :value="{ value: p, label: p }" class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm text-[var(--sispaa-text)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_10%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]">
                                                     {{ p }}
-                                                    <ComboboxItemIndicator><Check class="h-4 w-4 text-indigo-650" /></ComboboxItemIndicator>
+                                                    <ComboboxItemIndicator><Check class="h-4 w-4 text-[var(--sispaa-primary)]" /></ComboboxItemIndicator>
                                                 </ComboboxItem>
                                             </ComboboxGroup>
                                         </ComboboxList>
@@ -786,12 +786,12 @@ const comboboxListClass = 'w-[var(--reka-combobox-trigger-width)] min-w-[220px] 
 
                     <!-- Paso 2: Residencia -->
                     <div v-show="currentStep === 2" class="space-y-5">
-                        <h3 class="text-sm font-bold text-slate-900 dark:text-white">Datos de Residencia</h3>
-                        <div class="flex items-center gap-3 rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 dark:border-slate-850 dark:bg-slate-900">
+                        <h3 class="text-sm font-bold text-[var(--sispaa-text)]">Datos de Residencia</h3>
+                        <div class="flex items-center gap-3 rounded-xl border px-4 py-3 bg-[var(--sispaa-surface)] border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
                             <Switch v-model="residente" />
                             <div>
-                                <p class="text-sm font-semibold text-slate-800 dark:text-slate-200">¿Resides en la ciudad de tu sede?</p>
-                                <p class="text-xs text-slate-400">Desactívalo si viajas desde otra ciudad o cantón.</p>
+                                <p class="text-sm font-semibold text-[var(--sispaa-text)]">¿Resides en la ciudad de tu sede?</p>
+                                <p class="text-xs opacity-50 text-[var(--sispaa-text)]">Desactívalo si viajas desde otra ciudad o cantón.</p>
                             </div>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -818,12 +818,12 @@ const comboboxListClass = 'w-[var(--reka-combobox-trigger-width)] min-w-[220px] 
                                             </ComboboxTrigger>
                                         </ComboboxAnchor>
                                         <ComboboxList :class="comboboxListClass">
-                                            <ComboboxInput placeholder="Buscar provincia..." class="w-full border-0 border-b border-slate-105 bg-transparent px-3 py-2.5 text-sm focus:ring-0 dark:border-slate-850" />
-                                            <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron provincias.</ComboboxEmpty>
+                                            <ComboboxInput placeholder="Buscar provincia..." class="w-full border-0 border-b bg-transparent px-3 py-2.5 text-sm text-[var(--sispaa-text)] focus:ring-0 border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]" />
+                                            <ComboboxEmpty class="py-2 text-center text-xs opacity-50 text-[var(--sispaa-text)]">No se encontraron provincias.</ComboboxEmpty>
                                             <ComboboxGroup class="max-h-60 overflow-y-auto p-1">
-                                                <ComboboxItem v-for="p in PROVINCIAS_ECUADOR" :key="p" :value="{ value: p, label: p }" class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800">
+                                                <ComboboxItem v-for="p in PROVINCIAS_ECUADOR" :key="p" :value="{ value: p, label: p }" class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm text-[var(--sispaa-text)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_10%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]">
                                                     {{ p }}
-                                                    <ComboboxItemIndicator><Check class="h-4 w-4 text-indigo-650" /></ComboboxItemIndicator>
+                                                    <ComboboxItemIndicator><Check class="h-4 w-4 text-[var(--sispaa-primary)]" /></ComboboxItemIndicator>
                                                 </ComboboxItem>
                                             </ComboboxGroup>
                                         </ComboboxList>
@@ -847,12 +847,12 @@ const comboboxListClass = 'w-[var(--reka-combobox-trigger-width)] min-w-[220px] 
                                             </ComboboxTrigger>
                                         </ComboboxAnchor>
                                         <ComboboxList :class="comboboxListClass">
-                                            <ComboboxInput placeholder="Buscar cantón..." class="w-full border-0 border-b border-slate-105 bg-transparent px-3 py-2.5 text-sm focus:ring-0 dark:border-slate-850" />
-                                            <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron cantones.</ComboboxEmpty>
+                                            <ComboboxInput placeholder="Buscar cantón..." class="w-full border-0 border-b bg-transparent px-3 py-2.5 text-sm text-[var(--sispaa-text)] focus:ring-0 border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]" />
+                                            <ComboboxEmpty class="py-2 text-center text-xs opacity-50 text-[var(--sispaa-text)]">No se encontraron cantones.</ComboboxEmpty>
                                             <ComboboxGroup class="max-h-60 overflow-y-auto p-1">
-                                                <ComboboxItem v-for="c in cantonesResidenciaDisponibles" :key="c" :value="{ value: c, label: c }" class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800">
+                                                <ComboboxItem v-for="c in cantonesResidenciaDisponibles" :key="c" :value="{ value: c, label: c }" class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm text-[var(--sispaa-text)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_10%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]">
                                                     {{ c }}
-                                                    <ComboboxItemIndicator><Check class="h-4 w-4 text-indigo-650" /></ComboboxItemIndicator>
+                                                    <ComboboxItemIndicator><Check class="h-4 w-4 text-[var(--sispaa-primary)]" /></ComboboxItemIndicator>
                                                 </ComboboxItem>
                                             </ComboboxGroup>
                                         </ComboboxList>
@@ -877,7 +877,7 @@ const comboboxListClass = 'w-[var(--reka-combobox-trigger-width)] min-w-[220px] 
 
                     <!-- Paso 3: Adicionales -->
                     <div v-show="currentStep === 3" class="space-y-5">
-                        <h3 class="text-sm font-bold text-slate-900 dark:text-white">Datos Personales</h3>
+                        <h3 class="text-sm font-bold text-[var(--sispaa-text)]">Datos Personales</h3>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <FormField name="religion">
                                 <FormItem>
@@ -903,9 +903,9 @@ const comboboxListClass = 'w-[var(--reka-combobox-trigger-width)] min-w-[220px] 
                                         </ComboboxAnchor>
                                         <ComboboxList :class="comboboxListClass">
                                             <ComboboxGroup class="p-1">
-                                                <ComboboxItem v-for="e in ESTADOS_CIVILES" :key="e.value" :value="e" class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800">
+                                                <ComboboxItem v-for="e in ESTADOS_CIVILES" :key="e.value" :value="e" class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm text-[var(--sispaa-text)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_10%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]">
                                                     {{ e.label }}
-                                                    <ComboboxItemIndicator><Check class="h-4 w-4 text-indigo-650" /></ComboboxItemIndicator>
+                                                    <ComboboxItemIndicator><Check class="h-4 w-4 text-[var(--sispaa-primary)]" /></ComboboxItemIndicator>
                                                 </ComboboxItem>
                                             </ComboboxGroup>
                                         </ComboboxList>
@@ -936,11 +936,11 @@ const comboboxListClass = 'w-[var(--reka-combobox-trigger-width)] min-w-[220px] 
                                             </ComboboxTrigger>
                                         </ComboboxAnchor>
                                         <ComboboxList :class="comboboxListClass">
-                                            <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron etnias.</ComboboxEmpty>
+                                            <ComboboxEmpty class="py-2 text-center text-xs opacity-50 text-[var(--sispaa-text)]">No se encontraron etnias.</ComboboxEmpty>
                                             <ComboboxGroup class="p-1">
-                                                <ComboboxItem v-for="e in NOMBRES_ETNIAS" :key="e" :value="{ value: e, label: e }" class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800">
+                                                <ComboboxItem v-for="e in NOMBRES_ETNIAS" :key="e" :value="{ value: e, label: e }" class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm text-[var(--sispaa-text)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_10%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]">
                                                     {{ e }}
-                                                    <ComboboxItemIndicator><Check class="h-4 w-4 text-indigo-650" /></ComboboxItemIndicator>
+                                                    <ComboboxItemIndicator><Check class="h-4 w-4 text-[var(--sispaa-primary)]" /></ComboboxItemIndicator>
                                                 </ComboboxItem>
                                             </ComboboxGroup>
                                         </ComboboxList>
@@ -970,12 +970,12 @@ const comboboxListClass = 'w-[var(--reka-combobox-trigger-width)] min-w-[220px] 
                                             </ComboboxTrigger>
                                         </ComboboxAnchor>
                                         <ComboboxList :class="comboboxListClass">
-                                            <ComboboxInput placeholder="Buscar nacionalidad..." class="w-full border-0 border-b border-slate-105 bg-transparent px-3 py-2.5 text-sm focus:ring-0 dark:border-slate-850" />
-                                            <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron nacionalidades.</ComboboxEmpty>
+                                            <ComboboxInput placeholder="Buscar nacionalidad..." class="w-full border-0 border-b bg-transparent px-3 py-2.5 text-sm text-[var(--sispaa-text)] focus:ring-0 border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]" />
+                                            <ComboboxEmpty class="py-2 text-center text-xs opacity-50 text-[var(--sispaa-text)]">No se encontraron nacionalidades.</ComboboxEmpty>
                                             <ComboboxGroup class="max-h-60 overflow-y-auto p-1">
-                                                <ComboboxItem v-for="g in GENTILICIOS" :key="g" :value="{ value: g, label: g }" class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800">
+                                                <ComboboxItem v-for="g in GENTILICIOS" :key="g" :value="{ value: g, label: g }" class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm text-[var(--sispaa-text)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_10%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]">
                                                     {{ g }}
-                                                    <ComboboxItemIndicator><Check class="h-4 w-4 text-indigo-650" /></ComboboxItemIndicator>
+                                                    <ComboboxItemIndicator><Check class="h-4 w-4 text-[var(--sispaa-primary)]" /></ComboboxItemIndicator>
                                                 </ComboboxItem>
                                             </ComboboxGroup>
                                         </ComboboxList>
@@ -998,12 +998,12 @@ const comboboxListClass = 'w-[var(--reka-combobox-trigger-width)] min-w-[220px] 
                                             </ComboboxTrigger>
                                         </ComboboxAnchor>
                                         <ComboboxList :class="comboboxListClass">
-                                            <ComboboxInput placeholder="Buscar país..." class="w-full border-0 border-b border-slate-105 bg-transparent px-3 py-2.5 text-sm focus:ring-0 dark:border-slate-850" />
-                                            <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron países.</ComboboxEmpty>
+                                            <ComboboxInput placeholder="Buscar país..." class="w-full border-0 border-b bg-transparent px-3 py-2.5 text-sm text-[var(--sispaa-text)] focus:ring-0 border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]" />
+                                            <ComboboxEmpty class="py-2 text-center text-xs opacity-50 text-[var(--sispaa-text)]">No se encontraron países.</ComboboxEmpty>
                                             <ComboboxGroup class="max-h-60 overflow-y-auto p-1">
-                                                <ComboboxItem v-for="p in NOMBRES_PAISES" :key="p" :value="{ value: p, label: p }" class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800">
+                                                <ComboboxItem v-for="p in NOMBRES_PAISES" :key="p" :value="{ value: p, label: p }" class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm text-[var(--sispaa-text)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_10%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]">
                                                     {{ p }}
-                                                    <ComboboxItemIndicator><Check class="h-4 w-4 text-indigo-650" /></ComboboxItemIndicator>
+                                                    <ComboboxItemIndicator><Check class="h-4 w-4 text-[var(--sispaa-primary)]" /></ComboboxItemIndicator>
                                                 </ComboboxItem>
                                             </ComboboxGroup>
                                         </ComboboxList>
@@ -1027,12 +1027,12 @@ const comboboxListClass = 'w-[var(--reka-combobox-trigger-width)] min-w-[220px] 
                                             </ComboboxTrigger>
                                         </ComboboxAnchor>
                                         <ComboboxList :class="comboboxListClass">
-                                            <ComboboxInput placeholder="Buscar provincia..." class="w-full border-0 border-b border-slate-105 bg-transparent px-3 py-2.5 text-sm focus:ring-0 dark:border-slate-850" />
-                                            <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron provincias.</ComboboxEmpty>
+                                            <ComboboxInput placeholder="Buscar provincia..." class="w-full border-0 border-b bg-transparent px-3 py-2.5 text-sm text-[var(--sispaa-text)] focus:ring-0 border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]" />
+                                            <ComboboxEmpty class="py-2 text-center text-xs opacity-50 text-[var(--sispaa-text)]">No se encontraron provincias.</ComboboxEmpty>
                                             <ComboboxGroup class="max-h-60 overflow-y-auto p-1">
-                                                <ComboboxItem v-for="p in PROVINCIAS_ECUADOR" :key="p" :value="{ value: p, label: p }" class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800">
+                                                <ComboboxItem v-for="p in PROVINCIAS_ECUADOR" :key="p" :value="{ value: p, label: p }" class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm text-[var(--sispaa-text)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_10%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]">
                                                     {{ p }}
-                                                    <ComboboxItemIndicator><Check class="h-4 w-4 text-indigo-650" /></ComboboxItemIndicator>
+                                                    <ComboboxItemIndicator><Check class="h-4 w-4 text-[var(--sispaa-primary)]" /></ComboboxItemIndicator>
                                                 </ComboboxItem>
                                             </ComboboxGroup>
                                         </ComboboxList>
@@ -1056,12 +1056,12 @@ const comboboxListClass = 'w-[var(--reka-combobox-trigger-width)] min-w-[220px] 
                                             </ComboboxTrigger>
                                         </ComboboxAnchor>
                                         <ComboboxList :class="comboboxListClass">
-                                            <ComboboxInput placeholder="Buscar cantón..." class="w-full border-0 border-b border-slate-105 bg-transparent px-3 py-2.5 text-sm focus:ring-0 dark:border-slate-850" />
-                                            <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron cantones.</ComboboxEmpty>
+                                            <ComboboxInput placeholder="Buscar cantón..." class="w-full border-0 border-b bg-transparent px-3 py-2.5 text-sm text-[var(--sispaa-text)] focus:ring-0 border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]" />
+                                            <ComboboxEmpty class="py-2 text-center text-xs opacity-50 text-[var(--sispaa-text)]">No se encontraron cantones.</ComboboxEmpty>
                                             <ComboboxGroup class="max-h-60 overflow-y-auto p-1">
-                                                <ComboboxItem v-for="c in cantonesNacimientoDisponibles" :key="c" :value="{ value: c, label: c }" class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800">
+                                                <ComboboxItem v-for="c in cantonesNacimientoDisponibles" :key="c" :value="{ value: c, label: c }" class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm text-[var(--sispaa-text)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_10%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]">
                                                     {{ c }}
-                                                    <ComboboxItemIndicator><Check class="h-4 w-4 text-indigo-650" /></ComboboxItemIndicator>
+                                                    <ComboboxItemIndicator><Check class="h-4 w-4 text-[var(--sispaa-primary)]" /></ComboboxItemIndicator>
                                                 </ComboboxItem>
                                             </ComboboxGroup>
                                         </ComboboxList>
@@ -1071,12 +1071,12 @@ const comboboxListClass = 'w-[var(--reka-combobox-trigger-width)] min-w-[220px] 
                             </FormField>
                         </div>
 
-                        <h3 class="text-sm font-bold text-slate-900 dark:text-white pt-2 border-t border-slate-100 dark:border-slate-850">Datos Laborales</h3>
-                        <div class="flex items-center gap-3 rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 dark:border-slate-850 dark:bg-slate-900">
+                        <h3 class="text-sm font-bold text-[var(--sispaa-text)] pt-2 border-t border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">Datos Laborales</h3>
+                        <div class="flex items-center gap-3 rounded-xl border px-4 py-3 bg-[var(--sispaa-surface)] border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
                             <Switch v-model="trabajaActualmente" />
                             <div>
-                                <p class="text-sm font-semibold text-slate-800 dark:text-slate-200">¿Trabajas actualmente?</p>
-                                <p class="text-xs text-slate-400">Actívalo para registrar dónde laboras; al hacerlo, esos datos pasan a ser obligatorios.</p>
+                                <p class="text-sm font-semibold text-[var(--sispaa-text)]">¿Trabajas actualmente?</p>
+                                <p class="text-xs opacity-50 text-[var(--sispaa-text)]">Actívalo para registrar dónde laboras; al hacerlo, esos datos pasan a ser obligatorios.</p>
                             </div>
                         </div>
                         <div v-if="trabajaActualmente" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1123,12 +1123,12 @@ const comboboxListClass = 'w-[var(--reka-combobox-trigger-width)] min-w-[220px] 
                                             </ComboboxTrigger>
                                         </ComboboxAnchor>
                                         <ComboboxList :class="comboboxListClass">
-                                            <ComboboxInput placeholder="Buscar ciudad..." class="w-full border-0 border-b border-slate-105 bg-transparent px-3 py-2.5 text-sm focus:ring-0 dark:border-slate-850" />
-                                            <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron ciudades.</ComboboxEmpty>
+                                            <ComboboxInput placeholder="Buscar ciudad..." class="w-full border-0 border-b bg-transparent px-3 py-2.5 text-sm text-[var(--sispaa-text)] focus:ring-0 border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]" />
+                                            <ComboboxEmpty class="py-2 text-center text-xs opacity-50 text-[var(--sispaa-text)]">No se encontraron ciudades.</ComboboxEmpty>
                                             <ComboboxGroup class="max-h-60 overflow-y-auto p-1">
-                                                <ComboboxItem v-for="c in CIUDADES_ECUADOR" :key="c" :value="{ value: c, label: c }" class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800">
+                                                <ComboboxItem v-for="c in CIUDADES_ECUADOR" :key="c" :value="{ value: c, label: c }" class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm text-[var(--sispaa-text)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_10%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]">
                                                     {{ c }}
-                                                    <ComboboxItemIndicator><Check class="h-4 w-4 text-indigo-650" /></ComboboxItemIndicator>
+                                                    <ComboboxItemIndicator><Check class="h-4 w-4 text-[var(--sispaa-primary)]" /></ComboboxItemIndicator>
                                                 </ComboboxItem>
                                             </ComboboxGroup>
                                         </ComboboxList>
@@ -1140,11 +1140,11 @@ const comboboxListClass = 'w-[var(--reka-combobox-trigger-width)] min-w-[220px] 
                     </div>
 
                     <!-- Navegación pasos 1-3 -->
-                    <div v-show="currentStep < 4" class="flex items-center justify-between border-t border-slate-100 pt-5 mt-6 dark:border-slate-850">
+                    <div v-show="currentStep < 4" class="mt-6 flex items-center justify-between border-t pt-5 border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
                         <Button type="button" variant="outline" :disabled="currentStep === 1" @click="anterior">
                             <ArrowLeft class="mr-1.5 h-4 w-4" /> Atrás
                         </Button>
-                        <Button type="button" class="bg-indigo-600 hover:bg-indigo-500 text-white" @click="siguiente">
+                        <Button type="button" class="text-white bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)]" @click="siguiente">
                             Siguiente <ArrowRight class="ml-1.5 h-4 w-4" />
                         </Button>
                     </div>
@@ -1152,16 +1152,16 @@ const comboboxListClass = 'w-[var(--reka-combobox-trigger-width)] min-w-[220px] 
 
                 <!-- Paso 4: Familiares (fuera del <form> del wizard: persiste aparte) -->
                 <div v-show="currentStep === 4" class="space-y-5">
-                    <h3 class="text-sm font-bold text-slate-900 dark:text-white">Familiares y Representantes</h3>
-                    <p class="text-xs text-slate-400">
+                    <h3 class="text-sm font-bold text-[var(--sispaa-text)]">Familiares y Representantes</h3>
+                    <p class="text-xs opacity-50 text-[var(--sispaa-text)]">
                         Debes registrar al menos <span class="font-bold text-rose-500">*</span> un familiar con sus datos completos para poder finalizar.
                     </p>
 
-                    <div v-if="!tieneFamiliares" class="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700 dark:border-amber-900/40 dark:bg-amber-950/20 dark:text-amber-400">
+                    <div v-if="!tieneFamiliares" class="rounded-xl border px-4 py-3 text-sm bg-[color:color-mix(in_srgb,#E4BC57_25%,transparent)] text-[color:color-mix(in_srgb,#E4BC57_65%,black)] border-[color:color-mix(in_srgb,#E4BC57_45%,transparent)]">
                         Aún no has agregado ningún familiar. Agrega al menos uno con el formulario de abajo antes de finalizar tu perfil.
                     </div>
 
-                    <div class="rounded-xl border border-slate-100 dark:border-slate-850 overflow-hidden">
+                    <div class="overflow-hidden rounded-xl border border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
                         <Table>
                             <TableHeader>
                                 <TableRow v-for="headerGroup in familiarTable.getHeaderGroups()" :key="headerGroup.id">
@@ -1179,7 +1179,7 @@ const comboboxListClass = 'w-[var(--reka-combobox-trigger-width)] min-w-[220px] 
                                     </TableRow>
                                 </template>
                                 <TableRow v-else>
-                                    <TableCell :colspan="familiarColumns.length" class="h-20 text-center text-slate-400">
+                                    <TableCell :colspan="familiarColumns.length" class="h-20 text-center opacity-50 text-[var(--sispaa-text)]">
                                         Aún no has registrado familiares.
                                     </TableCell>
                                 </TableRow>
@@ -1187,9 +1187,9 @@ const comboboxListClass = 'w-[var(--reka-combobox-trigger-width)] min-w-[220px] 
                         </Table>
                     </div>
 
-                    <form @submit.prevent="guardarFamiliar" class="rounded-xl border border-slate-100 bg-slate-50 p-4 dark:border-slate-850 dark:bg-slate-900 space-y-4">
+                    <form @submit.prevent="guardarFamiliar" class="space-y-4 rounded-xl border p-4 bg-[var(--sispaa-surface)] border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
                         <div class="flex items-center justify-between">
-                            <p class="text-xs font-bold text-slate-500 uppercase">
+                            <p class="text-xs font-bold uppercase opacity-60 text-[var(--sispaa-text)]">
                                 {{ editandoFamiliarId ? 'Editando familiar' : 'Agregar familiar' }}
                             </p>
                             <Button v-if="editandoFamiliarId" type="button" variant="ghost" size="sm" class="h-7 gap-1 text-xs" @click="nuevoFamiliar">
@@ -1199,11 +1199,11 @@ const comboboxListClass = 'w-[var(--reka-combobox-trigger-width)] min-w-[220px] 
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Parentesco *</label>
+                                <label class="mb-1 block text-xs font-bold uppercase opacity-60 text-[var(--sispaa-text)]">Parentesco *</label>
                                 <Combobox v-model="selectedParentesco" by="value">
                                     <ComboboxAnchor as-child>
                                         <ComboboxTrigger as-child>
-                                            <Button type="button" variant="outline" class="w-full justify-between text-left text-sm font-normal bg-white dark:bg-slate-950">
+                                            <Button type="button" variant="outline" class="w-full justify-between text-left text-sm font-normal bg-[var(--sispaa-background)]">
                                                 {{ selectedParentesco.label }}
                                                 <ChevronsUpDown class="h-4 w-4 opacity-50" />
                                             </Button>
@@ -1215,10 +1215,10 @@ const comboboxListClass = 'w-[var(--reka-combobox-trigger-width)] min-w-[220px] 
                                                 v-for="(label, value) in PARENTESCO_LABELS"
                                                 :key="value"
                                                 :value="{ value, label }"
-                                                class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800"
+                                                class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm text-[var(--sispaa-text)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_10%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]"
                                             >
                                                 {{ label }}
-                                                <ComboboxItemIndicator><Check class="h-4 w-4 text-indigo-650" /></ComboboxItemIndicator>
+                                                <ComboboxItemIndicator><Check class="h-4 w-4 text-[var(--sispaa-primary)]" /></ComboboxItemIndicator>
                                             </ComboboxItem>
                                         </ComboboxGroup>
                                     </ComboboxList>
@@ -1226,31 +1226,31 @@ const comboboxListClass = 'w-[var(--reka-combobox-trigger-width)] min-w-[220px] 
                                 <p v-if="familiarForm.errors.parentesco" class="mt-1 text-xs text-rose-500">{{ familiarForm.errors.parentesco }}</p>
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Nombres Completos *</label>
-                                <input v-model="familiarForm.nombres" type="text" class="flex h-9 w-full rounded-md border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm focus:ring-1 focus:ring-indigo-500 dark:border-slate-850 dark:bg-slate-950" />
+                                <label class="mb-1 block text-xs font-bold uppercase opacity-60 text-[var(--sispaa-text)]">Nombres Completos *</label>
+                                <input v-model="familiarForm.nombres" type="text" class="flex h-9 w-full rounded-md border bg-[var(--sispaa-background)] px-3 py-1 text-sm text-[var(--sispaa-text)] shadow-sm border-[color:color-mix(in_srgb,var(--sispaa-text)_20%,transparent)] focus:ring-1 focus:ring-[var(--sispaa-primary)]" />
                                 <p v-if="familiarForm.errors.nombres" class="mt-1 text-xs text-rose-500">{{ familiarForm.errors.nombres }}</p>
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Teléfono</label>
-                                <input v-model="familiarForm.telefono" type="text" class="flex h-9 w-full rounded-md border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm focus:ring-1 focus:ring-indigo-500 dark:border-slate-850 dark:bg-slate-950" />
+                                <label class="mb-1 block text-xs font-bold uppercase opacity-60 text-[var(--sispaa-text)]">Teléfono</label>
+                                <input v-model="familiarForm.telefono" type="text" class="flex h-9 w-full rounded-md border bg-[var(--sispaa-background)] px-3 py-1 text-sm text-[var(--sispaa-text)] shadow-sm border-[color:color-mix(in_srgb,var(--sispaa-text)_20%,transparent)] focus:ring-1 focus:ring-[var(--sispaa-primary)]" />
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Correo</label>
-                                <input v-model="familiarForm.correo" type="email" class="flex h-9 w-full rounded-md border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm focus:ring-1 focus:ring-indigo-500 dark:border-slate-850 dark:bg-slate-950" />
+                                <label class="mb-1 block text-xs font-bold uppercase opacity-60 text-[var(--sispaa-text)]">Correo</label>
+                                <input v-model="familiarForm.correo" type="email" class="flex h-9 w-full rounded-md border bg-[var(--sispaa-background)] px-3 py-1 text-sm text-[var(--sispaa-text)] shadow-sm border-[color:color-mix(in_srgb,var(--sispaa-text)_20%,transparent)] focus:ring-1 focus:ring-[var(--sispaa-primary)]" />
                                 <p v-if="familiarForm.errors.correo" class="mt-1 text-xs text-rose-500">{{ familiarForm.errors.correo }}</p>
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Ocupación</label>
-                                <input v-model="familiarForm.ocupacion" type="text" class="flex h-9 w-full rounded-md border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm focus:ring-1 focus:ring-indigo-500 dark:border-slate-850 dark:bg-slate-950" />
+                                <label class="mb-1 block text-xs font-bold uppercase opacity-60 text-[var(--sispaa-text)]">Ocupación</label>
+                                <input v-model="familiarForm.ocupacion" type="text" class="flex h-9 w-full rounded-md border bg-[var(--sispaa-background)] px-3 py-1 text-sm text-[var(--sispaa-text)] shadow-sm border-[color:color-mix(in_srgb,var(--sispaa-text)_20%,transparent)] focus:ring-1 focus:ring-[var(--sispaa-primary)]" />
                             </div>
                             <div class="sm:col-span-2">
-                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Empresa donde Labora</label>
-                                <input v-model="familiarForm.empresa" type="text" class="flex h-9 w-full rounded-md border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm focus:ring-1 focus:ring-indigo-500 dark:border-slate-850 dark:bg-slate-950" />
+                                <label class="mb-1 block text-xs font-bold uppercase opacity-60 text-[var(--sispaa-text)]">Empresa donde Labora</label>
+                                <input v-model="familiarForm.empresa" type="text" class="flex h-9 w-full rounded-md border bg-[var(--sispaa-background)] px-3 py-1 text-sm text-[var(--sispaa-text)] shadow-sm border-[color:color-mix(in_srgb,var(--sispaa-text)_20%,transparent)] focus:ring-1 focus:ring-[var(--sispaa-primary)]" />
                             </div>
                         </div>
 
                         <div class="flex justify-end">
-                            <Button type="submit" :disabled="familiarForm.processing" class="bg-indigo-600 hover:bg-indigo-500 text-white">
+                            <Button type="submit" :disabled="familiarForm.processing" class="text-white bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)]">
                                 <Plus v-if="!editandoFamiliarId" class="mr-1.5 h-4 w-4" />
                                 <Save v-else class="mr-1.5 h-4 w-4" />
                                 {{ editandoFamiliarId ? 'Guardar Cambios' : 'Agregar Familiar' }}
@@ -1258,14 +1258,14 @@ const comboboxListClass = 'w-[var(--reka-combobox-trigger-width)] min-w-[220px] 
                         </div>
                     </form>
 
-                    <div class="flex items-center justify-between border-t border-slate-100 pt-5 dark:border-slate-850">
+                    <div class="flex items-center justify-between border-t pt-5 border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
                         <Button type="button" variant="outline" @click="anterior">
                             <ArrowLeft class="mr-1.5 h-4 w-4" /> Atrás
                         </Button>
                         <Button
                             type="button"
                             :disabled="processing"
-                            class="bg-emerald-600 hover:bg-emerald-500 text-white disabled:opacity-50"
+                            class="text-white disabled:opacity-50 bg-[var(--sispaa-secondary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-secondary)_85%,black)]"
                             @click="onSubmit"
                         >
                             <Save class="mr-1.5 h-4 w-4" /> Finalizar y Guardar Perfil
@@ -1274,8 +1274,8 @@ const comboboxListClass = 'w-[var(--reka-combobox-trigger-width)] min-w-[220px] 
                 </div>
             </div>
 
-            <div class="max-w-4xl w-full mx-auto text-center">
-                <Link :href="route('student.perfil')" class="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
+            <div class="mx-auto w-full max-w-4xl text-center">
+                <Link :href="route('student.perfil')" class="text-xs opacity-50 text-[var(--sispaa-text)] hover:opacity-100">
                     Volver a Mi Perfil
                 </Link>
             </div>
@@ -1289,7 +1289,7 @@ const comboboxListClass = 'w-[var(--reka-combobox-trigger-width)] min-w-[220px] 
                         Antes de guardar tu perfil, completa lo siguiente:
                     </AlertDialogDescription>
                 </AlertDialogHeader>
-                <ul class="list-disc space-y-1 pl-5 text-sm text-slate-600 dark:text-slate-300">
+                <ul class="list-disc space-y-1 pl-5 text-sm opacity-80 text-[var(--sispaa-text)]">
                     <li v-for="campo in camposFaltantes" :key="campo">{{ campo }}</li>
                 </ul>
                 <AlertDialogFooter>

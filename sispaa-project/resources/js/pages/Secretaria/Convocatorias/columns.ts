@@ -5,8 +5,8 @@ import type { Convocatoria } from './types';
 
 const estadoBadge = (activa: boolean) =>
     activa
-        ? 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-400'
-        : 'bg-slate-100 text-slate-500 dark:bg-slate-900 dark:text-slate-500';
+        ? 'bg-[color:color-mix(in_srgb,var(--sispaa-secondary)_30%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]'
+        : 'bg-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-text)_60%,transparent)]';
 
 export function makeConvocatoriaColumns(): ColumnDef<Convocatoria>[] {
     return [
@@ -16,21 +16,21 @@ export function makeConvocatoriaColumns(): ColumnDef<Convocatoria>[] {
             cell: ({ row }) => {
                 const c = row.original;
                 return h('div', {}, [
-                    h('p', { class: 'text-sm font-semibold text-slate-800 dark:text-slate-100' }, c.titulo),
-                    c.descripcion ? h('p', { class: 'text-xs text-slate-400 mt-0.5 max-w-xs truncate' }, c.descripcion) : null,
+                    h('p', { class: 'text-sm font-semibold text-[var(--sispaa-text)]' }, c.titulo),
+                    c.descripcion ? h('p', { class: 'text-xs opacity-50 text-[var(--sispaa-text)] mt-0.5 max-w-xs truncate' }, c.descripcion) : null,
                 ]);
             },
         },
         {
             id: 'modulo',
             header: 'Módulo',
-            cell: ({ row }) => h('span', { class: 'text-xs text-slate-600 dark:text-slate-300' }, row.original.modulo),
+            cell: ({ row }) => h('span', { class: 'text-xs opacity-70 text-[var(--sispaa-text)]' }, row.original.modulo),
         },
         {
             id: 'vigencia',
             header: 'Vigencia',
             cell: ({ row }) =>
-                h('span', { class: 'text-xs text-slate-500 dark:text-slate-400' }, `${row.original.fecha_inicio} — ${row.original.fecha_fin}`),
+                h('span', { class: 'text-xs opacity-60 text-[var(--sispaa-text)]' }, `${row.original.fecha_inicio} — ${row.original.fecha_fin}`),
         },
         {
             id: 'estado',

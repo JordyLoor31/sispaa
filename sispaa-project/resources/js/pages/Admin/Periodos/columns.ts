@@ -18,9 +18,9 @@ export interface Periodo {
 }
 
 const ESTADO_BADGE: Record<EstadoPeriodo, string> = {
-    planificado: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
-    activo: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
-    finalizado: 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400',
+    planificado: 'bg-[color:color-mix(in_srgb,#E4BC57_45%,transparent)] text-[color:color-mix(in_srgb,#E4BC57_60%,black)]',
+    activo: 'bg-[color:color-mix(in_srgb,var(--sispaa-secondary)_30%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]',
+    finalizado: 'bg-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-text)_60%,transparent)]',
 };
 
 const ESTADO_LABEL: Record<EstadoPeriodo, string> = {
@@ -39,19 +39,19 @@ export function makePeriodoColumns({ onActivar }: PeriodoColumnsOptions): Column
             accessorKey: 'nombre',
             meta: { label: 'Periodo' },
             header: 'Periodo',
-            cell: ({ row }) => h('span', { class: 'font-bold text-slate-900 dark:text-white' }, row.original.nombre),
+            cell: ({ row }) => h('span', { class: 'font-bold text-[var(--sispaa-text)]' }, row.original.nombre),
         },
         {
             accessorKey: 'tipo',
             meta: { label: 'Tipo' },
             header: 'Tipo',
-            cell: ({ row }) => h('span', { class: 'capitalize text-slate-600 dark:text-slate-300' }, row.original.tipo),
+            cell: ({ row }) => h('span', { class: 'capitalize opacity-80 text-[var(--sispaa-text)]' }, row.original.tipo),
         },
         {
             id: 'duracion',
             meta: { label: 'Duración' },
             header: 'Duración',
-            cell: ({ row }) => h('span', { class: 'text-sm text-slate-600 dark:text-slate-300' }, `${row.original.fecha_inicio} — ${row.original.fecha_fin}`),
+            cell: ({ row }) => h('span', { class: 'text-sm opacity-80 text-[var(--sispaa-text)]' }, `${row.original.fecha_inicio} — ${row.original.fecha_fin}`),
         },
         {
             accessorKey: 'estado',

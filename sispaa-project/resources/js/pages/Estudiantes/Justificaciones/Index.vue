@@ -6,25 +6,31 @@ import { reactive, ref } from 'vue';
 import { FlexRender, getCoreRowModel, useVueTable } from '@tanstack/vue-table';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { Search } from 'lucide-vue-next';
+import { useDebounceFn } from '@vueuse/core';
 import { usePermissions } from '@/composables/usePermissions';
 import makeSolicitudColumns from './columns';
 import type { Paginated, SolicitudRow } from './types';
 
 const props = defineProps<{
     solicitudes: Paginated<SolicitudRow>;
-    filters: { estado?: string };
+    filters: { estado?: string; q?: string };
     breadcrumbs?: BreadcrumbItemType[];
 }>();
 
 const { hasAnyRole } = usePermissions();
 
+const search = ref(props.filters.q ?? '');
 const estado = ref(props.filters.estado ?? 'all');
 
 const aplicar = () => {
     router.get(route('estudiantes.justificaciones'), {
+        q: search.value || undefined,
         estado: estado.value !== 'all' ? estado.value : undefined,
     }, { preserveState: true, replace: true });
 };
+const debouncedAplicar = useDebounceFn(aplicar, 300);
 
 const navigateToPage = (url: string | null) => {
     if (url) router.get(url, {}, { preserveState: true });
@@ -43,20 +49,28 @@ const table = useVueTable(reactive({
     <AppSidebarLayout :breadcrumbs="breadcrumbs">
         <Head title="Justificaciones" />
 
-        <div class="flex h-full flex-1 flex-col gap-6 p-6 bg-slate-50/50 dark:bg-slate-900/50">
+        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[var(--sispaa-background)]">
             <div>
-                <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">Justificaciones</h1>
-                <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">Justificaciones</h1>
+                <p class="mt-1 text-sm opacity-60 text-[var(--sispaa-text)]">
                     Reporte de solicitudes de justificación de inasistencia.
                     <span v-if="hasAnyRole('secretaria', 'SystemAdministrador')">La aprobación/rechazo se hace desde Secretaría.</span>
                 </p>
             </div>
 
-            <div class="flex flex-wrap items-end gap-3 bg-white dark:bg-slate-950 p-4 rounded-xl border border-slate-200/80 dark:border-slate-800">
+            <div class="flex flex-wrap items-end gap-3 rounded-xl p-4 bg-[var(--sispaa-surface)]">
+                <div class="min-w-[220px] flex-1">
+                    <label class="mb-1.5 block text-xs font-semibold uppercase opacity-60 text-[var(--sispaa-text)]">Buscar</label>
+                    <div class="relative">
+                        <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 opacity-50 text-[var(--sispaa-text)]" />
+                        <Input v-model="search" type="text" placeholder="Buscar estudiante, materia o motivo..."
+                            class="bg-[var(--sispaa-background)] pl-9" @input="debouncedAplicar" />
+                    </div>
+                </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1.5">Estado</label>
+                    <label class="mb-1.5 block text-xs font-semibold uppercase opacity-60 text-[var(--sispaa-text)]">Estado</label>
                     <Select v-model="estado" @update:model-value="aplicar">
-                        <SelectTrigger class="w-[180px]"><SelectValue /></SelectTrigger>
+                        <SelectTrigger class="w-full sm:w-[180px] bg-[var(--sispaa-background)]"><SelectValue /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">Todos</SelectItem>
                             <SelectItem value="pendiente">Pendiente</SelectItem>
@@ -67,29 +81,29 @@ const table = useVueTable(reactive({
                 </div>
             </div>
 
-            <div class="rounded-lg border border-slate-200/80 bg-white dark:border-slate-800 dark:bg-slate-950 overflow-hidden">
+            <div class="rounded-lg overflow-hidden bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
                 <div class="overflow-x-auto">
                     <Table>
                         <TableHeader>
                             <TableRow v-for="hg in table.getHeaderGroups()" :key="hg.id"
-                                class="border-b border-slate-200/80 dark:border-slate-800">
+                                class="border-b border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
                                 <TableHead v-for="header in hg.headers" :key="header.id"
-                                    class="h-12 px-4 text-sm font-medium text-slate-500 dark:text-slate-400">
+                                    class="h-12 px-4 text-sm font-medium opacity-60 text-[var(--sispaa-text)]">
                                     <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header" :props="header.getContext()" />
                                 </TableHead>
                             </TableRow>
                         </TableHeader>
-                        <TableBody class="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
+                        <TableBody class="divide-y divide-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)] text-sm">
                             <template v-if="table.getRowModel().rows?.length">
                                 <TableRow v-for="row in table.getRowModel().rows" :key="row.id"
-                                    class="hover:bg-slate-50/30 dark:hover:bg-slate-900/10 transition-colors">
+                                    class="transition-colors hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_5%,transparent)]">
                                     <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id" class="px-4 py-4">
                                         <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
                                     </TableCell>
                                 </TableRow>
                             </template>
                             <TableRow v-else>
-                                <TableCell :colspan="columns.length" class="h-32 text-center text-sm text-slate-400">
+                                <TableCell :colspan="columns.length" class="h-32 text-center text-sm opacity-50 text-[var(--sispaa-text)]">
                                     No hay solicitudes para el filtro seleccionado.
                                 </TableCell>
                             </TableRow>
@@ -97,13 +111,13 @@ const table = useVueTable(reactive({
                     </Table>
                 </div>
 
-                <div class="flex items-center justify-between border-t border-slate-100 dark:border-slate-800 px-6 py-4">
-                    <span class="text-xs text-slate-500">Mostrando {{ solicitudes.data.length }} de {{ solicitudes.total }} registros</span>
-                    <div class="flex items-center gap-1">
+                <div class="flex flex-col gap-3 border-t px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]">
+                    <span class="text-xs opacity-60 text-[var(--sispaa-text)]">Mostrando {{ solicitudes.data.length }} de {{ solicitudes.total }} registros</span>
+                    <div class="flex flex-wrap items-center gap-1">
                         <button v-for="link in solicitudes.links" :key="link.label" @click="navigateToPage(link.url)"
                             :disabled="!link.url || link.active" v-html="link.label"
-                            class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
-                            :class="[link.active ? 'bg-indigo-600 text-white' : 'border border-slate-200/80 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 disabled:opacity-40']" />
+                            class="rounded-lg px-3 py-1.5 text-xs font-semibold transition-all"
+                            :class="[link.active ? 'bg-[var(--sispaa-primary)] text-white' : 'text-[var(--sispaa-text)] bg-[var(--sispaa-background)] border border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_10%,transparent)] disabled:opacity-40']" />
                     </div>
                 </div>
             </div>

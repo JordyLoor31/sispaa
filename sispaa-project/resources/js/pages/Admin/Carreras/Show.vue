@@ -40,23 +40,23 @@ const formatDate = (date?: string) => {
     <AppSidebarLayout :breadcrumbs="breadcrumbs">
         <Head :title="props.carrera.nombre" />
 
-        <div class="flex h-full flex-1 flex-col gap-6 p-6 bg-slate-50/50 dark:bg-slate-900/50">
+        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[var(--sispaa-background)]">
             <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div>
-                    <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+                    <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">
                         {{ carrera.nombre }}
                     </h1>
-                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                    <p class="mt-1 text-sm opacity-60 text-[var(--sispaa-text)]">
                         Código {{ carrera.codigo }}
                     </p>
                 </div>
-                <div class="flex items-center gap-2">
+                <div class="flex flex-wrap items-center gap-2">
                     <Button as-child variant="outline">
                         <Link :href="route('admin.carreras.index')">
                             <ArrowLeft class="h-4 w-4 mr-1.5" /> Volver
                         </Link>
                     </Button>
-                    <Button as-child class="bg-indigo-600 hover:bg-indigo-500 text-white">
+                    <Button as-child class="text-white bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)]">
                         <Link :href="route('admin.carreras.edit', carrera.id)">
                             <Pencil class="h-4 w-4 mr-1.5" /> Editar
                         </Link>
@@ -64,54 +64,54 @@ const formatDate = (date?: string) => {
                 </div>
             </div>
 
-            <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-                <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Estado</h4>
-                    <p class="mt-2 text-sm font-semibold" :class="carrera.activa ? 'text-emerald-600' : 'text-slate-400'">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
+                <div class="rounded-2xl p-5 shadow-sm sm:p-6 bg-[var(--sispaa-surface)]">
+                    <h4 class="text-xs font-bold uppercase tracking-wider opacity-60 text-[var(--sispaa-text)]">Estado</h4>
+                    <p class="mt-2 text-sm font-semibold" :class="carrera.activa ? 'text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]' : 'opacity-50 text-[var(--sispaa-text)]'">
                         {{ carrera.activa ? 'Activa' : 'Inactiva' }}
                     </p>
                 </div>
-                <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Etiqueta / Color</h4>
+                <div class="rounded-2xl p-5 shadow-sm sm:p-6 bg-[var(--sispaa-surface)]">
+                    <h4 class="text-xs font-bold uppercase tracking-wider opacity-60 text-[var(--sispaa-text)]">Etiqueta / Color</h4>
                     <div class="mt-2 flex items-center gap-2">
                         <span
                             class="inline-block h-4 w-4 shrink-0 rounded-full border border-black/10"
                             :style="{ backgroundColor: carrera.color ?? '#94a3b8' }"
                         />
-                        <p class="text-sm font-semibold text-slate-800 dark:text-slate-200">
+                        <p class="text-sm font-semibold text-[var(--sispaa-text)]">
                             {{ carrera.color ?? 'Sin asignar' }}
                         </p>
                     </div>
                 </div>
-                <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Coordinador</h4>
-                    <p class="mt-2 text-sm font-semibold text-slate-800 dark:text-slate-200">
+                <div class="rounded-2xl p-5 shadow-sm sm:p-6 bg-[var(--sispaa-surface)]">
+                    <h4 class="text-xs font-bold uppercase tracking-wider opacity-60 text-[var(--sispaa-text)]">Coordinador</h4>
+                    <p class="mt-2 text-sm font-semibold text-[var(--sispaa-text)]">
                         {{ carrera.coordinador?.name ?? 'No asignado' }}
                     </p>
                 </div>
-                <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Asignaturas / Usuarios</h4>
-                    <p class="mt-2 text-sm font-semibold text-slate-800 dark:text-slate-200">
+                <div class="rounded-2xl p-5 shadow-sm sm:p-6 bg-[var(--sispaa-surface)]">
+                    <h4 class="text-xs font-bold uppercase tracking-wider opacity-60 text-[var(--sispaa-text)]">Asignaturas / Usuarios</h4>
+                    <p class="mt-2 text-sm font-semibold text-[var(--sispaa-text)]">
                         {{ carrera.materias_count ?? 0 }} asignaturas · {{ carrera.usuarios_count ?? 0 }} usuarios
                     </p>
                 </div>
             </div>
 
-            <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Auditoría</h4>
+            <div class="rounded-2xl p-5 shadow-sm sm:p-6 bg-[var(--sispaa-surface)]">
+                <h4 class="text-xs font-bold uppercase tracking-wider mb-3 opacity-60 text-[var(--sispaa-text)]">Auditoría</h4>
                 <div class="grid gap-4 sm:grid-cols-2 text-sm">
                     <div>
-                        <p class="text-slate-400 text-xs">Creado por</p>
-                        <p class="font-semibold text-slate-800 dark:text-slate-200">
+                        <p class="text-xs opacity-60 text-[var(--sispaa-text)]">Creado por</p>
+                        <p class="font-semibold text-[var(--sispaa-text)]">
                             {{ carrera.creator?.name ?? '—' }}
-                            <span class="text-slate-400 font-normal">· {{ formatDate(carrera.created_at) }}</span>
+                            <span class="font-normal opacity-60 text-[var(--sispaa-text)]">· {{ formatDate(carrera.created_at) }}</span>
                         </p>
                     </div>
                     <div>
-                        <p class="text-slate-400 text-xs">Última edición por</p>
-                        <p class="font-semibold text-slate-800 dark:text-slate-200">
+                        <p class="text-xs opacity-60 text-[var(--sispaa-text)]">Última edición por</p>
+                        <p class="font-semibold text-[var(--sispaa-text)]">
                             {{ carrera.updater?.name ?? '—' }}
-                            <span class="text-slate-400 font-normal">· {{ formatDate(carrera.updated_at) }}</span>
+                            <span class="font-normal opacity-60 text-[var(--sispaa-text)]">· {{ formatDate(carrera.updated_at) }}</span>
                         </p>
                     </div>
                 </div>

@@ -23,74 +23,74 @@ const esEstudiante = props.usuario.roles.some((rol) => rol.name === 'estudiante'
     <AppSidebarLayout :breadcrumbs="breadcrumbs">
         <Head :title="props.usuario.name" />
 
-        <div class="flex h-full flex-1 flex-col gap-6 p-6 bg-slate-50/50 dark:bg-slate-900/50">
+        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[var(--sispaa-background)]">
             <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div>
-                    <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+                    <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">
                         {{ usuario.name }}
                     </h1>
-                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                    <p class="mt-1 text-sm opacity-60 text-[var(--sispaa-text)]">
                         {{ usuario.email }}
                     </p>
                 </div>
-                <div class="flex items-center gap-2">
+                <div class="flex flex-wrap items-center gap-2">
                     <Button as-child variant="outline">
                         <Link :href="route('admin.usuarios.index')">
-                            <ArrowLeft class="h-4 w-4 mr-1.5" /> Volver
+                            <ArrowLeft class="mr-1.5 h-4 w-4" /> Volver
                         </Link>
                     </Button>
                     <Button v-if="esEstudiante" as-child variant="outline">
                         <Link :href="route('admin.estudiantes.perfiles.show', usuario.id)">
-                            <FileText class="h-4 w-4 mr-1.5" /> Ver Datos Adicionales
+                            <FileText class="mr-1.5 h-4 w-4" /> Ver Datos Adicionales
                         </Link>
                     </Button>
-                    <Button as-child class="bg-indigo-600 hover:bg-indigo-500 text-white">
+                    <Button as-child class="text-white bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)]">
                         <Link :href="route('admin.usuarios.edit', usuario.id)">
-                            <Pencil class="h-4 w-4 mr-1.5" /> Editar
+                            <Pencil class="mr-1.5 h-4 w-4" /> Editar
                         </Link>
                     </Button>
                 </div>
             </div>
 
-            <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Estado</h4>
-                    <p class="mt-2 text-sm font-semibold" :class="usuario.is_active ? 'text-emerald-600' : 'text-slate-400'">
+            <div class="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <div class="rounded-2xl p-5 shadow-sm sm:p-6 bg-[var(--sispaa-surface)]">
+                    <h4 class="text-xs font-bold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)]">Estado</h4>
+                    <p class="mt-2 text-sm font-semibold" :class="usuario.is_active ? 'text-[var(--sispaa-secondary)]' : 'opacity-50 text-[var(--sispaa-text)]'">
                         {{ usuario.is_active ? 'Activo' : 'Inactivo' }}
                     </p>
                 </div>
-                <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Identificación / Teléfono</h4>
-                    <p class="mt-2 text-sm font-semibold text-slate-800 dark:text-slate-200">
+                <div class="rounded-2xl p-5 shadow-sm sm:p-6 bg-[var(--sispaa-surface)]">
+                    <h4 class="text-xs font-bold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)]">Identificación / Teléfono</h4>
+                    <p class="mt-2 text-sm font-semibold opacity-90 text-[var(--sispaa-text)]">
                         {{ usuario.cedula ?? '—' }} · {{ usuario.telefono ?? '—' }}
                     </p>
                 </div>
-                <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Carrera</h4>
-                    <p class="mt-2 text-sm font-semibold text-slate-800 dark:text-slate-200">
+                <div class="rounded-2xl p-5 shadow-sm sm:p-6 bg-[var(--sispaa-surface)]">
+                    <h4 class="text-xs font-bold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)]">Carrera</h4>
+                    <p class="mt-2 text-sm font-semibold opacity-90 text-[var(--sispaa-text)]">
                         {{ usuario.carrera?.nombre ?? 'General / Institucional' }}
                     </p>
                 </div>
             </div>
 
-            <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Roles</h4>
+            <div class="rounded-2xl p-5 shadow-sm sm:p-6 bg-[var(--sispaa-surface)]">
+                <h4 class="mb-3 text-xs font-bold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)]">Roles</h4>
                 <div class="flex flex-wrap gap-2">
                     <span
                         v-for="rol in usuario.roles"
                         :key="rol.id"
-                        class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-400"
+                        class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)] text-[var(--sispaa-primary)]"
                     >
                         <Shield class="h-3 w-3" />
                         {{ rol.name.charAt(0).toUpperCase() + rol.name.slice(1) }}
                     </span>
-                    <span v-if="usuario.roles.length === 0" class="text-xs text-slate-400">Sin roles asignados</span>
+                    <span v-if="usuario.roles.length === 0" class="text-xs opacity-50 text-[var(--sispaa-text)]">Sin roles asignados</span>
                 </div>
             </div>
 
-            <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Cuenta creada</h4>
-                <p class="mt-2 text-sm font-semibold text-slate-800 dark:text-slate-200">
+            <div class="rounded-2xl p-5 shadow-sm sm:p-6 bg-[var(--sispaa-surface)]">
+                <h4 class="text-xs font-bold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)]">Cuenta creada</h4>
+                <p class="mt-2 text-sm font-semibold opacity-90 text-[var(--sispaa-text)]">
                     {{ formatDate(usuario.created_at) }}
                 </p>
             </div>

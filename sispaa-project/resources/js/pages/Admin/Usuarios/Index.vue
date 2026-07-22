@@ -5,6 +5,7 @@ import { Head, Link, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import { UserPlus, Search } from 'lucide-vue-next';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
 import { FlexRender, getCoreRowModel, useVueTable } from '@tanstack/vue-table';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -79,18 +80,18 @@ const table = useVueTable({
     <AppSidebarLayout :breadcrumbs="breadcrumbs">
         <Head title="Gestión de Usuarios" />
 
-        <div class="flex h-full flex-1 flex-col gap-6 p-6 bg-slate-50/50 dark:bg-slate-900/50">
+        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[var(--sispaa-background)]">
             <!-- Header -->
             <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div>
-                    <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+                    <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">
                         Gestión de Usuarios
                     </h1>
-                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                    <p class="mt-1 text-sm opacity-60 text-[var(--sispaa-text)]">
                         Crea, edita, deshabilita y administra los roles de acceso de la plataforma.
                     </p>
                 </div>
-                <Button as-child class="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold transition-colors">
+                <Button as-child class="inline-flex items-center gap-1.5 font-semibold text-white transition-colors bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)]">
                     <Link :href="route('admin.usuarios.create')">
                         <UserPlus class="h-4 w-4" />
                         Nuevo Usuario
@@ -100,22 +101,22 @@ const table = useVueTable({
 
             <div class="w-full space-y-4">
                 <!-- Filtros -->
-                <div class="flex flex-col sm:flex-row gap-4 bg-white dark:bg-slate-950 p-4 rounded-xl border border-slate-200/80 dark:border-slate-800/85">
-                    <div class="flex-1 relative">
-                        <Search class="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                        <input
+                <div class="flex flex-col gap-4 rounded-xl border p-4 sm:flex-row bg-[var(--sispaa-surface)] border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
+                    <div class="relative flex-1">
+                        <Search class="absolute left-3 top-2.5 h-4 w-4 opacity-50 text-[var(--sispaa-text)]" />
+                        <Input
                             v-model="search"
                             type="text"
                             placeholder="Buscar por nombre, correo o cédula..."
                             @input="debouncedSearch"
-                            class="pl-9 w-full rounded-lg border-slate-200 bg-slate-50/30 text-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-850 dark:bg-slate-950 dark:text-slate-350"
+                            class="pl-9 bg-[var(--sispaa-background)]"
                         />
                     </div>
 
                     <div class="flex items-center gap-2">
-                        <span class="text-xs font-semibold text-slate-500">Filtrar Rol:</span>
+                        <span class="text-xs font-semibold opacity-60 text-[var(--sispaa-text)]">Filtrar Rol:</span>
                         <Select v-model="filterRole" @update:model-value="handleRoleChange">
-                            <SelectTrigger class="w-[180px] rounded-lg border-slate-200 dark:border-slate-850">
+                            <SelectTrigger class="w-[180px] rounded-lg bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
                                 <SelectValue placeholder="Todos los roles" />
                             </SelectTrigger>
                             <SelectContent class="rounded-lg">
@@ -129,26 +130,26 @@ const table = useVueTable({
                 </div>
 
                 <!-- Tabla -->
-                <div class="rounded-lg border border-slate-200/80 bg-white dark:border-slate-800 dark:bg-slate-950 overflow-hidden">
+                <div class="overflow-hidden rounded-lg border bg-[var(--sispaa-surface)] border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
                     <div class="overflow-x-auto">
                         <Table>
                             <TableHeader>
-                                <TableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id" class="border-b border-slate-200/80 dark:border-slate-850">
-                                    <TableHead v-for="header in headerGroup.headers" :key="header.id" class="h-12 px-4 text-sm font-medium text-slate-500 dark:text-slate-400">
+                                <TableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id" class="border-b border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
+                                    <TableHead v-for="header in headerGroup.headers" :key="header.id" class="h-12 px-4 text-sm font-medium opacity-60 text-[var(--sispaa-text)]">
                                         <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header" :props="header.getContext()" />
                                     </TableHead>
                                 </TableRow>
                             </TableHeader>
-                            <TableBody class="divide-y divide-slate-100 dark:divide-slate-850 text-sm">
+                            <TableBody class="divide-y divide-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)] text-sm">
                                 <template v-if="table.getRowModel().rows?.length">
-                                    <TableRow v-for="row in table.getRowModel().rows" :key="row.id" class="hover:bg-slate-50/30 dark:hover:bg-slate-900/10">
+                                    <TableRow v-for="row in table.getRowModel().rows" :key="row.id" class="hover:bg-[color:color-mix(in_srgb,var(--sispaa-text)_4%,transparent)]">
                                         <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id" class="px-4 py-4">
                                             <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
                                         </TableCell>
                                     </TableRow>
                                 </template>
                                 <TableRow v-else>
-                                    <TableCell :colspan="columns.length" class="h-24 text-center text-slate-500">
+                                    <TableCell :colspan="columns.length" class="h-24 text-center opacity-60 text-[var(--sispaa-text)]">
                                         No se encontraron usuarios.
                                     </TableCell>
                                 </TableRow>
@@ -157,11 +158,11 @@ const table = useVueTable({
                     </div>
 
                     <!-- Paginación -->
-                    <div class="flex items-center justify-between border-t border-slate-100 dark:border-slate-850 px-6 py-4">
-                        <span class="text-xs text-slate-500">
+                    <div class="flex flex-col gap-2 border-t px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]">
+                        <span class="text-xs opacity-60 text-[var(--sispaa-text)]">
                             Mostrando {{ usuarios.data.length }} de {{ usuarios.total }} usuarios
                         </span>
-                        <div class="flex items-center gap-1">
+                        <div class="flex flex-wrap items-center gap-1">
                             <button
                                 v-for="link in usuarios.links"
                                 :key="link.label"
@@ -170,7 +171,9 @@ const table = useVueTable({
                                 v-html="link.label"
                                 class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
                                 :class="[
-                                    link.active ? 'bg-indigo-600 text-white' : 'border border-slate-200/80 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-350 disabled:opacity-50'
+                                    link.active
+                                        ? 'text-white bg-[var(--sispaa-primary)]'
+                                        : 'border text-[var(--sispaa-text)] bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-text)_6%,transparent)] disabled:opacity-50'
                                 ]"
                             ></button>
                         </div>

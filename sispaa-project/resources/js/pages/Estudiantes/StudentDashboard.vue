@@ -45,36 +45,36 @@ const breadcrumbs: BreadcrumbItem[] = [
     <Head title="Panel del Estudiante" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-6 p-6 bg-slate-50/50 dark:bg-slate-900/50">
+        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[var(--sispaa-background)]">
             <!-- Header Section -->
             <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                 <div>
-                    <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+                    <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">
                         ¡Hola de nuevo!
                     </h1>
-                    <p class="text-sm text-slate-500 dark:text-slate-400">
+                    <p class="text-sm opacity-60 text-[var(--sispaa-text)]">
                         Aquí tienes el resumen de tu expediente, rendimiento académico y asistencias en tiempo real.
                     </p>
                 </div>
-                <div class="flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-400">
+                <div class="flex items-center gap-2 self-start rounded-full px-3 py-1 text-xs font-medium bg-[color:color-mix(in_srgb,var(--sispaa-secondary)_25%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]">
                     <UserCheck class="h-3.5 w-3.5" />
                     Rol: Estudiante Activo
                 </div>
             </div>
 
             <!-- Alerta Faltas Pendientes -->
-            <div v-if="kpis.faltas_sin_justificar > 0" class="relative overflow-hidden rounded-xl border border-rose-100 bg-gradient-to-r from-rose-50 to-red-50/30 p-5 dark:border-rose-950/20 dark:from-rose-950/10 dark:to-red-950/5">
+            <div v-if="kpis.faltas_sin_justificar > 0" class="relative overflow-hidden rounded-xl border border-rose-100 bg-gradient-to-r from-rose-50 to-red-50/30 p-5">
                 <div class="flex items-start gap-4">
                     <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-rose-500 text-white shadow-md shadow-rose-500/20">
                         <AlertTriangle class="h-5 w-5 animate-pulse" />
                     </div>
                     <div class="flex-1">
-                        <h3 class="text-base font-bold text-rose-900 dark:text-rose-400">Tienes {{ kpis.faltas_sin_justificar }} faltas sin justificar</h3>
-                        <p class="mt-1 text-sm text-rose-700/80 dark:text-rose-400/80">
+                        <h3 class="text-base font-bold text-rose-900">Tienes {{ kpis.faltas_sin_justificar }} faltas sin justificar</h3>
+                        <p class="mt-1 text-sm text-rose-700/80">
                             Recuerda que tienes un límite de tiempo para solicitar la justificación de tus faltas. Puedes hacerlo adjuntando tu justificativo en formato PDF o imagen.
                         </p>
                         <div class="mt-4">
-                            <Link :href="route('student.justificaciones')" class="inline-flex items-center gap-1.5 rounded-lg bg-rose-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600 transition-colors">
+                            <Link :href="route('student.justificaciones')" class="inline-flex items-center gap-1.5 rounded-lg bg-rose-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600">
                                 Justificar Faltas
                                 <ArrowRight class="h-3.5 w-3.5" />
                             </Link>
@@ -84,110 +84,110 @@ const breadcrumbs: BreadcrumbItem[] = [
             </div>
 
             <!-- KPIs Grid -->
-            <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <div class="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-4">
                 <!-- Promedio Card -->
-                <div class="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm transition-all hover:shadow-md dark:border-slate-800 dark:bg-slate-950">
+                <div class="group relative overflow-hidden rounded-2xl p-5 shadow-sm transition-all hover:shadow-md sm:p-6 bg-[var(--sispaa-surface)]">
                     <div class="flex items-center justify-between">
-                        <span class="text-sm font-semibold text-slate-500 dark:text-slate-400">Promedio General</span>
-                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-100 text-violet-600 dark:bg-violet-950/40 dark:text-violet-400">
+                        <span class="text-sm font-semibold opacity-70 text-[var(--sispaa-text)]">Promedio General</span>
+                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[color:color-mix(in_srgb,var(--sispaa-accent)_20%,transparent)] text-[var(--sispaa-accent)]">
                             <BookOpen class="h-5 w-5" />
                         </div>
                     </div>
                     <div class="mt-4 flex items-baseline gap-2">
-                        <span class="text-4xl font-extrabold text-slate-900 dark:text-white">{{ kpis.promedio }}</span>
-                        <span class="text-sm text-slate-400 dark:text-slate-500">/ 10.0</span>
+                        <span class="text-4xl font-extrabold text-[var(--sispaa-text)]">{{ kpis.promedio }}</span>
+                        <span class="text-sm opacity-50 text-[var(--sispaa-text)]">/ 10.0</span>
                     </div>
-                    <p class="mt-2 text-xs text-slate-400 dark:text-slate-500">Rendimiento académico actual</p>
-                    <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-500 to-indigo-500 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></div>
+                    <p class="mt-2 text-xs opacity-50 text-[var(--sispaa-text)]">Rendimiento académico actual</p>
+                    <div class="absolute bottom-0 left-0 right-0 h-1 origin-left scale-x-0 transform bg-[var(--sispaa-accent)] transition-transform duration-300 group-hover:scale-x-100"></div>
                 </div>
 
                 <!-- Semestre Card -->
-                <div class="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm transition-all hover:shadow-md dark:border-slate-800 dark:bg-slate-950">
+                <div class="group relative overflow-hidden rounded-2xl p-5 shadow-sm transition-all hover:shadow-md sm:p-6 bg-[var(--sispaa-surface)]">
                     <div class="flex items-center justify-between">
-                        <span class="text-sm font-semibold text-slate-500 dark:text-slate-400">Periodo / Nivel</span>
-                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400">
+                        <span class="text-sm font-semibold opacity-70 text-[var(--sispaa-text)]">Periodo / Nivel</span>
+                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[color:color-mix(in_srgb,var(--sispaa-primary)_20%,transparent)] text-[var(--sispaa-primary)]">
                             <Calendar class="h-5 w-5" />
                         </div>
                     </div>
                     <div class="mt-4">
-                        <span class="text-3xl font-extrabold text-slate-900 dark:text-white">{{ kpis.semestre }}</span>
+                        <span class="text-3xl font-extrabold text-[var(--sispaa-text)]">{{ kpis.semestre }}</span>
                     </div>
-                    <p class="mt-4 text-xs text-slate-400 dark:text-slate-500">Matrícula vigente activa</p>
-                    <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-cyan-500 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></div>
+                    <p class="mt-4 text-xs opacity-50 text-[var(--sispaa-text)]">Matrícula vigente activa</p>
+                    <div class="absolute bottom-0 left-0 right-0 h-1 origin-left scale-x-0 transform bg-[var(--sispaa-primary)] transition-transform duration-300 group-hover:scale-x-100"></div>
                 </div>
 
                 <!-- Faltas Card -->
-                <div class="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm transition-all hover:shadow-md dark:border-slate-800 dark:bg-slate-950">
+                <div class="group relative overflow-hidden rounded-2xl p-5 shadow-sm transition-all hover:shadow-md sm:p-6 bg-[var(--sispaa-surface)]">
                     <div class="flex items-center justify-between">
-                        <span class="text-sm font-semibold text-slate-500 dark:text-slate-400">Total de Faltas</span>
-                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400" :class="{'bg-red-100 text-red-600 dark:bg-red-950/40 dark:text-red-400': kpis.faltas_sin_justificar > 0}">
+                        <span class="text-sm font-semibold opacity-70 text-[var(--sispaa-text)]">Total de Faltas</span>
+                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[color:color-mix(in_srgb,#E4BC57_35%,transparent)] text-[color:color-mix(in_srgb,#E4BC57_65%,black)]" :class="{'!bg-red-100 !text-red-600': kpis.faltas_sin_justificar > 0}">
                             <AlertTriangle class="h-5 w-5" />
                         </div>
                     </div>
                     <div class="mt-4 flex items-baseline gap-2">
-                        <span class="text-4xl font-extrabold text-slate-900 dark:text-white">{{ kpis.total_faltas }}</span>
-                        <span v-if="kpis.faltas_sin_justificar > 0" class="rounded-full bg-rose-100 px-2.5 py-0.5 text-xs font-semibold text-rose-800 dark:bg-rose-950/50 dark:text-rose-400 animate-pulse">
+                        <span class="text-4xl font-extrabold text-[var(--sispaa-text)]">{{ kpis.total_faltas }}</span>
+                        <span v-if="kpis.faltas_sin_justificar > 0" class="animate-pulse rounded-full bg-rose-100 px-2.5 py-0.5 text-xs font-semibold text-rose-800">
                             {{ kpis.faltas_sin_justificar }} sin justificar
                         </span>
                     </div>
-                    <p class="mt-2 text-xs text-slate-400 dark:text-slate-500">Historial completo en periodo actual</p>
-                    <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-orange-500 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></div>
+                    <p class="mt-2 text-xs opacity-50 text-[var(--sispaa-text)]">Historial completo en periodo actual</p>
+                    <div class="absolute bottom-0 left-0 right-0 h-1 origin-left scale-x-0 transform bg-[color:color-mix(in_srgb,#E4BC57_70%,black)] transition-transform duration-300 group-hover:scale-x-100"></div>
                 </div>
 
                 <!-- Expediente SGA Card -->
-                <div class="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm transition-all hover:shadow-md dark:border-slate-800 dark:bg-slate-950">
+                <div class="group relative overflow-hidden rounded-2xl p-5 shadow-sm transition-all hover:shadow-md sm:p-6 bg-[var(--sispaa-surface)]">
                     <div class="flex items-center justify-between">
-                        <span class="text-sm font-semibold text-slate-500 dark:text-slate-400">Expediente SGA</span>
-                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
+                        <span class="text-sm font-semibold opacity-70 text-[var(--sispaa-text)]">Expediente SGA</span>
+                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[color:color-mix(in_srgb,var(--sispaa-secondary)_25%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]">
                             <FileCheck class="h-5 w-5" />
                         </div>
                     </div>
                     <div class="mt-4">
                         <div class="flex items-baseline gap-1">
-                            <span class="text-4xl font-extrabold text-slate-900 dark:text-white">{{ kpis.avance_sga }}%</span>
-                            <span class="text-xs text-slate-400 dark:text-slate-500">de avance</span>
+                            <span class="text-4xl font-extrabold text-[var(--sispaa-text)]">{{ kpis.avance_sga }}%</span>
+                            <span class="text-xs opacity-50 text-[var(--sispaa-text)]">de avance</span>
                         </div>
                         <Progress :model-value="kpis.avance_sga" class="mt-3 h-2" />
                     </div>
-                    <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-teal-500 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></div>
+                    <div class="absolute bottom-0 left-0 right-0 h-1 origin-left scale-x-0 transform bg-[var(--sispaa-secondary)] transition-transform duration-300 group-hover:scale-x-100"></div>
                 </div>
             </div>
 
             <!-- Secciones Secundarias: Faltas Recientes y Accesos -->
-            <div class="grid gap-6 lg:grid-cols-3">
+            <div class="grid gap-4 sm:gap-6 lg:grid-cols-3">
                 <!-- Faltas Recientes List -->
-                <div class="lg:col-span-2 rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-4 dark:border-slate-800/80">
-                        <h2 class="text-lg font-bold text-slate-950 dark:text-white flex items-center gap-2">
-                            <AlertTriangle class="h-5 w-5 text-amber-500" />
+                <div class="rounded-2xl p-5 shadow-sm sm:p-6 lg:col-span-2 bg-[var(--sispaa-surface)]">
+                    <div class="flex flex-col gap-2 border-b pb-4 sm:flex-row sm:items-center sm:justify-between border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
+                        <h2 class="flex items-center gap-2 text-lg font-bold text-[var(--sispaa-text)]">
+                            <AlertTriangle class="h-5 w-5 text-[color:color-mix(in_srgb,#E4BC57_70%,black)]" />
                             Faltas Recientes por Justificar
                         </h2>
-                        <Link :href="route('student.asistencias')" class="text-xs font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">
+                        <Link :href="route('student.asistencias')" class="text-xs font-semibold text-[var(--sispaa-primary)] hover:text-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)]">
                             Ver todo el historial
                         </Link>
                     </div>
 
                     <div class="mt-4">
                         <div v-if="faltasRecientes.length === 0" class="flex flex-col items-center justify-center py-10 text-center">
-                            <CheckCircle2 class="h-12 w-12 text-emerald-500 mb-2" />
-                            <p class="text-sm font-bold text-slate-900 dark:text-white">¡Al día!</p>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">No tienes faltas pendientes de justificar.</p>
+                            <CheckCircle2 class="mb-2 h-12 w-12 text-[var(--sispaa-secondary)]" />
+                            <p class="text-sm font-bold text-[var(--sispaa-text)]">¡Al día!</p>
+                            <p class="mt-1 text-xs opacity-60 text-[var(--sispaa-text)]">No tienes faltas pendientes de justificar.</p>
                         </div>
-                        <div v-else class="divide-y divide-slate-100 dark:divide-slate-800/60">
-                            <div v-for="falta in faltasRecientes" :key="falta.id" class="flex items-center justify-between py-4 first:pt-0 last:pb-0">
+                        <div v-else class="divide-y divide-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]">
+                            <div v-for="falta in faltasRecientes" :key="falta.id" class="flex flex-col gap-2 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between">
                                 <div>
-                                    <p class="text-sm font-semibold text-slate-900 dark:text-white">{{ falta.materia.nombre }}</p>
-                                    <div class="flex items-center gap-3 mt-1.5">
-                                        <span class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                                    <p class="text-sm font-semibold text-[var(--sispaa-text)]">{{ falta.materia.nombre }}</p>
+                                    <div class="mt-1.5 flex items-center gap-3">
+                                        <span class="flex items-center gap-1 text-xs opacity-60 text-[var(--sispaa-text)]">
                                             <Calendar class="h-3.5 w-3.5" />
                                             {{ falta.fecha }}
                                         </span>
-                                        <span class="rounded bg-rose-50 px-1.5 py-0.5 text-[10px] font-medium text-rose-800 dark:bg-rose-950/30 dark:text-rose-400">
+                                        <span class="rounded bg-rose-50 px-1.5 py-0.5 text-[10px] font-medium text-rose-800">
                                             Sin justificar
                                         </span>
                                     </div>
                                 </div>
-                                <Link :href="route('student.justificaciones')" class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 dark:hover:bg-slate-900 transition-colors">
+                                <Link :href="route('student.justificaciones')" class="self-start rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors bg-[var(--sispaa-background)] text-[var(--sispaa-text)] border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_10%,transparent)]">
                                     Justificar
                                 </Link>
                             </div>
@@ -196,38 +196,38 @@ const breadcrumbs: BreadcrumbItem[] = [
                 </div>
 
                 <!-- Enlaces Rápidos / Accesos -->
-                <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                    <h2 class="text-lg font-bold text-slate-950 dark:text-white border-b border-slate-100 pb-4 dark:border-slate-800/80">
+                <div class="rounded-2xl p-5 shadow-sm sm:p-6 bg-[var(--sispaa-surface)]">
+                    <h2 class="border-b pb-4 text-lg font-bold text-[var(--sispaa-text)] border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
                         Accesos Rápidos
                     </h2>
                     <div class="mt-4 space-y-3">
-                        <Link :href="route('student.documentos')" class="flex items-center gap-3 rounded-xl border border-slate-100 p-3 hover:bg-slate-50 dark:border-slate-800/50 dark:hover:bg-slate-900/60 transition-colors">
-                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
+                        <Link :href="route('student.documentos')" class="flex items-center gap-3 rounded-xl border p-3 transition-colors border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_8%,transparent)]">
+                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[color:color-mix(in_srgb,var(--sispaa-secondary)_25%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]">
                                 <FileCheck class="h-5 w-5" />
                             </div>
                             <div class="flex-1">
-                                <p class="text-sm font-semibold text-slate-900 dark:text-white">Cargar Expediente</p>
-                                <p class="text-xs text-slate-500">Sube tus documentos SGA</p>
+                                <p class="text-sm font-semibold text-[var(--sispaa-text)]">Cargar Expediente</p>
+                                <p class="text-xs opacity-60 text-[var(--sispaa-text)]">Sube tus documentos SGA</p>
                             </div>
                         </Link>
 
-                        <Link :href="route('student.titulacion')" class="flex items-center gap-3 rounded-xl border border-slate-100 p-3 hover:bg-slate-50 dark:border-slate-800/50 dark:hover:bg-slate-900/60 transition-colors">
-                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600 dark:bg-indigo-950/40 dark:text-indigo-400">
+                        <Link :href="route('student.titulacion')" class="flex items-center gap-3 rounded-xl border p-3 transition-colors border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_8%,transparent)]">
+                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[color:color-mix(in_srgb,var(--sispaa-primary)_20%,transparent)] text-[var(--sispaa-primary)]">
                                 <BookOpen class="h-5 w-5" />
                             </div>
                             <div class="flex-1">
-                                <p class="text-sm font-semibold text-slate-900 dark:text-white">Mi Titulación</p>
-                                <p class="text-xs text-slate-500">Monitorea tu tema y tutor</p>
+                                <p class="text-sm font-semibold text-[var(--sispaa-text)]">Mi Titulación</p>
+                                <p class="text-xs opacity-60 text-[var(--sispaa-text)]">Monitorea tu tema y tutor</p>
                             </div>
                         </Link>
 
-                        <Link :href="route('student.perfil')" class="flex items-center gap-3 rounded-xl border border-slate-100 p-3 hover:bg-slate-50 dark:border-slate-800/50 dark:hover:bg-slate-900/60 transition-colors">
-                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400">
+                        <Link :href="route('student.perfil')" class="flex items-center gap-3 rounded-xl border p-3 transition-colors border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_8%,transparent)]">
+                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[color:color-mix(in_srgb,var(--sispaa-accent)_20%,transparent)] text-[var(--sispaa-accent)]">
                                 <UserCheck class="h-5 w-5" />
                             </div>
                             <div class="flex-1">
-                                <p class="text-sm font-semibold text-slate-900 dark:text-white">Ver Mi Perfil</p>
-                                <p class="text-xs text-slate-500">Consulta tus datos personales</p>
+                                <p class="text-sm font-semibold text-[var(--sispaa-text)]">Ver Mi Perfil</p>
+                                <p class="text-xs opacity-60 text-[var(--sispaa-text)]">Consulta tus datos personales</p>
                             </div>
                         </Link>
                     </div>

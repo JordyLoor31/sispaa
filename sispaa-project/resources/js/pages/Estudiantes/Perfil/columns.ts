@@ -44,7 +44,7 @@ export function makeFamiliarColumns({ onEdit, onDelete }: FamiliarColumnsOptions
             accessorKey: 'nombres',
             meta: { label: 'Nombres' },
             header: 'Nombres',
-            cell: ({ row }) => h('span', { class: 'font-semibold text-slate-800 dark:text-slate-200' }, row.original.nombres),
+            cell: ({ row }) => h('span', { class: 'font-semibold', style: { color: 'var(--sispaa-text)' } }, row.original.nombres),
         },
         {
             accessorKey: 'parentesco',

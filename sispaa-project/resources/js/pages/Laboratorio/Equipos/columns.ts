@@ -7,9 +7,9 @@ import type { EquipoItem } from './types';
 
 const estadoBadge = (estado: string) => {
     const map: Record<string, string> = {
-        operativo: 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-400',
-        mantenimiento: 'bg-amber-50 text-amber-800 dark:bg-amber-950/30 dark:text-amber-400',
-        'dañado': 'bg-rose-50 text-rose-600 dark:bg-rose-950/20 dark:text-rose-400',
+        operativo: 'bg-[color:color-mix(in_srgb,var(--sispaa-secondary)_30%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]',
+        mantenimiento: 'bg-[color:color-mix(in_srgb,#E4BC57_45%,transparent)] text-[color:color-mix(in_srgb,#E4BC57_60%,black)]',
+        'dañado': 'bg-rose-50 text-rose-600',
     };
     return map[estado] ?? map.operativo;
 };
@@ -24,8 +24,8 @@ export function makeEquipoColumns({ onChangeEstado }: EquipoColumnsOptions): Col
             id: 'nombre',
             meta: { label: 'Equipo' },
             header: 'Equipo',
-            cell: ({ row }) => h('div', { class: 'flex items-center gap-2 font-semibold text-slate-900 dark:text-white' }, [
-                h(Microscope, { class: 'h-4 w-4 text-indigo-500' }),
+            cell: ({ row }) => h('div', { class: 'flex items-center gap-2 font-semibold text-[var(--sispaa-text)]' }, [
+                h(Microscope, { class: 'h-4 w-4 text-[var(--sispaa-primary)]' }),
                 row.original.nombre,
             ]),
         },
@@ -33,19 +33,19 @@ export function makeEquipoColumns({ onChangeEstado }: EquipoColumnsOptions): Col
             accessorKey: 'codigo',
             meta: { label: 'Código' },
             header: 'Código',
-            cell: ({ row }) => h('span', { class: 'text-slate-500' }, row.original.codigo),
+            cell: ({ row }) => h('span', { class: 'opacity-70 text-[var(--sispaa-text)]' }, row.original.codigo),
         },
         {
             accessorKey: 'laboratorio',
             meta: { label: 'Laboratorio' },
             header: 'Laboratorio',
-            cell: ({ row }) => h('span', { class: 'text-slate-500' }, row.original.laboratorio),
+            cell: ({ row }) => h('span', { class: 'opacity-70 text-[var(--sispaa-text)]' }, row.original.laboratorio),
         },
         {
             accessorKey: 'cantidad',
             meta: { label: 'Cantidad' },
             header: 'Cantidad',
-            cell: ({ row }) => h('span', { class: 'text-slate-500' }, String(row.original.cantidad)),
+            cell: ({ row }) => h('span', { class: 'opacity-70 text-[var(--sispaa-text)]' }, String(row.original.cantidad)),
         },
         {
             accessorKey: 'estado',

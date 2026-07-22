@@ -43,10 +43,10 @@ const barOptions = (labels: string[], colors?: string[]): ApexOptions => ({
     chart: { type: 'bar' },
     plotOptions: { bar: { borderRadius: 6, columnWidth: '55%' } },
     dataLabels: { enabled: true },
-    xaxis: { categories: labels, labels: { style: { colors: '#64748b' } } },
-    yaxis: { labels: { style: { colors: '#64748b' } } },
-    colors: colors ?? ['#6366f1'],
-    grid: { borderColor: '#e2e8f0' },
+    xaxis: { categories: labels, labels: { style: { colors: '#353535' } } },
+    yaxis: { labels: { style: { colors: '#353535' } } },
+    colors: colors ?? ['#3c6e71'],
+    grid: { borderColor: '#d9d9d9' },
 });
 
 const barOptionsPorCarrera = (labels: string[], colors?: (string | null)[]): ApexOptions => ({
@@ -54,18 +54,18 @@ const barOptionsPorCarrera = (labels: string[], colors?: (string | null)[]): Ape
     plotOptions: { bar: { borderRadius: 6, columnWidth: '55%', distributed: true } },
     dataLabels: { enabled: true },
     legend: { show: false },
-    xaxis: { categories: labels, labels: { style: { colors: '#64748b' } } },
-    yaxis: { labels: { style: { colors: '#64748b' } } },
-    colors: colors?.length ? colors.map((c) => c ?? '#6366f1') : ['#6366f1'],
-    grid: { borderColor: '#e2e8f0' },
+    xaxis: { categories: labels, labels: { style: { colors: '#353535' } } },
+    yaxis: { labels: { style: { colors: '#353535' } } },
+    colors: colors?.length ? colors.map((c) => c ?? '#3c6e71') : ['#3c6e71'],
+    grid: { borderColor: '#d9d9d9' },
 });
 
-const equipoColores: Record<string, string> = { operativo: '#10b981', mantenimiento: '#f59e0b', dañado: '#ef4444' };
-const reactivoColores: Record<string, string> = { disponible: '#10b981', agotado: '#f59e0b', vencido: '#ef4444' };
+const equipoColores: Record<string, string> = { operativo: '#72c184', mantenimiento: '#E4BC57', dañado: '#ef4444' };
+const reactivoColores: Record<string, string> = { disponible: '#72c184', agotado: '#E4BC57', vencido: '#ef4444' };
 const pieOptions = (labels: string[], palette: Record<string, string>): ApexOptions => ({
     chart: { type: 'pie' },
     labels,
-    colors: labels.map((l) => palette[l] ?? '#6366f1'),
+    colors: labels.map((l) => palette[l] ?? '#3c6e71'),
     legend: { position: 'bottom' },
     dataLabels: { enabled: true, formatter: (val: number) => Math.round(val) + '%' },
 });
@@ -77,17 +77,17 @@ const hasData = (c: ChartData) => c.series.length > 0 && c.series.some((v) => v 
     <AppSidebarLayout :breadcrumbs="breadcrumbs">
         <Head title="Reportes — Laboratorio" />
 
-        <div class="flex h-full flex-1 flex-col gap-6 p-6 bg-slate-50/50 dark:bg-slate-900/50">
+        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[var(--sispaa-background)]">
             <div>
-                <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">Reportes — Laboratorio</h1>
-                <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Uso de laboratorios por carrera y estado del inventario.</p>
+                <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">Reportes — Laboratorio</h1>
+                <p class="mt-1 text-sm opacity-60 text-[var(--sispaa-text)]">Uso de laboratorios por carrera y estado del inventario.</p>
             </div>
 
-            <div class="flex flex-wrap items-end gap-3 bg-white dark:bg-slate-950 p-4 rounded-xl border border-slate-200/80 dark:border-slate-800">
+            <div class="flex flex-wrap items-end gap-3 rounded-xl p-4 bg-[var(--sispaa-surface)]">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1.5">Período</label>
+                    <label class="mb-1.5 block text-xs font-semibold uppercase opacity-60 text-[var(--sispaa-text)]">Período</label>
                     <Select v-model="periodoId" @update:model-value="aplicar">
-                        <SelectTrigger class="w-[200px]"><SelectValue /></SelectTrigger>
+                        <SelectTrigger class="w-full sm:w-[200px] bg-[var(--sispaa-background)]"><SelectValue /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">Todos</SelectItem>
                             <SelectItem v-for="p in periodos" :key="p.id" :value="String(p.id)">{{ p.nombre }}</SelectItem>
@@ -95,9 +95,9 @@ const hasData = (c: ChartData) => c.series.length > 0 && c.series.some((v) => v 
                     </Select>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1.5">Carrera</label>
+                    <label class="mb-1.5 block text-xs font-semibold uppercase opacity-60 text-[var(--sispaa-text)]">Carrera</label>
                     <Select v-model="carreraId" @update:model-value="aplicar">
-                        <SelectTrigger class="w-[200px]"><SelectValue /></SelectTrigger>
+                        <SelectTrigger class="w-full sm:w-[200px] bg-[var(--sispaa-background)]"><SelectValue /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">Todas</SelectItem>
                             <SelectItem v-for="c in carreras" :key="c.id" :value="String(c.id)">{{ c.nombre }}</SelectItem>
@@ -107,30 +107,30 @@ const hasData = (c: ChartData) => c.series.length > 0 && c.series.some((v) => v 
             </div>
 
             <div class="grid gap-4 sm:grid-cols-3">
-                <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+                <div class="rounded-2xl p-5 shadow-sm bg-[var(--sispaa-surface)]">
                     <div class="flex items-center justify-between">
-                        <p class="text-xs font-semibold text-slate-500 uppercase">Prácticas</p>
-                        <FlaskConical class="h-5 w-5 text-indigo-500" />
+                        <p class="text-xs font-semibold uppercase opacity-60 text-[var(--sispaa-text)]">Prácticas</p>
+                        <FlaskConical class="h-5 w-5 text-[var(--sispaa-primary)]" />
                     </div>
-                    <p class="mt-2 text-3xl font-extrabold text-slate-900 dark:text-white">{{ kpis.total_practicas }}</p>
+                    <p class="mt-2 text-3xl font-extrabold text-[var(--sispaa-text)]">{{ kpis.total_practicas }}</p>
                 </div>
-                <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+                <div class="rounded-2xl p-5 shadow-sm bg-[var(--sispaa-surface)]">
                     <div class="flex items-center justify-between">
-                        <p class="text-xs font-semibold text-slate-500 uppercase">Equipos</p>
-                        <Microscope class="h-5 w-5 text-indigo-500" />
+                        <p class="text-xs font-semibold uppercase opacity-60 text-[var(--sispaa-text)]">Equipos</p>
+                        <Microscope class="h-5 w-5 text-[var(--sispaa-primary)]" />
                     </div>
-                    <p class="mt-2 text-3xl font-extrabold text-slate-900 dark:text-white">{{ kpis.total_equipos }}</p>
+                    <p class="mt-2 text-3xl font-extrabold text-[var(--sispaa-text)]">{{ kpis.total_equipos }}</p>
                 </div>
-                <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+                <div class="rounded-2xl p-5 shadow-sm bg-[var(--sispaa-surface)]">
                     <div class="flex items-center justify-between">
-                        <p class="text-xs font-semibold text-slate-500 uppercase">Reactivos</p>
-                        <Beaker class="h-5 w-5 text-indigo-500" />
+                        <p class="text-xs font-semibold uppercase opacity-60 text-[var(--sispaa-text)]">Reactivos</p>
+                        <Beaker class="h-5 w-5 text-[var(--sispaa-primary)]" />
                     </div>
-                    <p class="mt-2 text-3xl font-extrabold text-slate-900 dark:text-white">{{ kpis.total_reactivos }}</p>
+                    <p class="mt-2 text-3xl font-extrabold text-[var(--sispaa-text)]">{{ kpis.total_reactivos }}</p>
                 </div>
             </div>
 
-            <div class="grid gap-6 xl:grid-cols-2">
+            <div class="grid gap-4 sm:gap-6 xl:grid-cols-2">
                 <ApexChartCard
                     chart-id="practicas-por-carrera"
                     title="Prácticas por carrera"

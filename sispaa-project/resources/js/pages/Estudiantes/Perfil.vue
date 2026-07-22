@@ -34,47 +34,47 @@ const breadcrumbs: BreadcrumbItem[] = [
     <Head title="Mi Perfil" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-6 p-6 bg-slate-50/50 dark:bg-slate-900/50">
+        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[var(--sispaa-background)]">
             <!-- Header -->
             <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+                    <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">
                         Mi Perfil
                     </h1>
-                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                    <p class="mt-1 text-sm opacity-60 text-[var(--sispaa-text)]">
                         Visualiza y corrobora tus datos personales e institucionales registrados en el sistema.
                     </p>
                 </div>
-                <div class="flex items-center gap-2 shrink-0">
+                <div class="flex shrink-0 flex-wrap items-center gap-2">
                     <Button as-child variant="outline">
                         <Link :href="route('student.perfil.show')">
-                            <FileText class="h-4 w-4 mr-1.5" /> Mis Datos
+                            <FileText class="mr-1.5 h-4 w-4" /> Mis Datos
                         </Link>
                     </Button>
-                    <Button as-child class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold">
+                    <Button as-child class="font-semibold text-white bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)]">
                         <Link :href="route('student.perfil.edit')">
-                            <ClipboardEdit class="h-4 w-4 mr-1.5" /> Completar / Editar Perfil
+                            <ClipboardEdit class="mr-1.5 h-4 w-4" /> Completar / Editar Perfil
                         </Link>
                     </Button>
                 </div>
             </div>
 
             <!-- Profile Info Cards -->
-            <div class="max-w-3xl w-full mx-auto rounded-2xl border border-slate-200/80 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+            <div class="mx-auto w-full max-w-3xl rounded-2xl p-5 shadow-sm sm:p-8 bg-[var(--sispaa-surface)]">
                 <!-- User Initials / Avatar Circle -->
-                <div class="flex flex-col sm:flex-row items-center gap-6 pb-8 border-b border-slate-100 dark:border-slate-800/85">
-                    <div class="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 text-white text-3xl font-black shadow-lg">
+                <div class="flex flex-col items-center gap-6 border-b pb-8 sm:flex-row border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
+                    <div class="flex h-20 w-20 shrink-0 items-center justify-center rounded-full text-3xl font-black text-white shadow-lg bg-[var(--sispaa-primary)]">
                         {{ user_data.name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase() }}
                     </div>
-                    <div class="text-center sm:text-left space-y-1">
-                        <h3 class="text-2xl font-black text-slate-900 dark:text-white leading-tight">
+                    <div class="space-y-1 text-center sm:text-left">
+                        <h3 class="text-2xl font-black leading-tight text-[var(--sispaa-text)]">
                             {{ user_data.name }}
                         </h3>
-                        <div class="flex flex-wrap justify-center sm:justify-start items-center gap-2 mt-2">
-                            <span class="rounded-full bg-indigo-50 px-3 py-0.5 text-xs font-semibold text-indigo-800 dark:bg-indigo-950/40 dark:text-indigo-400">
+                        <div class="mt-2 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+                            <span class="rounded-full px-3 py-0.5 text-xs font-semibold bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)] text-[var(--sispaa-primary)]">
                                 Estudiante Universitario
                             </span>
-                            <span v-if="user_data.carrera_codigo" class="rounded-full bg-slate-100 px-3 py-0.5 text-xs font-semibold text-slate-700 dark:bg-slate-900 dark:text-slate-400">
+                            <span v-if="user_data.carrera_codigo" class="rounded-full px-3 py-0.5 text-xs font-semibold bg-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)] text-[var(--sispaa-text)]">
                                 Carrera: {{ user_data.carrera_codigo }}
                             </span>
                         </div>
@@ -82,15 +82,15 @@ const breadcrumbs: BreadcrumbItem[] = [
                 </div>
 
                 <!-- Detalle de campos -->
-                <div class="grid gap-6 md:grid-cols-2 mt-8">
+                <div class="mt-8 grid gap-6 md:grid-cols-2">
                     <!-- Nombre Completo -->
                     <div class="flex items-start gap-3">
-                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-50 border border-slate-150 text-slate-500 dark:bg-slate-900 dark:border-slate-800 dark:text-slate-400">
+                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border bg-[var(--sispaa-background)] text-[var(--sispaa-text)] opacity-80 border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
                             <User class="h-4 w-4" />
                         </div>
                         <div>
-                            <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Nombre Completo</p>
-                            <p class="text-sm font-bold text-slate-800 dark:text-slate-200 mt-0.5">
+                            <p class="text-xs font-semibold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)]">Nombre Completo</p>
+                            <p class="mt-0.5 text-sm font-bold text-[var(--sispaa-text)]">
                                 {{ user_data.name }}
                             </p>
                         </div>
@@ -98,12 +98,12 @@ const breadcrumbs: BreadcrumbItem[] = [
 
                     <!-- Correo Electrónico -->
                     <div class="flex items-start gap-3">
-                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-50 border border-slate-150 text-slate-500 dark:bg-slate-900 dark:border-slate-800 dark:text-slate-400">
+                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border bg-[var(--sispaa-background)] text-[var(--sispaa-text)] opacity-80 border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
                             <Mail class="h-4 w-4" />
                         </div>
                         <div>
-                            <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Correo Institucional</p>
-                            <p class="text-sm font-bold text-slate-800 dark:text-slate-200 mt-0.5">
+                            <p class="text-xs font-semibold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)]">Correo Institucional</p>
+                            <p class="mt-0.5 text-sm font-bold text-[var(--sispaa-text)]">
                                 {{ user_data.email }}
                             </p>
                         </div>
@@ -111,12 +111,12 @@ const breadcrumbs: BreadcrumbItem[] = [
 
                     <!-- Cédula -->
                     <div class="flex items-start gap-3">
-                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-50 border border-slate-150 text-slate-500 dark:bg-slate-900 dark:border-slate-800 dark:text-slate-400">
+                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border bg-[var(--sispaa-background)] text-[var(--sispaa-text)] opacity-80 border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
                             <Shield class="h-4 w-4" />
                         </div>
                         <div>
-                            <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Identificación / Cédula</p>
-                            <p class="text-sm font-bold text-slate-800 dark:text-slate-200 mt-0.5">
+                            <p class="text-xs font-semibold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)]">Identificación / Cédula</p>
+                            <p class="mt-0.5 text-sm font-bold text-[var(--sispaa-text)]">
                                 {{ user_data.cedula }}
                             </p>
                         </div>
@@ -124,12 +124,12 @@ const breadcrumbs: BreadcrumbItem[] = [
 
                     <!-- Teléfono -->
                     <div class="flex items-start gap-3">
-                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-50 border border-slate-150 text-slate-500 dark:bg-slate-900 dark:border-slate-800 dark:text-slate-400">
+                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border bg-[var(--sispaa-background)] text-[var(--sispaa-text)] opacity-80 border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
                             <Phone class="h-4 w-4" />
                         </div>
                         <div>
-                            <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Teléfono de Contacto</p>
-                            <p class="text-sm font-bold text-slate-800 dark:text-slate-200 mt-0.5">
+                            <p class="text-xs font-semibold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)]">Teléfono de Contacto</p>
+                            <p class="mt-0.5 text-sm font-bold text-[var(--sispaa-text)]">
                                 {{ user_data.telefono }}
                             </p>
                         </div>
@@ -137,12 +137,12 @@ const breadcrumbs: BreadcrumbItem[] = [
 
                     <!-- Carrera Completa -->
                     <div class="flex items-start gap-3 md:col-span-2">
-                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-50 border border-slate-150 text-slate-500 dark:bg-slate-900 dark:border-slate-800 dark:text-slate-400">
+                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border bg-[var(--sispaa-background)] text-[var(--sispaa-text)] opacity-80 border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
                             <BookOpen class="h-4 w-4" />
                         </div>
                         <div>
-                            <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Carrera / Programa de Estudio</p>
-                            <p class="text-sm font-bold text-slate-800 dark:text-slate-200 mt-0.5">
+                            <p class="text-xs font-semibold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)]">Carrera / Programa de Estudio</p>
+                            <p class="mt-0.5 text-sm font-bold text-[var(--sispaa-text)]">
                                 {{ user_data.carrera }}
                             </p>
                         </div>

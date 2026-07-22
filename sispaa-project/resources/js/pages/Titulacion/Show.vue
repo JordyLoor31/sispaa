@@ -14,9 +14,9 @@ const props = defineProps<{
 
 const estadoBadge = (estado: string) => {
     const map: Record<string, string> = {
-        en_proceso: 'bg-amber-50 text-amber-800 dark:bg-amber-950/30 dark:text-amber-400',
-        defendido: 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/30 dark:text-indigo-400',
-        graduado: 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-400',
+        en_proceso: 'bg-[color:color-mix(in_srgb,#E4BC57_45%,transparent)] text-[color:color-mix(in_srgb,#E4BC57_60%,black)]',
+        defendido: 'bg-[color:color-mix(in_srgb,var(--sispaa-accent)_20%,transparent)] text-[var(--sispaa-accent)]',
+        graduado: 'bg-[color:color-mix(in_srgb,var(--sispaa-secondary)_30%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]',
     };
     return map[estado] ?? map.en_proceso;
 };
@@ -31,24 +31,24 @@ const formatDate = (date?: string) => {
     <AppSidebarLayout :breadcrumbs="breadcrumbs">
         <Head :title="titulacion.estudiante.name" />
 
-        <div class="flex h-full flex-1 flex-col gap-6 p-6 bg-slate-50/50 dark:bg-slate-900/50">
+        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[var(--sispaa-background)]">
             <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div class="flex items-center gap-3">
-                    <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/30 dark:text-indigo-400">
+                    <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-[var(--sispaa-primary)] bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]">
                         <GraduationCap class="h-5 w-5" />
                     </div>
                     <div>
-                        <h1 class="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">{{ titulacion.estudiante.name }}</h1>
-                        <p class="mt-0.5 text-sm text-slate-500 dark:text-slate-400">Tutor: {{ titulacion.tutor.name }}</p>
+                        <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">{{ titulacion.estudiante.name }}</h1>
+                        <p class="mt-0.5 text-sm opacity-60 text-[var(--sispaa-text)]">Tutor: {{ titulacion.tutor.name }}</p>
                     </div>
                 </div>
-                <div class="flex items-center gap-2">
-                    <Button as-child variant="outline">
+                <div class="flex flex-wrap items-center gap-2">
+                    <Button as-child variant="outline" class="border-[color:color-mix(in_srgb,var(--sispaa-text)_20%,transparent)] text-[var(--sispaa-text)]">
                         <Link :href="route('titulacion.index')">
                             <ArrowLeft class="h-4 w-4 mr-1.5" /> Volver
                         </Link>
                     </Button>
-                    <Button v-if="puedeGestionar" as-child class="bg-indigo-600 hover:bg-indigo-500 text-white">
+                    <Button v-if="puedeGestionar" as-child class="text-white bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)]">
                         <Link :href="route('titulacion.edit', titulacion.id)">
                             <Pencil class="h-4 w-4 mr-1.5" /> Editar
                         </Link>
@@ -56,36 +56,36 @@ const formatDate = (date?: string) => {
                 </div>
             </div>
 
-            <div class="max-w-2xl w-full mx-auto grid gap-6 md:grid-cols-2">
-                <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Estado</h4>
+            <div class="max-w-2xl w-full mx-auto grid gap-6 sm:grid-cols-2">
+                <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+                    <h4 class="text-xs font-bold uppercase tracking-wider opacity-60 text-[var(--sispaa-text)]">Estado</h4>
                     <span :class="['mt-2 inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold', estadoBadge(titulacion.estado)]">
                         {{ titulacion.estado.replace('_', ' ') }}
                     </span>
                 </div>
-                <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Fechas</h4>
-                    <p class="mt-2 text-sm text-slate-700 dark:text-slate-300">Inicio: {{ titulacion.fecha_inicio ?? '—' }}</p>
-                    <p class="text-sm text-slate-700 dark:text-slate-300">Graduación: {{ titulacion.fecha_graduacion ?? '—' }}</p>
+                <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+                    <h4 class="text-xs font-bold uppercase tracking-wider opacity-60 text-[var(--sispaa-text)]">Fechas</h4>
+                    <p class="mt-2 text-sm text-[var(--sispaa-text)] opacity-80">Inicio: {{ titulacion.fecha_inicio ?? '—' }}</p>
+                    <p class="text-sm text-[var(--sispaa-text)] opacity-80">Graduación: {{ titulacion.fecha_graduacion ?? '—' }}</p>
                 </div>
             </div>
 
-            <div class="max-w-2xl w-full mx-auto rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Tema</h4>
-                <p class="text-sm text-slate-700 dark:text-slate-300">{{ titulacion.tema }}</p>
+            <div class="max-w-2xl w-full mx-auto rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+                <h4 class="mb-2 text-xs font-bold uppercase tracking-wider opacity-60 text-[var(--sispaa-text)]">Tema</h4>
+                <p class="text-sm text-[var(--sispaa-text)] opacity-80">{{ titulacion.tema }}</p>
             </div>
 
-            <div class="max-w-2xl w-full mx-auto rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Auditoría</h4>
+            <div class="max-w-2xl w-full mx-auto rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+                <h4 class="mb-3 text-xs font-bold uppercase tracking-wider opacity-60 text-[var(--sispaa-text)]">Auditoría</h4>
                 <div class="grid gap-4 sm:grid-cols-2">
                     <div>
-                        <p class="text-xs text-slate-400">Creado por</p>
-                        <p class="text-sm font-semibold text-slate-800 dark:text-slate-200">{{ titulacion.creator?.name ?? '—' }}</p>
-                        <p class="text-xs text-slate-400 mt-0.5">{{ formatDate(titulacion.created_at) }}</p>
+                        <p class="text-xs opacity-60 text-[var(--sispaa-text)]">Creado por</p>
+                        <p class="text-sm font-semibold text-[var(--sispaa-text)]">{{ titulacion.creator?.name ?? '—' }}</p>
+                        <p class="mt-0.5 text-xs opacity-60 text-[var(--sispaa-text)]">{{ formatDate(titulacion.created_at) }}</p>
                     </div>
                     <div>
-                        <p class="text-xs text-slate-400">Última actualización por</p>
-                        <p class="text-sm font-semibold text-slate-800 dark:text-slate-200">{{ titulacion.updater?.name ?? '—' }}</p>
+                        <p class="text-xs opacity-60 text-[var(--sispaa-text)]">Última actualización por</p>
+                        <p class="text-sm font-semibold text-[var(--sispaa-text)]">{{ titulacion.updater?.name ?? '—' }}</p>
                     </div>
                 </div>
             </div>

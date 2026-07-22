@@ -5,11 +5,11 @@ import type { StudentRow } from './types';
 
 const estadoBadge = (estado: string | null) => {
     const map: Record<string, string> = {
-        activo: 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-400',
-        retirado: 'bg-rose-50 text-rose-600 dark:bg-rose-950/20 dark:text-rose-400',
-        egresado: 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/30 dark:text-indigo-400',
+        activo: 'bg-[color:color-mix(in_srgb,var(--sispaa-secondary)_25%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]',
+        retirado: 'bg-rose-50 text-rose-600',
+        egresado: 'bg-[color:color-mix(in_srgb,var(--sispaa-accent)_20%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-accent)_75%,black)]',
     };
-    return map[estado ?? ''] ?? 'bg-slate-100 text-slate-500 dark:bg-slate-900 dark:text-slate-400';
+    return map[estado ?? ''] ?? 'bg-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-text)_60%,transparent)]';
 };
 
 export function makeMatriculadosColumns(): ColumnDef<StudentRow>[] {
@@ -19,10 +19,10 @@ export function makeMatriculadosColumns(): ColumnDef<StudentRow>[] {
             meta: { label: 'Estudiante' },
             header: 'Estudiante',
             cell: ({ row }) => h('div', { class: 'flex items-center gap-2' }, [
-                h(User, { class: 'h-4 w-4 text-indigo-500' }),
+                h(User, { class: 'h-4 w-4 text-[var(--sispaa-primary)]' }),
                 h('div', {}, [
-                    h('p', { class: 'font-semibold text-slate-900 dark:text-white' }, row.original.name),
-                    h('p', { class: 'text-xs text-slate-400' }, row.original.email),
+                    h('p', { class: 'font-semibold text-[var(--sispaa-text)]' }, row.original.name),
+                    h('p', { class: 'text-xs opacity-50 text-[var(--sispaa-text)]' }, row.original.email),
                 ]),
             ]),
         },
@@ -30,13 +30,13 @@ export function makeMatriculadosColumns(): ColumnDef<StudentRow>[] {
             accessorKey: 'cedula',
             meta: { label: 'Cédula' },
             header: 'Cédula',
-            cell: ({ row }) => h('span', { class: 'text-slate-500' }, row.original.cedula ?? '—'),
+            cell: ({ row }) => h('span', { class: 'opacity-70 text-[var(--sispaa-text)]' }, row.original.cedula ?? '—'),
         },
         {
             accessorKey: 'carrera_nombre',
             meta: { label: 'Carrera' },
             header: 'Carrera',
-            cell: ({ row }) => h('span', { class: 'text-slate-500' }, row.original.carrera_nombre ?? '—'),
+            cell: ({ row }) => h('span', { class: 'opacity-70 text-[var(--sispaa-text)]' }, row.original.carrera_nombre ?? '—'),
         },
         {
             accessorKey: 'matricula_estado',
@@ -50,13 +50,13 @@ export function makeMatriculadosColumns(): ColumnDef<StudentRow>[] {
             accessorKey: 'faltas_count',
             meta: { label: 'Faltas' },
             header: 'Faltas',
-            cell: ({ row }) => h('span', { class: 'text-slate-500' }, String(row.original.faltas_count)),
+            cell: ({ row }) => h('span', { class: 'opacity-70 text-[var(--sispaa-text)]' }, String(row.original.faltas_count)),
         },
         {
             accessorKey: 'documentos_count',
             meta: { label: 'Documentos' },
             header: 'Documentos',
-            cell: ({ row }) => h('span', { class: 'text-slate-500' }, String(row.original.documentos_count)),
+            cell: ({ row }) => h('span', { class: 'opacity-70 text-[var(--sispaa-text)]' }, String(row.original.documentos_count)),
         },
     ];
 }

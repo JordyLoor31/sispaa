@@ -39,9 +39,9 @@ const ESTADO_LABEL: Record<EstadoPeriodo, string> = {
 };
 
 const ESTADO_CLASS: Record<EstadoPeriodo, string> = {
-    planificado: 'text-amber-600',
-    activo: 'text-emerald-600',
-    finalizado: 'text-slate-400',
+    planificado: 'text-[color:color-mix(in_srgb,#E4BC57_65%,black)]',
+    activo: 'text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]',
+    finalizado: 'opacity-50 text-[var(--sispaa-text)]',
 };
 
 const formatDate = (date?: string | null) => {
@@ -62,18 +62,18 @@ const finalizar = () => {
     <AppSidebarLayout :breadcrumbs="breadcrumbs">
         <Head :title="periodo.nombre" />
 
-        <div class="flex h-full flex-1 flex-col gap-6 p-6 bg-slate-50/50 dark:bg-slate-900/50">
+        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[var(--sispaa-background)]">
             <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div>
-                    <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+                    <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">
                         {{ periodo.nombre }}
                     </h1>
-                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400 capitalize">
+                    <p class="mt-1 text-sm opacity-60 text-[var(--sispaa-text)] capitalize">
                         Periodo {{ periodo.tipo }}
                     </p>
                 </div>
-                <div class="flex items-center gap-2">
-                    <Button v-if="periodo.estado === 'planificado'" @click="activar" class="bg-emerald-600 hover:bg-emerald-500 text-white">
+                <div class="flex flex-wrap items-center gap-2">
+                    <Button v-if="periodo.estado === 'planificado'" @click="activar" class="text-white bg-[var(--sispaa-secondary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-secondary)_85%,black)]">
                         <PlayCircle class="h-4 w-4 mr-1.5" /> Activar
                     </Button>
                     <Button v-else-if="periodo.estado === 'activo'" @click="finalizar" variant="outline" class="text-rose-500 border-rose-200 hover:bg-rose-50">
@@ -84,7 +84,7 @@ const finalizar = () => {
                             <ArrowLeft class="h-4 w-4 mr-1.5" /> Volver
                         </Link>
                     </Button>
-                    <Button as-child class="bg-indigo-600 hover:bg-indigo-500 text-white">
+                    <Button as-child class="text-white bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)]">
                         <Link :href="route('admin.periodos.edit', periodo.id)">
                             <Pencil class="h-4 w-4 mr-1.5" /> Editar
                         </Link>
@@ -92,68 +92,68 @@ const finalizar = () => {
                 </div>
             </div>
 
-            <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-                <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Estado</h4>
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
+                <div class="rounded-2xl p-5 shadow-sm sm:p-6 bg-[var(--sispaa-surface)]">
+                    <h4 class="text-xs font-bold uppercase tracking-wider opacity-60 text-[var(--sispaa-text)]">Estado</h4>
                     <p class="mt-2 text-sm font-semibold" :class="ESTADO_CLASS[periodo.estado]">
                         {{ ESTADO_LABEL[periodo.estado] }}
                     </p>
                 </div>
-                <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Duración</h4>
-                    <p class="mt-2 text-sm font-semibold text-slate-800 dark:text-slate-200">
+                <div class="rounded-2xl p-5 shadow-sm sm:p-6 bg-[var(--sispaa-surface)]">
+                    <h4 class="text-xs font-bold uppercase tracking-wider opacity-60 text-[var(--sispaa-text)]">Duración</h4>
+                    <p class="mt-2 text-sm font-semibold text-[var(--sispaa-text)]">
                         {{ formatDate(periodo.fecha_inicio) }} — {{ formatDate(periodo.fecha_fin) }}
                     </p>
                 </div>
-                <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Matriculados</h4>
-                    <p class="mt-2 text-sm font-semibold text-slate-800 dark:text-slate-200">
+                <div class="rounded-2xl p-5 shadow-sm sm:p-6 bg-[var(--sispaa-surface)]">
+                    <h4 class="text-xs font-bold uppercase tracking-wider opacity-60 text-[var(--sispaa-text)]">Matriculados</h4>
+                    <p class="mt-2 text-sm font-semibold text-[var(--sispaa-text)]">
                         {{ totalMatriculados ?? 0 }} estudiantes
                     </p>
                 </div>
-                <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider capitalize">Tipo</h4>
-                    <p class="mt-2 text-sm font-semibold text-slate-800 dark:text-slate-200 capitalize">
+                <div class="rounded-2xl p-5 shadow-sm sm:p-6 bg-[var(--sispaa-surface)]">
+                    <h4 class="text-xs font-bold uppercase tracking-wider capitalize opacity-60 text-[var(--sispaa-text)]">Tipo</h4>
+                    <p class="mt-2 text-sm font-semibold capitalize text-[var(--sispaa-text)]">
                         {{ periodo.tipo }}
                     </p>
                 </div>
             </div>
 
-            <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+            <div class="rounded-2xl p-5 shadow-sm sm:p-6 bg-[var(--sispaa-surface)]">
+                <h4 class="text-xs font-bold uppercase tracking-wider mb-3 flex items-center gap-1.5 opacity-60 text-[var(--sispaa-text)]">
                     <Clock class="h-3.5 w-3.5" /> Fechas Límites
                 </h4>
                 <div class="grid gap-4 sm:grid-cols-2 text-sm">
                     <div>
-                        <p class="text-slate-400 text-xs">Fecha Límite Sílabos</p>
-                        <p class="font-semibold" :class="periodo.fecha_limite_silabo ? 'text-slate-800 dark:text-slate-200' : 'text-slate-400 italic'">
+                        <p class="text-xs opacity-60 text-[var(--sispaa-text)]">Fecha Límite Sílabos</p>
+                        <p class="font-semibold" :class="periodo.fecha_limite_silabo ? 'text-[var(--sispaa-text)]' : 'italic opacity-50 text-[var(--sispaa-text)]'">
                             {{ periodo.fecha_limite_silabo ? formatDate(periodo.fecha_limite_silabo) : 'Sin configurar' }}
                         </p>
                     </div>
                     <div>
-                        <p class="text-slate-400 text-xs">Fecha Límite Informes</p>
-                        <p class="font-semibold" :class="periodo.fecha_limite_informe ? 'text-slate-800 dark:text-slate-200' : 'text-slate-400 italic'">
+                        <p class="text-xs opacity-60 text-[var(--sispaa-text)]">Fecha Límite Informes</p>
+                        <p class="font-semibold" :class="periodo.fecha_limite_informe ? 'text-[var(--sispaa-text)]' : 'italic opacity-50 text-[var(--sispaa-text)]'">
                             {{ periodo.fecha_limite_informe ? formatDate(periodo.fecha_limite_informe) : 'Sin configurar' }}
                         </p>
                     </div>
                 </div>
             </div>
 
-            <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Auditoría</h4>
+            <div class="rounded-2xl p-5 shadow-sm sm:p-6 bg-[var(--sispaa-surface)]">
+                <h4 class="text-xs font-bold uppercase tracking-wider mb-3 opacity-60 text-[var(--sispaa-text)]">Auditoría</h4>
                 <div class="grid gap-4 sm:grid-cols-2 text-sm">
                     <div>
-                        <p class="text-slate-400 text-xs">Creado por</p>
-                        <p class="font-semibold text-slate-800 dark:text-slate-200">
+                        <p class="text-xs opacity-60 text-[var(--sispaa-text)]">Creado por</p>
+                        <p class="font-semibold text-[var(--sispaa-text)]">
                             {{ periodo.creator?.name ?? '—' }}
-                            <span class="text-slate-400 font-normal">· {{ formatDate(periodo.created_at) }}</span>
+                            <span class="font-normal opacity-60 text-[var(--sispaa-text)]">· {{ formatDate(periodo.created_at) }}</span>
                         </p>
                     </div>
                     <div>
-                        <p class="text-slate-400 text-xs">Última edición por</p>
-                        <p class="font-semibold text-slate-800 dark:text-slate-200">
+                        <p class="text-xs opacity-60 text-[var(--sispaa-text)]">Última edición por</p>
+                        <p class="font-semibold text-[var(--sispaa-text)]">
                             {{ periodo.updater?.name ?? '—' }}
-                            <span class="text-slate-400 font-normal">· {{ formatDate(periodo.updated_at) }}</span>
+                            <span class="font-normal opacity-60 text-[var(--sispaa-text)]">· {{ formatDate(periodo.updated_at) }}</span>
                         </p>
                     </div>
                 </div>

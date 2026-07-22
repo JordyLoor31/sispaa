@@ -32,12 +32,12 @@ interface UserColumnsOptions {
 }
 
 const getRoleBadgeClass = (rolName: string) => {
-    if (rolName === 'SystemAdministrador') return 'bg-purple-50 text-purple-800 dark:bg-purple-950/30 dark:text-purple-400';
-    if (rolName === 'secretaria') return 'bg-pink-50 text-pink-800 dark:bg-pink-950/30 dark:text-pink-400';
-    if (rolName === 'coordinador') return 'bg-blue-50 text-blue-800 dark:bg-blue-950/30 dark:text-blue-400';
-    if (rolName === 'docente') return 'bg-orange-50 text-orange-800 dark:bg-orange-950/30 dark:text-orange-400';
+    if (rolName === 'SystemAdministrador') return 'bg-[color:color-mix(in_srgb,var(--sispaa-accent)_20%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-accent)_75%,black)]';
+    if (rolName === 'secretaria') return 'bg-[color:color-mix(in_srgb,var(--sispaa-primary)_20%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-primary)_75%,black)]';
+    if (rolName === 'coordinador') return 'bg-[color:color-mix(in_srgb,var(--sispaa-accent)_35%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-accent)_85%,black)]';
+    if (rolName === 'docente') return 'bg-[color:color-mix(in_srgb,#E4BC57_35%,transparent)] text-[color:color-mix(in_srgb,#E4BC57_60%,black)]';
 
-    return 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-400';
+    return 'bg-[color:color-mix(in_srgb,var(--sispaa-secondary)_25%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-secondary)_75%,black)]';
 };
 
 export function makeUserColumns({ onToggleStatus }: UserColumnsOptions): ColumnDef<Usuario>[] {
@@ -49,8 +49,8 @@ export function makeUserColumns({ onToggleStatus }: UserColumnsOptions): ColumnD
             cell: ({ row }) => {
                 const user = row.original;
                 return h('div', {}, [
-                    h('div', { class: 'font-semibold text-slate-900 dark:text-white' }, user.name),
-                    h('div', { class: 'text-xs text-slate-400' }, user.email),
+                    h('div', { class: 'font-semibold text-[var(--sispaa-text)]' }, user.name),
+                    h('div', { class: 'text-xs opacity-60 text-[var(--sispaa-text)]' }, user.email),
                 ]);
             },
         },
@@ -80,7 +80,7 @@ export function makeUserColumns({ onToggleStatus }: UserColumnsOptions): ColumnD
                 const user = row.original;
 
                 if (user.roles.length === 0) {
-                    return h('span', { class: 'text-xs text-slate-400' }, 'Ninguno');
+                    return h('span', { class: 'text-xs opacity-60 text-[var(--sispaa-text)]' }, 'Ninguno');
                 }
 
                 return h('div', { class: 'flex flex-wrap gap-1' }, user.roles.map((rol) => {
@@ -111,7 +111,7 @@ export function makeUserColumns({ onToggleStatus }: UserColumnsOptions): ColumnD
                         'onUpdate:modelValue': () => onToggleStatus(user),
                     }),
                     h('span', {
-                        class: `text-xs font-semibold ${isActive ? 'text-emerald-650 dark:text-emerald-400' : 'text-slate-400'}`,
+                        class: `text-xs font-semibold ${isActive ? 'text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]' : 'opacity-50 text-[var(--sispaa-text)]'}`,
                     }, isActive ? 'Activo' : 'Inactivo'),
                 ]);
             },

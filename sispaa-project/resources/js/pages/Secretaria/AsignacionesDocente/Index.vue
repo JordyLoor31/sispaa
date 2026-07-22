@@ -57,15 +57,15 @@ const navigateToPage = (url: string | null) => {
     <AppSidebarLayout :breadcrumbs="breadcrumbs">
         <Head title="Asignación de Docentes" />
 
-        <div class="flex h-full flex-1 flex-col gap-6 p-6 bg-slate-50/50 dark:bg-slate-900/50">
+        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[var(--sispaa-background)]">
             <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div>
-                    <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">Asignación de Docentes</h1>
-                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                    <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">Asignación de Docentes</h1>
+                    <p class="mt-1 text-sm opacity-60 text-[var(--sispaa-text)]">
                         Vincula docentes a materias/período/grupo. Sin una asignación aquí, el docente no ve materias en Mis Sílabos, Mis Informes ni Mis Estudiantes.
                     </p>
                 </div>
-                <Button as-child class="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold">
+                <Button as-child class="inline-flex items-center gap-1.5 font-semibold text-white bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)]">
                     <Link :href="route('secretaria.asignaciones-docente.create')">
                         <Plus class="h-4 w-4" />
                         Nueva Asignación
@@ -74,23 +74,23 @@ const navigateToPage = (url: string | null) => {
             </div>
 
             <div class="w-full space-y-4">
-                <div class="flex flex-col gap-3 sm:flex-row flex-wrap bg-white dark:bg-slate-950 p-4 rounded-xl border border-slate-200/80 dark:border-slate-800">
+                <div class="flex flex-col flex-wrap gap-3 rounded-xl p-4 bg-[var(--sispaa-surface)] sm:flex-row">
                     <Select v-model="filterDocente" @update:model-value="applyFilters">
-                        <SelectTrigger class="w-[220px]"><SelectValue placeholder="Docente" /></SelectTrigger>
+                        <SelectTrigger class="w-full bg-[var(--sispaa-background)] sm:w-[220px]"><SelectValue placeholder="Docente" /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">Todos los docentes</SelectItem>
                             <SelectItem v-for="d in docentes" :key="d.id" :value="String(d.id)">{{ d.name }}</SelectItem>
                         </SelectContent>
                     </Select>
                     <Select v-model="filterMateria" @update:model-value="applyFilters">
-                        <SelectTrigger class="w-[220px]"><SelectValue placeholder="Materia" /></SelectTrigger>
+                        <SelectTrigger class="w-full bg-[var(--sispaa-background)] sm:w-[220px]"><SelectValue placeholder="Materia" /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">Todas las materias</SelectItem>
                             <SelectItem v-for="m in materias" :key="m.id" :value="String(m.id)">{{ m.codigo }} — {{ m.nombre }}</SelectItem>
                         </SelectContent>
                     </Select>
                     <Select v-model="filterPeriodo" @update:model-value="applyFilters">
-                        <SelectTrigger class="w-[180px]"><SelectValue placeholder="Período" /></SelectTrigger>
+                        <SelectTrigger class="w-full bg-[var(--sispaa-background)] sm:w-[180px]"><SelectValue placeholder="Período" /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">Todos los períodos</SelectItem>
                             <SelectItem v-for="p in periodos" :key="p.id" :value="String(p.id)">{{ p.nombre }}</SelectItem>
@@ -98,19 +98,19 @@ const navigateToPage = (url: string | null) => {
                     </Select>
                 </div>
 
-                <div class="rounded-lg border border-slate-200/80 bg-white dark:border-slate-800 dark:bg-slate-950 overflow-hidden">
+                <div class="overflow-hidden rounded-lg bg-[var(--sispaa-surface)]">
                     <div class="overflow-x-auto">
                         <Table>
                             <TableHeader>
-                                <TableRow v-for="hg in table.getHeaderGroups()" :key="hg.id" class="border-b border-slate-200/80 dark:border-slate-800">
-                                    <TableHead v-for="header in hg.headers" :key="header.id" class="h-12 px-4 text-sm font-medium text-slate-500 dark:text-slate-400">
+                                <TableRow v-for="hg in table.getHeaderGroups()" :key="hg.id" class="border-b border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
+                                    <TableHead v-for="header in hg.headers" :key="header.id" class="h-12 px-4 text-sm font-medium opacity-60 text-[var(--sispaa-text)]">
                                         <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header" :props="header.getContext()" />
                                     </TableHead>
                                 </TableRow>
                             </TableHeader>
-                            <TableBody class="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
+                            <TableBody class="divide-y divide-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)] text-sm text-[var(--sispaa-text)]">
                                 <template v-if="table.getRowModel().rows?.length">
-                                    <TableRow v-for="row in table.getRowModel().rows" :key="row.id" class="hover:bg-slate-50/30 dark:hover:bg-slate-900/10 transition-colors">
+                                    <TableRow v-for="row in table.getRowModel().rows" :key="row.id" class="transition-colors hover:bg-[color:color-mix(in_srgb,var(--sispaa-text)_5%,transparent)]">
                                         <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id" class="px-4 py-4">
                                             <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
                                         </TableCell>
@@ -118,7 +118,7 @@ const navigateToPage = (url: string | null) => {
                                 </template>
                                 <TableRow v-else>
                                     <TableCell :colspan="columns.length" class="h-32 text-center">
-                                        <div class="flex flex-col items-center gap-2 text-slate-400">
+                                        <div class="flex flex-col items-center gap-2 opacity-40 text-[var(--sispaa-text)]">
                                             <UserCog class="h-8 w-8" />
                                             <span class="text-sm font-medium">No hay asignaciones registradas</span>
                                         </div>
@@ -127,17 +127,17 @@ const navigateToPage = (url: string | null) => {
                             </TableBody>
                         </Table>
                     </div>
-                    <div class="flex items-center justify-between border-t border-slate-100 dark:border-slate-800 px-6 py-4">
-                        <span class="text-xs text-slate-500">Mostrando {{ asignaciones.data.length }} de {{ asignaciones.total }} asignaciones</span>
-                        <div class="flex items-center gap-1">
+                    <div class="flex flex-col gap-2 border-t px-4 py-4 border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)] sm:flex-row sm:items-center sm:justify-between sm:px-6">
+                        <span class="text-xs opacity-60 text-[var(--sispaa-text)]">Mostrando {{ asignaciones.data.length }} de {{ asignaciones.total }} asignaciones</span>
+                        <div class="flex flex-wrap items-center gap-1">
                             <button
                                 v-for="link in asignaciones.links"
                                 :key="link.label"
                                 @click="navigateToPage(link.url)"
                                 :disabled="!link.url || link.active"
                                 v-html="link.label"
-                                class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
-                                :class="[link.active ? 'bg-indigo-600 text-white' : 'border border-slate-200/80 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 disabled:opacity-40']"
+                                class="rounded-lg px-3 py-1.5 text-xs font-semibold transition-all"
+                                :class="[link.active ? 'bg-[var(--sispaa-primary)] text-white' : 'bg-[var(--sispaa-background)] text-[var(--sispaa-text)] opacity-70 hover:opacity-100 disabled:opacity-40']"
                             />
                         </div>
                     </div>

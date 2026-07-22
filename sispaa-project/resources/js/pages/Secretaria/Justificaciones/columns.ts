@@ -27,9 +27,9 @@ export interface JustificacionRow {
 }
 
 const estadoClasses: Record<string, string> = {
-    pendiente: 'bg-amber-50 text-amber-800 dark:bg-amber-950/30 dark:text-amber-400',
-    aprobada: 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-400',
-    rechazada: 'bg-rose-50 text-rose-800 dark:bg-rose-950/30 dark:text-rose-400',
+    pendiente: 'bg-[color:color-mix(in_srgb,#E4BC57_45%,transparent)] text-[color:color-mix(in_srgb,#E4BC57_60%,black)]',
+    aprobada: 'bg-[color:color-mix(in_srgb,var(--sispaa-secondary)_30%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]',
+    rechazada: 'bg-rose-50 text-rose-800',
 };
 
 export function makeJustificacionColumns(): ColumnDef<JustificacionRow>[] {
@@ -40,9 +40,9 @@ export function makeJustificacionColumns(): ColumnDef<JustificacionRow>[] {
             cell: ({ row }) => {
                 const e = row.original.estudiante;
                 return h('div', {}, [
-                    h('p', { class: 'text-sm font-semibold text-slate-800 dark:text-slate-200' }, e.name),
-                    h('p', { class: 'text-xs text-slate-400' }, e.cedula ?? e.email),
-                    h('p', { class: 'text-xs text-slate-400' }, e.carrera ?? '—'),
+                    h('p', { class: 'text-sm font-semibold text-[var(--sispaa-text)]' }, e.name),
+                    h('p', { class: 'text-xs opacity-50 text-[var(--sispaa-text)]' }, e.cedula ?? e.email),
+                    h('p', { class: 'text-xs opacity-50 text-[var(--sispaa-text)]' }, e.carrera ?? '—'),
                 ]);
             },
         },
@@ -52,12 +52,12 @@ export function makeJustificacionColumns(): ColumnDef<JustificacionRow>[] {
             cell: ({ row }) => {
                 const f = row.original.falta;
                 return h('div', { class: 'space-y-1' }, [
-                    h('div', { class: 'flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300' }, [
-                        h(Calendar, { class: 'h-3.5 w-3.5 text-slate-400' }),
+                    h('div', { class: 'flex items-center gap-1.5 text-xs opacity-70 text-[var(--sispaa-text)]' }, [
+                        h(Calendar, { class: 'h-3.5 w-3.5 opacity-50' }),
                         f.fecha,
                     ]),
-                    h('div', { class: 'flex items-center gap-1.5 text-xs text-slate-500' }, [
-                        h(BookOpen, { class: 'h-3.5 w-3.5 text-slate-400' }),
+                    h('div', { class: 'flex items-center gap-1.5 text-xs opacity-60 text-[var(--sispaa-text)]' }, [
+                        h(BookOpen, { class: 'h-3.5 w-3.5 opacity-50' }),
                         f.materia ?? 'Sin materia',
                     ]),
                 ]);
@@ -69,7 +69,7 @@ export function makeJustificacionColumns(): ColumnDef<JustificacionRow>[] {
             cell: ({ row }) => {
                 const motivo = row.original.motivo_estudiante;
                 return h('p', {
-                    class: 'text-xs text-slate-600 dark:text-slate-300 max-w-[200px] truncate',
+                    class: 'text-xs opacity-70 text-[var(--sispaa-text)] max-w-[200px] truncate',
                     title: motivo,
                 }, motivo);
             },
@@ -87,7 +87,7 @@ export function makeJustificacionColumns(): ColumnDef<JustificacionRow>[] {
                 const Icon = icons[estado] ?? Clock;
                 const label = estado.charAt(0).toUpperCase() + estado.slice(1);
                 return h('span', {
-                    class: `inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${estadoClasses[estado] ?? 'bg-slate-100 text-slate-500'}`,
+                    class: `inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${estadoClasses[estado] ?? 'bg-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-text)_60%,transparent)]'}`,
                 }, [
                     h(Icon, { class: estado === 'pendiente' ? 'h-3.5 w-3.5 animate-pulse' : 'h-3.5 w-3.5' }),
                     label,
@@ -99,10 +99,10 @@ export function makeJustificacionColumns(): ColumnDef<JustificacionRow>[] {
             header: 'Adjunto',
             cell: ({ row }) => {
                 const url = row.original.archivo_adjunto;
-                if (!url) return h('span', { class: 'text-xs text-slate-400' }, '—');
+                if (!url) return h('span', { class: 'text-xs opacity-50 text-[var(--sispaa-text)]' }, '—');
                 return h('a', {
                     href: url, target: '_blank',
-                    class: 'inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 rounded-lg px-2 py-1',
+                    class: 'inline-flex items-center gap-1 text-xs font-semibold text-[var(--sispaa-primary)] hover:opacity-80 border border-[color:color-mix(in_srgb,var(--sispaa-primary)_35%,transparent)] rounded-lg px-2 py-1',
                 }, [h(FileText, { class: 'h-3.5 w-3.5' }), 'Ver adjunto']);
             },
         },
@@ -110,17 +110,17 @@ export function makeJustificacionColumns(): ColumnDef<JustificacionRow>[] {
             id: 'solicitud',
             header: 'Solicitud',
             cell: ({ row }) =>
-                h('span', { class: 'text-xs text-slate-400' }, row.original.created_at),
+                h('span', { class: 'text-xs opacity-50 text-[var(--sispaa-text)]' }, row.original.created_at),
         },
         {
             id: 'actions',
-            header: () => h('div', { class: 'text-right text-xs font-semibold text-slate-500 uppercase' }, 'Acciones'),
+            header: () => h('div', { class: 'text-right text-xs font-semibold opacity-60 text-[var(--sispaa-text)] uppercase' }, 'Acciones'),
             cell: ({ row }) => {
                 const item = row.original;
                 return h('div', { class: 'flex justify-end' }, [
                     h(Link, {
                         href: route('secretaria.justificaciones.show', item.id),
-                        class: 'inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 rounded-lg px-2.5 py-1.5 transition-colors',
+                        class: 'inline-flex items-center gap-1 text-xs font-semibold text-[var(--sispaa-primary)] hover:opacity-80 border border-[color:color-mix(in_srgb,var(--sispaa-primary)_35%,transparent)] rounded-lg px-2.5 py-1.5 transition-colors',
                     }, () => [h(Eye, { class: 'h-3.5 w-3.5' }), item.estado === 'pendiente' ? 'Revisar' : 'Ver']),
                 ]);
             },

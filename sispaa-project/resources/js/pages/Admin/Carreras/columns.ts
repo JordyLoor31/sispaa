@@ -37,14 +37,14 @@ export function makeCarreraColumns({ onToggleStatus }: CarreraColumnsOptions): C
                     style: { backgroundColor: row.original.color ?? '#94a3b8' },
                     title: row.original.color ?? 'Sin color asignado',
                 }),
-                h('span', { class: 'font-bold text-slate-800 dark:text-slate-350' }, row.original.codigo),
+                h('span', { class: 'font-bold text-[var(--sispaa-text)]' }, row.original.codigo),
             ]),
         },
         {
             accessorKey: 'nombre',
             meta: { label: 'Carrera' },
             header: 'Carrera',
-            cell: ({ row }) => h('span', { class: 'font-semibold text-slate-900 dark:text-white' }, row.original.nombre),
+            cell: ({ row }) => h('span', { class: 'font-semibold text-[var(--sispaa-text)]' }, row.original.nombre),
         },
         {
             id: 'coordinador',
@@ -80,7 +80,7 @@ export function makeCarreraColumns({ onToggleStatus }: CarreraColumnsOptions): C
                         'onUpdate:modelValue': () => onToggleStatus(carrera),
                     }),
                     h('span', {
-                        class: `text-xs font-semibold ${isActive ? 'text-emerald-650 dark:text-emerald-400' : 'text-slate-400'}`,
+                        class: `text-xs font-semibold ${isActive ? 'text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]' : 'opacity-50 text-[var(--sispaa-text)]'}`,
                     }, isActive ? 'Activa' : 'Inactiva'),
                 ]);
             },

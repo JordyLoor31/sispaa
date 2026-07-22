@@ -28,12 +28,12 @@ export function makeGrupoDocumentoColumns(): ColumnDef<GrupoDocumento>[] {
                 return h('div', { class: 'flex items-center gap-2.5' }, [
                     h(
                         'div',
-                        { class: 'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-indigo-50 dark:bg-indigo-950/30' },
-                        [h(FolderOpen, { class: 'h-4 w-4 text-indigo-500' })],
+                        { class: 'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]' },
+                        [h(FolderOpen, { class: 'h-4 w-4 text-[var(--sispaa-primary)]' })],
                     ),
                     h('div', {}, [
-                        h('p', { class: 'text-sm font-semibold text-slate-800 dark:text-slate-100 leading-tight' }, g.nombre),
-                        g.descripcion ? h('p', { class: 'text-xs text-slate-400 mt-0.5 max-w-xs truncate' }, g.descripcion) : null,
+                        h('p', { class: 'text-sm font-semibold text-[var(--sispaa-text)] leading-tight' }, g.nombre),
+                        g.descripcion ? h('p', { class: 'text-xs opacity-50 text-[var(--sispaa-text)] mt-0.5 max-w-xs truncate' }, g.descripcion) : null,
                     ]),
                 ]);
             },
@@ -43,10 +43,10 @@ export function makeGrupoDocumentoColumns(): ColumnDef<GrupoDocumento>[] {
             header: 'Requisitos',
             cell: ({ row }) => {
                 const reqs = row.original.requisitos;
-                if (reqs.length === 0) return h('span', { class: 'text-xs text-slate-400' }, 'Sin requisitos aún.');
+                if (reqs.length === 0) return h('span', { class: 'text-xs opacity-50 text-[var(--sispaa-text)]' }, 'Sin requisitos aún.');
                 return h(
                     'span',
-                    { class: 'text-xs text-slate-600 dark:text-slate-300' },
+                    { class: 'text-xs opacity-70 text-[var(--sispaa-text)]' },
                     reqs.map((r) => r.nombre).join(', '),
                 );
             },
@@ -61,8 +61,8 @@ export function makeGrupoDocumentoColumns(): ColumnDef<GrupoDocumento>[] {
                     {
                         class: `inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${
                             g.activo
-                                ? 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-400'
-                                : 'bg-slate-100 text-slate-500 dark:bg-slate-900 dark:text-slate-500'
+                                ? 'bg-[color:color-mix(in_srgb,var(--sispaa-secondary)_30%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]'
+                                : 'bg-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-text)_60%,transparent)]'
                         }`,
                     },
                     g.activo ? 'Activo' : 'Inactivo',

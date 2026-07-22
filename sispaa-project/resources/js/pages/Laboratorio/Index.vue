@@ -37,94 +37,96 @@ const breadcrumbs: BreadcrumbItemType[] = [
     <AppSidebarLayout :breadcrumbs="breadcrumbs">
         <Head title="Laboratorio" />
 
-        <div class="flex h-full flex-1 flex-col gap-6 p-6 bg-slate-50/50 dark:bg-slate-900/50">
+        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[var(--sispaa-background)]">
             <div>
-                <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">Laboratorio</h1>
-                <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Panel general de prácticas, laboratorios e inventario.</p>
+                <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">Laboratorio</h1>
+                <p class="mt-1 text-sm opacity-60 text-[var(--sispaa-text)]">Panel general de prácticas, laboratorios e inventario.</p>
             </div>
 
-            <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-                <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
+                <div class="rounded-2xl p-5 shadow-sm bg-[var(--sispaa-surface)]">
                     <div class="flex items-center justify-between">
-                        <p class="text-xs font-semibold text-slate-500 uppercase">Prácticas</p>
-                        <FlaskConical class="h-5 w-5 text-indigo-500" />
+                        <p class="text-xs font-semibold uppercase opacity-60 text-[var(--sispaa-text)]">Prácticas</p>
+                        <FlaskConical class="h-5 w-5 text-[var(--sispaa-primary)]" />
                     </div>
-                    <p class="mt-2 text-3xl font-extrabold text-slate-900 dark:text-white">{{ stats.total_practicas }}</p>
+                    <p class="mt-2 text-3xl font-extrabold text-[var(--sispaa-text)]">{{ stats.total_practicas }}</p>
                 </div>
-                <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+                <div class="rounded-2xl p-5 shadow-sm bg-[var(--sispaa-surface)]">
                     <div class="flex items-center justify-between">
-                        <p class="text-xs font-semibold text-slate-500 uppercase">Laboratorios activos</p>
-                        <MapPin class="h-5 w-5 text-indigo-500" />
+                        <p class="text-xs font-semibold uppercase opacity-60 text-[var(--sispaa-text)]">Laboratorios activos</p>
+                        <MapPin class="h-5 w-5 text-[var(--sispaa-primary)]" />
                     </div>
-                    <p class="mt-2 text-3xl font-extrabold text-slate-900 dark:text-white">{{ stats.laboratorios_activos }}</p>
+                    <p class="mt-2 text-3xl font-extrabold text-[var(--sispaa-text)]">{{ stats.laboratorios_activos }}</p>
                 </div>
-                <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+                <div class="rounded-2xl p-5 shadow-sm bg-[var(--sispaa-surface)]">
                     <div class="flex items-center justify-between">
-                        <p class="text-xs font-semibold text-slate-500 uppercase">Equipos</p>
-                        <Microscope class="h-5 w-5 text-indigo-500" />
+                        <p class="text-xs font-semibold uppercase opacity-60 text-[var(--sispaa-text)]">Equipos</p>
+                        <Microscope class="h-5 w-5 text-[var(--sispaa-primary)]" />
                     </div>
-                    <p class="mt-2 text-3xl font-extrabold text-slate-900 dark:text-white">{{ stats.total_equipos }}</p>
+                    <p class="mt-2 text-3xl font-extrabold text-[var(--sispaa-text)]">{{ stats.total_equipos }}</p>
                 </div>
-                <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+                <div class="rounded-2xl p-5 shadow-sm bg-[var(--sispaa-surface)]">
                     <div class="flex items-center justify-between">
-                        <p class="text-xs font-semibold text-slate-500 uppercase">Reactivos</p>
-                        <Beaker class="h-5 w-5 text-indigo-500" />
+                        <p class="text-xs font-semibold uppercase opacity-60 text-[var(--sispaa-text)]">Reactivos</p>
+                        <Beaker class="h-5 w-5 text-[var(--sispaa-primary)]" />
                     </div>
-                    <p class="mt-2 text-3xl font-extrabold text-slate-900 dark:text-white">{{ stats.total_reactivos }}</p>
+                    <p class="mt-2 text-3xl font-extrabold text-[var(--sispaa-text)]">{{ stats.total_reactivos }}</p>
                 </div>
-                <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+                <div class="rounded-2xl p-5 shadow-sm bg-[var(--sispaa-surface)]">
                     <div class="flex items-center justify-between">
-                        <p class="text-xs font-semibold text-slate-500 uppercase">Estudiantes atendidos</p>
-                        <Users class="h-5 w-5 text-indigo-500" />
+                        <p class="text-xs font-semibold uppercase opacity-60 text-[var(--sispaa-text)]">Estudiantes atendidos</p>
+                        <Users class="h-5 w-5 text-[var(--sispaa-primary)]" />
                     </div>
-                    <p class="mt-2 text-3xl font-extrabold text-slate-900 dark:text-white">{{ stats.estudiantes_atendidos }}</p>
+                    <p class="mt-2 text-3xl font-extrabold text-[var(--sispaa-text)]">{{ stats.estudiantes_atendidos }}</p>
                 </div>
             </div>
 
-            <div class="grid gap-6 xl:grid-cols-3">
-                <div class="xl:col-span-2 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+            <div class="grid gap-4 sm:gap-6 xl:grid-cols-3">
+                <div class="xl:col-span-2 rounded-2xl p-5 shadow-sm bg-[var(--sispaa-surface)]">
                     <div class="mb-4 flex items-center justify-between">
-                        <h2 class="text-sm font-bold text-slate-900 dark:text-white">Últimas prácticas</h2>
-                        <Link :href="route('laboratorio.practicas')" class="text-xs font-semibold text-indigo-600 hover:text-indigo-500">Ver todas</Link>
+                        <h2 class="text-sm font-bold text-[var(--sispaa-text)]">Últimas prácticas</h2>
+                        <Link :href="route('laboratorio.practicas')" class="text-xs font-semibold text-[var(--sispaa-primary)] hover:opacity-80">Ver todas</Link>
                     </div>
-                    <div class="overflow-hidden rounded-xl border border-slate-100 dark:border-slate-800">
-                        <table class="w-full text-sm">
-                            <thead class="bg-slate-50 dark:bg-slate-900 text-xs uppercase text-slate-500">
-                                <tr>
-                                    <th class="px-4 py-2 text-left">Tema</th>
-                                    <th class="px-4 py-2 text-left">Materia</th>
-                                    <th class="px-4 py-2 text-left">Docente</th>
-                                    <th class="px-4 py-2 text-left">Laboratorio</th>
-                                    <th class="px-4 py-2 text-left">Fecha</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="p in ultimasPracticas" :key="p.id" class="border-t border-slate-100 dark:border-slate-800">
-                                    <td class="px-4 py-3 font-semibold text-slate-900 dark:text-white">{{ p.tema }}</td>
-                                    <td class="px-4 py-3 text-slate-500">{{ p.materia }} · {{ p.carrera }}</td>
-                                    <td class="px-4 py-3 text-slate-500">{{ p.docente }}</td>
-                                    <td class="px-4 py-3 text-slate-400 text-xs">{{ p.laboratorio ?? '—' }}</td>
-                                    <td class="px-4 py-3 text-slate-400 text-xs">{{ p.fecha }}</td>
-                                </tr>
-                                <tr v-if="ultimasPracticas.length === 0">
-                                    <td colspan="5" class="px-4 py-8 text-center text-sm text-slate-400">Aún no hay prácticas registradas.</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div class="overflow-hidden rounded-xl border border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead class="bg-[var(--sispaa-background)] text-xs uppercase opacity-60 text-[var(--sispaa-text)]">
+                                    <tr>
+                                        <th class="px-4 py-2 text-left">Tema</th>
+                                        <th class="px-4 py-2 text-left">Materia</th>
+                                        <th class="px-4 py-2 text-left">Docente</th>
+                                        <th class="px-4 py-2 text-left">Laboratorio</th>
+                                        <th class="px-4 py-2 text-left">Fecha</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="p in ultimasPracticas" :key="p.id" class="border-t border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]">
+                                        <td class="px-4 py-3 font-semibold text-[var(--sispaa-text)]">{{ p.tema }}</td>
+                                        <td class="px-4 py-3 opacity-70 text-[var(--sispaa-text)]">{{ p.materia }} · {{ p.carrera }}</td>
+                                        <td class="px-4 py-3 opacity-70 text-[var(--sispaa-text)]">{{ p.docente }}</td>
+                                        <td class="px-4 py-3 opacity-50 text-xs text-[var(--sispaa-text)]">{{ p.laboratorio ?? '—' }}</td>
+                                        <td class="px-4 py-3 opacity-50 text-xs text-[var(--sispaa-text)]">{{ p.fecha }}</td>
+                                    </tr>
+                                    <tr v-if="ultimasPracticas.length === 0">
+                                        <td colspan="5" class="px-4 py-8 text-center text-sm opacity-50 text-[var(--sispaa-text)]">Aún no hay prácticas registradas.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
-                <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                    <h2 class="text-sm font-bold text-slate-900 dark:text-white mb-4">Laboratorios más usados</h2>
+                <div class="rounded-2xl p-5 shadow-sm bg-[var(--sispaa-surface)]">
+                    <h2 class="text-sm font-bold text-[var(--sispaa-text)] mb-4">Laboratorios más usados</h2>
                     <div class="space-y-3">
-                        <div v-for="l in laboratoriosMasUsados" :key="l.id" class="flex items-center justify-between rounded-xl border border-slate-100 dark:border-slate-800 p-3">
+                        <div v-for="l in laboratoriosMasUsados" :key="l.id" class="flex items-center justify-between rounded-xl p-3 bg-[var(--sispaa-background)]">
                             <div class="flex items-center gap-2">
-                                <MapPin class="h-4 w-4 text-indigo-500" />
-                                <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">{{ l.nombre }}</span>
+                                <MapPin class="h-4 w-4 text-[var(--sispaa-primary)]" />
+                                <span class="text-sm font-semibold text-[var(--sispaa-text)]">{{ l.nombre }}</span>
                             </div>
-                            <span class="text-sm font-bold text-indigo-600">{{ l.usos }}</span>
+                            <span class="text-sm font-bold text-[var(--sispaa-primary)]">{{ l.usos }}</span>
                         </div>
-                        <div v-if="laboratoriosMasUsados.length === 0" class="text-center text-sm text-slate-400 py-6">
+                        <div v-if="laboratoriosMasUsados.length === 0" class="text-center text-sm opacity-50 text-[var(--sispaa-text)] py-6">
                             No hay laboratorios registrados.
                         </div>
                     </div>

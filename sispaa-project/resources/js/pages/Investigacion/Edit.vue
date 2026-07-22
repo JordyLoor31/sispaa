@@ -52,17 +52,17 @@ const onSubmit = handleSubmit((values) => {
     <AppSidebarLayout :breadcrumbs="breadcrumbs">
         <Head :title="`Editar ${props.proyecto.titulo}`" />
 
-        <div class="flex h-full flex-1 flex-col gap-6 p-6 bg-slate-50/50 dark:bg-slate-900/50">
+        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[var(--sispaa-background)]">
             <div>
-                <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">Editar Proyecto</h1>
-                <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{{ props.proyecto.titulo }}</p>
+                <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-3xl">Editar Proyecto</h1>
+                <p class="mt-1 text-sm opacity-60 text-[var(--sispaa-text)]">{{ props.proyecto.titulo }}</p>
             </div>
 
-            <div class="max-w-xl mx-auto rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+            <div class="w-full max-w-xl mx-auto rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
                 <form class="space-y-5" @submit="onSubmit">
                     <FormField v-slot="{ componentField }" name="titulo">
                         <FormItem>
-                            <FormLabel>Título *</FormLabel>
+                            <FormLabel class="text-[var(--sispaa-text)]">Título *</FormLabel>
                             <FormControl>
                                 <InputGroup>
                                     <InputGroupAddon><FlaskConical class="h-4 w-4" /></InputGroupAddon>
@@ -75,7 +75,7 @@ const onSubmit = handleSubmit((values) => {
 
                     <FormField v-slot="{ componentField }" name="objetivo">
                         <FormItem>
-                            <FormLabel>Objetivo</FormLabel>
+                            <FormLabel class="text-[var(--sispaa-text)]">Objetivo</FormLabel>
                             <FormControl>
                                 <InputGroup>
                                     <InputGroupTextarea v-bind="componentField" rows="3" />
@@ -86,7 +86,7 @@ const onSubmit = handleSubmit((values) => {
                     </FormField>
 
                     <div class="flex items-center gap-2 pt-2">
-                        <Button type="submit" :disabled="processing" class="bg-indigo-600 font-semibold text-white hover:bg-indigo-500">
+                        <Button type="submit" :disabled="processing" class="font-semibold text-white bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)]">
                             {{ processing ? 'Guardando...' : 'Guardar cambios' }}
                         </Button>
                     </div>

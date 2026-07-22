@@ -28,9 +28,9 @@ export interface DocumentoRow {
 }
 
 const estadoClasses: Record<string, string> = {
-    pendiente: 'bg-amber-50 text-amber-800 dark:bg-amber-950/30 dark:text-amber-400',
-    aprobado: 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-400',
-    rechazado: 'bg-rose-50 text-rose-800 dark:bg-rose-950/30 dark:text-rose-400',
+    pendiente: 'bg-[color:color-mix(in_srgb,#E4BC57_45%,transparent)] text-[color:color-mix(in_srgb,#E4BC57_60%,black)]',
+    aprobado: 'bg-[color:color-mix(in_srgb,var(--sispaa-secondary)_30%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]',
+    rechazado: 'bg-rose-50 text-rose-800',
 };
 const estadoLabel: Record<string, string> = {
     pendiente: 'Pendiente',
@@ -47,16 +47,16 @@ export function makeExpedienteColumns(): ColumnDef<DocumentoRow>[] {
                 const d = row.original;
                 return h('div', { class: 'flex items-center gap-2.5' }, [
                     h('div', {
-                        class: 'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-indigo-50 dark:bg-indigo-950/30',
+                        class: 'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]',
                     }, [h('svg', {
                         xmlns: 'http://www.w3.org/2000/svg', viewBox: '0 0 24 24', fill: 'none',
-                        stroke: 'currentColor', 'stroke-width': '2', class: 'h-4 w-4 text-indigo-500',
+                        stroke: 'currentColor', 'stroke-width': '2', class: 'h-4 w-4 text-[var(--sispaa-primary)]',
                     }, [
                         h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', d: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' }),
                     ])]),
                     h('div', {}, [
-                        h('p', { class: 'text-sm font-semibold text-slate-800 dark:text-slate-100 leading-tight' }, d.tipo_documento),
-                        h('p', { class: 'text-xs text-slate-400 mt-0.5' }, d.created_at),
+                        h('p', { class: 'text-sm font-semibold text-[var(--sispaa-text)] leading-tight' }, d.tipo_documento),
+                        h('p', { class: 'text-xs opacity-50 text-[var(--sispaa-text)] mt-0.5' }, d.created_at),
                     ]),
                 ]);
             },
@@ -67,8 +67,8 @@ export function makeExpedienteColumns(): ColumnDef<DocumentoRow>[] {
             cell: ({ row }) => {
                 const e = row.original.estudiante;
                 return h('div', {}, [
-                    h('p', { class: 'text-sm font-semibold text-slate-800 dark:text-slate-200' }, e.name),
-                    h('p', { class: 'text-xs text-slate-400' }, e.cedula ?? e.email),
+                    h('p', { class: 'text-sm font-semibold text-[var(--sispaa-text)]' }, e.name),
+                    h('p', { class: 'text-xs opacity-50 text-[var(--sispaa-text)]' }, e.cedula ?? e.email),
                 ]);
             },
         },
@@ -76,7 +76,7 @@ export function makeExpedienteColumns(): ColumnDef<DocumentoRow>[] {
             id: 'carrera',
             header: 'Carrera',
             cell: ({ row }) =>
-                h('span', { class: 'text-xs text-slate-500 dark:text-slate-400' },
+                h('span', { class: 'text-xs opacity-60 text-[var(--sispaa-text)]' },
                     row.original.estudiante.carrera ?? '—'),
         },
         {
@@ -91,7 +91,7 @@ export function makeExpedienteColumns(): ColumnDef<DocumentoRow>[] {
                 };
                 const Icon = icons[estado] ?? Clock;
                 return h('span', {
-                    class: `inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${estadoClasses[estado] ?? 'bg-slate-100 text-slate-500'}`,
+                    class: `inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${estadoClasses[estado] ?? 'bg-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-text)_60%,transparent)]'}`,
                 }, [
                     h(Icon, { class: estado === 'pendiente' ? 'h-3.5 w-3.5 animate-pulse' : 'h-3.5 w-3.5' }),
                     estadoLabel[estado] ?? estado,
@@ -100,7 +100,7 @@ export function makeExpedienteColumns(): ColumnDef<DocumentoRow>[] {
         },
         {
             id: 'actions',
-            header: () => h('div', { class: 'text-right text-xs font-semibold text-slate-500 uppercase' }, 'Acciones'),
+            header: () => h('div', { class: 'text-right text-xs font-semibold opacity-60 text-[var(--sispaa-text)] uppercase' }, 'Acciones'),
             cell: ({ row }) => {
                 const d = row.original;
                 return h('div', { class: 'flex justify-end' }, [

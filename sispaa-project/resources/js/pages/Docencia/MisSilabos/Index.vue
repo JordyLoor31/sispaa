@@ -79,9 +79,9 @@ const submit = () => {
 
 const estadoBadge = (estado: string) => {
     const map: Record<string, string> = {
-        aprobado: 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-400',
-        subido: 'bg-amber-50 text-amber-800 dark:bg-amber-950/30 dark:text-amber-400',
-        pendiente: 'bg-slate-100 text-slate-500 dark:bg-slate-900 dark:text-slate-500',
+        aprobado: 'bg-[color:color-mix(in_srgb,var(--sispaa-secondary)_30%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]',
+        subido: 'bg-[color:color-mix(in_srgb,#E4BC57_45%,transparent)] text-[color:color-mix(in_srgb,#E4BC57_60%,black)]',
+        pendiente: 'bg-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-text)_60%,transparent)]',
     };
     return map[estado] ?? map.pendiente;
 };
@@ -91,33 +91,33 @@ const estadoBadge = (estado: string) => {
     <AppSidebarLayout :breadcrumbs="breadcrumbs">
         <Head title="Mis Sílabos" />
 
-        <div class="flex h-full flex-1 flex-col gap-6 p-6 bg-slate-50/50 dark:bg-slate-900/50">
+        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[var(--sispaa-background)]">
             <div>
-                <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">Mis Sílabos</h1>
-                <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">Mis Sílabos</h1>
+                <p class="mt-1 text-sm opacity-60 text-[var(--sispaa-text)]">
                     Sube el sílabo de cada materia que tienes asignada en el período activo.
                 </p>
             </div>
 
             <!-- Progreso de sílabos aprobados -->
-            <div v-if="totalSilabos > 0" class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+            <div v-if="totalSilabos > 0" class="rounded-2xl p-5 shadow-sm bg-[var(--sispaa-surface)]">
                 <div class="flex items-center justify-between text-xs">
-                    <span class="font-semibold text-slate-600 dark:text-slate-300">
+                    <span class="font-semibold opacity-70 text-[var(--sispaa-text)]">
                         {{ silabosAprobados }} de {{ totalSilabos }} sílabos aprobados
                     </span>
-                    <span class="font-bold text-indigo-600 dark:text-indigo-400">{{ porcentajeAvance }}%</span>
+                    <span class="font-bold text-[var(--sispaa-primary)]">{{ porcentajeAvance }}%</span>
                 </div>
                 <Progress :model-value="porcentajeAvance" class="mt-2 h-2" />
-                <p v-if="silabosFaltantes > 0" class="mt-1 text-xs text-slate-400 dark:text-slate-500">
+                <p v-if="silabosFaltantes > 0" class="mt-1 text-xs opacity-50 text-[var(--sispaa-text)]">
                     Te falta{{ silabosFaltantes === 1 ? '' : 'n' }} {{ silabosFaltantes }} sílabo{{ silabosFaltantes === 1 ? '' : 's' }} por subir o aprobar.
                 </p>
             </div>
 
-            <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
                 <div v-for="item in silabos" :key="item.materia_id + '-' + item.periodo_id"
-                    class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950 flex flex-col gap-3">
+                    class="flex flex-col gap-3 rounded-2xl p-5 shadow-sm bg-[var(--sispaa-surface)]">
                     <div class="flex items-start justify-between">
-                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 dark:bg-indigo-950/30 dark:text-indigo-400">
+                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-[var(--sispaa-primary)] bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]">
                             <BookOpen class="h-4.5 w-4.5" />
                         </div>
                         <span :class="['inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold', estadoBadge(item.estado)]">
@@ -127,63 +127,63 @@ const estadoBadge = (estado: string) => {
                         </span>
                     </div>
                     <div>
-                        <h3 class="text-sm font-bold text-slate-900 dark:text-white">{{ item.materia }}</h3>
-                        <p class="text-xs text-slate-500 mt-0.5">{{ item.carrera }} — {{ item.periodo }}<span v-if="item.grupo"> · Grupo {{ item.grupo }}</span></p>
-                        <p class="text-xs text-slate-400 mt-1">{{ item.fecha_subida ? 'Subido: ' + item.fecha_subida : 'Aún no subido' }}</p>
-                        <p v-if="item.subido_por" class="text-xs text-indigo-500 dark:text-indigo-400 mt-1">
+                        <h3 class="text-sm font-bold text-[var(--sispaa-text)]">{{ item.materia }}</h3>
+                        <p class="mt-0.5 text-xs opacity-60 text-[var(--sispaa-text)]">{{ item.carrera }} — {{ item.periodo }}<span v-if="item.grupo"> · Grupo {{ item.grupo }}</span></p>
+                        <p class="mt-1 text-xs opacity-50 text-[var(--sispaa-text)]">{{ item.fecha_subida ? 'Subido: ' + item.fecha_subida : 'Aún no subido' }}</p>
+                        <p v-if="item.subido_por" class="mt-1 text-xs text-[var(--sispaa-primary)]">
                             Subido por: {{ item.subido_por }} (otro paralelo)
                         </p>
-                        <div v-if="item.estado !== 'aprobado' && item.observaciones" class="mt-2 text-xs border-l-2 border-rose-500 pl-2 text-rose-600 dark:text-rose-400 font-medium">
+                        <div v-if="item.estado !== 'aprobado' && item.observaciones" class="mt-2 border-l-2 border-rose-500 pl-2 text-xs font-medium text-rose-600">
                             Observación: {{ item.observaciones }}
                         </div>
                     </div>
-                    <div class="flex items-center gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                    <div class="flex items-center gap-2 border-t pt-2 border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
                         <a v-if="item.ver_url" :href="item.ver_url" target="_blank"
-                            class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-500 dark:border-slate-800 dark:text-slate-400 dark:hover:bg-slate-900">
+                            class="inline-flex h-9 w-9 items-center justify-center rounded-lg opacity-70 text-[var(--sispaa-text)] hover:opacity-100 border border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
                             <ArrowUpRight class="h-4 w-4" />
                         </a>
                         <button v-if="item.estado !== 'aprobado'" @click="openUpload(item)"
-                            class="inline-flex h-9 items-center justify-center rounded-lg bg-indigo-600 px-4 text-xs font-semibold text-white hover:bg-indigo-500 transition-colors">
+                            class="inline-flex h-9 items-center justify-center rounded-lg px-4 text-xs font-semibold text-white transition-colors bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)]">
                             {{ item.archivo_url ? 'Reemplazar' : 'Subir sílabo' }}
                         </button>
                     </div>
                 </div>
 
-                <div v-if="silabos.length === 0" class="col-span-full rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 p-10 text-center text-sm text-slate-400">
+                <div v-if="silabos.length === 0" class="col-span-full rounded-2xl border border-dashed p-10 text-center text-sm opacity-50 border-[color:color-mix(in_srgb,var(--sispaa-text)_25%,transparent)] text-[var(--sispaa-text)]">
                     No tienes materias asignadas en el período activo.
                 </div>
             </div>
         </div>
 
         <!-- Modal de carga -->
-        <div v-if="activeItem" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-            <div class="w-full max-w-lg rounded-2xl bg-white dark:bg-slate-950 p-6 shadow-xl border border-slate-100 dark:border-slate-900">
-                <div class="flex items-center justify-between border-b border-slate-100 pb-4 dark:border-slate-800/80">
-                    <h3 class="text-lg font-bold text-slate-900 dark:text-white">Subir sílabo — {{ activeItem.materia }}</h3>
-                    <button @click="closeUpload" class="rounded-lg p-1 hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-400">
+        <div v-if="activeItem" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+            <div class="w-full max-w-lg rounded-2xl p-6 shadow-xl bg-[var(--sispaa-background)]">
+                <div class="flex items-center justify-between border-b pb-4 border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
+                    <h3 class="text-lg font-bold text-[var(--sispaa-text)]">Subir sílabo — {{ activeItem.materia }}</h3>
+                    <button @click="closeUpload" class="rounded-lg p-1 opacity-50 hover:opacity-100 hover:bg-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]">
                         <X class="h-5 w-5" />
                     </button>
                 </div>
 
                 <form @submit.prevent="submit" class="mt-6 space-y-4">
-                    <label class="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 hover:border-indigo-400 dark:border-slate-800 p-8 text-center cursor-pointer transition-colors">
+                    <label class="flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 text-center transition-colors border-[color:color-mix(in_srgb,var(--sispaa-text)_20%,transparent)] hover:border-[color:color-mix(in_srgb,var(--sispaa-primary)_50%,transparent)]">
                         <input type="file" class="hidden" accept=".pdf,.doc,.docx" @change="onFileSelect" />
-                        <UploadCloud class="h-10 w-10 text-indigo-500 mb-2" />
-                        <p class="text-sm font-semibold text-slate-700 dark:text-slate-300">Haz clic para seleccionar el archivo</p>
-                        <p class="text-xs text-slate-400 mt-1">PDF, DOC o DOCX — máximo 10MB</p>
+                        <UploadCloud class="h-10 w-10 mb-2 text-[var(--sispaa-primary)]" />
+                        <p class="text-sm font-semibold text-[var(--sispaa-text)]">Haz clic para seleccionar el archivo</p>
+                        <p class="mt-1 text-xs opacity-50 text-[var(--sispaa-text)]">PDF, DOC o DOCX — máximo 10MB</p>
                     </label>
 
-                    <div v-if="form.archivo" class="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 text-xs">
-                        <span class="font-semibold text-slate-700 dark:text-slate-300 truncate">{{ form.archivo.name }}</span>
-                        <span class="text-slate-400">{{ (form.archivo.size / 1024 / 1024).toFixed(2) }} MB</span>
+                    <div v-if="form.archivo" class="flex items-center justify-between rounded-lg p-3 text-xs bg-[color:color-mix(in_srgb,var(--sispaa-text)_6%,transparent)]">
+                        <span class="truncate font-semibold text-[var(--sispaa-text)]">{{ form.archivo.name }}</span>
+                        <span class="opacity-50 text-[var(--sispaa-text)]">{{ (form.archivo.size / 1024 / 1024).toFixed(2) }} MB</span>
                     </div>
                     <p v-if="form.errors.archivo" class="text-xs text-rose-500">{{ form.errors.archivo }}</p>
 
-                    <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800/80">
-                        <button type="button" @click="closeUpload" class="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900">
+                    <div class="flex items-center justify-end gap-3 border-t pt-4 border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
+                        <button type="button" @click="closeUpload" class="rounded-lg px-4 py-2 text-sm font-semibold text-[var(--sispaa-text)] opacity-70 hover:opacity-100 border border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
                             Cancelar
                         </button>
-                        <button type="submit" :disabled="form.processing || !form.archivo" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-50">
+                        <button type="submit" :disabled="form.processing || !form.archivo" class="rounded-lg px-4 py-2 text-sm font-semibold text-white disabled:opacity-50 bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)]">
                             {{ form.processing ? 'Subiendo...' : 'Confirmar' }}
                         </button>
                     </div>

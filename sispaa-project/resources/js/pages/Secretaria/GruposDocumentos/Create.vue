@@ -70,15 +70,15 @@ const onSubmit = handleSubmit((values) => {
     <AppSidebarLayout :breadcrumbs="breadcrumbs">
         <Head title="Nuevo Grupo de Documentos" />
 
-        <div class="flex h-full flex-1 flex-col gap-6 p-6 bg-slate-50/50 dark:bg-slate-900/50">
+        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[var(--sispaa-background)]">
             <div>
-                <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">Nuevo Grupo de Documentos</h1>
-                <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">Nuevo Grupo de Documentos</h1>
+                <p class="mt-1 text-sm opacity-60 text-[var(--sispaa-text)]">
                     Todos los estudiantes activos serán notificados al crearlo.
                 </p>
             </div>
 
-            <div class="max-w-xl mx-auto rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+            <div class="max-w-xl w-full mx-auto rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
                 <form class="space-y-5" @submit="onSubmit">
                     <FormField v-slot="{ componentField }" name="nombre">
                         <FormItem>
@@ -106,7 +106,7 @@ const onSubmit = handleSubmit((values) => {
                     </FormField>
 
                     <div>
-                        <label class="mb-1.5 block text-sm font-semibold text-slate-700 dark:text-slate-300">Requisitos *</label>
+                        <label class="mb-1.5 block text-sm font-semibold text-[var(--sispaa-text)]">Requisitos *</label>
                         <div class="space-y-2">
                             <div v-for="(_, index) in requisitosDraft" :key="index" class="flex items-center gap-2">
                                 <InputGroup>
@@ -116,20 +116,20 @@ const onSubmit = handleSubmit((values) => {
                                 <button
                                     v-if="requisitosDraft.length > 1"
                                     type="button"
-                                    class="shrink-0 rounded-lg p-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900"
+                                    class="shrink-0 rounded-lg p-2 opacity-50 text-[var(--sispaa-text)] hover:opacity-100 hover:bg-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]"
                                     @click="removeRequisitoField(index)"
                                 >
                                     <X class="h-4 w-4" />
                                 </button>
                             </div>
                         </div>
-                        <button type="button" class="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:text-indigo-500" @click="addRequisitoField">
+                        <button type="button" class="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-[var(--sispaa-primary)] hover:opacity-80" @click="addRequisitoField">
                             <Plus class="h-3.5 w-3.5" /> Agregar otro requisito
                         </button>
                     </div>
 
                     <div class="flex items-center gap-2 pt-2">
-                        <Button type="submit" :disabled="processing" class="bg-indigo-600 font-semibold text-white hover:bg-indigo-500">
+                        <Button type="submit" :disabled="processing" class="font-semibold text-white bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)]">
                             {{ processing ? 'Creando...' : 'Crear grupo' }}
                         </Button>
                     </div>

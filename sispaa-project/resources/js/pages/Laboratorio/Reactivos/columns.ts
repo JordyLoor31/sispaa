@@ -7,9 +7,9 @@ import type { ReactivoItem } from './types';
 
 const estadoBadge = (estado: string) => {
     const map: Record<string, string> = {
-        disponible: 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-400',
-        agotado: 'bg-amber-50 text-amber-800 dark:bg-amber-950/30 dark:text-amber-400',
-        vencido: 'bg-rose-50 text-rose-600 dark:bg-rose-950/20 dark:text-rose-400',
+        disponible: 'bg-[color:color-mix(in_srgb,var(--sispaa-secondary)_30%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]',
+        agotado: 'bg-[color:color-mix(in_srgb,#E4BC57_45%,transparent)] text-[color:color-mix(in_srgb,#E4BC57_60%,black)]',
+        vencido: 'bg-rose-50 text-rose-600',
     };
     return map[estado] ?? map.disponible;
 };
@@ -24,8 +24,8 @@ export function makeReactivoColumns({ onChangeEstado }: ReactivoColumnsOptions):
             id: 'nombre',
             meta: { label: 'Reactivo' },
             header: 'Reactivo',
-            cell: ({ row }) => h('div', { class: 'flex items-center gap-2 font-semibold text-slate-900 dark:text-white' }, [
-                h(FlaskConical, { class: 'h-4 w-4 text-indigo-500' }),
+            cell: ({ row }) => h('div', { class: 'flex items-center gap-2 font-semibold text-[var(--sispaa-text)]' }, [
+                h(FlaskConical, { class: 'h-4 w-4 text-[var(--sispaa-primary)]' }),
                 row.original.nombre,
             ]),
         },
@@ -33,19 +33,19 @@ export function makeReactivoColumns({ onChangeEstado }: ReactivoColumnsOptions):
             accessorKey: 'formula',
             meta: { label: 'Fórmula' },
             header: 'Fórmula',
-            cell: ({ row }) => h('span', { class: 'text-slate-500' }, row.original.formula ?? '—'),
+            cell: ({ row }) => h('span', { class: 'opacity-70 text-[var(--sispaa-text)]' }, row.original.formula ?? '—'),
         },
         {
             accessorKey: 'laboratorio',
             meta: { label: 'Laboratorio' },
             header: 'Laboratorio',
-            cell: ({ row }) => h('span', { class: 'text-slate-500' }, row.original.laboratorio),
+            cell: ({ row }) => h('span', { class: 'opacity-70 text-[var(--sispaa-text)]' }, row.original.laboratorio),
         },
         {
             id: 'cantidad',
             meta: { label: 'Cantidad' },
             header: 'Cantidad',
-            cell: ({ row }) => h('span', { class: 'text-slate-500' }, `${row.original.cantidad}${row.original.unidad ? ' ' + row.original.unidad : ''}`),
+            cell: ({ row }) => h('span', { class: 'opacity-70 text-[var(--sispaa-text)]' }, `${row.original.cantidad}${row.original.unidad ? ' ' + row.original.unidad : ''}`),
         },
         {
             accessorKey: 'estado',

@@ -43,35 +43,35 @@ const submit = () => {
     <AppSidebarLayout :breadcrumbs="breadcrumbs">
         <Head :title="`Asistencia — ${practica.tema}`" />
 
-        <div class="flex h-full flex-1 flex-col gap-6 p-6 bg-slate-50/50 dark:bg-slate-900/50">
+        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[var(--sispaa-background)]">
             <div>
-                <Link :href="route('laboratorio.practicas')" class="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-indigo-600 font-semibold mb-2">
+                <Link :href="route('laboratorio.practicas')" class="inline-flex items-center gap-1 text-xs opacity-70 text-[var(--sispaa-text)] hover:opacity-100 hover:text-[var(--sispaa-primary)] font-semibold mb-2">
                     <ArrowLeft class="h-3.5 w-3.5" /> Volver a prácticas
                 </Link>
-                <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">{{ practica.tema }}</h1>
-                <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{{ practica.materia }} · {{ practica.carrera }}<span v-if="practica.fecha"> · {{ practica.fecha }}</span></p>
+                <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">{{ practica.tema }}</h1>
+                <p class="mt-1 text-sm opacity-60 text-[var(--sispaa-text)]">{{ practica.materia }} · {{ practica.carrera }}<span v-if="practica.fecha"> · {{ practica.fecha }}</span></p>
             </div>
 
-            <div class="rounded-2xl border border-slate-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                <div class="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800">
-                    <h2 class="text-sm font-bold text-slate-900 dark:text-white">Roster ({{ roster.length }} estudiantes)</h2>
-                    <div class="flex gap-2">
-                        <button @click="marcarTodos(true)" class="text-xs font-semibold text-emerald-600 hover:text-emerald-500">Marcar todos presentes</button>
+            <div class="rounded-2xl shadow-sm bg-[var(--sispaa-surface)]">
+                <div class="flex flex-col gap-2 p-4 border-b border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)] sm:flex-row sm:items-center sm:justify-between">
+                    <h2 class="text-sm font-bold text-[var(--sispaa-text)]">Roster ({{ roster.length }} estudiantes)</h2>
+                    <div class="flex flex-wrap gap-2">
+                        <button @click="marcarTodos(true)" class="text-xs font-semibold text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)] hover:opacity-80">Marcar todos presentes</button>
                         <button @click="marcarTodos(false)" class="text-xs font-semibold text-rose-500 hover:text-rose-600">Marcar todos ausentes</button>
                     </div>
                 </div>
 
-                <div class="divide-y divide-slate-100 dark:divide-slate-800">
+                <div class="divide-y divide-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]">
                     <div v-for="(a, index) in form.asistencias" :key="a.estudiante_id" class="flex items-center justify-between px-4 py-3">
-                        <span class="text-sm text-slate-700 dark:text-slate-300">{{ roster[index]?.name }}</span>
+                        <span class="text-sm text-[var(--sispaa-text)]">{{ roster[index]?.name }}</span>
                         <button
                             type="button"
                             @click="toggle(index)"
                             :class="[
                                 'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition-colors',
                                 a.asistio
-                                    ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400'
-                                    : 'bg-rose-50 text-rose-600 dark:bg-rose-950/20 dark:text-rose-400',
+                                    ? 'bg-[color:color-mix(in_srgb,var(--sispaa-secondary)_30%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]'
+                                    : 'bg-rose-50 text-rose-600',
                             ]"
                         >
                             <Check v-if="a.asistio" class="h-3.5 w-3.5" />
@@ -80,14 +80,14 @@ const submit = () => {
                         </button>
                     </div>
 
-                    <div v-if="roster.length === 0" class="px-4 py-10 text-center text-sm text-slate-400">
+                    <div v-if="roster.length === 0" class="px-4 py-10 text-center text-sm opacity-50 text-[var(--sispaa-text)]">
                         No hay estudiantes matriculados en esta carrera para el período de la práctica.
                     </div>
                 </div>
             </div>
 
             <div class="flex justify-end">
-                <Button @click="submit" :disabled="form.processing || roster.length === 0" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold">
+                <Button @click="submit" :disabled="form.processing || roster.length === 0" class="bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)] text-white font-semibold">
                     {{ form.processing ? 'Guardando...' : 'Guardar asistencia' }}
                 </Button>
             </div>

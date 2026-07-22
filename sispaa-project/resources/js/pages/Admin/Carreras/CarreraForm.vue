@@ -101,7 +101,7 @@ const onSubmit = handleSubmit((values) => {
 </script>
 
 <template>
-    <form class="max-w-xl space-y-6" @submit="onSubmit">
+    <form class="w-full max-w-xl space-y-6" @submit="onSubmit">
         <FormField v-slot="{ componentField }" name="nombre">
             <FormItem>
                 <FormLabel>Nombre de Carrera *</FormLabel>
@@ -143,28 +143,28 @@ const onSubmit = handleSubmit((values) => {
                         </ComboboxTrigger>
                     </ComboboxAnchor>
 
-                    <ComboboxList class="w-[var(--reka-combobox-trigger-width)] min-w-[250px] rounded-lg border border-slate-100 bg-white shadow-lg dark:border-slate-900 dark:bg-slate-950">
-                        <ComboboxInput placeholder="Buscar tutor..." class="w-full border-0 border-b border-slate-105 bg-transparent px-3 py-2.5 text-sm focus:ring-0 dark:border-slate-850" />
-                        <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron coordinadores.</ComboboxEmpty>
+                    <ComboboxList class="w-[var(--reka-combobox-trigger-width)] min-w-[250px] rounded-lg border shadow-lg bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]">
+                        <ComboboxInput placeholder="Buscar tutor..." class="w-full border-0 border-b bg-transparent px-3 py-2.5 text-sm text-[var(--sispaa-text)] focus:ring-0 border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]" />
+                        <ComboboxEmpty class="py-2 text-center text-xs opacity-60 text-[var(--sispaa-text)]">No se encontraron coordinadores.</ComboboxEmpty>
                         <ComboboxGroup class="max-h-60 overflow-y-auto p-1">
                             <ComboboxItem
                                 :value="{ value: '', label: 'Sin asignar' }"
-                                class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800"
+                                class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm text-[var(--sispaa-text)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-text)_6%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]"
                             >
                                 Sin asignar
                                 <ComboboxItemIndicator>
-                                    <Check class="h-4 w-4 text-indigo-650" />
+                                    <Check class="h-4 w-4 text-[var(--sispaa-primary)]" />
                                 </ComboboxItemIndicator>
                             </ComboboxItem>
                             <ComboboxItem
                                 v-for="c in coordinadores"
                                 :key="c.id"
                                 :value="{ value: c.id, label: c.name }"
-                                class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800"
+                                class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm text-[var(--sispaa-text)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-text)_6%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]"
                             >
                                 {{ c.name }}
                                 <ComboboxItemIndicator>
-                                    <Check class="h-4 w-4 text-indigo-650" />
+                                    <Check class="h-4 w-4 text-[var(--sispaa-primary)]" />
                                 </ComboboxItemIndicator>
                             </ComboboxItem>
                         </ComboboxGroup>
@@ -184,14 +184,14 @@ const onSubmit = handleSubmit((values) => {
                             :key="swatch"
                             type="button"
                             class="h-7 w-7 rounded-full border-2 transition-transform"
-                            :class="colorField === swatch ? 'border-slate-900 dark:border-white scale-110' : 'border-transparent hover:scale-105'"
+                            :class="colorField === swatch ? 'scale-110 border-[var(--sispaa-text)]' : 'border-transparent hover:scale-105'"
                             :style="{ backgroundColor: swatch }"
                             :aria-label="`Color ${swatch}`"
                             @click="colorField = swatch"
                         />
-                        <label class="ml-1 flex items-center gap-2 rounded-lg border border-slate-200 px-2 py-1 dark:border-slate-800">
+                        <label class="ml-1 flex items-center gap-2 rounded-lg border px-2 py-1 border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
                             <input type="color" v-model="colorField" class="h-6 w-8 cursor-pointer border-0 bg-transparent p-0" />
-                            <span class="text-xs font-mono text-slate-500 dark:text-slate-400">{{ colorField }}</span>
+                            <span class="text-xs font-mono opacity-60 text-[var(--sispaa-text)]">{{ colorField }}</span>
                         </label>
                     </div>
                 </FormControl>
@@ -199,13 +199,13 @@ const onSubmit = handleSubmit((values) => {
             </FormItem>
         </FormField>
 
-        <div class="flex items-center justify-between border-t border-slate-100 pt-4 dark:border-slate-850">
+        <div class="flex flex-col-reverse gap-3 border-t pt-4 sm:flex-row sm:items-center sm:justify-between border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]">
             <Button as-child variant="outline" type="button">
                 <Link :href="route('admin.carreras.index')">
                     <ArrowLeft class="mr-1.5 h-4 w-4" /> Volver
                 </Link>
             </Button>
-            <Button type="submit" :disabled="processing" class="bg-indigo-600 text-white hover:bg-indigo-500">
+            <Button type="submit" :disabled="processing" class="text-white bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)]">
                 {{ carrera ? 'Guardar Cambios' : 'Crear Carrera' }}
             </Button>
         </div>

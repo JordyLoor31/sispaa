@@ -111,7 +111,7 @@ const onSubmit = handleSubmit((values) => {
 </script>
 
 <template>
-    <form class="max-w-xl space-y-6" @submit="onSubmit">
+    <form class="w-full max-w-xl space-y-6" @submit="onSubmit">
         <FormField v-slot="{ componentField }" name="nombre">
             <FormItem>
                 <FormLabel>Nombre del Periodo * (Ej: 2026-1)</FormLabel>
@@ -130,7 +130,7 @@ const onSubmit = handleSubmit((values) => {
                 <FormItem>
                     <FormLabel>Fecha Inicio *</FormLabel>
                     <FormControl>
-                        <input v-model="fechaInicio" type="date" class="flex h-9 w-full rounded-md border border-slate-200 bg-transparent px-3 py-1 text-sm shadow-sm focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 dark:border-slate-850 dark:bg-slate-950 dark:text-slate-350" />
+                        <input v-model="fechaInicio" type="date" class="flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-sm bg-[var(--sispaa-background)] text-[var(--sispaa-text)] border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)] focus:ring-1 focus:ring-[color:var(--sispaa-primary)] focus:border-[color:var(--sispaa-primary)]" />
                     </FormControl>
                     <FormMessage />
                 </FormItem>
@@ -139,7 +139,7 @@ const onSubmit = handleSubmit((values) => {
                 <FormItem>
                     <FormLabel>Fecha Fin *</FormLabel>
                     <FormControl>
-                        <input v-model="fechaFin" type="date" class="flex h-9 w-full rounded-md border border-slate-200 bg-transparent px-3 py-1 text-sm shadow-sm focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 dark:border-slate-850 dark:bg-slate-950 dark:text-slate-350" />
+                        <input v-model="fechaFin" type="date" class="flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-sm bg-[var(--sispaa-background)] text-[var(--sispaa-text)] border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)] focus:ring-1 focus:ring-[color:var(--sispaa-primary)] focus:border-[color:var(--sispaa-primary)]" />
                     </FormControl>
                     <FormMessage />
                 </FormItem>
@@ -161,16 +161,16 @@ const onSubmit = handleSubmit((values) => {
                         </ComboboxTrigger>
                     </ComboboxAnchor>
 
-                    <ComboboxList class="w-[var(--reka-combobox-trigger-width)] min-w-[200px] rounded-lg border border-slate-100 bg-white shadow-lg dark:border-slate-900 dark:bg-slate-950">
-                        <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron tipos.</ComboboxEmpty>
+                    <ComboboxList class="w-[var(--reka-combobox-trigger-width)] min-w-[200px] rounded-lg border shadow-lg bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]">
+                        <ComboboxEmpty class="py-2 text-center text-xs opacity-60 text-[var(--sispaa-text)]">No se encontraron tipos.</ComboboxEmpty>
                         <ComboboxGroup class="p-1">
-                            <ComboboxItem :value="{ value: 'semestral', label: 'Semestral' }" class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800">
+                            <ComboboxItem :value="{ value: 'semestral', label: 'Semestral' }" class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm text-[var(--sispaa-text)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-text)_6%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]">
                                 Semestral
-                                <ComboboxItemIndicator><Check class="h-4 w-4 text-indigo-650" /></ComboboxItemIndicator>
+                                <ComboboxItemIndicator><Check class="h-4 w-4 text-[var(--sispaa-primary)]" /></ComboboxItemIndicator>
                             </ComboboxItem>
-                            <ComboboxItem :value="{ value: 'anual', label: 'Anual' }" class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800">
+                            <ComboboxItem :value="{ value: 'anual', label: 'Anual' }" class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm text-[var(--sispaa-text)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-text)_6%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]">
                                 Anual
-                                <ComboboxItemIndicator><Check class="h-4 w-4 text-indigo-650" /></ComboboxItemIndicator>
+                                <ComboboxItemIndicator><Check class="h-4 w-4 text-[var(--sispaa-primary)]" /></ComboboxItemIndicator>
                             </ComboboxItem>
                         </ComboboxGroup>
                     </ComboboxList>
@@ -194,34 +194,34 @@ const onSubmit = handleSubmit((values) => {
                         </ComboboxTrigger>
                     </ComboboxAnchor>
 
-                    <ComboboxList class="w-[var(--reka-combobox-trigger-width)] min-w-[200px] rounded-lg border border-slate-100 bg-white shadow-lg dark:border-slate-900 dark:bg-slate-950">
-                        <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron estados.</ComboboxEmpty>
+                    <ComboboxList class="w-[var(--reka-combobox-trigger-width)] min-w-[200px] rounded-lg border shadow-lg bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]">
+                        <ComboboxEmpty class="py-2 text-center text-xs opacity-60 text-[var(--sispaa-text)]">No se encontraron estados.</ComboboxEmpty>
                         <ComboboxGroup class="p-1">
                             <ComboboxItem
                                 v-for="opt in (['planificado', 'activo', 'finalizado'] as EstadoPeriodo[])"
                                 :key="opt"
                                 :value="{ value: opt, label: ESTADO_LABELS[opt] }"
-                                class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate-50 data-[state=checked]:bg-slate-100 dark:hover:bg-slate-900 dark:data-[state=checked]:bg-slate-800"
+                                class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm text-[var(--sispaa-text)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-text)_6%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]"
                             >
                                 {{ ESTADO_LABELS[opt] }}
-                                <ComboboxItemIndicator><Check class="h-4 w-4 text-indigo-650" /></ComboboxItemIndicator>
+                                <ComboboxItemIndicator><Check class="h-4 w-4 text-[var(--sispaa-primary)]" /></ComboboxItemIndicator>
                             </ComboboxItem>
                         </ComboboxGroup>
                     </ComboboxList>
                 </Combobox>
-                <p class="mt-1 text-[11px] text-slate-400">
+                <p class="mt-1 text-[11px] opacity-60 text-[var(--sispaa-text)]">
                     Al activar este periodo, cualquier otro periodo activo pasará automáticamente a Finalizado.
                 </p>
                 <FormMessage v-if="errorMessage" />
             </FormItem>
         </FormField>
 
-        <div class="grid grid-cols-2 gap-4 border-t border-slate-100 pt-4 dark:border-slate-850">
+        <div class="grid grid-cols-1 gap-4 border-t pt-4 sm:grid-cols-2 border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]">
             <FormField name="fecha_limite_silabo">
                 <FormItem>
                     <FormLabel class="flex items-center gap-1.5"><Clock class="h-3.5 w-3.5" /> Fecha Límite Sílabos</FormLabel>
                     <FormControl>
-                        <input v-model="fechaLimiteSilabo" type="date" class="flex h-9 w-full rounded-md border border-slate-200 bg-transparent px-3 py-1 text-sm shadow-sm focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 dark:border-slate-850 dark:bg-slate-950 dark:text-slate-350" />
+                        <input v-model="fechaLimiteSilabo" type="date" class="flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-sm bg-[var(--sispaa-background)] text-[var(--sispaa-text)] border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)] focus:ring-1 focus:ring-[color:var(--sispaa-primary)] focus:border-[color:var(--sispaa-primary)]" />
                     </FormControl>
                     <FormMessage />
                 </FormItem>
@@ -230,20 +230,20 @@ const onSubmit = handleSubmit((values) => {
                 <FormItem>
                     <FormLabel class="flex items-center gap-1.5"><Clock class="h-3.5 w-3.5" /> Fecha Límite Informes</FormLabel>
                     <FormControl>
-                        <input v-model="fechaLimiteInforme" type="date" class="flex h-9 w-full rounded-md border border-slate-200 bg-transparent px-3 py-1 text-sm shadow-sm focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 dark:border-slate-850 dark:bg-slate-950 dark:text-slate-350" />
+                        <input v-model="fechaLimiteInforme" type="date" class="flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-sm bg-[var(--sispaa-background)] text-[var(--sispaa-text)] border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)] focus:ring-1 focus:ring-[color:var(--sispaa-primary)] focus:border-[color:var(--sispaa-primary)]" />
                     </FormControl>
                     <FormMessage />
                 </FormItem>
             </FormField>
         </div>
 
-        <div class="flex items-center justify-between border-t border-slate-100 pt-4 dark:border-slate-850">
+        <div class="flex flex-col-reverse gap-3 border-t pt-4 sm:flex-row sm:items-center sm:justify-between border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]">
             <Button as-child variant="outline" type="button">
                 <Link :href="route('admin.periodos.index')">
                     <ArrowLeft class="mr-1.5 h-4 w-4" /> Volver
                 </Link>
             </Button>
-            <Button type="submit" :disabled="processing" class="bg-indigo-600 text-white hover:bg-indigo-500">
+            <Button type="submit" :disabled="processing" class="text-white bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)]">
                 {{ periodo ? 'Guardar Cambios' : 'Crear Periodo' }}
             </Button>
         </div>
