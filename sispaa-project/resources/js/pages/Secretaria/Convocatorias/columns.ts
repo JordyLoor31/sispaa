@@ -5,7 +5,7 @@ import type { Convocatoria } from './types';
 
 const estadoBadge = (activa: boolean) =>
     activa
-        ? 'bg-[color:color-mix(in_srgb,var(--sispaa-secondary)_30%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]'
+        ? 'bg-[color:color-mix(in_srgb,var(--sispaa-secondary)_30%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-secondary)_55%,var(--sispaa-text))]'
         : 'bg-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-text)_60%,transparent)]';
 
 export function makeConvocatoriaColumns(): ColumnDef<Convocatoria>[] {

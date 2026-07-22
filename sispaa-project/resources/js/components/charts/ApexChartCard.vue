@@ -96,11 +96,11 @@ const descargar = async (formato: 'png' | 'jpg' | 'pdf') => {
 </script>
 
 <template>
-    <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+    <div class="rounded-2xl border p-5 shadow-sm bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]">
         <div class="mb-4 flex items-start justify-between gap-3">
             <div>
-                <h3 class="text-sm font-bold text-slate-900 dark:text-white">{{ title }}</h3>
-                <p v-if="subtitle" class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{{ subtitle }}</p>
+                <h3 class="text-sm font-bold text-[var(--sispaa-text)]">{{ title }}</h3>
+                <p v-if="subtitle" class="mt-0.5 text-xs opacity-60 text-[var(--sispaa-text)]">{{ subtitle }}</p>
             </div>
             <DropdownMenu>
                 <DropdownMenuTrigger as-child>
@@ -117,8 +117,8 @@ const descargar = async (formato: 'png' | 'jpg' | 'pdf') => {
         </div>
 
         <div v-if="empty" class="flex flex-col items-center justify-center py-16 text-center">
-            <BarChart3 class="h-10 w-10 text-slate-300 dark:text-slate-700 mb-2" />
-            <p class="text-sm text-slate-400">No hay datos suficientes para graficar.</p>
+            <BarChart3 class="mb-2 h-10 w-10 opacity-30 text-[var(--sispaa-text)]" />
+            <p class="text-sm opacity-50 text-[var(--sispaa-text)]">No hay datos suficientes para graficar.</p>
         </div>
         <ApexChart v-else :type="type" :series="series" :options="mergedOptions" :height="height" />
     </div>

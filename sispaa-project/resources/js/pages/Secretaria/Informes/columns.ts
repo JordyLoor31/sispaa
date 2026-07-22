@@ -4,13 +4,16 @@ import { Link } from '@inertiajs/vue3';
 import { FileText, MoreHorizontal, Eye, ArrowUpRight } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { STATUS_COLORS, neutralBadgeStyle, tintedBadgeStyle } from '@/lib/brand';
 import type { InformeItem } from './types';
 
+// Estilos inline theme-aware (ver @/lib/brand): antes mezclaban con negro
+// fijo y en tema oscuro quedaban ilegibles.
 const estadoBadge = (estado: string) => {
     const map: Record<string, string> = {
-        aprobado: 'bg-[color:color-mix(in_srgb,var(--sispaa-secondary)_30%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]',
-        subido: 'bg-[color:color-mix(in_srgb,#E4BC57_45%,transparent)] text-[color:color-mix(in_srgb,#E4BC57_60%,black)]',
-        pendiente: 'bg-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-text)_60%,transparent)]',
+        aprobado: tintedBadgeStyle(STATUS_COLORS.exito),
+        subido: tintedBadgeStyle(STATUS_COLORS.advertencia),
+        pendiente: neutralBadgeStyle(),
     };
     return map[estado] ?? map.pendiente;
 };
@@ -58,7 +61,7 @@ export function makeInformeColumns(): ColumnDef<InformeItem>[] {
                 const estado = row.original.estado;
                 return h(
                     'span',
-                    { class: `inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${estadoBadge(estado)}` },
+                    { class: 'inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold', style: estadoBadge(estado) },
                     estado.charAt(0).toUpperCase() + estado.slice(1),
                 );
             },

@@ -2,6 +2,7 @@ import type { ColumnDef } from '@tanstack/vue-table';
 import { h } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import { CheckCircle2, XCircle, Clock, FileText, Calendar, BookOpen, Eye } from 'lucide-vue-next';
+import { STATUS_COLORS, neutralBadgeStyle, tintedBadgeStyle } from '@/lib/brand';
 
 export interface Estudiante {
     id: number;
@@ -26,10 +27,12 @@ export interface JustificacionRow {
     estudiante: Estudiante;
 }
 
-const estadoClasses: Record<string, string> = {
-    pendiente: 'bg-[color:color-mix(in_srgb,#E4BC57_45%,transparent)] text-[color:color-mix(in_srgb,#E4BC57_60%,black)]',
-    aprobada: 'bg-[color:color-mix(in_srgb,var(--sispaa-secondary)_30%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]',
-    rechazada: 'bg-rose-50 text-rose-800',
+// Estilos inline theme-aware (ver @/lib/brand): antes mezclaban con negro
+// fijo o usaban rose-50 claro, ilegibles en tema oscuro.
+const estadoStyles: Record<string, string> = {
+    pendiente: tintedBadgeStyle(STATUS_COLORS.advertencia),
+    aprobada: tintedBadgeStyle(STATUS_COLORS.exito),
+    rechazada: tintedBadgeStyle(STATUS_COLORS.peligro),
 };
 
 export function makeJustificacionColumns(): ColumnDef<JustificacionRow>[] {
@@ -87,7 +90,8 @@ export function makeJustificacionColumns(): ColumnDef<JustificacionRow>[] {
                 const Icon = icons[estado] ?? Clock;
                 const label = estado.charAt(0).toUpperCase() + estado.slice(1);
                 return h('span', {
-                    class: `inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${estadoClasses[estado] ?? 'bg-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-text)_60%,transparent)]'}`,
+                    class: 'inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold',
+                    style: estadoStyles[estado] ?? neutralBadgeStyle(),
                 }, [
                     h(Icon, { class: estado === 'pendiente' ? 'h-3.5 w-3.5 animate-pulse' : 'h-3.5 w-3.5' }),
                     label,

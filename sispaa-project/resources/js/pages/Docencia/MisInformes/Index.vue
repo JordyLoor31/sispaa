@@ -5,6 +5,7 @@ import { type BreadcrumbItemType } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import { FileText, CheckCircle2, Clock, UploadCloud, X, ArrowUpRight } from 'lucide-vue-next';
+import { BRAND_GRADIENT, STATUS_COLORS, neutralBadgeStyle, tintedBadgeStyle } from '@/lib/brand';
 import { toast } from 'vue-sonner';
 
 interface InformeItem {
@@ -76,11 +77,13 @@ const submit = () => {
     });
 };
 
+// Estilos inline theme-aware (ver @/lib/brand): antes mezclaban con negro
+// fijo y en tema oscuro quedaban ilegibles.
 const estadoBadge = (estado: string) => {
     const map: Record<string, string> = {
-        aprobado: 'bg-[color:color-mix(in_srgb,var(--sispaa-secondary)_30%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]',
-        subido: 'bg-[color:color-mix(in_srgb,#E4BC57_45%,transparent)] text-[color:color-mix(in_srgb,#E4BC57_60%,black)]',
-        pendiente: 'bg-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-text)_60%,transparent)]',
+        aprobado: tintedBadgeStyle(STATUS_COLORS.exito),
+        subido: tintedBadgeStyle(STATUS_COLORS.advertencia),
+        pendiente: neutralBadgeStyle(),
     };
     return map[estado] ?? map.pendiente;
 };
@@ -90,16 +93,21 @@ const estadoBadge = (estado: string) => {
     <AppSidebarLayout :breadcrumbs="breadcrumbs">
         <Head title="Mis Informes de Asignatura" />
 
-        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[var(--sispaa-background)]">
-            <div>
-                <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">Mis Informes de Asignatura</h1>
-                <p class="mt-1 text-sm opacity-60 text-[var(--sispaa-text)]">
-                    Sube el informe de cada materia que tienes asignada en el período activo.
-                </p>
+        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[color:color-mix(in_srgb,var(--sispaa-surface)_30%,var(--sispaa-background))]">
+            <div class="flex items-center gap-3.5">
+                <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white shadow-sm" :style="BRAND_GRADIENT">
+                    <FileText class="h-5 w-5" />
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">Mis Informes de Asignatura</h1>
+                    <p class="mt-0.5 text-sm opacity-60 text-[var(--sispaa-text)]">
+                        Sube el informe de cada materia que tienes asignada en el período activo.
+                    </p>
+                </div>
             </div>
 
             <!-- Progreso de informes aprobados -->
-            <div v-if="totalInformes > 0" class="rounded-2xl p-5 shadow-sm bg-[var(--sispaa-surface)]">
+            <div v-if="totalInformes > 0" class="rounded-2xl border p-5 shadow-sm bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]">
                 <div class="flex items-center justify-between text-xs">
                     <span class="font-semibold opacity-70 text-[var(--sispaa-text)]">
                         {{ informesAprobados }} de {{ totalInformes }} informes aprobados
@@ -114,12 +122,12 @@ const estadoBadge = (estado: string) => {
 
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
                 <div v-for="item in informes" :key="item.materia_id + '-' + item.periodo_id"
-                    class="flex flex-col gap-3 rounded-2xl p-5 shadow-sm bg-[var(--sispaa-surface)]">
+                    class="flex flex-col gap-3 rounded-2xl border p-5 shadow-sm transition-shadow hover:shadow-md bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]">
                     <div class="flex items-start justify-between">
                         <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-[var(--sispaa-primary)] bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]">
-                            <FileText class="h-4.5 w-4.5" />
+                            <FileText class="h-5 w-5" />
                         </div>
-                        <span :class="['inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold', estadoBadge(item.estado)]">
+                        <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold" :style="estadoBadge(item.estado)">
                             <CheckCircle2 v-if="item.estado === 'aprobado'" class="h-3.5 w-3.5" />
                             <Clock v-else class="h-3.5 w-3.5" />
                             {{ item.estado.charAt(0).toUpperCase() + item.estado.slice(1) }}
@@ -153,7 +161,7 @@ const estadoBadge = (estado: string) => {
 
         <!-- Modal de carga -->
         <div v-if="activeItem" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-            <div class="w-full max-w-lg rounded-2xl p-6 shadow-xl bg-[var(--sispaa-background)]">
+            <div class="w-full max-w-lg rounded-2xl border p-6 shadow-xl bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]">
                 <div class="flex items-center justify-between border-b pb-4 border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
                     <h3 class="text-lg font-bold text-[var(--sispaa-text)]">Subir informe — {{ activeItem.materia }}</h3>
                     <button @click="closeUpload" class="rounded-lg p-1 opacity-50 hover:opacity-100 hover:bg-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]">
@@ -179,7 +187,7 @@ const estadoBadge = (estado: string) => {
                         <button type="button" @click="closeUpload" class="rounded-lg px-4 py-2 text-sm font-semibold text-[var(--sispaa-text)] opacity-70 hover:opacity-100 border border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
                             Cancelar
                         </button>
-                        <button type="submit" :disabled="form.processing || !form.archivo" class="rounded-lg px-4 py-2 text-sm font-semibold text-white disabled:opacity-50 bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)]">
+                        <button type="submit" :disabled="form.processing || !form.archivo" class="rounded-lg px-4 py-2 text-sm font-semibold text-white shadow-md shadow-[color:color-mix(in_srgb,var(--sispaa-primary)_30%,transparent)] transition-all disabled:opacity-50 disabled:shadow-none bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)] hover:shadow-lg">
                             {{ form.processing ? 'Subiendo...' : 'Confirmar' }}
                         </button>
                     </div>

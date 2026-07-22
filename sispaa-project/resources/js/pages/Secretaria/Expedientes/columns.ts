@@ -4,6 +4,7 @@ import { Link } from '@inertiajs/vue3';
 import { CheckCircle2, XCircle, Clock, Eye, MoreHorizontal, ArrowUpRight } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { STATUS_COLORS, neutralBadgeStyle, tintedBadgeStyle } from '@/lib/brand';
 
 export interface ArchivoMeta { name: string; size: string | null }
 export interface Estudiante {
@@ -27,10 +28,12 @@ export interface DocumentoRow {
     revisado_por: string | null;
 }
 
-const estadoClasses: Record<string, string> = {
-    pendiente: 'bg-[color:color-mix(in_srgb,#E4BC57_45%,transparent)] text-[color:color-mix(in_srgb,#E4BC57_60%,black)]',
-    aprobado: 'bg-[color:color-mix(in_srgb,var(--sispaa-secondary)_30%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]',
-    rechazado: 'bg-rose-50 text-rose-800',
+// Estilos inline theme-aware (ver @/lib/brand): antes mezclaban con negro
+// fijo o usaban rose-50 claro, ilegibles en tema oscuro.
+const estadoStyles: Record<string, string> = {
+    pendiente: tintedBadgeStyle(STATUS_COLORS.advertencia),
+    aprobado: tintedBadgeStyle(STATUS_COLORS.exito),
+    rechazado: tintedBadgeStyle(STATUS_COLORS.peligro),
 };
 const estadoLabel: Record<string, string> = {
     pendiente: 'Pendiente',
@@ -91,7 +94,8 @@ export function makeExpedienteColumns(): ColumnDef<DocumentoRow>[] {
                 };
                 const Icon = icons[estado] ?? Clock;
                 return h('span', {
-                    class: `inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${estadoClasses[estado] ?? 'bg-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-text)_60%,transparent)]'}`,
+                    class: 'inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold',
+                    style: estadoStyles[estado] ?? neutralBadgeStyle(),
                 }, [
                     h(Icon, { class: estado === 'pendiente' ? 'h-3.5 w-3.5 animate-pulse' : 'h-3.5 w-3.5' }),
                     estadoLabel[estado] ?? estado,

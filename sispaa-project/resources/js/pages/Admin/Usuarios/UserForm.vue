@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Check, ChevronsUpDown, ArrowLeft, User, Mail, Lock, IdCard, Phone } from 'lucide-vue-next';
+import { errorCedulaEcuatoriana } from '@/lib/cedula';
+import { errorCorreoInstitucional } from '@/lib/correo';
 import {
     Combobox,
     ComboboxAnchor,
@@ -31,12 +33,37 @@ const formSchema = toTypedSchema(
     z
         .object({
             name: z.string().min(1, 'El nombre es obligatorio.').max(255, 'El nombre no puede superar los 255 caracteres.'),
-            email: z.string().min(1, 'El correo es obligatorio.').email('Ingresa un correo electrónico válido.').max(255, 'El correo no puede superar los 255 caracteres.'),
+            email: z
+                .string()
+                .min(1, 'El correo es obligatorio.')
+                .email('Ingresa un correo electrónico válido.')
+                .max(255, 'El correo no puede superar los 255 caracteres.')
+                // El sistema solo acepta correos institucionales ULEAM (misma
+                // regla que el backend App\Rules\CorreoInstitucional).
+                .superRefine((value, ctx) => {
+                    const error = errorCorreoInstitucional(value);
+                    if (error) {
+                        ctx.addIssue({ code: z.ZodIssueCode.custom, message: error });
+                    }
+                }),
             password: props.usuario
                 ? z.string().optional()
                 : z.string().min(8, 'La contraseña debe tener al menos 8 caracteres.'),
             roles: z.array(z.string()).min(1, 'Selecciona al menos un rol.'),
-            cedula: z.string().max(10, 'La cédula no puede superar los 10 caracteres.').nullable().optional(),
+            // Cédula opcional, pero si se ingresa debe ser una cédula
+            // ecuatoriana válida (mismo algoritmo módulo 10 que la regla de
+            // backend App\Rules\CedulaEcuatoriana; ver @/lib/cedula).
+            cedula: z
+                .string()
+                .nullable()
+                .optional()
+                .superRefine((value, ctx) => {
+                    if (!value) return;
+                    const error = errorCedulaEcuatoriana(value);
+                    if (error) {
+                        ctx.addIssue({ code: z.ZodIssueCode.custom, message: error });
+                    }
+                }),
             telefono: z.string().max(15, 'El teléfono no puede superar los 15 caracteres.').nullable().optional(),
             carrera_id: z.union([z.string(), z.number()]).nullable(),
         })
@@ -120,6 +147,12 @@ const onSubmit = handleSubmit((values) => {
 <template>
     <form class="w-full max-w-xl space-y-4" @submit="onSubmit">
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <!-- Encabezados de sección: solo organización visual del formulario -->
+            <div class="flex items-center gap-3 sm:col-span-2">
+                <h4 class="shrink-0 text-xs font-bold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)]">Datos de la cuenta</h4>
+                <div class="h-px flex-1 bg-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]"></div>
+            </div>
+
             <FormField v-slot="{ componentField }" name="name">
                 <FormItem class="sm:col-span-2">
                     <FormLabel>Nombre Completo *</FormLabel>
@@ -159,6 +192,11 @@ const onSubmit = handleSubmit((values) => {
                 </FormItem>
             </FormField>
 
+            <div class="mt-2 flex items-center gap-3 sm:col-span-2">
+                <h4 class="shrink-0 text-xs font-bold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)]">Datos personales</h4>
+                <div class="h-px flex-1 bg-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]"></div>
+            </div>
+
             <FormField v-slot="{ componentField }" name="cedula">
                 <FormItem>
                     <FormLabel>Cédula</FormLabel>
@@ -184,6 +222,11 @@ const onSubmit = handleSubmit((values) => {
                     <FormMessage />
                 </FormItem>
             </FormField>
+
+            <div class="mt-2 flex items-center gap-3 sm:col-span-2">
+                <h4 class="shrink-0 text-xs font-bold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)]">Roles y alcance</h4>
+                <div class="h-px flex-1 bg-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]"></div>
+            </div>
 
             <FormField v-slot="{ errorMessage }" name="roles">
                 <FormItem class="sm:col-span-2">

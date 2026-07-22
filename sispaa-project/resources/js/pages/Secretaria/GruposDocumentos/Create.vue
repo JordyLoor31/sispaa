@@ -70,7 +70,7 @@ const onSubmit = handleSubmit((values) => {
     <AppSidebarLayout :breadcrumbs="breadcrumbs">
         <Head title="Nuevo Grupo de Documentos" />
 
-        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[var(--sispaa-background)]">
+        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[color:color-mix(in_srgb,var(--sispaa-surface)_30%,var(--sispaa-background))]">
             <div>
                 <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">Nuevo Grupo de Documentos</h1>
                 <p class="mt-1 text-sm opacity-60 text-[var(--sispaa-text)]">
@@ -78,7 +78,7 @@ const onSubmit = handleSubmit((values) => {
                 </p>
             </div>
 
-            <div class="max-w-xl w-full mx-auto rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+            <div class="max-w-xl w-full mx-auto rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
                 <form class="space-y-5" @submit="onSubmit">
                     <FormField v-slot="{ componentField }" name="nombre">
                         <FormItem>

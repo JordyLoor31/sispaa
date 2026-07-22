@@ -2,7 +2,8 @@
 import AppSidebarLayout from '@/layouts/app/AppSidebarLayout.vue';
 import { type BreadcrumbItemType } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
-import { Send, History, Users } from 'lucide-vue-next';
+import { Send, History, Users, BellRing } from 'lucide-vue-next';
+import { BRAND_GRADIENT } from '@/lib/brand';
 import { toast } from 'vue-sonner';
 
 interface HistorialItem {
@@ -51,16 +52,19 @@ const submit = () => {
     <AppSidebarLayout :breadcrumbs="breadcrumbs">
         <Head title="Notificaciones Masivas" />
 
-        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[var(--sispaa-background)]">
-            <div>
-                <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">Notificaciones Masivas</h1>
-                <p class="mt-1 text-sm opacity-60 text-[var(--sispaa-text)]">
-                    Envía un aviso a todos los usuarios de uno o más roles del sistema.
-                </p>
-            </div>
+        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[color:color-mix(in_srgb,var(--sispaa-surface)_30%,var(--sispaa-background))]">
+            <div class="flex items-center gap-3.5">
+                    <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white shadow-sm" :style="BRAND_GRADIENT">
+                        <BellRing class="h-5 w-5" />
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">Notificaciones Masivas</h1>
+                        <p class="mt-0.5 text-sm opacity-60 text-[var(--sispaa-text)]">Envía un aviso a todos los usuarios de uno o más roles del sistema.</p>
+                    </div>
+                </div>
 
             <div class="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2">
-                <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+                <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
                     <h3 class="flex items-center gap-2 text-base font-bold text-[var(--sispaa-text)]">
                         <Send class="h-4.5 w-4.5 text-[var(--sispaa-primary)]" />
                         Nueva notificación
@@ -106,7 +110,7 @@ const submit = () => {
                     </form>
                 </div>
 
-                <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+                <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
                     <h3 class="flex items-center gap-2 text-base font-bold text-[var(--sispaa-text)]">
                         <History class="h-4.5 w-4.5 text-[var(--sispaa-primary)]" />
                         Historial de envíos

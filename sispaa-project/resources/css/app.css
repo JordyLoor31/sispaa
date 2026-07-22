@@ -86,6 +86,18 @@ html {
         --sidebar-accent-foreground: 240 4.8% 95.9%;
         --sidebar-border: 240 3.7% 15.9%;
         --sidebar-ring: 217.2 91.2% 59.8%;
+        /* Paleta SISPAA en modo oscuro. Sin estos overrides, las vistas que
+           usan --sispaa-* quedaban con fondos claros fijos mientras los
+           componentes shadcn (que sí cambian con .dark) heredaban texto casi
+           blanco del body: texto invisible en inputs y contrastes rotos.
+           Mismos matices de marca, invertidos los neutros: */
+        --sispaa-primary: #4d9296; /* teal aclarado para que siga legible sobre fondo oscuro */
+        --sispaa-secondary: #72c184; /* ya contrasta bien sobre oscuro, se mantiene */
+        --sispaa-accent: #7c8fc9; /* azul aclarado (gráficos, enlaces) */
+        --sispaa-background: #0a0a0a; /* alineado con --background de shadcn dark (0 0% 3.9%) */
+        --sispaa-surface: #262626; /* superficies/tarjetas oscuras */
+        --sispaa-sidebar: #171717;
+        --sispaa-text: #e6e6e6; /* texto principal claro */
     }
 }
 
@@ -97,4 +109,38 @@ html {
     body {
         @apply bg-background text-foreground;
     }
+}
+
+/*
+ * Scrollbar del contenido del Sidebar (y de cualquier zona con la clase
+ * .sidebar-scroll). Reemplaza la barra nativa gruesa por una delgada,
+ * redondeada y semitransparente que combina con el fondo oscuro del sidebar.
+ * Firefox usa scrollbar-width/-color; el resto usa ::-webkit-scrollbar.
+ */
+[data-sidebar='content'],
+.sidebar-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--sidebar-foreground) / 0.25) transparent;
+}
+
+[data-sidebar='content']::-webkit-scrollbar,
+.sidebar-scroll::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+[data-sidebar='content']::-webkit-scrollbar-track,
+.sidebar-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+[data-sidebar='content']::-webkit-scrollbar-thumb,
+.sidebar-scroll::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--sidebar-foreground) / 0.2);
+    border-radius: 9999px;
+}
+
+[data-sidebar='content']::-webkit-scrollbar-thumb:hover,
+.sidebar-scroll::-webkit-scrollbar-thumb:hover {
+    background-color: hsl(var(--sidebar-foreground) / 0.4);
 }

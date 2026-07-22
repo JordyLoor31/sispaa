@@ -74,9 +74,9 @@ const submitChangeEstado = () => {
 
 const estadoBadge = (estado: string) => {
     const map: Record<string, string> = {
-        activo: 'bg-[color:color-mix(in_srgb,var(--sispaa-secondary)_30%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]',
+        activo: 'bg-[color:color-mix(in_srgb,var(--sispaa-secondary)_30%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-secondary)_55%,var(--sispaa-text))]',
         retirado: 'bg-rose-50 text-rose-800',
-        egresado: 'bg-[color:color-mix(in_srgb,var(--sispaa-accent)_25%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-accent)_75%,black)]',
+        egresado: 'bg-[color:color-mix(in_srgb,var(--sispaa-accent)_25%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-accent)_55%,var(--sispaa-text))]',
     };
     return map[estado] ?? 'bg-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-text)_60%,transparent)]';
 };
@@ -105,15 +105,16 @@ const navigateToPage = (url: string | null) => {
     <AppSidebarLayout :breadcrumbs="breadcrumbs">
         <Head title="Registro de Matrículas" />
 
-        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[var(--sispaa-background)]">
+        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[color:color-mix(in_srgb,var(--sispaa-surface)_30%,var(--sispaa-background))]">
             <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                <div>
-                    <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">
-                        Registro de Matrículas
-                    </h1>
-                    <p class="mt-1 text-sm opacity-60 text-[var(--sispaa-text)]">
-                        Inscribe estudiantes en materias y períodos académicos.
-                    </p>
+                <div class="flex items-center gap-3.5">
+                    <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white shadow-sm" :style="BRAND_GRADIENT">
+                        <ClipboardList class="h-5 w-5" />
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">Registro de Matrículas</h1>
+                        <p class="mt-0.5 text-sm opacity-60 text-[var(--sispaa-text)]">Inscribe estudiantes en materias y períodos académicos.</p>
+                    </div>
                 </div>
                 <Button as-child class="inline-flex items-center gap-1.5 font-semibold text-white bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)]">
                     <Link :href="route('secretaria.matriculas.create')">
@@ -124,21 +125,21 @@ const navigateToPage = (url: string | null) => {
             </div>
 
             <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
-                <div class="rounded-2xl p-5 shadow-sm bg-[var(--sispaa-surface)]">
+                <div class="rounded-2xl border p-5 shadow-sm bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]">
                     <p class="text-xs font-semibold uppercase opacity-60 text-[var(--sispaa-text)]">Total</p>
                     <p class="mt-1 text-3xl font-extrabold text-[var(--sispaa-text)]">{{ stats.total }}</p>
                 </div>
-                <div class="rounded-2xl p-5 shadow-sm bg-[var(--sispaa-surface)]">
-                    <p class="text-xs font-semibold uppercase text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]">Activos</p>
-                    <p class="mt-1 text-3xl font-extrabold text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]">{{ stats.activos }}</p>
+                <div class="rounded-2xl border p-5 shadow-sm bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]">
+                    <p class="text-xs font-semibold uppercase text-[color:color-mix(in_srgb,var(--sispaa-secondary)_55%,var(--sispaa-text))]">Activos</p>
+                    <p class="mt-1 text-3xl font-extrabold text-[color:color-mix(in_srgb,var(--sispaa-secondary)_55%,var(--sispaa-text))]">{{ stats.activos }}</p>
                 </div>
-                <div class="rounded-2xl p-5 shadow-sm bg-[var(--sispaa-surface)]">
+                <div class="rounded-2xl border p-5 shadow-sm bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]">
                     <p class="text-xs font-semibold uppercase text-rose-700">Retirados</p>
                     <p class="mt-1 text-3xl font-extrabold text-rose-700">{{ stats.retirados }}</p>
                 </div>
-                <div class="rounded-2xl p-5 shadow-sm bg-[var(--sispaa-surface)]">
-                    <p class="text-xs font-semibold uppercase text-[color:color-mix(in_srgb,var(--sispaa-accent)_75%,black)]">Egresados</p>
-                    <p class="mt-1 text-3xl font-extrabold text-[color:color-mix(in_srgb,var(--sispaa-accent)_75%,black)]">{{ stats.egresados }}</p>
+                <div class="rounded-2xl border p-5 shadow-sm bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]">
+                    <p class="text-xs font-semibold uppercase text-[color:color-mix(in_srgb,var(--sispaa-accent)_55%,var(--sispaa-text))]">Egresados</p>
+                    <p class="mt-1 text-3xl font-extrabold text-[color:color-mix(in_srgb,var(--sispaa-accent)_55%,var(--sispaa-text))]">{{ stats.egresados }}</p>
                 </div>
             </div>
 
@@ -151,7 +152,7 @@ const navigateToPage = (url: string | null) => {
                             @input="debouncedSearch"
                             type="text"
                             placeholder="Buscar estudiante, cédula..."
-                            class="pl-9"
+                            class="rounded-lg pl-9 bg-[color:color-mix(in_srgb,var(--sispaa-surface)_35%,var(--sispaa-background))]"
                         />
                     </div>
                     <Select v-model="filterEstado" @update:model-value="applyFilters">
@@ -179,14 +180,14 @@ const navigateToPage = (url: string | null) => {
                     </Select>
                 </div>
 
-                <div class="overflow-hidden rounded-lg bg-[var(--sispaa-surface)]">
+                <div class="overflow-hidden rounded-2xl border shadow-sm bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]">
                     <div class="overflow-x-auto">
                         <Table>
                             <TableHeader>
                                 <TableRow v-for="hg in table.getHeaderGroups()" :key="hg.id"
                                     class="border-b border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
                                     <TableHead v-for="header in hg.headers" :key="header.id"
-                                        class="h-12 px-4 text-sm font-medium opacity-60 text-[var(--sispaa-text)]">
+                                        class="h-9 px-3 text-xs font-semibold uppercase tracking-wider opacity-60 text-[var(--sispaa-text)]">
                                         <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header" :props="header.getContext()" />
                                     </TableHead>
                                 </TableRow>
@@ -194,24 +195,24 @@ const navigateToPage = (url: string | null) => {
                             <TableBody class="divide-y divide-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)] text-sm">
                                 <template v-if="table.getRowModel().rows.length">
                                     <TableRow v-for="row in table.getRowModel().rows" :key="row.id"
-                                        class="transition-colors hover:bg-[color:color-mix(in_srgb,var(--sispaa-text)_5%,transparent)]">
-                                        <TableCell class="px-4 py-4">
+                                        class="transition-colors hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_5%,transparent)]">
+                                        <TableCell class="px-3 py-2">
                                             <div class="font-semibold text-[var(--sispaa-text)]">{{ row.original.estudiante.name }}</div>
                                             <div class="text-xs opacity-50 text-[var(--sispaa-text)]">{{ row.original.estudiante.cedula ?? row.original.estudiante.email }}</div>
                                         </TableCell>
-                                        <TableCell class="px-4 py-4 text-xs opacity-70 text-[var(--sispaa-text)]">
+                                        <TableCell class="px-3 py-2 text-xs opacity-70 text-[var(--sispaa-text)]">
                                             {{ row.original.carrera.codigo }} — {{ row.original.carrera.nombre }}
                                         </TableCell>
-                                        <TableCell class="px-4 py-4 text-xs opacity-70 text-[var(--sispaa-text)]">
+                                        <TableCell class="px-3 py-2 text-xs opacity-70 text-[var(--sispaa-text)]">
                                             {{ row.original.periodo.nombre }}
                                         </TableCell>
-                                        <TableCell class="px-4 py-4">
+                                        <TableCell class="px-3 py-2">
                                             <span :class="['inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold', estadoBadge(row.original.estado)]">
                                                 {{ row.original.estado.charAt(0).toUpperCase() + row.original.estado.slice(1) }}
                                             </span>
                                         </TableCell>
-                                        <TableCell class="px-4 py-4 text-xs opacity-60 text-[var(--sispaa-text)]">{{ row.original.fecha_matricula }}</TableCell>
-                                        <TableCell class="px-4 py-4 text-right">
+                                        <TableCell class="px-3 py-2 text-xs opacity-60 text-[var(--sispaa-text)]">{{ row.original.fecha_matricula }}</TableCell>
+                                        <TableCell class="px-3 py-2 text-right">
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger as-child>
                                                     <Button variant="ghost" size="sm" class="h-8 w-8 p-0">
@@ -249,7 +250,7 @@ const navigateToPage = (url: string | null) => {
                                 :disabled="!link.url || link.active"
                                 v-html="link.label"
                                 class="rounded-lg px-3 py-1.5 text-xs font-semibold transition-all"
-                                :class="[link.active ? 'bg-[var(--sispaa-primary)] text-white' : 'bg-[var(--sispaa-background)] text-[var(--sispaa-text)] opacity-70 hover:opacity-100 disabled:opacity-40']"
+                                :class="[link.active ? 'text-white shadow-sm bg-[var(--sispaa-primary)]' : 'border text-[var(--sispaa-text)] bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)] hover:border-[var(--sispaa-primary)] hover:text-[var(--sispaa-primary)] disabled:opacity-50']"
                             />
                         </div>
                     </div>

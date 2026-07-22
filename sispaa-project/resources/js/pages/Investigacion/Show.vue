@@ -110,7 +110,7 @@ const submitRespuesta = () => {
     <AppSidebarLayout :breadcrumbs="breadcrumbs">
         <Head :title="proyecto.titulo" />
 
-        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[var(--sispaa-background)]">
+        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[color:color-mix(in_srgb,var(--sispaa-surface)_30%,var(--sispaa-background))]">
             <div>
                 <Link :href="route('investigacion.index')" class="mb-2 inline-flex items-center gap-1 text-xs font-semibold opacity-70 text-[var(--sispaa-text)] hover:opacity-100 hover:text-[var(--sispaa-primary)]">
                     <ArrowLeft class="h-3.5 w-3.5" /> Volver a proyectos
@@ -120,7 +120,7 @@ const submitRespuesta = () => {
             </div>
 
             <!-- HITOS -->
-            <div class="rounded-2xl p-5 shadow-sm bg-[var(--sispaa-surface)]">
+            <div class="rounded-2xl border p-5 shadow-sm bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]">
                 <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <h2 class="flex items-center gap-2 text-sm font-bold text-[var(--sispaa-text)]">
                         <Flag class="h-4 w-4 text-[var(--sispaa-primary)]" /> Hitos
@@ -158,7 +158,7 @@ const submitRespuesta = () => {
             </div>
 
             <!-- SEGUIMIENTO -->
-            <div class="rounded-2xl p-5 shadow-sm bg-[var(--sispaa-surface)]">
+            <div class="rounded-2xl border p-5 shadow-sm bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]">
                 <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <h2 class="flex items-center gap-2 text-sm font-bold text-[var(--sispaa-text)]">
                         <MessageCircleQuestion class="h-4 w-4 text-[var(--sispaa-primary)]" /> Seguimiento del coordinador
@@ -178,7 +178,7 @@ const submitRespuesta = () => {
                             <p class="text-sm text-[var(--sispaa-text)] opacity-80">{{ s.respuesta }}</p>
                         </div>
                         <div v-else class="mt-3 flex flex-col gap-2 rounded-lg p-3 sm:flex-row sm:items-center sm:justify-between bg-[color:color-mix(in_srgb,#E4BC57_25%,transparent)]">
-                            <p class="text-xs font-semibold text-[color:color-mix(in_srgb,#E4BC57_65%,black)]">Pendiente de respuesta</p>
+                            <p class="text-xs font-semibold text-[color:color-mix(in_srgb,#E4BC57_55%,var(--sispaa-text))]">Pendiente de respuesta</p>
                             <button v-if="esDueno" @click="openResponder(s)" class="text-xs font-semibold text-[var(--sispaa-primary)] hover:opacity-80">
                                 Responder
                             </button>
@@ -257,7 +257,7 @@ const submitRespuesta = () => {
                 <SheetHeader>
                     <SheetTitle>Responder Seguimiento</SheetTitle>
                 </SheetHeader>
-                <div class="mt-4 rounded-lg p-3 text-sm text-[var(--sispaa-text)] opacity-80 bg-[var(--sispaa-surface)]">
+                <div class="mt-4 rounded-lg p-3 text-sm text-[var(--sispaa-text)] opacity-80 bg-[var(--sispaa-background)]">
                     {{ respondiendo?.pregunta }}
                 </div>
                 <form @submit.prevent="submitRespuesta" class="mt-5 space-y-5">

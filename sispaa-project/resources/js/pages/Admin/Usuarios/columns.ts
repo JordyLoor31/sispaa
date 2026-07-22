@@ -3,6 +3,10 @@ import { Shield } from 'lucide-vue-next';
 import { h } from 'vue';
 import { Switch } from '@/components/ui/switch';
 import ResourceActionsDropdown from '@/components/ResourceActionsDropdown.vue';
+import { BRAND_GRADIENT, SWITCH_ACTIVE_CLASS, getInitials, tintedBadgeStyle } from '@/lib/brand';
+
+// Re-export para los consumidores del módulo (Show.vue, Edit.vue).
+export { BRAND_GRADIENT, getInitials } from '@/lib/brand';
 
 export interface Role {
     id: number;
@@ -31,14 +35,16 @@ interface UserColumnsOptions {
     onToggleStatus: (user: Usuario) => void;
 }
 
-const getRoleBadgeClass = (rolName: string) => {
-    if (rolName === 'SystemAdministrador') return 'bg-[color:color-mix(in_srgb,var(--sispaa-accent)_20%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-accent)_75%,black)]';
-    if (rolName === 'secretaria') return 'bg-[color:color-mix(in_srgb,var(--sispaa-primary)_20%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-primary)_75%,black)]';
-    if (rolName === 'coordinador') return 'bg-[color:color-mix(in_srgb,var(--sispaa-accent)_35%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-accent)_85%,black)]';
-    if (rolName === 'docente') return 'bg-[color:color-mix(in_srgb,#E4BC57_35%,transparent)] text-[color:color-mix(in_srgb,#E4BC57_60%,black)]';
-
-    return 'bg-[color:color-mix(in_srgb,var(--sispaa-secondary)_25%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-secondary)_75%,black)]';
+/** Color identitario de cada rol (ver tintedBadgeStyle en @/lib/brand). */
+const ROLE_BADGE_COLORS: Record<string, string> = {
+    SystemAdministrador: 'var(--sispaa-accent)',
+    secretaria: 'var(--sispaa-primary)',
+    coordinador: 'var(--sispaa-accent)',
+    docente: '#E4BC57',
 };
+
+export const getRoleBadgeStyle = (rolName: string): string =>
+    tintedBadgeStyle(ROLE_BADGE_COLORS[rolName] ?? 'var(--sispaa-secondary)');
 
 export function makeUserColumns({ onToggleStatus }: UserColumnsOptions): ColumnDef<Usuario>[] {
     return [
@@ -48,9 +54,19 @@ export function makeUserColumns({ onToggleStatus }: UserColumnsOptions): ColumnD
             header: 'Usuario',
             cell: ({ row }) => {
                 const user = row.original;
-                return h('div', {}, [
-                    h('div', { class: 'font-semibold text-[var(--sispaa-text)]' }, user.name),
-                    h('div', { class: 'text-xs opacity-60 text-[var(--sispaa-text)]' }, user.email),
+                return h('div', { class: 'flex items-center gap-2.5' }, [
+                    h(
+                        'div',
+                        {
+                            class: 'flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white shadow-sm',
+                            style: BRAND_GRADIENT,
+                        },
+                        getInitials(user.name),
+                    ),
+                    h('div', { class: 'min-w-0' }, [
+                        h('div', { class: 'truncate font-semibold text-[var(--sispaa-text)]' }, user.name),
+                        h('div', { class: 'truncate text-xs opacity-75 text-[var(--sispaa-text)]' }, user.email),
+                    ]),
                 ]);
             },
         },
@@ -58,19 +74,37 @@ export function makeUserColumns({ onToggleStatus }: UserColumnsOptions): ColumnD
             accessorKey: 'cedula',
             meta: { label: 'Identificación' },
             header: 'Identificación',
-            cell: ({ row }) => row.original.cedula ?? '-',
+            cell: ({ row }) =>
+                row.original.cedula
+                    ? h('span', { class: 'text-[var(--sispaa-text)]' }, row.original.cedula)
+                    : h('span', { class: 'opacity-40 text-[var(--sispaa-text)]' }, '—'),
         },
         {
             accessorKey: 'telefono',
             meta: { label: 'Teléfono' },
             header: 'Teléfono',
-            cell: ({ row }) => row.original.telefono ?? '-',
+            cell: ({ row }) =>
+                row.original.telefono
+                    ? h('span', { class: 'opacity-70 text-[var(--sispaa-text)]' }, row.original.telefono)
+                    : h('span', { class: 'opacity-40 text-[var(--sispaa-text)]' }, '—'),
         },
         {
             id: 'carrera',
             meta: { label: 'Carrera' },
             header: 'Carrera',
-            cell: ({ row }) => row.original.carrera?.nombre ?? 'General / Institucional',
+            cell: ({ row }) =>
+                row.original.carrera?.nombre
+                    ? h(
+                          'span',
+                          {
+                              // Los nombres de carrera vienen en MAYÚSCULAS largas:
+                              // se atenúan y compactan para que no dominen la fila.
+                              class: 'block max-w-[22ch] truncate text-xs font-medium opacity-75 text-[var(--sispaa-text)]',
+                              title: row.original.carrera.nombre,
+                          },
+                          row.original.carrera.nombre,
+                      )
+                    : h('span', { class: 'text-xs opacity-50 text-[var(--sispaa-text)]' }, 'General / Institucional'),
         },
         {
             id: 'rol',
@@ -83,16 +117,22 @@ export function makeUserColumns({ onToggleStatus }: UserColumnsOptions): ColumnD
                     return h('span', { class: 'text-xs opacity-60 text-[var(--sispaa-text)]' }, 'Ninguno');
                 }
 
-                return h('div', { class: 'flex flex-wrap gap-1' }, user.roles.map((rol) => {
-                    const formattedRol = rol.name.charAt(0).toUpperCase() + rol.name.slice(1);
-                    return h('span', {
-                        key: rol.id,
-                        class: `inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${getRoleBadgeClass(rol.name)}`,
-                    }, [
-                        h(Shield, { class: 'h-3 w-3' }),
-                        formattedRol,
-                    ]);
-                }));
+                return h(
+                    'div',
+                    { class: 'flex flex-wrap gap-1' },
+                    user.roles.map((rol) => {
+                        const formattedRol = rol.name.charAt(0).toUpperCase() + rol.name.slice(1);
+                        return h(
+                            'span',
+                            {
+                                key: rol.id,
+                                class: 'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold',
+                                style: getRoleBadgeStyle(rol.name),
+                            },
+                            [h(Shield, { class: 'h-3 w-3' }), formattedRol],
+                        );
+                    }),
+                );
             },
         },
         {
@@ -109,10 +149,19 @@ export function makeUserColumns({ onToggleStatus }: UserColumnsOptions): ColumnD
                         modelValue: isActive,
                         'onUpdate:checked': () => onToggleStatus(user),
                         'onUpdate:modelValue': () => onToggleStatus(user),
+                        class: SWITCH_ACTIVE_CLASS,
                     }),
-                    h('span', {
-                        class: `text-xs font-semibold ${isActive ? 'text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]' : 'opacity-50 text-[var(--sispaa-text)]'}`,
-                    }, isActive ? 'Activo' : 'Inactivo'),
+                    h(
+                        'span',
+                        {
+                            class: `text-xs font-semibold ${
+                                isActive
+                                    ? 'text-[color:color-mix(in_srgb,var(--sispaa-secondary)_55%,var(--sispaa-text))]'
+                                    : 'opacity-50 text-[var(--sispaa-text)]'
+                            }`,
+                        },
+                        isActive ? 'Activo' : 'Inactivo',
+                    ),
                 ]);
             },
         },

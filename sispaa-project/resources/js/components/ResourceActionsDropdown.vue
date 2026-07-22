@@ -71,7 +71,11 @@ const preventDropdownClose = (event: Event) => {
     <div v-if="hasAnyAction" class="flex justify-end">
         <DropdownMenu>
             <DropdownMenuTrigger as-child>
-                <Button variant="ghost" size="sm" class="h-8 w-8 p-0">
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    class="h-8 w-8 rounded-full p-0 opacity-60 transition-all hover:opacity-100 hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_10%,transparent)]"
+                >
                     <span class="sr-only">Abrir menú</span>
                     <MoreHorizontal class="h-4 w-4" />
                 </Button>

@@ -84,13 +84,13 @@ const onSubmit = handleSubmit((values) => {
     <AppSidebarLayout :breadcrumbs="breadcrumbs">
         <Head :title="`Editar proceso de ${props.titulacion.estudiante.name}`" />
 
-        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[var(--sispaa-background)]">
+        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[color:color-mix(in_srgb,var(--sispaa-surface)_30%,var(--sispaa-background))]">
             <div>
                 <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-3xl">Editar Proceso de Titulación</h1>
                 <p class="mt-1 text-sm opacity-60 text-[var(--sispaa-text)]">{{ props.titulacion.estudiante.name }}</p>
             </div>
 
-            <div class="w-full max-w-xl mx-auto rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+            <div class="w-full max-w-xl mx-auto rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
                 <form class="space-y-5" @submit="onSubmit">
                     <FormField v-slot="{ errorMessage }" name="tutor_id">
                         <FormItem>

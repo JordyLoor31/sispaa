@@ -102,7 +102,7 @@ const onSubmit = handleSubmit((submitValues) => {
     <AppSidebarLayout :breadcrumbs="breadcrumbs">
         <Head title="Nueva Matrícula" />
 
-        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[var(--sispaa-background)]">
+        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[color:color-mix(in_srgb,var(--sispaa-surface)_30%,var(--sispaa-background))]">
             <div>
                 <h1 class="flex items-center gap-2 text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">
                     <UserCheck class="h-6 w-6 text-[var(--sispaa-primary)]" /> Nueva Matrícula
@@ -110,7 +110,7 @@ const onSubmit = handleSubmit((submitValues) => {
                 <p class="mt-1 text-sm opacity-60 text-[var(--sispaa-text)]">Inscribe un estudiante en un período académico y carrera.</p>
             </div>
 
-            <div class="max-w-xl w-full mx-auto rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+            <div class="max-w-xl w-full mx-auto rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
                 <form class="space-y-5" @submit="onSubmit">
                     <FormField v-slot="{ errorMessage }" name="estudiante_id">
                         <FormItem>
@@ -141,7 +141,7 @@ const onSubmit = handleSubmit((submitValues) => {
                                 </button>
                                 <p v-if="filteredEstudiantes.length === 0" class="px-3 py-4 text-center text-sm opacity-50 text-[var(--sispaa-text)]">Sin resultados</p>
                             </div>
-                            <div v-if="estudianteId && !estudianteSearch.length" class="mt-1 text-xs font-semibold text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]">
+                            <div v-if="estudianteId && !estudianteSearch.length" class="mt-1 text-xs font-semibold text-[color:color-mix(in_srgb,var(--sispaa-secondary)_55%,var(--sispaa-text))]">
                                 ✓ {{ selectedEstudiante?.name }}
                             </div>
                             <p v-if="errorMessage" class="mt-1 text-sm font-medium text-destructive">{{ errorMessage }}</p>
@@ -170,10 +170,10 @@ const onSubmit = handleSubmit((submitValues) => {
                                             v-for="p in periodos"
                                             :key="p.id"
                                             :value="{ value: p.id, label: p.estado === 'activo' ? `${p.nombre} (activo)` : p.nombre }"
-                                            class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-[color:color-mix(in_srgb,var(--sispaa-text)_6%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]"
+                                            class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_5%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]"
                                         >
                                             {{ p.nombre }}
-                                            <span v-if="p.estado === 'activo'" class="ml-1 text-xs text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]">(activo)</span>
+                                            <span v-if="p.estado === 'activo'" class="ml-1 text-xs text-[color:color-mix(in_srgb,var(--sispaa-secondary)_55%,var(--sispaa-text))]">(activo)</span>
                                             <ComboboxItemIndicator><Check class="h-4 w-4 text-[var(--sispaa-primary)]" /></ComboboxItemIndicator>
                                         </ComboboxItem>
                                     </ComboboxGroup>
@@ -205,7 +205,7 @@ const onSubmit = handleSubmit((submitValues) => {
                                             v-for="c in carreras"
                                             :key="c.id"
                                             :value="{ value: c.id, label: `${c.codigo} — ${c.nombre}` }"
-                                            class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-[color:color-mix(in_srgb,var(--sispaa-text)_6%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]"
+                                            class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_5%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]"
                                         >
                                             {{ c.codigo }} — {{ c.nombre }}
                                             <ComboboxItemIndicator><Check class="h-4 w-4 text-[var(--sispaa-primary)]" /></ComboboxItemIndicator>

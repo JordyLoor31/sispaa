@@ -59,7 +59,7 @@ const isItemOpen = (item: NavItem) => {
                     <SidebarMenuItem>
                         <CollapsibleTrigger as-child>
                             <SidebarMenuButton>
-                                <component :is="item.icon" v-if="item.icon" />
+                                <component :is="item.icon" v-if="item.icon" class="!size-[25px] shrink-0 group-data-[collapsible=icon]:!size-5" />
                                 <span class="truncate group-data-[collapsible=icon]:hidden">{{ item.title }}</span>
                                 <ChevronRight class="ml-auto shrink-0 transition-transform group-data-[state=open]/collapsible:rotate-90 group-data-[collapsible=icon]:hidden" />
                             </SidebarMenuButton>
@@ -79,9 +79,9 @@ const isItemOpen = (item: NavItem) => {
                 </Collapsible>
                 <SidebarMenuItem v-else>
                     <SidebarMenuButton as-child :is-active="resolvePath(item.href) === page.url">
-                        <Link :href="item.href || '#'" class="flex w-full items-center justify-between group-data-[collapsible=icon]:justify-center">
-                            <div class="flex min-w-0 items-center gap-2">
-                                <component :is="item.icon" v-if="item.icon" />
+                        <Link :href="item.href || '#'" class="flex w-full items-center justify-between group-data-[collapsible=icon]:!justify-center">
+                            <div class="flex min-w-0 items-center gap-2 group-data-[collapsible=icon]:justify-center">
+                                <component :is="item.icon" v-if="item.icon" class="!size-[25px] shrink-0 group-data-[collapsible=icon]:!size-5" />
                                 <span class="truncate group-data-[collapsible=icon]:hidden">{{ item.title }}</span>
                             </div>
                             <span v-if="item.title === 'Notificaciones' && (page.props.auth?.user as any)?.unread_notifications > 0" class="flex h-5 min-w-[20px] shrink-0 px-1 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white leading-none group-data-[collapsible=icon]:hidden">

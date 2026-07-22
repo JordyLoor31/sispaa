@@ -21,7 +21,7 @@ const formatDateTime = (date?: string) => {
     <AppSidebarLayout :breadcrumbs="breadcrumbs">
         <Head :title="props.convocatoria.titulo" />
 
-        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[var(--sispaa-background)]">
+        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[color:color-mix(in_srgb,var(--sispaa-surface)_30%,var(--sispaa-background))]">
             <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div class="flex items-center gap-3">
                     <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-[var(--sispaa-primary)] bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]">
@@ -51,19 +51,19 @@ const formatDateTime = (date?: string) => {
             </div>
 
             <div class="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
-                <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+                <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
                     <h4 class="text-xs font-bold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)]">Estado</h4>
-                    <p class="mt-2 text-sm font-semibold" :class="convocatoria.activa ? 'text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]' : 'opacity-50 text-[var(--sispaa-text)]'">
+                    <p class="mt-2 text-sm font-semibold" :class="convocatoria.activa ? 'text-[color:color-mix(in_srgb,var(--sispaa-secondary)_55%,var(--sispaa-text))]' : 'opacity-50 text-[var(--sispaa-text)]'">
                         {{ convocatoria.activa ? 'Activa' : 'Inactiva' }}
                     </p>
                 </div>
-                <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+                <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
                     <h4 class="text-xs font-bold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)]">Tipo de documento</h4>
                     <p class="mt-2 text-sm font-semibold text-[var(--sispaa-text)]">
                         {{ convocatoria.tipo_documento ?? '—' }}
                     </p>
                 </div>
-                <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+                <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
                     <h4 class="text-xs font-bold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)]">Ventana de fechas</h4>
                     <p class="mt-2 flex items-center gap-1.5 text-sm font-semibold text-[var(--sispaa-text)]">
                         <Calendar class="h-3.5 w-3.5 opacity-50" />
@@ -72,12 +72,12 @@ const formatDateTime = (date?: string) => {
                 </div>
             </div>
 
-            <div v-if="convocatoria.descripcion" class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+            <div v-if="convocatoria.descripcion" class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
                 <h4 class="text-xs font-bold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)] mb-2">Descripción</h4>
                 <p class="text-sm text-[var(--sispaa-text)]">{{ convocatoria.descripcion }}</p>
             </div>
 
-            <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+            <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
                 <h4 class="text-xs font-bold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)] mb-3">Auditoría</h4>
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>

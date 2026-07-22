@@ -142,7 +142,7 @@ const onSubmit = handleSubmit((submitValues) => {
                                 v-for="d in docentes"
                                 :key="d.id"
                                 :value="{ value: d.id, label: d.name }"
-                                class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-[color:color-mix(in_srgb,var(--sispaa-text)_6%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]"
+                                class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_5%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]"
                             >
                                 <div>
                                     <p>{{ d.name }}</p>
@@ -179,7 +179,7 @@ const onSubmit = handleSubmit((submitValues) => {
                                 v-for="m in materias"
                                 :key="m.id"
                                 :value="{ value: m.id, label: `${m.codigo} — ${m.nombre}` }"
-                                class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-[color:color-mix(in_srgb,var(--sispaa-text)_6%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]"
+                                class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_5%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]"
                             >
                                 <div>
                                     <p>{{ m.codigo }} — {{ m.nombre }}</p>
@@ -216,10 +216,10 @@ const onSubmit = handleSubmit((submitValues) => {
                                 v-for="p in periodos"
                                 :key="p.id"
                                 :value="{ value: p.id, label: p.estado === 'activo' ? `${p.nombre} (activo)` : p.nombre }"
-                                class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-[color:color-mix(in_srgb,var(--sispaa-text)_6%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]"
+                                class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_5%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]"
                             >
                                 {{ p.nombre }}
-                                <span v-if="p.estado === 'activo'" class="ml-1 text-xs text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]">(activo)</span>
+                                <span v-if="p.estado === 'activo'" class="ml-1 text-xs text-[color:color-mix(in_srgb,var(--sispaa-secondary)_55%,var(--sispaa-text))]">(activo)</span>
                                 <ComboboxItemIndicator><Check class="h-4 w-4 text-[var(--sispaa-primary)]" /></ComboboxItemIndicator>
                             </ComboboxItem>
                         </ComboboxGroup>

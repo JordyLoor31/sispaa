@@ -61,7 +61,7 @@ export function makeGrupoDocumentoColumns(): ColumnDef<GrupoDocumento>[] {
                     {
                         class: `inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${
                             g.activo
-                                ? 'bg-[color:color-mix(in_srgb,var(--sispaa-secondary)_30%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]'
+                                ? 'bg-[color:color-mix(in_srgb,var(--sispaa-secondary)_30%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-secondary)_55%,var(--sispaa-text))]'
                                 : 'bg-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-text)_60%,transparent)]'
                         }`,
                     },

@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Traits\HasBreadcrumbs;
 use App\Models\Admin\Carrera;
 use App\Models\User;
+use App\Rules\CedulaEcuatoriana;
+use App\Rules\CorreoInstitucional;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
@@ -83,9 +85,9 @@ class UserController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
+            'email' => ['required', 'string', 'email', 'max:255', new CorreoInstitucional, 'unique:users'],
             'password' => 'required|string|min:8',
-            'cedula' => 'nullable|string|max:10|unique:users',
+            'cedula' => ['nullable', 'digits:10', new CedulaEcuatoriana, 'unique:users'],
             'telefono' => 'nullable|string|max:15',
             'carrera_id' => 'nullable|exists:carreras,id',
         ]);
@@ -132,8 +134,8 @@ class UserController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-            'cedula' => 'nullable|string|max:10|unique:users,cedula,' . $user->id,
+            'email' => ['required', 'string', 'email', 'max:255', new CorreoInstitucional, 'unique:users,email,' . $user->id],
+            'cedula' => ['nullable', 'digits:10', new CedulaEcuatoriana, 'unique:users,cedula,' . $user->id],
             'telefono' => 'nullable|string|max:15',
             'carrera_id' => 'nullable|exists:carreras,id',
         ]);

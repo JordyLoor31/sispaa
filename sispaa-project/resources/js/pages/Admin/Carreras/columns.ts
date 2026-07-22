@@ -2,6 +2,7 @@ import type { ColumnDef } from '@tanstack/vue-table';
 import { h } from 'vue';
 import { Switch } from '@/components/ui/switch';
 import ResourceActionsDropdown from '@/components/ResourceActionsDropdown.vue';
+import { SWITCH_ACTIVE_CLASS } from '@/lib/brand';
 
 export interface Coordinador {
     id: number;
@@ -78,9 +79,11 @@ export function makeCarreraColumns({ onToggleStatus }: CarreraColumnsOptions): C
                         modelValue: isActive,
                         'onUpdate:checked': () => onToggleStatus(carrera),
                         'onUpdate:modelValue': () => onToggleStatus(carrera),
+                        class: SWITCH_ACTIVE_CLASS,
                     }),
                     h('span', {
-                        class: `text-xs font-semibold ${isActive ? 'text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]' : 'opacity-50 text-[var(--sispaa-text)]'}`,
+                        // Mezcla con --sispaa-text (no negro fijo) para seguir legible en tema oscuro.
+                        class: `text-xs font-semibold ${isActive ? 'text-[color:color-mix(in_srgb,var(--sispaa-secondary)_55%,var(--sispaa-text))]' : 'opacity-50 text-[var(--sispaa-text)]'}`,
                     }, isActive ? 'Activa' : 'Inactiva'),
                 ]);
             },

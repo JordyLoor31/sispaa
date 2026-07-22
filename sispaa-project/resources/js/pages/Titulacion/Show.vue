@@ -14,9 +14,9 @@ const props = defineProps<{
 
 const estadoBadge = (estado: string) => {
     const map: Record<string, string> = {
-        en_proceso: 'bg-[color:color-mix(in_srgb,#E4BC57_45%,transparent)] text-[color:color-mix(in_srgb,#E4BC57_60%,black)]',
+        en_proceso: 'bg-[color:color-mix(in_srgb,#E4BC57_45%,transparent)] text-[color:color-mix(in_srgb,#E4BC57_55%,var(--sispaa-text))]',
         defendido: 'bg-[color:color-mix(in_srgb,var(--sispaa-accent)_20%,transparent)] text-[var(--sispaa-accent)]',
-        graduado: 'bg-[color:color-mix(in_srgb,var(--sispaa-secondary)_30%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]',
+        graduado: 'bg-[color:color-mix(in_srgb,var(--sispaa-secondary)_30%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-secondary)_55%,var(--sispaa-text))]',
     };
     return map[estado] ?? map.en_proceso;
 };
@@ -31,7 +31,7 @@ const formatDate = (date?: string) => {
     <AppSidebarLayout :breadcrumbs="breadcrumbs">
         <Head :title="titulacion.estudiante.name" />
 
-        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[var(--sispaa-background)]">
+        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[color:color-mix(in_srgb,var(--sispaa-surface)_30%,var(--sispaa-background))]">
             <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div class="flex items-center gap-3">
                     <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-[var(--sispaa-primary)] bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]">
@@ -57,25 +57,25 @@ const formatDate = (date?: string) => {
             </div>
 
             <div class="max-w-2xl w-full mx-auto grid gap-6 sm:grid-cols-2">
-                <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+                <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
                     <h4 class="text-xs font-bold uppercase tracking-wider opacity-60 text-[var(--sispaa-text)]">Estado</h4>
                     <span :class="['mt-2 inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold', estadoBadge(titulacion.estado)]">
                         {{ titulacion.estado.replace('_', ' ') }}
                     </span>
                 </div>
-                <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+                <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
                     <h4 class="text-xs font-bold uppercase tracking-wider opacity-60 text-[var(--sispaa-text)]">Fechas</h4>
                     <p class="mt-2 text-sm text-[var(--sispaa-text)] opacity-80">Inicio: {{ titulacion.fecha_inicio ?? '—' }}</p>
                     <p class="text-sm text-[var(--sispaa-text)] opacity-80">Graduación: {{ titulacion.fecha_graduacion ?? '—' }}</p>
                 </div>
             </div>
 
-            <div class="max-w-2xl w-full mx-auto rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+            <div class="max-w-2xl w-full mx-auto rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
                 <h4 class="mb-2 text-xs font-bold uppercase tracking-wider opacity-60 text-[var(--sispaa-text)]">Tema</h4>
                 <p class="text-sm text-[var(--sispaa-text)] opacity-80">{{ titulacion.tema }}</p>
             </div>
 
-            <div class="max-w-2xl w-full mx-auto rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+            <div class="max-w-2xl w-full mx-auto rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
                 <h4 class="mb-3 text-xs font-bold uppercase tracking-wider opacity-60 text-[var(--sispaa-text)]">Auditoría</h4>
                 <div class="grid gap-4 sm:grid-cols-2">
                     <div>

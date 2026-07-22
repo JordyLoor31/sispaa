@@ -2,6 +2,7 @@ import type { ColumnDef } from '@tanstack/vue-table';
 import { h } from 'vue';
 import { Button } from '@/components/ui/button';
 import ResourceActionsDropdown from '@/components/ResourceActionsDropdown.vue';
+import { STATUS_COLORS, neutralBadgeStyle, tintedBadgeStyle } from '@/lib/brand';
 
 export type EstadoPeriodo = 'planificado' | 'activo' | 'finalizado';
 
@@ -17,10 +18,12 @@ export interface Periodo {
     created_at?: string;
 }
 
+// Estilos inline theme-aware (ver @/lib/brand): antes mezclaban con negro
+// fijo y en tema oscuro quedaban ilegibles.
 const ESTADO_BADGE: Record<EstadoPeriodo, string> = {
-    planificado: 'bg-[color:color-mix(in_srgb,#E4BC57_45%,transparent)] text-[color:color-mix(in_srgb,#E4BC57_60%,black)]',
-    activo: 'bg-[color:color-mix(in_srgb,var(--sispaa-secondary)_30%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]',
-    finalizado: 'bg-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-text)_60%,transparent)]',
+    planificado: tintedBadgeStyle(STATUS_COLORS.advertencia),
+    activo: tintedBadgeStyle(STATUS_COLORS.exito),
+    finalizado: neutralBadgeStyle(),
 };
 
 const ESTADO_LABEL: Record<EstadoPeriodo, string> = {
@@ -62,7 +65,8 @@ export function makePeriodoColumns({ onActivar }: PeriodoColumnsOptions): Column
 
                 return h('div', { class: 'flex items-center gap-2' }, [
                     h('span', {
-                        class: `inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${ESTADO_BADGE[periodo.estado]}`,
+                        class: 'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold',
+                        style: ESTADO_BADGE[periodo.estado],
                     }, ESTADO_LABEL[periodo.estado]),
                     periodo.estado === 'planificado'
                         ? h(Button, { size: 'sm', variant: 'outline', class: 'h-7 px-2 text-xs', onClick: () => onActivar(periodo) }, () => 'Activar')

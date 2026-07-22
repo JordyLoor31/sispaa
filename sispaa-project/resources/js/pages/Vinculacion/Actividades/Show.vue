@@ -21,7 +21,7 @@ const formatDate = (date?: string) => {
     <AppSidebarLayout :breadcrumbs="breadcrumbs">
         <Head :title="props.actividad.nombre" />
 
-        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[var(--sispaa-background)]">
+        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[color:color-mix(in_srgb,var(--sispaa-surface)_30%,var(--sispaa-background))]">
             <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div class="flex items-center gap-3">
                     <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-[var(--sispaa-primary)] bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]">
@@ -47,32 +47,32 @@ const formatDate = (date?: string) => {
             </div>
 
             <div class="mx-auto grid w-full max-w-2xl gap-4 sm:gap-6 md:grid-cols-2">
-                <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+                <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
                     <h4 class="text-xs font-bold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)]">Estado</h4>
                     <p
                         class="mt-2 text-sm font-semibold"
                         :class="actividad.estado === 'ejecutado'
-                            ? 'text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]'
-                            : 'text-[color:color-mix(in_srgb,#E4BC57_65%,black)]'"
+                            ? 'text-[color:color-mix(in_srgb,var(--sispaa-secondary)_55%,var(--sispaa-text))]'
+                            : 'text-[color:color-mix(in_srgb,#E4BC57_55%,var(--sispaa-text))]'"
                     >
                         {{ actividad.estado === 'ejecutado' ? 'Ejecutada' : 'Pendiente' }}
                     </p>
                 </div>
-                <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+                <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
                     <h4 class="text-xs font-bold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)]">Docente líder</h4>
                     <p class="mt-2 text-sm font-semibold text-[var(--sispaa-text)]">{{ actividad.docente_lider?.name ?? '—' }}</p>
                 </div>
-                <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+                <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
                     <h4 class="text-xs font-bold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)]">Empresa</h4>
                     <p class="mt-2 text-sm font-semibold text-[var(--sispaa-text)]">{{ actividad.empresa ?? 'Sin empresa asociada' }}</p>
                 </div>
-                <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+                <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
                     <h4 class="text-xs font-bold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)]">Fecha</h4>
                     <p class="mt-2 text-sm font-semibold text-[var(--sispaa-text)]">{{ actividad.fecha ?? '—' }}</p>
                 </div>
             </div>
 
-            <div class="mx-auto w-full max-w-2xl rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+            <div class="mx-auto w-full max-w-2xl rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
                 <h4 class="mb-3 text-xs font-bold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)]">Auditoría</h4>
                 <div class="grid gap-4 sm:grid-cols-2">
                     <div>

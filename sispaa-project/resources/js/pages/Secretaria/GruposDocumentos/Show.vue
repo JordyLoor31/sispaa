@@ -34,7 +34,7 @@ const submitNuevoRequisito = () => {
     <AppSidebarLayout :breadcrumbs="breadcrumbs">
         <Head :title="props.grupo.nombre" />
 
-        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[var(--sispaa-background)]">
+        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[color:color-mix(in_srgb,var(--sispaa-surface)_30%,var(--sispaa-background))]">
             <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div class="flex items-center gap-3">
                     <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-[var(--sispaa-primary)] bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]">
@@ -53,13 +53,13 @@ const submitNuevoRequisito = () => {
             </div>
 
             <div class="max-w-2xl w-full mx-auto grid gap-4 sm:gap-6 sm:grid-cols-2">
-                <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+                <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
                     <h4 class="text-xs font-bold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)]">Estado</h4>
-                    <p class="mt-2 text-sm font-semibold" :class="grupo.activo ? 'text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]' : 'opacity-50 text-[var(--sispaa-text)]'">
+                    <p class="mt-2 text-sm font-semibold" :class="grupo.activo ? 'text-[color:color-mix(in_srgb,var(--sispaa-secondary)_55%,var(--sispaa-text))]' : 'opacity-50 text-[var(--sispaa-text)]'">
                         {{ grupo.activo ? 'Activo' : 'Inactivo' }}
                     </p>
                 </div>
-                <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+                <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
                     <h4 class="text-xs font-bold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)]">Creado por</h4>
                     <p class="mt-2 text-sm font-semibold text-[var(--sispaa-text)]">
                         {{ grupo.creator?.name ?? grupo.creadoPor?.name ?? '—' }}
@@ -68,7 +68,7 @@ const submitNuevoRequisito = () => {
                 </div>
             </div>
 
-            <div class="max-w-2xl w-full mx-auto rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+            <div class="max-w-2xl w-full mx-auto rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
                 <h4 class="text-xs font-bold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)] mb-3">Requisitos</h4>
                 <ul class="space-y-2">
                     <li v-for="r in grupo.requisitos" :key="r.id" class="text-sm text-[var(--sispaa-text)] flex items-center gap-2">

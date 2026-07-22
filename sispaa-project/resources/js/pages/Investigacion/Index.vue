@@ -4,6 +4,7 @@ import { type BreadcrumbItemType } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import { Plus, FlaskConical, ChevronRight, Trash2, Pencil } from 'lucide-vue-next';
+import { BRAND_GRADIENT } from '@/lib/brand';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -44,8 +45,8 @@ const confirmDelete = () => {
 const estadoBadge = (estado: string) => {
     const map: Record<string, string> = {
         en_curso: 'bg-[color:color-mix(in_srgb,var(--sispaa-accent)_20%,transparent)] text-[var(--sispaa-accent)]',
-        pausada: 'bg-[color:color-mix(in_srgb,#E4BC57_45%,transparent)] text-[color:color-mix(in_srgb,#E4BC57_60%,black)]',
-        finalizada: 'bg-[color:color-mix(in_srgb,var(--sispaa-secondary)_30%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]',
+        pausada: 'bg-[color:color-mix(in_srgb,#E4BC57_45%,transparent)] text-[color:color-mix(in_srgb,#E4BC57_55%,var(--sispaa-text))]',
+        finalizada: 'bg-[color:color-mix(in_srgb,var(--sispaa-secondary)_30%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-secondary)_55%,var(--sispaa-text))]',
     };
     return map[estado] ?? map.en_curso;
 };
@@ -55,15 +56,18 @@ const estadoBadge = (estado: string) => {
     <AppSidebarLayout :breadcrumbs="breadcrumbs">
         <Head title="Investigación" />
 
-        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[var(--sispaa-background)]">
+        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[color:color-mix(in_srgb,var(--sispaa-surface)_30%,var(--sispaa-background))]">
             <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                <div>
-                    <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">Investigación</h1>
-                    <p class="mt-1 text-sm opacity-60 text-[var(--sispaa-text)]">
-                        Tus proyectos de investigación y los que supervisas como coordinador.
-                    </p>
+                <div class="flex items-center gap-3.5">
+                    <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white shadow-sm" :style="BRAND_GRADIENT">
+                        <FlaskConical class="h-5 w-5" />
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">Investigación</h1>
+                        <p class="mt-0.5 text-sm opacity-60 text-[var(--sispaa-text)]">Tus proyectos de investigación y los que supervisas como coordinador.</p>
+                    </div>
                 </div>
-                <Button as-child class="inline-flex items-center gap-1.5 font-semibold text-white bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)]">
+                <Button as-child class="inline-flex items-center gap-1.5 rounded-lg font-semibold text-white shadow-md shadow-[color:color-mix(in_srgb,var(--sispaa-primary)_30%,transparent)] transition-all bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)] hover:shadow-lg">
                     <Link :href="route('investigacion.create')">
                         <Plus class="h-4 w-4" />
                         Nuevo Proyecto
@@ -86,7 +90,7 @@ const estadoBadge = (estado: string) => {
 
                 <div class="grid gap-4 md:grid-cols-2">
                     <div v-for="p in proyectos" :key="p.id"
-                        class="flex flex-col gap-3 rounded-2xl p-5 shadow-sm bg-[var(--sispaa-surface)]">
+                        class="flex flex-col gap-3 rounded-2xl border p-5 shadow-sm bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]">
                         <div class="flex items-start justify-between">
                             <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-[var(--sispaa-primary)] bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]">
                                 <FlaskConical class="h-4.5 w-4.5" />

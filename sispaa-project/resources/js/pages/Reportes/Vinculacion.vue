@@ -4,6 +4,7 @@ import { type BreadcrumbItemType } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import { Handshake, Building2, Percent } from 'lucide-vue-next';
+import { BRAND_GRADIENT } from '@/lib/brand';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import ApexChartCard from '@/components/charts/ApexChartCard.vue';
 import type { ApexOptions } from 'apexcharts';
@@ -80,17 +81,22 @@ const hasData = (c: ChartData) => c.series.length > 0 && c.series.some((v) => v 
     <AppSidebarLayout :breadcrumbs="breadcrumbs">
         <Head title="Reportes — Vinculación" />
 
-        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[var(--sispaa-background)]">
-            <div>
-                <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">Reportes — Vinculación</h1>
-                <p class="mt-1 text-sm opacity-60 text-[var(--sispaa-text)]">Actividades de vinculación y empresas beneficiadas.</p>
+        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[color:color-mix(in_srgb,var(--sispaa-surface)_30%,var(--sispaa-background))]">
+            <div class="flex items-center gap-3.5">
+                <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white shadow-sm" :style="BRAND_GRADIENT">
+                    <Handshake class="h-5 w-5" />
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">Reportes — Vinculación</h1>
+                    <p class="mt-0.5 text-sm opacity-60 text-[var(--sispaa-text)]">Actividades de vinculación y empresas beneficiadas.</p>
+                </div>
             </div>
 
-            <div class="flex flex-wrap items-end gap-3 rounded-xl p-4 bg-[var(--sispaa-surface)]">
+            <div class="flex flex-wrap items-end gap-3 rounded-2xl border p-4 shadow-sm bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]">
                 <div>
                     <label class="mb-1.5 block text-xs font-semibold uppercase opacity-60 text-[var(--sispaa-text)]">Período</label>
                     <Select v-model="periodoId" @update:model-value="aplicar">
-                        <SelectTrigger class="w-full sm:w-[200px] bg-[var(--sispaa-background)]"><SelectValue /></SelectTrigger>
+                        <SelectTrigger class="w-full sm:w-[200px] bg-[color:color-mix(in_srgb,var(--sispaa-surface)_35%,var(--sispaa-background))]"><SelectValue /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">Todos</SelectItem>
                             <SelectItem v-for="p in periodos" :key="p.id" :value="String(p.id)">{{ p.nombre }}</SelectItem>
@@ -100,7 +106,7 @@ const hasData = (c: ChartData) => c.series.length > 0 && c.series.some((v) => v 
                 <div>
                     <label class="mb-1.5 block text-xs font-semibold uppercase opacity-60 text-[var(--sispaa-text)]">Carrera</label>
                     <Select v-model="carreraId" @update:model-value="aplicar">
-                        <SelectTrigger class="w-full sm:w-[200px] bg-[var(--sispaa-background)]"><SelectValue /></SelectTrigger>
+                        <SelectTrigger class="w-full sm:w-[200px] bg-[color:color-mix(in_srgb,var(--sispaa-surface)_35%,var(--sispaa-background))]"><SelectValue /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">Todas</SelectItem>
                             <SelectItem v-for="c in carreras" :key="c.id" :value="String(c.id)">{{ c.nombre }}</SelectItem>
@@ -110,28 +116,28 @@ const hasData = (c: ChartData) => c.series.length > 0 && c.series.some((v) => v 
             </div>
 
             <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                <div class="rounded-2xl p-5 shadow-sm bg-[var(--sispaa-surface)]">
+                <div class="rounded-2xl border p-5 shadow-sm bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]">
                     <div class="flex items-center justify-between">
                         <p class="text-xs font-semibold uppercase opacity-60 text-[var(--sispaa-text)]">Actividades</p>
                         <Handshake class="h-5 w-5 text-[var(--sispaa-primary)]" />
                     </div>
                     <p class="mt-2 text-3xl font-extrabold text-[var(--sispaa-text)]">{{ kpis.total_actividades }}</p>
                 </div>
-                <div class="rounded-2xl p-5 shadow-sm bg-[var(--sispaa-surface)]">
+                <div class="rounded-2xl border p-5 shadow-sm bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]">
                     <div class="flex items-center justify-between">
                         <p class="text-xs font-semibold uppercase opacity-60 text-[var(--sispaa-text)]">Ejecutadas</p>
                         <Handshake class="h-5 w-5 text-[var(--sispaa-secondary)]" />
                     </div>
                     <p class="mt-2 text-3xl font-extrabold text-[var(--sispaa-text)]">{{ kpis.ejecutadas }}</p>
                 </div>
-                <div class="rounded-2xl p-5 shadow-sm bg-[var(--sispaa-surface)]">
+                <div class="rounded-2xl border p-5 shadow-sm bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]">
                     <div class="flex items-center justify-between">
                         <p class="text-xs font-semibold uppercase opacity-60 text-[var(--sispaa-text)]">% Ejecución</p>
                         <Percent class="h-5 w-5 text-[var(--sispaa-primary)]" />
                     </div>
                     <p class="mt-2 text-3xl font-extrabold text-[var(--sispaa-text)]">{{ kpis.porcentaje_ejecutadas }}%</p>
                 </div>
-                <div class="rounded-2xl p-5 shadow-sm bg-[var(--sispaa-surface)]">
+                <div class="rounded-2xl border p-5 shadow-sm bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]">
                     <div class="flex items-center justify-between">
                         <p class="text-xs font-semibold uppercase opacity-60 text-[var(--sispaa-text)]">Empresas</p>
                         <Building2 class="h-5 w-5 text-[var(--sispaa-primary)]" />

@@ -4,6 +4,7 @@ import { type BreadcrumbItemType } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import { Plus, Handshake, Eye, Pencil, Trash2 } from 'lucide-vue-next';
+import { BRAND_GRADIENT } from '@/lib/brand';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -41,8 +42,8 @@ const confirmDelete = () => {
 // Color para el estado "pendiente": dorado #E4BC57 (fuera de la paleta base)
 const estadoBadge = (estado: string) => {
     return estado === 'ejecutado'
-        ? 'bg-[color:color-mix(in_srgb,var(--sispaa-secondary)_30%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]'
-        : 'bg-[color:color-mix(in_srgb,#E4BC57_45%,transparent)] text-[color:color-mix(in_srgb,#E4BC57_60%,black)]';
+        ? 'bg-[color:color-mix(in_srgb,var(--sispaa-secondary)_30%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-secondary)_55%,var(--sispaa-text))]'
+        : 'bg-[color:color-mix(in_srgb,#E4BC57_45%,transparent)] text-[color:color-mix(in_srgb,#E4BC57_55%,var(--sispaa-text))]';
 };
 
 const estadoSelect = (estado: string) => {
@@ -56,13 +57,18 @@ const estadoSelect = (estado: string) => {
     <AppSidebarLayout :breadcrumbs="breadcrumbs">
         <Head title="Actividades de Vinculación" />
 
-        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[var(--sispaa-background)]">
+        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[color:color-mix(in_srgb,var(--sispaa-surface)_30%,var(--sispaa-background))]">
             <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                <div>
-                    <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">Vinculación</h1>
-                    <p class="mt-1 text-sm opacity-60 text-[var(--sispaa-text)]">Actividades de vinculación con la colectividad.</p>
+                <div class="flex items-center gap-3.5">
+                    <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white shadow-sm" :style="BRAND_GRADIENT">
+                        <Handshake class="h-5 w-5" />
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">Vinculación</h1>
+                        <p class="mt-0.5 text-sm opacity-60 text-[var(--sispaa-text)]">Actividades de vinculación con la colectividad.</p>
+                    </div>
                 </div>
-                <Button as-child class="inline-flex items-center gap-1.5 font-semibold text-white bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)]">
+                <Button as-child class="inline-flex items-center gap-1.5 rounded-lg font-semibold text-white shadow-md shadow-[color:color-mix(in_srgb,var(--sispaa-primary)_30%,transparent)] transition-all bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)] hover:shadow-lg">
                     <Link :href="route('vinculacion.actividades.create')">
                         <Plus class="h-4 w-4" /> Nueva Actividad
                     </Link>
@@ -70,17 +76,17 @@ const estadoSelect = (estado: string) => {
             </div>
 
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <div class="rounded-2xl p-5 shadow-sm bg-[var(--sispaa-surface)]">
+                <div class="rounded-2xl border p-5 shadow-sm bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]">
                     <p class="text-xs font-semibold uppercase opacity-60 text-[var(--sispaa-text)]">Total</p>
                     <p class="mt-1 text-3xl font-extrabold text-[var(--sispaa-text)]">{{ stats.total }}</p>
                 </div>
-                <div class="rounded-2xl p-5 shadow-sm bg-[var(--sispaa-surface)]">
-                    <p class="text-xs font-semibold uppercase text-[color:color-mix(in_srgb,#E4BC57_65%,black)]">Pendientes</p>
-                    <p class="mt-1 text-3xl font-extrabold text-[color:color-mix(in_srgb,#E4BC57_65%,black)]">{{ stats.pendientes }}</p>
+                <div class="rounded-2xl border p-5 shadow-sm bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]">
+                    <p class="text-xs font-semibold uppercase text-[color:color-mix(in_srgb,#E4BC57_55%,var(--sispaa-text))]">Pendientes</p>
+                    <p class="mt-1 text-3xl font-extrabold text-[color:color-mix(in_srgb,#E4BC57_55%,var(--sispaa-text))]">{{ stats.pendientes }}</p>
                 </div>
-                <div class="rounded-2xl p-5 shadow-sm bg-[var(--sispaa-surface)]">
-                    <p class="text-xs font-semibold uppercase text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]">Ejecutadas</p>
-                    <p class="mt-1 text-3xl font-extrabold text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]">{{ stats.ejecutadas }}</p>
+                <div class="rounded-2xl border p-5 shadow-sm bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]">
+                    <p class="text-xs font-semibold uppercase text-[color:color-mix(in_srgb,var(--sispaa-secondary)_55%,var(--sispaa-text))]">Ejecutadas</p>
+                    <p class="mt-1 text-3xl font-extrabold text-[color:color-mix(in_srgb,var(--sispaa-secondary)_55%,var(--sispaa-text))]">{{ stats.ejecutadas }}</p>
                 </div>
             </div>
 
@@ -98,7 +104,7 @@ const estadoSelect = (estado: string) => {
 
                 <div class="grid gap-4 md:grid-cols-2">
                     <div v-for="a in actividades" :key="a.id"
-                        class="flex flex-col gap-3 rounded-2xl p-5 shadow-sm bg-[var(--sispaa-surface)]">
+                        class="flex flex-col gap-3 rounded-2xl border p-5 shadow-sm bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]">
                         <div class="flex items-start justify-between">
                             <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-[var(--sispaa-primary)] bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]">
                                 <Handshake class="h-4.5 w-4.5" />

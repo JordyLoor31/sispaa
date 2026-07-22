@@ -2,6 +2,7 @@ import type { ColumnDef } from '@tanstack/vue-table';
 import { Edit } from 'lucide-vue-next';
 import { h } from 'vue';
 import { Switch } from '@/components/ui/switch';
+import { SWITCH_ACTIVE_CLASS } from '@/lib/brand';
 
 interface CarreraItem {
     id: number;
@@ -68,9 +69,11 @@ export function makeMateriaColumns({ onEditMateria, onToggleStatus }: MateriaCol
                         modelValue: isActive,
                         'onUpdate:checked': () => onToggleStatus(materia),
                         'onUpdate:modelValue': () => onToggleStatus(materia),
+                        class: SWITCH_ACTIVE_CLASS,
                     }),
                     h('span', {
-                        class: `text-xs font-semibold ${isActive ? 'text-[color:color-mix(in_srgb,var(--sispaa-secondary)_70%,black)]' : 'opacity-50 text-[var(--sispaa-text)]'}`,
+                        // Mezcla con --sispaa-text (no negro fijo) para seguir legible en tema oscuro.
+                        class: `text-xs font-semibold ${isActive ? 'text-[color:color-mix(in_srgb,var(--sispaa-secondary)_55%,var(--sispaa-text))]' : 'opacity-50 text-[var(--sispaa-text)]'}`,
                     }, isActive ? 'Activo' : 'Inactivo'),
                 ]);
             },

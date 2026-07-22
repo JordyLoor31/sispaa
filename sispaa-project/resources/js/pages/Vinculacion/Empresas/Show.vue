@@ -21,7 +21,7 @@ const formatDate = (date?: string) => {
     <AppSidebarLayout :breadcrumbs="breadcrumbs">
         <Head :title="props.empresa.nombre" />
 
-        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[var(--sispaa-background)]">
+        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[color:color-mix(in_srgb,var(--sispaa-surface)_30%,var(--sispaa-background))]">
             <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div class="flex items-center gap-3">
                     <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-[var(--sispaa-primary)] bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]">
@@ -47,21 +47,21 @@ const formatDate = (date?: string) => {
             </div>
 
             <div class="mx-auto grid w-full max-w-2xl gap-4 sm:gap-6 md:grid-cols-2">
-                <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+                <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
                     <h4 class="text-xs font-bold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)]">RUC</h4>
                     <p class="mt-2 text-sm font-semibold text-[var(--sispaa-text)]">{{ empresa.ruc ?? '—' }}</p>
                 </div>
-                <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+                <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
                     <h4 class="text-xs font-bold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)]">Contacto</h4>
                     <p class="mt-2 text-sm font-semibold text-[var(--sispaa-text)]">{{ empresa.contacto ?? '—' }}</p>
                 </div>
-                <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+                <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
                     <h4 class="text-xs font-bold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)]">Actividades vinculadas</h4>
                     <p class="mt-2 text-sm font-semibold text-[var(--sispaa-primary)]">{{ empresa.actividades_count ?? 0 }}</p>
                 </div>
             </div>
 
-            <div class="mx-auto w-full max-w-2xl rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+            <div class="mx-auto w-full max-w-2xl rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
                 <h4 class="mb-3 text-xs font-bold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)]">Auditoría</h4>
                 <div class="grid gap-4 sm:grid-cols-2">
                     <div>

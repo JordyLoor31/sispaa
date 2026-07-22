@@ -54,7 +54,7 @@ const submit = () => {
                 v-model="form.nombre_doc"
                 type="text"
                 placeholder="Ej. Solicitud de certificado de matrícula"
-                class="w-full rounded-lg border-0 bg-[var(--sispaa-background)] text-sm text-[var(--sispaa-text)] focus:ring-2 focus:ring-[var(--sispaa-primary)]"
+                class="h-11 w-full rounded-lg border px-3 text-sm text-[var(--sispaa-text)] bg-[color:color-mix(in_srgb,var(--sispaa-surface)_22%,var(--sispaa-background))] border-[color:color-mix(in_srgb,var(--sispaa-text)_18%,transparent)] focus:border-[var(--sispaa-primary)] focus:outline-none focus:ring-2 focus:ring-[color:color-mix(in_srgb,var(--sispaa-primary)_30%,transparent)]"
             />
             <p v-if="form.errors.nombre_doc" class="text-xs text-rose-500 mt-1">{{ form.errors.nombre_doc }}</p>
         </div>
@@ -92,8 +92,8 @@ const submit = () => {
             <p v-if="form.errors.archivo" class="text-xs text-rose-500 mt-1">{{ form.errors.archivo }}</p>
         </div>
 
-        <div class="flex items-center gap-2 pt-2">
-            <Button type="submit" :disabled="form.processing" class="font-semibold text-white bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)]">
+        <div class="flex items-center gap-2 border-t pt-4 border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]">
+            <Button type="submit" :disabled="form.processing" class="rounded-lg font-semibold text-white shadow-md shadow-[color:color-mix(in_srgb,var(--sispaa-primary)_30%,transparent)] transition-all bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)] hover:shadow-lg">
                 {{ form.processing ? 'Guardando...' : isEditing ? 'Guardar cambios' : 'Crear plantilla' }}
             </Button>
         </div>
