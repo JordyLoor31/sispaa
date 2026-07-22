@@ -83,7 +83,7 @@ const submitReview = (accion: 'aprobar' | 'rechazar') => {
             <div class="max-w-2xl w-full mx-auto rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
                 <h4 class="text-xs font-bold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)] mb-2">Motivo del estudiante</h4>
                 <p class="text-sm text-[var(--sispaa-text)]">{{ justificacion.motivo_estudiante }}</p>
-                <a v-if="justificacion.archivo_adjunto" :href="justificacion.archivo_adjunto" target="_blank"
+                <a v-if="justificacion.archivo_url" :href="justificacion.archivo_url" target="_blank"
                     class="mt-3 inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-[var(--sispaa-primary)] hover:opacity-80 border border-[color:color-mix(in_srgb,var(--sispaa-primary)_35%,transparent)]">
                     <FileText class="h-3.5 w-3.5" /> Ver adjunto
                 </a>

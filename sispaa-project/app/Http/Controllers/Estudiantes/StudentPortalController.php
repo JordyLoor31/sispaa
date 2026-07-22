@@ -163,8 +163,13 @@ class StudentPortalController extends Controller
     public function uploadDocumento(Request $request)
     {
         $request->validate([
-            'tipo_documento' => 'required|string',
+            // El tipo debe existir en el catálogo dinámico de requisitos
+            // activos; antes se aceptaba texto libre, lo que permitía crear
+            // filas de documento con tipos arbitrarios.
+            'tipo_documento' => ['required', 'string', \Illuminate\Validation\Rule::in($this->requisitosActivos()->all())],
             'archivo' => 'required|file|mimes:pdf,jpg,png,jpeg|max:5120', // Max 5MB
+        ], [
+            'tipo_documento.in' => 'El tipo de documento no corresponde a un requisito válido.',
         ]);
 
         // Resolver a qué requisito del catálogo dinámico corresponde este tipo,
@@ -178,11 +183,18 @@ class StudentPortalController extends Controller
         $file = $request->file('archivo');
 
         // Guardar archivo en storage/public/documentos/{year}/{userId}/
+        // conservando la extensión real (pdf/jpg/png/jpeg, ya validada arriba);
+        // antes se forzaba '.pdf' y una imagen quedaba con extensión y mime
+        // incorrectos.
+        // Disco 'local' (storage/app/private): NO expuesto por el servidor web.
+        // El archivo se sirve solo vía route('documentos.archivo') con control
+        // de acceso. Antes iba al disco 'public', accesible sin autenticación.
         $year = now()->format('Y');
+        $extension = $file->getClientOriginalExtension() ?: $file->extension();
         $path = $file->storeAs(
             "documentos/{$year}/{$user->id}",
-            \Illuminate\Support\Str::uuid() . '.pdf',
-            'public'
+            \Illuminate\Support\Str::uuid() . '.' . $extension,
+            'local'
         );
 
         // Metadatos en JSON para no guardar binarios en DB
@@ -200,10 +212,10 @@ class StudentPortalController extends Controller
             ->first();
 
         if ($documento) {
-            // Eliminar archivo anterior del disco
+            // Eliminar archivo anterior del disco privado
             $oldData = $documento->archivo_url; // ya es array por el cast
             if (isset($oldData['path'])) {
-                Storage::disk('public')->delete($oldData['path']);
+                Storage::disk('local')->delete($oldData['path']);
             }
 
             $documento->update([
@@ -288,10 +300,12 @@ class StudentPortalController extends Controller
             return redirect()->back()->withErrors(['falta_id' => 'Esta falta ya tiene una solicitud de justificación activa o ya está justificada.']);
         }
 
+        // Disco 'local' (privado): el adjunto suele ser un certificado médico.
+        // Se guarda la ruta relativa y se sirve solo vía
+        // route('justificaciones.archivo') con control de acceso.
         $archivoPath = null;
         if ($request->hasFile('archivo')) {
-            $path = $request->file('archivo')->store('justificaciones', 'public');
-            $archivoPath = '/storage/' . $path;
+            $archivoPath = $request->file('archivo')->store('justificaciones', 'local');
         }
 
         JustificacionSolicitud::create([

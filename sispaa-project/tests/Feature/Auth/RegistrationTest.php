@@ -8,8 +8,12 @@ test('registration screen can be rendered', function () {
 
 test('new users can register', function () {
     $response = $this->post('/register', [
-        'name' => 'Test User',
-        'email' => 'test@example.com',
+        'nombres' => 'Test',
+        'apellidos' => 'User',
+        // Cédula ecuatoriana válida (algoritmo módulo 10) y correo del
+        // dominio institucional aceptado (@uleam.edu.ec / @live.uleam.edu.ec).
+        'cedula' => '1710034065',
+        'email' => 'test@uleam.edu.ec',
         'password' => 'password',
         'password_confirmation' => 'password',
     ]);

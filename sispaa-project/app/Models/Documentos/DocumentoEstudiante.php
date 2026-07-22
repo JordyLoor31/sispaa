@@ -57,20 +57,17 @@ class DocumentoEstudiante extends Model
     }
 
     /**
-     * URL pública del archivo almacenado en storage/public.
-     *
-     * IMPORTANTE: el nombre del accessor debe coincidir exactamente con
-     * "archivo_publico_url" (con "o"), que es como lo consumen
-     * ExpedienteController y StudentPortalController. Antes se llamaba
-     * getArchivoPublicUrlAttribute() (inglés, sin "o"), lo que generaba un
-     * accessor distinto (archivo_public_url) que nunca se resolvía: el
-     * enlace para ver el documento subido nunca aparecía en pantalla.
+     * URL para ver el archivo del documento. Apunta a la ruta autenticada
+     * (documentos.archivo) que lo sirve desde el disco privado con control
+     * de acceso, NO a /storage/... (que sería público). El nombre del
+     * accessor se mantiene como "archivo_publico_url" (con "o") porque así lo
+     * consumen ExpedienteController y StudentPortalController.
      */
     public function getArchivoPublicoUrlAttribute(): ?string
     {
-        if (!$this->archivo_url) return null;
         $data = is_array($this->archivo_url) ? $this->archivo_url : json_decode($this->archivo_url, true);
-        return isset($data['path']) ? '/storage/' . $data['path'] : null;
+
+        return isset($data['path']) ? route('documentos.archivo', $this->id) : null;
     }
 
     public function creator()

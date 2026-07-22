@@ -13,6 +13,10 @@
 
 pest()->extend(Tests\TestCase::class)
     ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
+    // Los roles de Spatie (incl. 'estudiante', que recibe todo usuario al
+    // registrarse) son base del sistema: se siembran antes de cada test de
+    // Feature para que assignRole()/hasRole() no fallen con la BD recreada.
+    ->beforeEach(fn () => $this->seed(Database\Seeders\RolesPermissionsSeeder::class))
     ->in('Feature');
 
 /*

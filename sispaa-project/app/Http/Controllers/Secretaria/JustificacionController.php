@@ -27,7 +27,7 @@ class JustificacionController extends Controller
             'estado' => $j->estado,
             'motivo_estudiante' => $j->motivo_estudiante,
             'comentario_revisor' => $j->comentario_revisor,
-            'archivo_adjunto' => $j->archivo_adjunto,
+            'archivo_url' => $j->archivo_url,
             'created_at' => $j->created_at->format('d/m/Y H:i'),
             'falta' => [
                 'id' => $j->falta->id,

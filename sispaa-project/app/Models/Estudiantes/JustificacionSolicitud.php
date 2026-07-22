@@ -19,6 +19,23 @@ class JustificacionSolicitud extends Model
         'comentario_revisor',
     ];
 
+    // Expone la URL autenticada del adjunto en cada serialización (el
+    // frontend la usa como href). La columna archivo_adjunto guarda solo la
+    // ruta privada; nunca se expone directamente.
+    protected $appends = ['archivo_url'];
+
+    protected $hidden = ['archivo_adjunto'];
+
+    /**
+     * URL para ver el adjunto: ruta autenticada (justificaciones.archivo) que
+     * lo sirve desde el disco privado con control de acceso. null si no hay
+     * adjunto.
+     */
+    public function getArchivoUrlAttribute(): ?string
+    {
+        return $this->archivo_adjunto ? route('justificaciones.archivo', $this->id) : null;
+    }
+
     public function falta()
     {
         return $this->belongsTo(Falta::class, 'falta_id');

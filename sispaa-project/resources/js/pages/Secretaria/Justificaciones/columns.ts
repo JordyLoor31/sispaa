@@ -21,7 +21,7 @@ export interface JustificacionRow {
     estado: 'pendiente' | 'aprobada' | 'rechazada';
     motivo_estudiante: string;
     comentario_revisor: string | null;
-    archivo_adjunto: string | null;
+    archivo_url: string | null;
     created_at: string;
     falta: FaltaInfo;
     estudiante: Estudiante;
@@ -102,7 +102,7 @@ export function makeJustificacionColumns(): ColumnDef<JustificacionRow>[] {
             id: 'adjunto',
             header: 'Adjunto',
             cell: ({ row }) => {
-                const url = row.original.archivo_adjunto;
+                const url = row.original.archivo_url;
                 if (!url) return h('span', { class: 'text-xs opacity-50 text-[var(--sispaa-text)]' }, '—');
                 return h('a', {
                     href: url, target: '_blank',

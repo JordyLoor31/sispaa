@@ -23,7 +23,7 @@ interface SolicitudJustificacion {
     falta_id: number;
     falta: Falta;
     motivo_estudiante: string;
-    archivo_adjunto: string | null;
+    archivo_url: string | null;
     estado: 'pendiente' | 'aprobada' | 'rechazada' | string;
     comentario_docente: string | null;
     comentario_revisor?: string | null;
@@ -240,8 +240,8 @@ const submitRequest = () => {
                                 <div class="flex shrink-0 items-center gap-3 self-end md:self-center">
                                     <!-- Adjunto -->
                                     <a
-                                        v-if="sol.archivo_adjunto"
-                                        :href="sol.archivo_adjunto"
+                                        v-if="sol.archivo_url"
+                                        :href="sol.archivo_url"
                                         target="_blank"
                                         class="inline-flex items-center gap-1 text-xs font-semibold text-[var(--sispaa-primary)] hover:text-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)]"
                                     >

@@ -154,7 +154,11 @@ class PerfilEstudianteController extends Controller
      */
     public function update(UpdatePerfilEstudianteRequest $request, ?User $estudiante = null)
     {
-        $estudiante = $estudiante ?? $request->user();
+        // Mismo control de acceso que show()/edit(): solo el propio estudiante
+        // (o SystemAdministrador) puede guardar este perfil. Antes update()
+        // resolvía el usuario sin verificar, así que si en el futuro se
+        // enruta con {estudiante} cualquiera podría editar perfiles ajenos.
+        $estudiante = $this->resolverEstudiante($request, $estudiante);
         $validated = $request->validated();
 
         // itinerario/pensum deliberadamente excluidos: ocultos en el

@@ -170,14 +170,10 @@ Route::middleware(['auth', 'verified', 'role:docente|SystemAdministrador'])
 // procesos donde él es el tutor asignado (scoping en el controlador).
 // Gestionar (crear/editar/eliminar/cambiar estado): solo coordinador y
 // SystemAdministrador, como antes.
-Route::middleware(['auth', 'verified', 'role:coordinador|secretaria|docente|SystemAdministrador'])
-    ->prefix('titulacion')
-    ->name('titulacion.')
-    ->group(function () {
-        Route::get('/', [TitulacionController::class, 'index'])->name('index');
-        Route::get('/{titulacion}', [TitulacionController::class, 'show'])->name('show');
-    });
-
+// Escritura (coordinador/SystemAdministrador). IMPORTANTE: este grupo va
+// ANTES del de lectura para que la ruta literal '/crear' se registre antes
+// que la comodín '/{titulacion}' (show); si no, Laravel interpreta "crear"
+// como un id de titulación y devuelve 404 al abrir "Registrar Tema".
 Route::middleware(['auth', 'verified', 'role:coordinador|SystemAdministrador'])
     ->prefix('titulacion')
     ->name('titulacion.')
@@ -187,6 +183,15 @@ Route::middleware(['auth', 'verified', 'role:coordinador|SystemAdministrador'])
         Route::get('/{titulacion}/editar', [TitulacionController::class, 'edit'])->name('edit');
         Route::put('/{titulacion}', [TitulacionController::class, 'update'])->name('update');
         Route::delete('/{titulacion}', [TitulacionController::class, 'destroy'])->name('destroy');
+    });
+
+// Lectura (coordinador/secretaría/docente/SystemAdministrador).
+Route::middleware(['auth', 'verified', 'role:coordinador|secretaria|docente|SystemAdministrador'])
+    ->prefix('titulacion')
+    ->name('titulacion.')
+    ->group(function () {
+        Route::get('/', [TitulacionController::class, 'index'])->name('index');
+        Route::get('/{titulacion}', [TitulacionController::class, 'show'])->name('show');
     });
 
 
@@ -450,6 +455,17 @@ Route::middleware(['auth', 'verified', 'role:secretaria|SystemAdministrador'])
 Route::middleware(['auth', 'verified'])
     ->get('/plantillas/{plantilla}/descargar', [\App\Http\Controllers\Secretaria\PlantillaDocumentoController::class, 'descargar'])
     ->name('plantillas.descargar');
+
+// Archivos SENSIBLES por estudiante (expediente y adjuntos de justificaciones):
+// datos personales servidos desde el disco privado con control de acceso en el
+// controlador (dueño o Secretaría/SystemAdministrador). No son un simple gate
+// por rol, por eso solo llevan 'auth'/'verified' aquí.
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/documentos/{documento}/archivo', [\App\Http\Controllers\Documentos\DocumentoEstudianController::class, 'documento'])
+        ->name('documentos.archivo');
+    Route::get('/justificaciones/{justificacion}/archivo', [\App\Http\Controllers\Documentos\DocumentoEstudianController::class, 'justificacion'])
+        ->name('justificaciones.archivo');
+});
 
 
 // ARCHIVOS EXTRA

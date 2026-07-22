@@ -109,30 +109,33 @@ class ReporteController extends Controller
      */
     private function mapRow(string $tipo, $model): array
     {
+        // Null-safe (?->) en todas las relaciones: un registro huérfano (p.ej.
+        // un estudiante/materia/carrera eliminado) ya no rompe el reporte
+        // completo con un error 500; la celda queda en '—'.
         return match ($tipo) {
             'matriculados' => [
-                $model->estudiante->cedula,
-                $model->estudiante->name,
-                $model->estudiante->email,
-                $model->carrera->nombre,
-                $model->periodo->nombre,
+                $model->estudiante?->cedula ?? '—',
+                $model->estudiante?->name ?? '—',
+                $model->estudiante?->email ?? '—',
+                $model->carrera?->nombre ?? '—',
+                $model->periodo?->nombre ?? '—',
                 $model->estado,
-                $model->fecha_matricula?->format('Y-m-d'),
+                $model->fecha_matricula?->format('Y-m-d') ?? '—',
             ],
             'faltas' => [
-                $model->estudiante->name,
-                $model->materia->nombre,
-                $model->periodo->nombre,
-                $model->fecha?->format('Y-m-d'),
+                $model->estudiante?->name ?? '—',
+                $model->materia?->nombre ?? '—',
+                $model->periodo?->nombre ?? '—',
+                $model->fecha?->format('Y-m-d') ?? '—',
                 $model->justificada ? 'Sí' : 'No',
-                $model->justificacion->estado ?? '—',
+                $model->justificacion?->estado ?? '—',
                 $model->motivo ?? '—',
             ],
             'documentos' => [
-                $model->estudiante->name,
-                $model->estudiante->cedula,
-                $model->grupo->nombre ?? '—',
-                $model->requisito->nombre ?? '—',
+                $model->estudiante?->name ?? '—',
+                $model->estudiante?->cedula ?? '—',
+                $model->grupo?->nombre ?? '—',
+                $model->requisito?->nombre ?? '—',
                 $model->tipo_documento,
                 $model->estado,
                 $model->reviewed_at?->format('Y-m-d') ?? '—',
