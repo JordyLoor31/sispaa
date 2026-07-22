@@ -105,15 +105,48 @@ class ActividadVinculacionController extends Controller
         $actividad->load(['docenteLider', 'carrera', 'periodo', 'empresa', 'creator', 'updater']);
 
         return Inertia::render('Vinculacion/Actividades/Show', [
-            'actividad' => $actividad,
+            'actividad' => [
+                'id' => $actividad->id,
+                'nombre' => $actividad->nombre,
+                'estado' => $actividad->estado,
+                'fecha' => $actividad->fecha?->format('Y-m-d'),
+                'docente_lider' => $actividad->docenteLider
+                    ? ['id' => $actividad->docenteLider->id, 'name' => $actividad->docenteLider->name]
+                    : null,
+                'carrera_id' => $actividad->carrera_id,
+                'carrera' => $actividad->carrera?->nombre,
+                'periodo_id' => $actividad->periodo_id,
+                'periodo' => $actividad->periodo?->nombre,
+                'empresa_id' => $actividad->empresa_id,
+                'empresa' => $actividad->empresa?->nombre,
+                'creator' => $actividad->creator ? ['id' => $actividad->creator->id, 'name' => $actividad->creator->name] : null,
+                'updater' => $actividad->updater ? ['id' => $actividad->updater->id, 'name' => $actividad->updater->name] : null,
+                'created_at' => $actividad->created_at,
+            ],
             'breadcrumbs' => $this->vinculacionBreadcrumbs('Actividades', 'Ver Actividad', route('vinculacion.actividades'), $actividad->nombre),
         ]);
     }
 
     public function edit(ActividadVinculacion $actividad): Response
     {
+        $actividad->load(['docenteLider', 'carrera', 'periodo', 'empresa']);
+
         return Inertia::render('Vinculacion/Actividades/Edit', [
-            'actividad' => $actividad,
+            'actividad' => [
+                'id' => $actividad->id,
+                'nombre' => $actividad->nombre,
+                'estado' => $actividad->estado,
+                'fecha' => $actividad->fecha?->format('Y-m-d'),
+                'docente_lider' => $actividad->docenteLider
+                    ? ['id' => $actividad->docenteLider->id, 'name' => $actividad->docenteLider->name]
+                    : null,
+                'carrera_id' => $actividad->carrera_id,
+                'carrera' => $actividad->carrera?->nombre,
+                'periodo_id' => $actividad->periodo_id,
+                'periodo' => $actividad->periodo?->nombre,
+                'empresa_id' => $actividad->empresa_id,
+                'empresa' => $actividad->empresa?->nombre,
+            ],
             ...$this->catalogos(),
             'breadcrumbs' => $this->vinculacionBreadcrumbs('Actividades', 'Editar Actividad', route('vinculacion.actividades'), $actividad->nombre),
         ]);

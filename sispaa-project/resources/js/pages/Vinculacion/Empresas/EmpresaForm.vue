@@ -19,9 +19,17 @@ const isEditing = !!props.empresa;
 const formSchema = toTypedSchema(
     z.object({
         nombre: z.string().min(1, 'El nombre es obligatorio.').max(255, 'El nombre no puede superar los 255 caracteres.'),
-        ruc: z.string().max(13, 'El RUC no puede superar los 13 caracteres.').nullable().optional(),
+        ruc: z
+            .string()
+            .refine((v) => !v || /^\d{13}$/.test(v), 'El RUC debe tener 13 dígitos.')
+            .nullable()
+            .optional(),
         sector: z.string().max(255, 'El sector no puede superar los 255 caracteres.').nullable().optional(),
-        contacto: z.string().max(255, 'El contacto no puede superar los 255 caracteres.').nullable().optional(),
+        contacto: z
+            .string()
+            .refine((v) => !v || /^\d{10}$/.test(v), 'El contacto debe tener 10 dígitos.')
+            .nullable()
+            .optional(),
     }),
 );
 
@@ -36,6 +44,14 @@ const { handleSubmit, setErrors } = useForm({
 });
 
 const processing = ref(false);
+
+const goBack = () => {
+    if (window.history.length > 1) {
+        window.history.back();
+    } else {
+        router.visit(route('vinculacion.empresas'));
+    }
+};
 
 const onSubmit = handleSubmit((values) => {
     processing.value = true;
@@ -64,7 +80,7 @@ const onSubmit = handleSubmit((values) => {
                 <FormControl>
                     <InputGroup>
                         <InputGroupAddon><Building2 class="h-4 w-4" /></InputGroupAddon>
-                        <InputGroupInput type="text" v-bind="componentField" />
+                        <InputGroupInput type="text" v-bind="componentField" placeholder="Razón social de la empresa" />
                     </InputGroup>
                 </FormControl>
                 <FormMessage />
@@ -77,7 +93,7 @@ const onSubmit = handleSubmit((values) => {
                 <FormControl>
                     <InputGroup>
                         <InputGroupAddon><Hash class="h-4 w-4" /></InputGroupAddon>
-                        <InputGroupInput type="text" maxlength="13" v-bind="componentField" />
+                        <InputGroupInput type="text" inputmode="numeric" maxlength="13" v-bind="componentField" placeholder="13 dígitos (ej. 1790012345001)" />
                     </InputGroup>
                 </FormControl>
                 <FormMessage />
@@ -90,7 +106,7 @@ const onSubmit = handleSubmit((values) => {
                 <FormControl>
                     <InputGroup>
                         <InputGroupAddon><Briefcase class="h-4 w-4" /></InputGroupAddon>
-                        <InputGroupInput type="text" v-bind="componentField" />
+                        <InputGroupInput type="text" v-bind="componentField" placeholder="Ej. Agrícola, Construcción, Comercio" />
                     </InputGroup>
                 </FormControl>
                 <FormMessage />
@@ -103,16 +119,28 @@ const onSubmit = handleSubmit((values) => {
                 <FormControl>
                     <InputGroup>
                         <InputGroupAddon><Phone class="h-4 w-4" /></InputGroupAddon>
-                        <InputGroupInput type="text" v-bind="componentField" />
+                        <InputGroupInput type="text" inputmode="numeric" maxlength="10" v-bind="componentField" placeholder="10 dígitos (ej. 0991234567)" />
                     </InputGroup>
                 </FormControl>
                 <FormMessage />
             </FormItem>
         </FormField>
 
-        <div class="flex items-center gap-2 pt-2">
-            <Button type="submit" :disabled="processing" class="bg-indigo-600 font-semibold text-white hover:bg-indigo-500">
+        <div class="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:items-center">
+            <Button
+                type="submit"
+                :disabled="processing"
+                class="w-full bg-[var(--sispaa-primary)] font-semibold text-white hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)] sm:w-auto"
+            >
                 {{ processing ? 'Guardando...' : isEditing ? 'Guardar cambios' : 'Registrar empresa' }}
+            </Button>
+            <Button
+                type="button"
+                :disabled="processing"
+                class="w-full bg-[var(--sispaa-accent)] font-semibold text-white hover:bg-[color:color-mix(in_srgb,var(--sispaa-accent)_85%,black)] sm:w-auto"
+                @click="goBack"
+            >
+                Cancelar
             </Button>
         </div>
     </form>

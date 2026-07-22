@@ -18,12 +18,12 @@ defineProps<{
     <AppSidebarLayout :breadcrumbs="breadcrumbs">
         <Head title="Nueva Actividad de Vinculación" />
 
-        <div class="flex h-full flex-1 flex-col gap-6 p-6 bg-slate-50/50 dark:bg-slate-900/50">
+        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[color:color-mix(in_srgb,var(--sispaa-surface)_35%,white)]">
             <div>
-                <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">Nueva Actividad de Vinculación</h1>
+                <h3 class="text-base font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">Nueva Actividad de Vinculación</h3>
             </div>
 
-            <div class="max-w-xl mx-auto rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+            <div class="mx-auto w-full max-w-xl rounded-2xl border border-[var(--sispaa-surface)] bg-[var(--sispaa-background)] p-4 shadow-sm sm:p-6">
                 <ActividadForm :docentes="docentes" :carreras="carreras" :periodos="periodos" :empresas="empresas" />
             </div>
         </div>

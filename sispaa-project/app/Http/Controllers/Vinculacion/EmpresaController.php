@@ -43,9 +43,9 @@ class EmpresaController extends Controller
     {
         $request->validate([
             'nombre' => 'required|string|max:255',
-            'ruc' => 'nullable|string|max:13|unique:empresas,ruc',
+            'ruc' => 'nullable|digits:13|unique:empresas,ruc',
             'sector' => 'nullable|string|max:255',
-            'contacto' => 'nullable|string|max:255',
+            'contacto' => 'nullable|digits:10',
         ]);
 
         Empresa::create($request->only(['nombre', 'ruc', 'sector', 'contacto']));
@@ -58,7 +58,17 @@ class EmpresaController extends Controller
         $empresa->loadCount('actividadesVinculacion')->load(['creator', 'updater']);
 
         return Inertia::render('Vinculacion/Empresas/Show', [
-            'empresa' => $empresa,
+            'empresa' => [
+                'id' => $empresa->id,
+                'nombre' => $empresa->nombre,
+                'ruc' => $empresa->ruc,
+                'sector' => $empresa->sector,
+                'contacto' => $empresa->contacto,
+                'actividades_count' => $empresa->actividades_vinculacion_count,
+                'creator' => $empresa->creator ? ['id' => $empresa->creator->id, 'name' => $empresa->creator->name] : null,
+                'updater' => $empresa->updater ? ['id' => $empresa->updater->id, 'name' => $empresa->updater->name] : null,
+                'created_at' => $empresa->created_at,
+            ],
             'breadcrumbs' => $this->vinculacionBreadcrumbs('Empresas Beneficiadas', 'Ver Empresa', route('vinculacion.empresas'), $empresa->nombre),
         ]);
     }
@@ -75,9 +85,9 @@ class EmpresaController extends Controller
     {
         $request->validate([
             'nombre' => 'required|string|max:255',
-            'ruc' => 'nullable|string|max:13|unique:empresas,ruc,' . $empresa->id,
+            'ruc' => 'nullable|digits:13|unique:empresas,ruc,' . $empresa->id,
             'sector' => 'nullable|string|max:255',
-            'contacto' => 'nullable|string|max:255',
+            'contacto' => 'nullable|digits:10',
         ]);
 
         $empresa->update($request->only(['nombre', 'ruc', 'sector', 'contacto']));

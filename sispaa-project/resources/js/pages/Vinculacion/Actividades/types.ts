@@ -6,7 +6,7 @@ export interface Actividad {
     nombre: string;
     estado: 'pendiente' | 'ejecutado';
     fecha: string | null;
-    docente_lider: { id: number; name: string };
+    docente_lider: { id: number; name: string } | null;
     carrera_id: number;
     carrera: string;
     periodo_id: number;
