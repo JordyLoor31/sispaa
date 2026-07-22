@@ -81,19 +81,19 @@ const navigateToPage = (url: string | null) => {
             </div>
 
             <div class="w-full space-y-4">
-                <div class="flex flex-col gap-3 rounded-xl p-4 bg-[var(--sispaa-surface)] sm:flex-row">
-                    <div class="relative min-w-[200px] flex-1">
+                <div class="flex flex-col gap-3 sm:flex-row">
+                    <div class="relative w-full max-w-sm">
                         <Search class="absolute left-3 top-2.5 h-4 w-4 opacity-40 text-[var(--sispaa-text)]" />
                         <Input
                             v-model="search"
                             type="text"
                             placeholder="Buscar docente..."
-                            class="bg-[var(--sispaa-background)] pl-9"
+                            class="pl-9"
                             @input="debouncedSearch"
                         />
                     </div>
                     <Select v-model="filterEstado" @update:model-value="applyFilters">
-                        <SelectTrigger class="w-full bg-[var(--sispaa-background)] sm:w-[160px]"><SelectValue placeholder="Estado" /></SelectTrigger>
+                        <SelectTrigger class="w-full sm:w-[160px]"><SelectValue placeholder="Estado" /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">Todos</SelectItem>
                             <SelectItem value="subido">Subidos</SelectItem>

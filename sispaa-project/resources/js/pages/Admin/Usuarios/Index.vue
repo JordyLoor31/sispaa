@@ -101,22 +101,22 @@ const table = useVueTable({
 
             <div class="w-full space-y-4">
                 <!-- Filtros -->
-                <div class="flex flex-col gap-4 rounded-xl border p-4 sm:flex-row bg-[var(--sispaa-surface)] border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
-                    <div class="relative flex-1">
+                <div class="flex flex-col gap-4 sm:flex-row">
+                    <div class="relative w-full max-w-sm">
                         <Search class="absolute left-3 top-2.5 h-4 w-4 opacity-50 text-[var(--sispaa-text)]" />
                         <Input
                             v-model="search"
                             type="text"
                             placeholder="Buscar por nombre, correo o cédula..."
                             @input="debouncedSearch"
-                            class="pl-9 bg-[var(--sispaa-background)]"
+                            class="pl-9"
                         />
                     </div>
 
                     <div class="flex items-center gap-2">
                         <span class="text-xs font-semibold opacity-60 text-[var(--sispaa-text)]">Filtrar Rol:</span>
                         <Select v-model="filterRole" @update:model-value="handleRoleChange">
-                            <SelectTrigger class="w-[180px] rounded-lg bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
+                            <SelectTrigger class="w-[180px] rounded-lg border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
                                 <SelectValue placeholder="Todos los roles" />
                             </SelectTrigger>
                             <SelectContent class="rounded-lg">

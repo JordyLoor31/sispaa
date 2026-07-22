@@ -58,19 +58,19 @@ const table = useVueTable(reactive({
                 </p>
             </div>
 
-            <div class="flex flex-wrap items-end gap-3 rounded-xl p-4 bg-[var(--sispaa-surface)]">
-                <div class="min-w-[220px] flex-1">
+            <div class="flex flex-wrap items-end gap-3">
+                <div class="w-full max-w-sm">
                     <label class="mb-1.5 block text-xs font-semibold uppercase opacity-60 text-[var(--sispaa-text)]">Buscar</label>
                     <div class="relative">
                         <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 opacity-50 text-[var(--sispaa-text)]" />
                         <Input v-model="search" type="text" placeholder="Buscar estudiante, materia o motivo..."
-                            class="bg-[var(--sispaa-background)] pl-9" @input="debouncedAplicar" />
+                            class="pl-9" @input="debouncedAplicar" />
                     </div>
                 </div>
                 <div>
                     <label class="mb-1.5 block text-xs font-semibold uppercase opacity-60 text-[var(--sispaa-text)]">Estado</label>
                     <Select v-model="estado" @update:model-value="aplicar">
-                        <SelectTrigger class="w-full sm:w-[180px] bg-[var(--sispaa-background)]"><SelectValue /></SelectTrigger>
+                        <SelectTrigger class="w-full sm:w-[180px]"><SelectValue /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">Todos</SelectItem>
                             <SelectItem value="pendiente">Pendiente</SelectItem>

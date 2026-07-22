@@ -49,9 +49,9 @@ const confirmDelete = () => {
                 </Button>
             </div>
 
-            <div class="flex flex-wrap gap-3 p-4 rounded-xl bg-[var(--sispaa-surface)]">
+            <div class="flex flex-wrap gap-3">
                 <Select v-model="filterPeriodo" @update:model-value="applyFilter">
-                    <SelectTrigger class="w-full sm:w-[200px] bg-[var(--sispaa-background)]"><SelectValue placeholder="Período" /></SelectTrigger>
+                    <SelectTrigger class="w-full sm:w-[200px]"><SelectValue placeholder="Período" /></SelectTrigger>
                     <SelectContent>
                         <SelectItem value="all">Todos los períodos</SelectItem>
                         <SelectItem v-for="per in periodos" :key="per.id" :value="String(per.id)">{{ per.nombre }}</SelectItem>

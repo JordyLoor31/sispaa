@@ -125,7 +125,7 @@ const table = useVueTable(reactive({
             <!-- Filters & Action -->
             <div class="flex flex-col items-stretch gap-4 md:flex-row md:items-center md:justify-between">
                 <div class="flex w-full flex-1 flex-col gap-4 sm:flex-row md:w-auto">
-                    <div class="relative max-w-md flex-1">
+                    <div class="relative w-full max-w-sm">
                         <Search class="absolute left-3 top-2.5 h-4 w-4 opacity-50 text-[var(--sispaa-text)]" />
                         <Input
                             v-model="search"

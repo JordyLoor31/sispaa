@@ -9,6 +9,7 @@ import { ref, watch } from 'vue';
 import { Button } from '@/components/ui/button';
 import { InputGroup, InputGroupTextarea, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Check, ChevronsUpDown, Calendar } from 'lucide-vue-next';
 import {
     Combobox,
@@ -37,6 +38,7 @@ const formSchema = toTypedSchema(
             message: 'Selecciona un tutor.',
         }),
         fecha_inicio: z.string().nullable().optional(),
+        estado: z.enum(['en_proceso', 'defendido', 'graduado']),
     }),
 );
 
@@ -46,8 +48,11 @@ const { handleSubmit, setErrors, defineField } = useForm({
         tema: props.titulacion.tema,
         tutor_id: props.titulacion.tutor.id,
         fecha_inicio: props.titulacion.fecha_inicio ?? '',
+        estado: props.titulacion.estado,
     },
 });
+
+const [estado] = defineField('estado');
 
 const [tutorId] = defineField('tutor_id');
 
@@ -142,6 +147,26 @@ const onSubmit = handleSubmit((values) => {
                                     <InputGroupInput type="date" v-bind="componentField" />
                                 </InputGroup>
                             </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    </FormField>
+
+                    <FormField name="estado">
+                        <FormItem>
+                            <FormLabel class="text-[var(--sispaa-text)]">Estado</FormLabel>
+                            <Select v-model="estado">
+                                <FormControl>
+                                    <SelectTrigger class="w-full"><SelectValue /></SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                    <SelectItem value="en_proceso">En proceso</SelectItem>
+                                    <SelectItem value="defendido">Defendido</SelectItem>
+                                    <SelectItem value="graduado">Graduado</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <p v-if="estado === 'graduado' && !props.titulacion.fecha_graduacion" class="text-xs opacity-60 text-[var(--sispaa-text)]">
+                                Al guardar como "Graduado" se registrará la fecha de hoy como fecha de graduación.
+                            </p>
                             <FormMessage />
                         </FormItem>
                     </FormField>

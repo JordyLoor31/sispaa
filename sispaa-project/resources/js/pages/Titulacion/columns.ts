@@ -1,7 +1,6 @@
 import type { ColumnDef } from '@tanstack/vue-table';
 import { h } from 'vue';
 import { GraduationCap } from 'lucide-vue-next';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import ResourceActionsDropdown from '@/components/ResourceActionsDropdown.vue';
 
 export interface Persona {
@@ -32,12 +31,11 @@ const estadoBadge = (estado: string) => {
 };
 
 interface TitulacionColumnsOptions {
-    onChangeEstado: (titulacion: Titulacion, estado: string) => void;
-    /** false para docente/secretaría (solo lectura): oculta el selector de estado y las acciones de editar/eliminar. */
+    /** false para docente/secretaría (solo lectura): oculta las acciones de editar/eliminar. */
     puedeGestionar: boolean;
 }
 
-export function makeTitulacionColumns({ onChangeEstado, puedeGestionar }: TitulacionColumnsOptions): ColumnDef<Titulacion>[] {
+export function makeTitulacionColumns({ puedeGestionar }: TitulacionColumnsOptions): ColumnDef<Titulacion>[] {
     return [
         {
             id: 'estudiante',
@@ -66,22 +64,9 @@ export function makeTitulacionColumns({ onChangeEstado, puedeGestionar }: Titula
             header: 'Estado',
             cell: ({ row }) => {
                 const t = row.original;
+                const label = t.estado === 'en_proceso' ? 'En proceso' : t.estado === 'defendido' ? 'Defendido' : 'Graduado';
 
-                if (!puedeGestionar) {
-                    return h('span', { class: `inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${estadoBadge(t.estado)}` }, t.estado.replace('_', ' '));
-                }
-
-                return h(Select, {
-                    modelValue: t.estado,
-                    'onUpdate:modelValue': (val: string) => onChangeEstado(t, val),
-                }, () => [
-                    h(SelectTrigger, { class: `h-7 w-[130px] text-xs border-none ${estadoBadge(t.estado)}` }, () => h(SelectValue)),
-                    h(SelectContent, {}, () => [
-                        h(SelectItem, { value: 'en_proceso' }, () => 'En proceso'),
-                        h(SelectItem, { value: 'defendido' }, () => 'Defendido'),
-                        h(SelectItem, { value: 'graduado' }, () => 'Graduado'),
-                    ]),
-                ]);
+                return h('span', { class: `inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${estadoBadge(t.estado)}` }, label);
             },
         },
         {

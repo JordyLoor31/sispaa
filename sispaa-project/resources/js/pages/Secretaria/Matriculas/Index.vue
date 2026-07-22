@@ -143,19 +143,19 @@ const navigateToPage = (url: string | null) => {
             </div>
 
             <div class="w-full space-y-4">
-                <div class="flex flex-col flex-wrap gap-3 rounded-xl p-4 bg-[var(--sispaa-surface)] sm:flex-row">
-                    <div class="relative min-w-[200px] flex-1">
+                <div class="flex flex-col flex-wrap gap-3 sm:flex-row">
+                    <div class="relative w-full max-w-sm">
                         <Search class="absolute left-3 top-2.5 h-4 w-4 opacity-40 text-[var(--sispaa-text)]" />
                         <Input
                             v-model="search"
                             @input="debouncedSearch"
                             type="text"
                             placeholder="Buscar estudiante, cédula..."
-                            class="bg-[var(--sispaa-background)] pl-9"
+                            class="pl-9"
                         />
                     </div>
                     <Select v-model="filterEstado" @update:model-value="applyFilters">
-                        <SelectTrigger class="w-full bg-[var(--sispaa-background)] sm:w-[140px]"><SelectValue placeholder="Estado" /></SelectTrigger>
+                        <SelectTrigger class="w-full sm:w-[140px]"><SelectValue placeholder="Estado" /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">Todos</SelectItem>
                             <SelectItem value="activo">Activo</SelectItem>
@@ -164,14 +164,14 @@ const navigateToPage = (url: string | null) => {
                         </SelectContent>
                     </Select>
                     <Select v-model="filterPeriodo" @update:model-value="applyFilters">
-                        <SelectTrigger class="w-full bg-[var(--sispaa-background)] sm:w-[180px]"><SelectValue placeholder="Período" /></SelectTrigger>
+                        <SelectTrigger class="w-full sm:w-[180px]"><SelectValue placeholder="Período" /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">Todos los períodos</SelectItem>
                             <SelectItem v-for="p in periodos" :key="p.id" :value="String(p.id)">{{ p.nombre }}</SelectItem>
                         </SelectContent>
                     </Select>
                     <Select v-model="filterCarrera" @update:model-value="applyFilters">
-                        <SelectTrigger class="w-full bg-[var(--sispaa-background)] sm:w-[180px]"><SelectValue placeholder="Carrera" /></SelectTrigger>
+                        <SelectTrigger class="w-full sm:w-[180px]"><SelectValue placeholder="Carrera" /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">Todas las carreras</SelectItem>
                             <SelectItem v-for="c in carreras" :key="c.id" :value="String(c.id)">{{ c.codigo }} — {{ c.nombre }}</SelectItem>

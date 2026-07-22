@@ -105,14 +105,14 @@ const chartOptions = computed<ApexOptions>(() => ({
 
             <div class="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-6">
                 <div class="lg:col-span-2 flex flex-col gap-4">
-                    <div class="flex flex-col gap-3 rounded-xl p-4 bg-[var(--sispaa-surface)] sm:flex-row sm:flex-wrap">
-                        <div class="relative min-w-[200px] flex-1">
+                    <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                        <div class="relative w-full max-w-sm">
                             <Search class="absolute left-3 top-2.5 h-4 w-4 opacity-50 text-[var(--sispaa-text)]" />
                             <Input
                                 v-model="search"
                                 type="text"
                                 placeholder="Buscar docente..."
-                                class="bg-[var(--sispaa-background)] pl-9"
+                                class="pl-9"
                                 @input="debouncedSearch"
                             />
                         </div>

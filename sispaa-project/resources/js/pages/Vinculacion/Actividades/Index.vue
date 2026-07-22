@@ -85,9 +85,9 @@ const estadoSelect = (estado: string) => {
             </div>
 
             <div class="w-full max-w-5xl space-y-4">
-                <div class="flex gap-3 rounded-xl p-4 bg-[var(--sispaa-surface)]">
+                <div class="flex gap-3">
                     <Select v-model="filterEstado" @update:model-value="applyFilter">
-                        <SelectTrigger class="w-[180px] bg-[var(--sispaa-background)]"><SelectValue placeholder="Estado" /></SelectTrigger>
+                        <SelectTrigger class="w-[180px]"><SelectValue placeholder="Estado" /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">Todos los estados</SelectItem>
                             <SelectItem value="pendiente">Pendientes</SelectItem>

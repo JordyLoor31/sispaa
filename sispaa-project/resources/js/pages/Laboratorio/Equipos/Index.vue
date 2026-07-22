@@ -58,9 +58,9 @@ const table = useVueTable(reactive({
             </div>
 
             <div class="w-full space-y-4">
-                <div class="flex flex-wrap gap-3 p-4 rounded-xl bg-[var(--sispaa-surface)]">
+                <div class="flex flex-wrap gap-3">
                     <Select v-model="filterLab" @update:model-value="applyFilter">
-                        <SelectTrigger class="w-full sm:w-[220px] bg-[var(--sispaa-background)]"><SelectValue placeholder="Laboratorio" /></SelectTrigger>
+                        <SelectTrigger class="w-full sm:w-[220px]"><SelectValue placeholder="Laboratorio" /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">Todos los laboratorios</SelectItem>
                             <SelectItem v-for="l in laboratorios" :key="l.id" :value="String(l.id)">{{ l.nombre }}</SelectItem>

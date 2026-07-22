@@ -74,23 +74,23 @@ const navigateToPage = (url: string | null) => {
             </div>
 
             <div class="w-full space-y-4">
-                <div class="flex flex-col flex-wrap gap-3 rounded-xl p-4 bg-[var(--sispaa-surface)] sm:flex-row">
+                <div class="flex flex-col flex-wrap gap-3 sm:flex-row">
                     <Select v-model="filterDocente" @update:model-value="applyFilters">
-                        <SelectTrigger class="w-full bg-[var(--sispaa-background)] sm:w-[220px]"><SelectValue placeholder="Docente" /></SelectTrigger>
+                        <SelectTrigger class="w-full sm:w-[220px]"><SelectValue placeholder="Docente" /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">Todos los docentes</SelectItem>
                             <SelectItem v-for="d in docentes" :key="d.id" :value="String(d.id)">{{ d.name }}</SelectItem>
                         </SelectContent>
                     </Select>
                     <Select v-model="filterMateria" @update:model-value="applyFilters">
-                        <SelectTrigger class="w-full bg-[var(--sispaa-background)] sm:w-[220px]"><SelectValue placeholder="Materia" /></SelectTrigger>
+                        <SelectTrigger class="w-full sm:w-[220px]"><SelectValue placeholder="Materia" /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">Todas las materias</SelectItem>
                             <SelectItem v-for="m in materias" :key="m.id" :value="String(m.id)">{{ m.codigo }} — {{ m.nombre }}</SelectItem>
                         </SelectContent>
                     </Select>
                     <Select v-model="filterPeriodo" @update:model-value="applyFilters">
-                        <SelectTrigger class="w-full bg-[var(--sispaa-background)] sm:w-[180px]"><SelectValue placeholder="Período" /></SelectTrigger>
+                        <SelectTrigger class="w-full sm:w-[180px]"><SelectValue placeholder="Período" /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">Todos los períodos</SelectItem>
                             <SelectItem v-for="p in periodos" :key="p.id" :value="String(p.id)">{{ p.nombre }}</SelectItem>

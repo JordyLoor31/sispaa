@@ -51,16 +51,16 @@ const table = useVueTable(reactive({
                 <p class="mt-1 text-sm opacity-60 text-[var(--sispaa-text)]">Lista de estudiantes matriculados en la institución.</p>
             </div>
 
-            <div class="flex flex-wrap items-end gap-3 rounded-xl p-4 bg-[var(--sispaa-surface)]">
+            <div class="flex flex-wrap items-end gap-3">
                 <div>
                     <label class="mb-1.5 block text-xs font-semibold uppercase opacity-60 text-[var(--sispaa-text)]">Buscar</label>
                     <input v-model="q" @keyup.enter="aplicar" placeholder="Nombre, correo o cédula"
-                        class="w-full sm:w-[240px] rounded-lg text-sm bg-[var(--sispaa-background)] text-[var(--sispaa-text)] border-[color:color-mix(in_srgb,var(--sispaa-text)_20%,transparent)]" />
+                        class="w-full sm:w-[240px] rounded-lg text-sm text-[var(--sispaa-text)] border-[color:color-mix(in_srgb,var(--sispaa-text)_20%,transparent)]" />
                 </div>
                 <div>
                     <label class="mb-1.5 block text-xs font-semibold uppercase opacity-60 text-[var(--sispaa-text)]">Carrera</label>
                     <Select v-model="carreraId" @update:model-value="aplicar">
-                        <SelectTrigger class="w-full sm:w-[200px] bg-[var(--sispaa-background)]"><SelectValue /></SelectTrigger>
+                        <SelectTrigger class="w-full sm:w-[200px]"><SelectValue /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">Todas las carreras</SelectItem>
                             <SelectItem v-for="c in carreras" :key="c.id" :value="String(c.id)">{{ c.nombre }}</SelectItem>
@@ -70,7 +70,7 @@ const table = useVueTable(reactive({
                 <div>
                     <label class="mb-1.5 block text-xs font-semibold uppercase opacity-60 text-[var(--sispaa-text)]">Estado</label>
                     <Select v-model="estado" @update:model-value="aplicar">
-                        <SelectTrigger class="w-full sm:w-[160px] bg-[var(--sispaa-background)]"><SelectValue /></SelectTrigger>
+                        <SelectTrigger class="w-full sm:w-[160px]"><SelectValue /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">Todos</SelectItem>
                             <SelectItem value="activo">Activo</SelectItem>

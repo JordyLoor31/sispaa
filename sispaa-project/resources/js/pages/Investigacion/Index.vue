@@ -72,9 +72,9 @@ const estadoBadge = (estado: string) => {
             </div>
 
             <div class="w-full max-w-5xl mx-auto space-y-4">
-                <div class="flex gap-3 p-4 rounded-xl bg-[var(--sispaa-surface)]">
+                <div class="flex gap-3">
                     <Select v-model="filterEstado" @update:model-value="applyFilter">
-                        <SelectTrigger class="w-full bg-[var(--sispaa-background)] sm:w-[180px]"><SelectValue placeholder="Estado" /></SelectTrigger>
+                        <SelectTrigger class="w-full sm:w-[180px]"><SelectValue placeholder="Estado" /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">Todos los estados</SelectItem>
                             <SelectItem value="en_curso">En curso</SelectItem>

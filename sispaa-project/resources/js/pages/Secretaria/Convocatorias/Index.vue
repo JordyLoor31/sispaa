@@ -59,9 +59,9 @@ const table = useVueTable(
             </div>
 
             <div class="w-full space-y-4">
-                <div class="flex gap-3 rounded-xl p-4 bg-[var(--sispaa-surface)]">
+                <div class="flex gap-3">
                     <Select v-model="filterModulo" @update:model-value="applyFilter">
-                        <SelectTrigger class="w-full bg-[var(--sispaa-background)] sm:w-[200px]"><SelectValue placeholder="Módulo" /></SelectTrigger>
+                        <SelectTrigger class="w-full sm:w-[200px]"><SelectValue placeholder="Módulo" /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">Todos los módulos</SelectItem>
                             <SelectItem v-for="m in modulos" :key="m" :value="m">{{ m }}</SelectItem>

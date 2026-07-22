@@ -10,7 +10,6 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { useDebounceFn } from '@vueuse/core';
-import { toast } from 'vue-sonner';
 import makeTitulacionColumns, { type Titulacion } from './columns';
 
 interface Paginated<T> { data: T[]; current_page: number; last_page: number; per_page: number; total: number; links: any[] }
@@ -39,14 +38,7 @@ const applyFilter = () => {
 };
 const debouncedSearch = useDebounceFn(applyFilter, 300);
 
-const changeEstado = (t: Titulacion, estado: string) => {
-    router.put(route('titulacion.update', t.id), { estado }, {
-        preserveScroll: true,
-        onSuccess: () => toast.success('Estado actualizado.'),
-    });
-};
-
-const columns = makeTitulacionColumns({ onChangeEstado: changeEstado, puedeGestionar: props.puedeGestionar });
+const columns = makeTitulacionColumns({ puedeGestionar: props.puedeGestionar });
 
 const table = useVueTable(reactive({
     get data() { return props.titulaciones.data; },
@@ -96,19 +88,19 @@ const navigateToPage = (url: string | null) => {
             </div>
 
             <div class="w-full space-y-4">
-                <div class="flex flex-col gap-3 p-4 rounded-xl sm:flex-row bg-[var(--sispaa-surface)]">
-                    <div class="relative min-w-[220px] flex-1">
+                <div class="flex flex-col gap-3 sm:flex-row">
+                    <div class="relative w-full max-w-sm">
                         <Search class="absolute left-3 top-2.5 h-4 w-4 opacity-50 text-[var(--sispaa-text)]" />
                         <Input
                             v-model="search"
                             type="text"
                             placeholder="Buscar por tema, estudiante o tutor..."
-                            class="bg-[var(--sispaa-background)] pl-9"
+                            class="pl-9"
                             @input="debouncedSearch"
                         />
                     </div>
                     <Select v-model="filterEstado" @update:model-value="applyFilter">
-                        <SelectTrigger class="w-full bg-[var(--sispaa-background)] sm:w-[200px]"><SelectValue placeholder="Estado" /></SelectTrigger>
+                        <SelectTrigger class="w-full sm:w-[200px]"><SelectValue placeholder="Estado" /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">Todos los estados</SelectItem>
                             <SelectItem value="en_proceso">En proceso</SelectItem>
