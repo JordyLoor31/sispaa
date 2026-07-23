@@ -81,6 +81,12 @@ trait HasBreadcrumbs
         return $this->moduleBreadcrumbs('Titulación', route('titulacion.index'), $section, $action, $sectionRoute, $itemTitle);
     }
 
+    /** Breadcrumbs para Revisión de Sílabos (coordinador/SystemAdministrador) */
+    protected function silabosBreadcrumbs(string $section, ?string $action = null, ?string $sectionRoute = null, ?string $itemTitle = null): array
+    {
+        return $this->moduleBreadcrumbs('Sílabos', route('coordinador.silabos.index'), $section, $action, $sectionRoute, $itemTitle);
+    }
+
     /** Breadcrumbs para Vinculación (Actividades, Empresas beneficiadas) */
     protected function vinculacionBreadcrumbs(string $section, ?string $action = null, ?string $sectionRoute = null, ?string $itemTitle = null): array
     {

@@ -108,7 +108,7 @@ const navigateToPage = (url: string | null) => {
         <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[color:color-mix(in_srgb,var(--sispaa-surface)_30%,var(--sispaa-background))]">
             <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div class="flex items-center gap-3.5">
-                    <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white shadow-sm" :style="BRAND_GRADIENT">
+                    <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white shadow-sm bg-[var(--sispaa-primary)]">
                         <ClipboardList class="h-5 w-5" />
                     </div>
                     <div>

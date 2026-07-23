@@ -12,13 +12,20 @@ use Inertia\Inertia;
 use Inertia\Response;
 
 /**
- * Cola de revisión de Sílabos, separada de SecretariaController. No es
- * CRUD: secretaría no crea sílabos, solo los aprueba o rechaza. Se llama
- * SilaboRevisionController (no SilaboController) para no chocar en el
- * nombre con App\Http\Controllers\Docencia\SilaboController (autoservicio
- * del docente), aunque viven en namespaces distintos.
+ * Cola de revisión de Sílabos. No es CRUD: ni coordinador ni
+ * SystemAdministrador crean sílabos, solo los aprueban o rechazan. Se
+ * llama SilaboRevisionController (no SilaboController) para no chocar en
+ * el nombre con App\Http\Controllers\Docencia\SilaboController
+ * (autoservicio del docente), aunque viven en namespaces distintos.
  * Sigue un patrón adaptado Index + Show (la acción de aprobar/rechazar
  * vive en Show.vue, no en un modal dentro del Index).
+ *
+ * Acceso: exclusivo de coordinador/SystemAdministrador (rutas
+ * coordinador.silabos.*, ver routes/web.php). Secretaría ya no tiene
+ * acceso a este módulo; el controlador se mantiene en este namespace
+ * (Secretaria) solo por historia/organización de carpetas, no implica
+ * permiso alguno — la autorización real vive 100% en el middleware
+ * `role:` del grupo de rutas.
  */
 class SilaboRevisionController extends Controller
 {
@@ -78,7 +85,7 @@ class SilaboRevisionController extends Controller
                 'aprobados' => Silabo::where('estado', 'aprobado')->count(),
                 'total' => Silabo::count(),
             ],
-            'breadcrumbs' => $this->secretariaBreadcrumbs('Revisión de Sílabos'),
+            'breadcrumbs' => $this->silabosBreadcrumbs('Revisión de Sílabos'),
         ]);
     }
 
@@ -88,7 +95,7 @@ class SilaboRevisionController extends Controller
 
         return Inertia::render('Secretaria/Silabos/Show', [
             'silabo' => $this->transform($silabo),
-            'breadcrumbs' => $this->secretariaBreadcrumbs('Revisión de Sílabos', 'Ver Sílabo', route('secretaria.silabos.index'), $silabo->materia->nombre),
+            'breadcrumbs' => $this->silabosBreadcrumbs('Revisión de Sílabos', 'Ver Sílabo', route('coordinador.silabos.index'), $silabo->materia->nombre),
         ]);
     }
 
@@ -131,13 +138,13 @@ class SilaboRevisionController extends Controller
                     ? "Sílabo aprobado: {$silabo->materia->nombre}"
                     : "Sílabo rechazado: {$silabo->materia->nombre}",
                 'mensaje' => $nuevoEstado === 'aprobado'
-                    ? "Tu sílabo de \"{$silabo->materia->nombre}\" ha sido aprobado por Secretaría."
+                    ? "Tu sílabo de \"{$silabo->materia->nombre}\" ha sido aprobado por Coordinación."
                     : "Tu sílabo de \"{$silabo->materia->nombre}\" fue rechazado. Motivo: {$request->observaciones}. Vuelve a subirlo corregido.",
                 'leido' => false,
             ]);
         }
 
-        return redirect()->route('secretaria.silabos.index')->with('success',
+        return redirect()->route('coordinador.silabos.index')->with('success',
             $nuevoEstado === 'aprobado'
                 ? 'Sílabo aprobado correctamente.'
                 : 'Sílabo rechazado. Se ha notificado al docente.'

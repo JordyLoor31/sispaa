@@ -29,7 +29,7 @@ const submitReview = (accion: 'aprobar' | 'rechazar') => {
         reviewForm.setError('observaciones', 'Debes indicar el motivo del rechazo (mínimo 5 caracteres).');
         return;
     }
-    reviewForm.patch(route('secretaria.silabos.review', props.silabo.id), {
+    reviewForm.patch(route('coordinador.silabos.review', props.silabo.id), {
         preserveScroll: true,
         onSuccess: () => toast.success(accion === 'aprobar' ? 'Sílabo aprobado.' : 'Sílabo rechazado.'),
         onError: () => toast.error('Revisa los campos del formulario.'),
@@ -55,7 +55,7 @@ const submitReview = (accion: 'aprobar' | 'rechazar') => {
                     </div>
                 </div>
                 <Button as-child variant="outline">
-                    <Link :href="route('secretaria.silabos.index')">
+                    <Link :href="route('coordinador.silabos.index')">
                         <ArrowLeft class="h-4 w-4 mr-1.5" /> Volver
                     </Link>
                 </Button>

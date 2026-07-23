@@ -29,7 +29,6 @@ class RolesPermissionsSeeder extends Seeder
             'convocatorias.manage',
             'grupos_documentos.manage',
             'notificaciones.manage-masivas',
-            'silabos.review',
         ];
 
         $docentePermissions = [
@@ -44,6 +43,7 @@ class RolesPermissionsSeeder extends Seeder
             'titulacion.manage',
             'curricular.approve',
             'vinculacion.manage',
+            'silabos.review',
         ];
 
         $estudiantePermissions = [

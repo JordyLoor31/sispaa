@@ -38,7 +38,7 @@ export const dashboardNavItem: NavItem = {
  * pantallas nuevas, solo una entrada de menú distinta.
  */
 export const revisionDocumentosNavItems: NavItem[] = [
-    { title: 'Sílabos', href: route('secretaria.silabos.index') },
+    { title: 'Sílabos', href: route('coordinador.silabos.index') },
     { title: 'Informes de Asignatura', href: route('secretaria.informes.index') },
     { title: 'Justificaciones', href: route('secretaria.justificaciones.index') },
     { title: 'Expediente / Documentos del Estudiante', href: route('secretaria.expediente.index') },
@@ -68,7 +68,7 @@ export const systemAdministradorNavItems: NavItem[] = [
     },
     {
         title: 'Revisión de Documentos',
-        href: route('secretaria.silabos.index'),
+        href: route('coordinador.silabos.index'),
         icon: ClipboardCheck,
         items: revisionDocumentosNavItems,
     },
@@ -128,7 +128,7 @@ export const docenteNavItems: NavItem[] = [
  */
 export const docenteAdminOverviewNavItems: NavItem[] = [];
 
-/** Rol Coordinador: supervisión de investigación, titulación y vinculación. */
+/** Rol Coordinador: supervisión de investigación, titulación, sílabos y vinculación. */
 export const coordinadorNavItems: NavItem[] = [
     {
         title: 'Investigación',
@@ -141,6 +141,11 @@ export const coordinadorNavItems: NavItem[] = [
         icon: GraduationCap,
     },
     {
+        title: 'Revisión de Sílabos',
+        href: route('coordinador.silabos.index'),
+        icon: BookOpen,
+    },
+    {
         title: 'Vinculación',
         href: route('vinculacion.actividades'),
         icon: Handshake,
@@ -150,6 +155,19 @@ export const coordinadorNavItems: NavItem[] = [
         ],
     },
 ];
+
+/**
+ * Variante de coordinadorNavItems solo para la vista "todo" de
+ * SystemAdministrador: quita 'Revisión de Sílabos' porque ya vive,
+ * seccionado junto al resto de documentos que suben otros roles, dentro de
+ * "Revisión de Documentos" (revisionDocumentosNavItems, bloque
+ * Administración) — mismo criterio que TITULOS_YA_CUBIERTOS_EN_VISTA_ADMIN
+ * para Secretaría. coordinadorNavItems en sí queda intacto: el coordinador
+ * real lo sigue necesitando completo en su propio menú (navByRole).
+ */
+const TITULOS_YA_CUBIERTOS_COORDINADOR_EN_VISTA_ADMIN = new Set(['Revisión de Sílabos']);
+export const coordinadorAdminOverviewNavItems: NavItem[] = coordinadorNavItems
+    .filter((item) => !TITULOS_YA_CUBIERTOS_COORDINADOR_EN_VISTA_ADMIN.has(item.title));
 
 /** Rol Secretaría: expediente SGA, justificaciones, matrículas, convocatorias,
  *  grupos de documentos y notificaciones masivas. */
@@ -163,11 +181,6 @@ export const secretariaNavItems: NavItem[] = [
         title: 'Justificaciones',
         href: route('secretaria.justificaciones.index'),
         icon: Search,
-    },
-    {
-        title: 'Revisión de Sílabos',
-        href: route('secretaria.silabos.index'),
-        icon: BookOpen,
     },
     {
         title: 'Titulación',
@@ -235,9 +248,9 @@ export const secretariaNavItems: NavItem[] = [
  * Variante de secretariaNavItems solo para la vista "todo" de
  * SystemAdministrador: quita items que ya se ven en otro bloque de esa
  * misma vista consolidada, para no repetirlos dos veces en el sidebar.
- * - 'Expediente SGA' / 'Justificaciones' / 'Revisión de Sílabos' ahora
- *   viven, seccionados junto al resto de documentos que suben otros
- *   roles, dentro de "Revisión de Documentos".
+ * - 'Expediente SGA' / 'Justificaciones' ahora viven, seccionados junto al
+ *   resto de documentos que suben otros roles, dentro de "Revisión de
+ *   Documentos".
  * - 'Titulación' ya aparece en el bloque "Coordinador" (coordinadorNavItems),
  *   que es quien la supervisa a nivel institucional; se quita de aquí para
  *   no repetirla (mismo caso que 'Investigación', ver docenteAdminOverviewNavItems).
@@ -245,12 +258,14 @@ export const secretariaNavItems: NavItem[] = [
  *   "Coordinador" (gestionEstudiantesNavItems); 'Estudiantes matriculados'
  *   en cambio es exclusivo de Secretaría/SysAdmin (ya no de Coordinador),
  *   así que aquí SÍ se muestra, solo, dentro del bloque Secretaría.
+ * ('Revisión de Sílabos' ya no aparece aquí: se quitó por completo de
+ * secretariaNavItems, ver comentario sobre coordinadorNavItems.)
  * Se deriva por filtro/map (no se duplica a mano) para no desincronizarse
  * si secretariaNavItems cambia. secretariaNavItems en sí queda intacto: el
  * personal real de Secretaría lo sigue necesitando completo en su propio
  * menú (navByRole).
  */
-const TITULOS_YA_CUBIERTOS_EN_VISTA_ADMIN = new Set(['Expediente SGA', 'Justificaciones', 'Revisión de Sílabos', 'Titulación']);
+const TITULOS_YA_CUBIERTOS_EN_VISTA_ADMIN = new Set(['Expediente SGA', 'Justificaciones', 'Titulación']);
 const SUBITEMS_ESTUDIANTES_YA_CUBIERTOS_EN_VISTA_ADMIN = new Set(['Panel Estudiantes', 'Faltas', 'Justificaciones de faltas']);
 export const secretariaAdminOverviewNavItems: NavItem[] = secretariaNavItems
     .filter((item) => !TITULOS_YA_CUBIERTOS_EN_VISTA_ADMIN.has(item.title))
@@ -327,7 +342,7 @@ export interface NavRoleGroup {
 export const roleNavGroups: NavRoleGroup[] = [
     { key: 'administracion', label: 'Administración', items: systemAdministradorNavItems, icon: Settings },
     { key: 'docente', label: 'Docente', items: docenteNavItems, icon: Feather },
-    { key: 'coordinador', label: 'Coordinador', items: [...coordinadorNavItems, ...gestionEstudiantesNavItems], icon: Users },
+    { key: 'coordinador', label: 'Coordinador', items: [...coordinadorAdminOverviewNavItems, ...gestionEstudiantesNavItems], icon: Users },
     { key: 'secretaria', label: 'Secretaría', items: secretariaAdminOverviewNavItems, icon: FileText },
     { key: 'estudiante', label: 'Estudiante', items: estudianteNavItems, icon: User },
 ];

@@ -28,7 +28,7 @@ const filterEstado = ref(props.filters.estado || 'all');
 
 const applyFilters = () => {
     router.get(
-        route('secretaria.silabos.index'),
+        route('coordinador.silabos.index'),
         {
             q: search.value || undefined,
             estado: filterEstado.value !== 'all' ? filterEstado.value : undefined,

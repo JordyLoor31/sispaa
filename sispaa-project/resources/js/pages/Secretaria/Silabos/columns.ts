@@ -83,7 +83,7 @@ export function makeSilaboColumns(): ColumnDef<SilaboItem>[] {
                             h(DropdownMenuItem, { asChild: true }, () =>
                                 h(
                                     Link,
-                                    { href: route('secretaria.silabos.show', s.id), class: 'w-full flex items-center' },
+                                    { href: route('coordinador.silabos.show', s.id), class: 'w-full flex items-center' },
                                     () => [h(Eye, { class: 'mr-2 h-4 w-4' }), s.estado === 'aprobado' ? 'Ver' : 'Revisar'],
                                 ),
                             ),

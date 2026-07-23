@@ -174,6 +174,21 @@ Route::middleware(['auth', 'verified', 'role:docente|SystemAdministrador'])
 // ANTES del de lectura para que la ruta literal '/crear' se registre antes
 // que la comodín '/{titulacion}' (show); si no, Laravel interpreta "crear"
 // como un id de titulación y devuelve 404 al abrir "Registrar Tema".
+// COORDINADOR - Revisión de Sílabos: exclusivo de coordinador/SystemAdministrador
+// (secretaría ya no tiene acceso). Coordinador y SystemAdministrador ven y
+// revisan los sílabos de CUALQUIER docente, sin acotar por carrera.
+Route::middleware(['auth', 'verified', 'role:coordinador|SystemAdministrador'])
+    ->prefix('coordinador/silabos')
+    ->name('coordinador.silabos.')
+    ->group(function () {
+        Route::get('/', [\App\Http\Controllers\Secretaria\SilaboRevisionController::class, 'index'])
+            ->name('index');
+        Route::get('/{silabo}', [\App\Http\Controllers\Secretaria\SilaboRevisionController::class, 'show'])
+            ->name('show');
+        Route::patch('/{silabo}/review', [\App\Http\Controllers\Secretaria\SilaboRevisionController::class, 'review'])
+            ->name('review');
+    });
+
 Route::middleware(['auth', 'verified', 'role:coordinador|SystemAdministrador'])
     ->prefix('titulacion')
     ->name('titulacion.')
@@ -398,13 +413,9 @@ Route::middleware(['auth', 'verified', 'role:secretaria|SystemAdministrador'])
         Route::post('/notificaciones-masivas', [\App\Http\Controllers\Secretaria\NotificacionMasivaController::class, 'store'])
             ->name('notificaciones-masivas.store');
 
-        // Revisión de Sílabos
-        Route::get('/silabos', [\App\Http\Controllers\Secretaria\SilaboRevisionController::class, 'index'])
-            ->name('silabos.index');
-        Route::get('/silabos/{silabo}', [\App\Http\Controllers\Secretaria\SilaboRevisionController::class, 'show'])
-            ->name('silabos.show');
-        Route::patch('/silabos/{silabo}/review', [\App\Http\Controllers\Secretaria\SilaboRevisionController::class, 'review'])
-            ->name('silabos.review');
+        // Revisión de Sílabos: se movió a coordinador.silabos.* (ver más abajo,
+        // grupo "COORDINADOR - Revisión de Sílabos"). Secretaría ya no tiene
+        // acceso a este módulo.
 
         // Revisión de Informes de Asignatura (mismo patrón que Sílabos)
         Route::get('/informes', [\App\Http\Controllers\Secretaria\InformeRevisionController::class, 'index'])
