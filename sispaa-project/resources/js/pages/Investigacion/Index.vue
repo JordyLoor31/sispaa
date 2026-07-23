@@ -14,7 +14,6 @@ import type { ProyectoItem, Catalogo } from './types';
 const props = defineProps<{
     proyectos: ProyectoItem[];
     periodos: Catalogo[];
-    coordinadores: Catalogo[];
     filters: { estado?: string };
     breadcrumbs?: BreadcrumbItemType[];
 }>();
@@ -102,12 +101,12 @@ const estadoBadge = (estado: string) => {
                         <div>
                             <h3 class="text-sm font-bold text-[var(--sispaa-text)]">{{ p.titulo }}</h3>
                             <p v-if="p.objetivo" class="mt-1 text-xs opacity-70 text-[var(--sispaa-text)] line-clamp-2">{{ p.objetivo }}</p>
-                            <p class="mt-2 text-xs opacity-60 text-[var(--sispaa-text)]">Docente: {{ p.docente.name }}</p>
-                            <p class="text-xs opacity-60 text-[var(--sispaa-text)]">Coordinador: {{ p.coordinador.name }} · {{ p.periodo }}</p>
+                            <p class="mt-2 text-xs opacity-60 text-[var(--sispaa-text)]">Líder: {{ p.lider.name }}<span v-if="p.colider"> · Colíder: {{ p.colider.name }}</span></p>
+                            <p class="text-xs opacity-60 text-[var(--sispaa-text)]">{{ p.periodo }}<span v-if="p.miembros.length"> · {{ p.miembros.length }} miembro(s) más</span></p>
                             <p class="mt-1 text-xs opacity-60 text-[var(--sispaa-text)]">Hitos: {{ p.hitos_completados }}/{{ p.total_hitos }} completados</p>
                         </div>
 
-                        <div v-if="p.es_propio || p.es_coordinador" class="flex items-center gap-2">
+                        <div v-if="p.puede_gestionar" class="flex items-center gap-2">
                             <Select :model-value="p.estado" @update:model-value="val => changeEstado(p, val as string)">
                                 <SelectTrigger class="h-8 w-full bg-[var(--sispaa-background)] text-xs"><SelectValue /></SelectTrigger>
                                 <SelectContent>
@@ -123,11 +122,11 @@ const estadoBadge = (estado: string) => {
                                 class="inline-flex items-center gap-1 text-xs font-semibold text-[var(--sispaa-primary)] hover:opacity-80">
                                 Ver hitos y seguimiento <ChevronRight class="h-3.5 w-3.5" />
                             </Link>
-                            <div class="ml-auto flex items-center gap-1" v-if="p.es_propio">
-                                <Link :href="route('investigacion.edit', p.id)" class="rounded-lg p-1.5 opacity-60 text-[var(--sispaa-text)] hover:opacity-100 hover:bg-[color:color-mix(in_srgb,var(--sispaa-background)_60%,transparent)]">
+                            <div class="ml-auto flex items-center gap-1" v-if="p.puede_gestionar || p.es_propio">
+                                <Link v-if="p.puede_gestionar" :href="route('investigacion.edit', p.id)" class="rounded-lg p-1.5 opacity-60 text-[var(--sispaa-text)] hover:opacity-100 hover:bg-[color:color-mix(in_srgb,var(--sispaa-background)_60%,transparent)]">
                                     <Pencil class="h-3.5 w-3.5" />
                                 </Link>
-                                <button @click="deleteTarget = p" class="rounded-lg p-1.5 text-rose-500 hover:bg-rose-50">
+                                <button v-if="p.es_propio" @click="deleteTarget = p" class="rounded-lg p-1.5 text-rose-500 hover:bg-rose-50">
                                     <Trash2 class="h-3.5 w-3.5" />
                                 </button>
                             </div>

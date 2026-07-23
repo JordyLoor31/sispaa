@@ -110,6 +110,9 @@ Route::middleware(['auth', 'verified', 'role:docente|coordinador|SystemAdministr
 
         Route::post('/{investigacion}/seguimiento', [InvestigacionController::class, 'storeSeguimiento'])->name('seguimiento.store');
         Route::patch('/seguimiento/{seguimiento}/responder', [InvestigacionController::class, 'responderSeguimiento'])->name('seguimiento.responder');
+
+        Route::post('/{investigacion}/informes', [InvestigacionController::class, 'storeInformeTrimestral'])->name('informes.store');
+        Route::get('/informes/{informe}/ver', [InvestigacionController::class, 'verInformeTrimestral'])->name('informes.ver');
     });
 
 

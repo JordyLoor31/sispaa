@@ -14,7 +14,8 @@ class Investigacion extends Model
 
     protected $fillable = [
         'docente_id',
-        'coordinador_id',
+        'lider_id',
+        'colider_id',
         'periodo_id',
         'titulo',
         'objetivo',
@@ -26,9 +27,24 @@ class Investigacion extends Model
         return $this->belongsTo(\App\Models\User::class, 'docente_id');
     }
 
-    public function coordinador()
+    public function lider()
     {
-        return $this->belongsTo(\App\Models\User::class, 'coordinador_id');
+        return $this->belongsTo(\App\Models\User::class, 'lider_id');
+    }
+
+    public function colider()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'colider_id');
+    }
+
+    /**
+     * Miembros del equipo (aparte de líder y colíder). Primera relación
+     * belongsToMany hacia User en el proyecto: usa la tabla pivote
+     * investigacion_miembros (sin columnas extra).
+     */
+    public function miembros()
+    {
+        return $this->belongsToMany(\App\Models\User::class, 'investigacion_miembros')->withTimestamps();
     }
 
     public function periodo()
@@ -44,6 +60,11 @@ class Investigacion extends Model
     public function seguimientos()
     {
         return $this->hasMany(SeguimientoInvestigacion::class);
+    }
+
+    public function informesTrimestrales()
+    {
+        return $this->hasMany(InformeTrimestralInvestigacion::class);
     }
 
     public function creator()

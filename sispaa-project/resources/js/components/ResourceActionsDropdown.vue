@@ -62,6 +62,17 @@ const editEnabled = props.canEdit && !!props.editRoute;
 const deleteEnabled = props.canDelete && !!props.deleteRoute;
 const hasAnyAction = showEnabled || editEnabled || deleteEnabled;
 
+// Bug conocido de Radix (dropdown-menu + alert-dialog anidados): el ítem
+// "Eliminar" es a la vez un DropdownMenuItem y un AlertDialogTrigger. Radix
+// cierra/desmonta el DropdownMenu al "seleccionar" un ítem (evento `select`,
+// no `click`), y ese cierre ocurre ANTES de que el AlertDialog termine de
+// abrirse y tomar el control del foco/overlay. Resultado: el diálogo de
+// confirmación aparece y se cierra solo de inmediato, y la página queda
+// "congelada" porque el <body> se queda con `pointer-events: none` (lo puso
+// el DropdownMenu al cerrarse) sin que nada lo quite. La solución oficial de
+// Radix/shadcn es prevenir el cierre por defecto en el evento `select` del
+// ítem (no en `click`), para que el DropdownMenu no se desmonte hasta que el
+// AlertDialog ya tomó el control.
 const preventDropdownClose = (event: Event) => {
     event.preventDefault();
 };
@@ -101,7 +112,7 @@ const preventDropdownClose = (event: Event) => {
                     <AlertDialogTrigger as-child>
                         <DropdownMenuItem
                             class="text-destructive focus:text-destructive"
-                            @click="preventDropdownClose"
+                            @select="preventDropdownClose"
                         >
                             <Trash2 class="mr-2 h-4 w-4" />
                             Eliminar {{ resourceName }}

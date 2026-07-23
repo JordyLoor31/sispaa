@@ -4,7 +4,7 @@ import { Progress } from '@/components/ui/progress';
 import { type BreadcrumbItemType } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
-import { Plus, Flag, MessageCircleQuestion, ArrowLeft, Pencil } from 'lucide-vue-next';
+import { Plus, Flag, MessageCircleQuestion, ArrowLeft, Pencil, FileText, Upload, Download, Users } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from '@/components/ui/sheet';
 import { toast } from 'vue-sonner';
@@ -23,13 +23,24 @@ interface Seguimiento {
     respuesta: string | null;
     orden: number;
 }
+interface InformeTrimestral {
+    id: number;
+    nombre_original: string | null;
+    observaciones: string | null;
+    fecha_subida: string | null;
+    ver_url: string;
+}
+interface Persona { id: number; name: string }
 
 const props = defineProps<{
-    proyecto: { id: number; titulo: string; estado: string };
+    proyecto: { id: number; titulo: string; estado: string; lider: Persona; colider: Persona | null; miembros: Persona[] };
     hitos: Hito[];
     seguimiento: Seguimiento[];
+    informesTrimestrales: InformeTrimestral[];
+    puedeGestionar: boolean;
     esDueno: boolean;
-    esCoordinador: boolean;
+    esLider: boolean;
+    esColider: boolean;
     breadcrumbs?: BreadcrumbItemType[];
 }>();
 
@@ -75,7 +86,8 @@ const submitHito = () => {
     }
 };
 
-// ── Seguimiento: coordinador pregunta ────────────────
+// ── Seguimiento: líder/colíder pregunta ────────────────
+const puedePreguntar = props.esLider || props.esColider;
 const showPreguntaForm = ref(false);
 const preguntaForm = useForm({ pregunta: '' });
 const submitPregunta = () => {
@@ -104,6 +116,28 @@ const submitRespuesta = () => {
         onSuccess: () => { toast.success('Respuesta guardada.'); respondiendo.value = null; },
     });
 };
+
+// ── Informe trimestral: solo el líder puede subirlo ──
+const showInformeForm = ref(false);
+const informeForm = useForm<{ archivo: File | null; observaciones: string }>({
+    archivo: null,
+    observaciones: '',
+});
+const onArchivoChange = (event: Event) => {
+    const file = (event.target as HTMLInputElement).files?.[0] ?? null;
+    informeForm.archivo = file;
+};
+const submitInforme = () => {
+    informeForm.post(route('investigacion.informes.store', props.proyecto.id), {
+        preserveScroll: true,
+        forceFormData: true,
+        onSuccess: () => {
+            toast.success('Informe trimestral subido.');
+            showInformeForm.value = false;
+            informeForm.reset();
+        },
+    });
+};
 </script>
 
 <template>
@@ -116,7 +150,25 @@ const submitRespuesta = () => {
                     <ArrowLeft class="h-3.5 w-3.5" /> Volver a proyectos
                 </Link>
                 <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-3xl">{{ proyecto.titulo }}</h1>
-                <p class="mt-1 text-sm opacity-60 text-[var(--sispaa-text)]">Hitos y seguimiento del proyecto.</p>
+                <p class="mt-1 text-sm opacity-60 text-[var(--sispaa-text)]">Equipo, hitos, seguimiento e informes del proyecto.</p>
+            </div>
+
+            <!-- EQUIPO -->
+            <div class="rounded-2xl border p-5 shadow-sm bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]">
+                <h2 class="mb-3 flex items-center gap-2 text-sm font-bold text-[var(--sispaa-text)]">
+                    <Users class="h-4 w-4 text-[var(--sispaa-primary)]" /> Equipo del proyecto
+                </h2>
+                <div class="flex flex-wrap gap-2 text-xs">
+                    <span class="rounded-full px-3 py-1 font-semibold bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)] text-[var(--sispaa-primary)]">
+                        Líder: {{ proyecto.lider.name }}
+                    </span>
+                    <span v-if="proyecto.colider" class="rounded-full px-3 py-1 font-semibold bg-[color:color-mix(in_srgb,var(--sispaa-accent)_15%,transparent)] text-[var(--sispaa-accent)]">
+                        Colíder: {{ proyecto.colider.name }}
+                    </span>
+                    <span v-for="m in proyecto.miembros" :key="m.id" class="rounded-full px-3 py-1 font-semibold bg-[color:color-mix(in_srgb,var(--sispaa-surface)_60%,transparent)] text-[var(--sispaa-text)]">
+                        {{ m.name }}
+                    </span>
+                </div>
             </div>
 
             <!-- HITOS -->
@@ -125,7 +177,7 @@ const submitRespuesta = () => {
                     <h2 class="flex items-center gap-2 text-sm font-bold text-[var(--sispaa-text)]">
                         <Flag class="h-4 w-4 text-[var(--sispaa-primary)]" /> Hitos
                     </h2>
-                    <Button v-if="esDueno" size="sm" @click="openCreateHito" class="inline-flex items-center gap-1.5 font-semibold text-white bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)]">
+                    <Button v-if="puedeGestionar" size="sm" @click="openCreateHito" class="inline-flex items-center gap-1.5 font-semibold text-white bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)]">
                         <Plus class="h-3.5 w-3.5" /> Agregar hito
                     </Button>
                 </div>
@@ -141,7 +193,7 @@ const submitRespuesta = () => {
                                     <span v-if="h.fecha_cumplida"> · Cumplido: {{ h.fecha_cumplida }}</span>
                                 </p>
                             </div>
-                            <button v-if="esDueno" @click="openEditHito(h)" class="shrink-0 rounded-lg p-1.5 opacity-60 text-[var(--sispaa-text)] hover:opacity-100 hover:bg-[color:color-mix(in_srgb,var(--sispaa-surface)_60%,transparent)]">
+                            <button v-if="puedeGestionar" @click="openEditHito(h)" class="shrink-0 rounded-lg p-1.5 opacity-60 text-[var(--sispaa-text)] hover:opacity-100 hover:bg-[color:color-mix(in_srgb,var(--sispaa-surface)_60%,transparent)]">
                                 <Pencil class="h-3.5 w-3.5" />
                             </button>
                         </div>
@@ -161,9 +213,9 @@ const submitRespuesta = () => {
             <div class="rounded-2xl border p-5 shadow-sm bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]">
                 <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <h2 class="flex items-center gap-2 text-sm font-bold text-[var(--sispaa-text)]">
-                        <MessageCircleQuestion class="h-4 w-4 text-[var(--sispaa-primary)]" /> Seguimiento del coordinador
+                        <MessageCircleQuestion class="h-4 w-4 text-[var(--sispaa-primary)]" /> Seguimiento del líder/colíder
                     </h2>
-                    <Button v-if="esCoordinador" size="sm" @click="showPreguntaForm = true" class="inline-flex items-center gap-1.5 font-semibold text-white bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)]">
+                    <Button v-if="puedePreguntar" size="sm" @click="showPreguntaForm = true" class="inline-flex items-center gap-1.5 font-semibold text-white bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)]">
                         <Plus class="h-3.5 w-3.5" /> Nueva pregunta
                     </Button>
                 </div>
@@ -186,7 +238,38 @@ const submitRespuesta = () => {
                     </div>
 
                     <div v-if="seguimiento.length === 0" class="rounded-xl border border-dashed p-6 text-center text-sm opacity-50 border-[color:color-mix(in_srgb,var(--sispaa-text)_25%,transparent)] text-[var(--sispaa-text)]">
-                        El coordinador aún no ha registrado preguntas de seguimiento.
+                        Aún no hay preguntas de seguimiento registradas.
+                    </div>
+                </div>
+            </div>
+
+            <!-- INFORMES TRIMESTRALES -->
+            <div class="rounded-2xl border p-5 shadow-sm bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]">
+                <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <h2 class="flex items-center gap-2 text-sm font-bold text-[var(--sispaa-text)]">
+                        <FileText class="h-4 w-4 text-[var(--sispaa-primary)]" /> Informes trimestrales
+                    </h2>
+                    <Button v-if="esLider" size="sm" @click="showInformeForm = true" class="inline-flex items-center gap-1.5 font-semibold text-white bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)]">
+                        <Upload class="h-3.5 w-3.5" /> Subir informe
+                    </Button>
+                </div>
+                <p v-if="!esLider" class="mb-3 text-xs opacity-60 text-[var(--sispaa-text)]">Solo el líder de proyecto puede subir informes trimestrales.</p>
+
+                <div class="space-y-2">
+                    <a v-for="i in informesTrimestrales" :key="i.id" :href="i.ver_url" target="_blank" rel="noopener"
+                        class="flex items-center justify-between gap-3 rounded-xl p-3 bg-[var(--sispaa-background)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-surface)_50%,transparent)]">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <FileText class="h-4 w-4 shrink-0 text-[var(--sispaa-primary)]" />
+                            <div class="min-w-0">
+                                <p class="truncate text-sm font-semibold text-[var(--sispaa-text)]">{{ i.nombre_original ?? 'Informe' }}</p>
+                                <p class="text-xs opacity-60 text-[var(--sispaa-text)]">{{ i.fecha_subida }}<span v-if="i.observaciones"> · {{ i.observaciones }}</span></p>
+                            </div>
+                        </div>
+                        <Download class="h-4 w-4 shrink-0 opacity-50 text-[var(--sispaa-text)]" />
+                    </a>
+
+                    <div v-if="informesTrimestrales.length === 0" class="rounded-xl border border-dashed p-6 text-center text-sm opacity-50 border-[color:color-mix(in_srgb,var(--sispaa-text)_25%,transparent)] text-[var(--sispaa-text)]">
+                        Aún no se han subido informes trimestrales.
                     </div>
                 </div>
             </div>
@@ -201,12 +284,12 @@ const submitRespuesta = () => {
                 <form @submit.prevent="submitHito" class="mt-6 space-y-5">
                     <div>
                         <label class="mb-1.5 block text-sm font-semibold text-[var(--sispaa-text)]">Nombre *</label>
-                        <input v-model="hitoForm.nombre" type="text" class="w-full rounded-lg border-[color:color-mix(in_srgb,var(--sispaa-text)_20%,transparent)] bg-[var(--sispaa-background)] text-sm text-[var(--sispaa-text)]" />
+                        <input v-model="hitoForm.nombre" type="text" placeholder="Ej. Revisión bibliográfica" class="w-full rounded-lg border-[color:color-mix(in_srgb,var(--sispaa-text)_20%,transparent)] bg-[var(--sispaa-background)] text-sm text-[var(--sispaa-text)]" />
                         <p v-if="hitoForm.errors.nombre" class="mt-1 text-xs text-rose-500">{{ hitoForm.errors.nombre }}</p>
                     </div>
                     <div>
                         <label class="mb-1.5 block text-sm font-semibold text-[var(--sispaa-text)]">Descripción</label>
-                        <textarea v-model="hitoForm.descripcion" rows="3" class="w-full rounded-lg border-[color:color-mix(in_srgb,var(--sispaa-text)_20%,transparent)] bg-[var(--sispaa-background)] text-sm text-[var(--sispaa-text)]"></textarea>
+                        <textarea v-model="hitoForm.descripcion" rows="3" placeholder="Detalles del hito..." class="w-full rounded-lg border-[color:color-mix(in_srgb,var(--sispaa-text)_20%,transparent)] bg-[var(--sispaa-background)] text-sm text-[var(--sispaa-text)]"></textarea>
                     </div>
                     <div>
                         <label class="mb-1.5 block text-sm font-semibold text-[var(--sispaa-text)]">Fecha planificada</label>
@@ -229,7 +312,7 @@ const submitRespuesta = () => {
             </SheetContent>
         </Sheet>
 
-        <!-- Sheet: Nueva pregunta (coordinador) -->
+        <!-- Sheet: Nueva pregunta (líder/colíder) -->
         <Sheet :open="showPreguntaForm" @update:open="val => showPreguntaForm = val">
             <SheetContent class="sm:max-w-md overflow-y-auto">
                 <SheetHeader>
@@ -238,7 +321,7 @@ const submitRespuesta = () => {
                 <form @submit.prevent="submitPregunta" class="mt-6 space-y-5">
                     <div>
                         <label class="mb-1.5 block text-sm font-semibold text-[var(--sispaa-text)]">Pregunta *</label>
-                        <textarea v-model="preguntaForm.pregunta" rows="4" class="w-full rounded-lg border-[color:color-mix(in_srgb,var(--sispaa-text)_20%,transparent)] bg-[var(--sispaa-background)] text-sm text-[var(--sispaa-text)]"></textarea>
+                        <textarea v-model="preguntaForm.pregunta" rows="4" placeholder="Escribe tu pregunta de seguimiento..." class="w-full rounded-lg border-[color:color-mix(in_srgb,var(--sispaa-text)_20%,transparent)] bg-[var(--sispaa-background)] text-sm text-[var(--sispaa-text)]"></textarea>
                         <p v-if="preguntaForm.errors.pregunta" class="mt-1 text-xs text-rose-500">{{ preguntaForm.errors.pregunta }}</p>
                     </div>
                     <SheetFooter class="gap-2 pt-4">
@@ -263,13 +346,39 @@ const submitRespuesta = () => {
                 <form @submit.prevent="submitRespuesta" class="mt-5 space-y-5">
                     <div>
                         <label class="mb-1.5 block text-sm font-semibold text-[var(--sispaa-text)]">Respuesta *</label>
-                        <textarea v-model="respuestaForm.respuesta" rows="5" class="w-full rounded-lg border-[color:color-mix(in_srgb,var(--sispaa-text)_20%,transparent)] bg-[var(--sispaa-background)] text-sm text-[var(--sispaa-text)]"></textarea>
+                        <textarea v-model="respuestaForm.respuesta" rows="5" placeholder="Escribe tu respuesta..." class="w-full rounded-lg border-[color:color-mix(in_srgb,var(--sispaa-text)_20%,transparent)] bg-[var(--sispaa-background)] text-sm text-[var(--sispaa-text)]"></textarea>
                         <p v-if="respuestaForm.errors.respuesta" class="mt-1 text-xs text-rose-500">{{ respuestaForm.errors.respuesta }}</p>
                     </div>
                     <SheetFooter class="gap-2 pt-4">
                         <Button type="button" variant="outline" @click="respondiendo = null">Cancelar</Button>
                         <Button type="submit" :disabled="respuestaForm.processing" class="font-semibold text-white bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)]">
                             {{ respuestaForm.processing ? 'Guardando...' : 'Guardar respuesta' }}
+                        </Button>
+                    </SheetFooter>
+                </form>
+            </SheetContent>
+        </Sheet>
+
+        <!-- Sheet: Subir informe trimestral (líder) -->
+        <Sheet :open="showInformeForm" @update:open="val => showInformeForm = val">
+            <SheetContent class="sm:max-w-md overflow-y-auto">
+                <SheetHeader>
+                    <SheetTitle>Subir Informe Trimestral</SheetTitle>
+                </SheetHeader>
+                <form @submit.prevent="submitInforme" class="mt-6 space-y-5">
+                    <div>
+                        <label class="mb-1.5 block text-sm font-semibold text-[var(--sispaa-text)]">Archivo (PDF o Word) *</label>
+                        <input type="file" accept=".pdf,.doc,.docx" @change="onArchivoChange" class="w-full rounded-lg border-[color:color-mix(in_srgb,var(--sispaa-text)_20%,transparent)] bg-[var(--sispaa-background)] text-sm text-[var(--sispaa-text)]" />
+                        <p v-if="informeForm.errors.archivo" class="mt-1 text-xs text-rose-500">{{ informeForm.errors.archivo }}</p>
+                    </div>
+                    <div>
+                        <label class="mb-1.5 block text-sm font-semibold text-[var(--sispaa-text)]">Observaciones</label>
+                        <textarea v-model="informeForm.observaciones" rows="3" placeholder="Notas sobre el avance de este trimestre..." class="w-full rounded-lg border-[color:color-mix(in_srgb,var(--sispaa-text)_20%,transparent)] bg-[var(--sispaa-background)] text-sm text-[var(--sispaa-text)]"></textarea>
+                    </div>
+                    <SheetFooter class="gap-2 pt-4">
+                        <Button type="button" variant="outline" @click="showInformeForm = false">Cancelar</Button>
+                        <Button type="submit" :disabled="informeForm.processing" class="font-semibold text-white bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)]">
+                            {{ informeForm.processing ? 'Subiendo...' : 'Subir' }}
                         </Button>
                     </SheetFooter>
                 </form>
