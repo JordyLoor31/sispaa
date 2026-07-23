@@ -1,46 +1,52 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button';
-import {
-    Combobox,
-    ComboboxAnchor,
-    ComboboxEmpty,
-    ComboboxGroup,
-    ComboboxInput,
-    ComboboxItem,
-    ComboboxItemIndicator,
-    ComboboxList,
-    ComboboxTrigger,
-} from '@/components/ui/combobox';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import { router } from '@inertiajs/vue3';
 import { toTypedSchema } from '@vee-validate/zod';
-import { Calendar, Check, ChevronsUpDown, ClipboardList } from 'lucide-vue-next';
+import { Calendar, ClipboardList } from 'lucide-vue-next';
 import { useForm } from 'vee-validate';
-import { ref, watch } from 'vue';
+import { computed, ref } from 'vue';
 import * as z from 'zod';
-import type { Actividad, Catalogo } from './types';
+import ComboSelect from './ComboSelect.vue';
+import MatrizBeneficiarios from './MatrizBeneficiarios.vue';
+import {
+    conteosToMatriz,
+    emptyMatriz,
+    matrizToConteos,
+    TIPO_LABEL_CORTO,
+    type Actividad,
+    type BeneficiarioRef,
+    type Catalogo,
+    type Matriz,
+    type RepresentanteRef,
+} from './types';
 
 const props = defineProps<{
     actividad?: Actividad | null;
     docentes: { id: number; name: string }[];
     carreras: Catalogo[];
     periodos: Catalogo[];
-    empresas: Catalogo[];
+    beneficiarios: BeneficiarioRef[];
+    representantes: RepresentanteRef[];
 }>();
 
 const isEditing = !!props.actividad;
+const enEjecucion = !isEditing || props.actividad?.estado === 'en_ejecucion';
 
-const requiredSelect = (message: string) => z.union([z.string(), z.number()]).refine((v) => v !== '' && v !== null && v !== undefined, { message });
+const requiredSelect = (message: string) =>
+    z.union([z.string(), z.number()]).nullable().refine((v) => v !== '' && v !== null && v !== undefined, { message });
 
 const formSchema = toTypedSchema(
     z.object({
         nombre: z.string().min(1, 'El nombre es obligatorio.').max(255, 'El nombre no puede superar los 255 caracteres.'),
-        docente_lider_id: requiredSelect('Selecciona un docente líder.'),
+        docente_lider_id: requiredSelect('Selecciona un líder.'),
+        supervisor_id: requiredSelect('Selecciona un supervisor.'),
         carrera_id: requiredSelect('Selecciona una carrera.'),
         periodo_id: requiredSelect('Selecciona un período.'),
-        empresa_id: z.union([z.string(), z.number()]).nullable(),
-        fecha: z.string().nullable().optional(),
+        beneficiario_id: requiredSelect('Selecciona un beneficiario.'),
+        representante_id: z.union([z.string(), z.number()]).nullable(),
+        fecha_inicio: z.string().min(1, 'La fecha de inicio es obligatoria.'),
     }),
 );
 
@@ -48,50 +54,53 @@ const { handleSubmit, setErrors, defineField } = useForm({
     validationSchema: formSchema,
     initialValues: {
         nombre: props.actividad?.nombre ?? '',
-        docente_lider_id: props.actividad?.docente_lider?.id ?? '',
-        carrera_id: props.actividad?.carrera_id ?? '',
-        periodo_id: props.actividad?.periodo_id ?? '',
-        empresa_id: props.actividad?.empresa_id ?? '',
-        fecha: props.actividad?.fecha ?? '',
+        docente_lider_id: props.actividad?.docente_lider?.id ?? null,
+        supervisor_id: props.actividad?.supervisor?.id ?? null,
+        carrera_id: props.actividad?.carrera_id ?? null,
+        periodo_id: props.actividad?.periodo_id ?? null,
+        beneficiario_id: props.actividad?.beneficiario_id ?? null,
+        representante_id: props.actividad?.representante_id ?? null,
+        fecha_inicio: props.actividad?.fecha_inicio ?? '',
     },
 });
 
 const [docenteLiderId] = defineField('docente_lider_id');
+const [supervisorId] = defineField('supervisor_id');
 const [carreraId] = defineField('carrera_id');
 const [periodoId] = defineField('periodo_id');
-const [empresaId] = defineField('empresa_id');
+const [beneficiarioId] = defineField('beneficiario_id');
+const [representanteId] = defineField('representante_id');
 
-const docenteInicial = props.docentes.find((d) => d.id === props.actividad?.docente_lider?.id);
-const selectedDocenteObj = ref<{ value: string | number; label: string } | null>(
-    docenteInicial ? { value: docenteInicial.id, label: docenteInicial.name } : null,
+// Catálogos -> opciones para ComboSelect
+const docenteOptions = computed(() => props.docentes.map((d) => ({ value: d.id, label: d.name })));
+const carreraOptions = computed(() => props.carreras.map((c) => ({ value: c.id, label: c.nombre })));
+const periodoOptions = computed(() => props.periodos.map((p) => ({ value: p.id, label: p.nombre })));
+const beneficiarioOptions = computed(() =>
+    props.beneficiarios.map((b) => ({
+        value: b.id,
+        label: b.nombre,
+        sublabel: [TIPO_LABEL_CORTO[b.tipo] ?? b.tipo, b.ruc ? `RUC ${b.ruc}` : null].filter(Boolean).join(' · '),
+    })),
 );
-watch(selectedDocenteObj, (newVal) => {
-    docenteLiderId.value = newVal ? newVal.value : '';
-});
+const representanteOptions = computed(() =>
+    props.representantes.map((r) => ({
+        value: r.id,
+        label: r.nombre,
+        sublabel: [r.cargo, r.telefono].filter(Boolean).join(' · '),
+    })),
+);
 
-const carreraInicial = props.carreras.find((c) => c.id === props.actividad?.carrera_id);
-const selectedCarreraObj = ref<{ value: string | number; label: string } | null>(
-    carreraInicial ? { value: carreraInicial.id, label: carreraInicial.nombre } : null,
-);
-watch(selectedCarreraObj, (newVal) => {
-    carreraId.value = newVal ? newVal.value : '';
-});
+// Representante: se puede registrar uno nuevo (inline) o reusar uno existente.
+const usarRepExistente = ref(isEditing && !!props.actividad?.representante_id);
+const repNombre = ref(props.actividad?.representante?.nombre ?? '');
+const repCedula = ref(props.actividad?.representante?.cedula ?? '');
+const repCargo = ref(props.actividad?.representante?.cargo ?? '');
+const repTelefono = ref(props.actividad?.representante?.telefono ?? '');
 
-const periodoInicial = props.periodos.find((p) => p.id === props.actividad?.periodo_id);
-const selectedPeriodoObj = ref<{ value: string | number; label: string } | null>(
-    periodoInicial ? { value: periodoInicial.id, label: periodoInicial.nombre } : null,
+// Matriz de beneficiarios iniciales
+const matriz = ref<Matriz>(
+    props.actividad?.conteos_iniciales?.length ? conteosToMatriz(props.actividad.conteos_iniciales) : emptyMatriz(),
 );
-watch(selectedPeriodoObj, (newVal) => {
-    periodoId.value = newVal ? newVal.value : '';
-});
-
-const empresaInicial = props.empresas.find((e) => e.id === props.actividad?.empresa_id);
-const selectedEmpresaObj = ref<{ value: string | number; label: string } | null>(
-    empresaInicial ? { value: empresaInicial.id, label: empresaInicial.nombre } : null,
-);
-watch(selectedEmpresaObj, (newVal) => {
-    empresaId.value = newVal ? newVal.value : '';
-});
 
 const processing = ref(false);
 
@@ -106,6 +115,16 @@ const goBack = () => {
 const onSubmit = handleSubmit((values) => {
     processing.value = true;
 
+    const payload = {
+        ...values,
+        representante_id: usarRepExistente.value ? values.representante_id : null,
+        representante_nombre: usarRepExistente.value ? null : repNombre.value || null,
+        representante_cedula: usarRepExistente.value ? null : repCedula.value || null,
+        representante_cargo: usarRepExistente.value ? null : repCargo.value || null,
+        representante_telefono: usarRepExistente.value ? null : repTelefono.value || null,
+        conteos: matrizToConteos(matriz.value),
+    };
+
     const options = {
         preserveScroll: true,
         onError: (serverErrors: Record<string, string>) => setErrors(serverErrors),
@@ -115,194 +134,118 @@ const onSubmit = handleSubmit((values) => {
     };
 
     if (isEditing && props.actividad) {
-        router.put(route('vinculacion.actividades.update', props.actividad.id), values, options);
+        router.put(route('vinculacion.actividades.update', props.actividad.id), payload, options);
     } else {
-        router.post(route('vinculacion.actividades.store'), values, options);
+        router.post(route('vinculacion.actividades.store'), payload, options);
     }
 });
+
+const inputClass =
+    'w-full rounded-md border border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)] bg-[var(--sispaa-background)] px-3 py-2 text-sm text-[var(--sispaa-text)] focus:border-[var(--sispaa-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--sispaa-primary)]';
 </script>
 
 <template>
-    <form class="space-y-5" @submit="onSubmit">
+    <form class="space-y-6" @submit="onSubmit">
         <FormField v-slot="{ componentField }" name="nombre">
             <FormItem>
                 <FormLabel>Nombre *</FormLabel>
                 <FormControl>
                     <InputGroup>
                         <InputGroupAddon><ClipboardList class="h-4 w-4" /></InputGroupAddon>
-                        <InputGroupInput type="text" v-bind="componentField" class="color-[var(--sispaa-text)]" placeholder="Nombre de la actividad" />
+                        <InputGroupInput type="text" v-bind="componentField" placeholder="Nombre de la actividad" />
                     </InputGroup>
                 </FormControl>
                 <FormMessage />
             </FormItem>
         </FormField>
 
-        <FormField v-slot="{ errorMessage }" name="docente_lider_id">
+        <!-- Roles internos: Supervisor y Líder -->
+        <div class="grid gap-5 sm:grid-cols-2">
+            <FormField v-slot="{ errorMessage }" name="supervisor_id">
+                <FormItem>
+                    <FormLabel>Supervisor *</FormLabel>
+                    <ComboSelect v-model="supervisorId" :options="docenteOptions" placeholder="Selecciona un supervisor..." search-placeholder="Buscar docente..." empty-text="No se encontraron docentes." />
+                    <FormMessage v-if="errorMessage" />
+                </FormItem>
+            </FormField>
+
+            <FormField v-slot="{ errorMessage }" name="docente_lider_id">
+                <FormItem>
+                    <FormLabel>Líder *</FormLabel>
+                    <ComboSelect v-model="docenteLiderId" :options="docenteOptions" placeholder="Selecciona un líder..." search-placeholder="Buscar docente..." empty-text="No se encontraron docentes." />
+                    <FormMessage v-if="errorMessage" />
+                </FormItem>
+            </FormField>
+        </div>
+
+        <div class="grid gap-5 sm:grid-cols-2">
+            <FormField v-slot="{ errorMessage }" name="carrera_id">
+                <FormItem>
+                    <FormLabel>Carrera *</FormLabel>
+                    <ComboSelect v-model="carreraId" :options="carreraOptions" placeholder="Selecciona una carrera..." search-placeholder="Buscar carrera..." empty-text="No se encontraron carreras." />
+                    <FormMessage v-if="errorMessage" />
+                </FormItem>
+            </FormField>
+
+            <FormField v-slot="{ errorMessage }" name="periodo_id">
+                <FormItem>
+                    <FormLabel>Período *</FormLabel>
+                    <ComboSelect v-model="periodoId" :options="periodoOptions" placeholder="Selecciona un período..." search-placeholder="Buscar período..." empty-text="No se encontraron períodos." />
+                    <FormMessage v-if="errorMessage" />
+                </FormItem>
+            </FormField>
+        </div>
+
+        <!-- Beneficiario (obligatorio; se elige del catálogo de Beneficiarios) -->
+        <FormField v-slot="{ errorMessage }" name="beneficiario_id">
             <FormItem>
-                <FormLabel>Docente líder *</FormLabel>
-                <Combobox v-model="selectedDocenteObj" by="value">
-                    <ComboboxAnchor as-child>
-                        <ComboboxTrigger as-child>
-                            <FormControl>
-                                <Button type="button" variant="outline" class="w-full justify-between text-left text-sm font-normal">
-                                    {{ selectedDocenteObj ? selectedDocenteObj.label : 'Selecciona un docente...' }}
-                                    <ChevronsUpDown class="h-4 w-4 opacity-50" />
-                                </Button>
-                            </FormControl>
-                        </ComboboxTrigger>
-                    </ComboboxAnchor>
-                    <ComboboxList
-                        class="w-[var(--reka-combobox-trigger-width)] min-w-[220px] rounded-lg border border-[var(--sispaa-surface)] bg-[var(--sispaa-background)] shadow-lg"
-                    >
-                        <ComboboxInput
-                            placeholder="Buscar docente..."
-                            class="w-full border-0 border-b border-[var(--sispaa-surface)] bg-transparent px-3 py-2.5 text-sm focus:ring-0"
-                        />
-                        <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron docentes.</ComboboxEmpty>
-                        <ComboboxGroup class="max-h-60 overflow-y-auto p-1">
-                            <ComboboxItem
-                                v-for="d in docentes"
-                                :key="d.id"
-                                :value="{ value: d.id, label: d.name }"
-                                class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_12%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_18%,transparent)]"
-                            >
-                                {{ d.name }}
-                                <ComboboxItemIndicator><Check class="h-4 w-4 text-[var(--sispaa-primary)]" /></ComboboxItemIndicator>
-                            </ComboboxItem>
-                        </ComboboxGroup>
-                    </ComboboxList>
-                </Combobox>
+                <FormLabel>Beneficiario *</FormLabel>
+                <ComboSelect
+                    v-model="beneficiarioId"
+                    :options="beneficiarioOptions"
+                    placeholder="Selecciona un beneficiario..."
+                    search-placeholder="Buscar beneficiario..."
+                    empty-text="No hay beneficiarios. Créalos en la sección Beneficiarios."
+                />
                 <FormMessage v-if="errorMessage" />
             </FormItem>
         </FormField>
 
-        <FormField v-slot="{ errorMessage }" name="carrera_id">
-            <FormItem>
-                <FormLabel>Carrera *</FormLabel>
-                <Combobox v-model="selectedCarreraObj" by="value">
-                    <ComboboxAnchor as-child>
-                        <ComboboxTrigger as-child>
-                            <FormControl>
-                                <Button type="button" variant="outline" class="w-full justify-between text-left text-sm font-normal">
-                                    {{ selectedCarreraObj ? selectedCarreraObj.label : 'Selecciona una carrera...' }}
-                                    <ChevronsUpDown class="h-4 w-4 opacity-50" />
-                                </Button>
-                            </FormControl>
-                        </ComboboxTrigger>
-                    </ComboboxAnchor>
-                    <ComboboxList
-                        class="w-[var(--reka-combobox-trigger-width)] min-w-[220px] rounded-lg border border-[var(--sispaa-surface)] bg-[var(--sispaa-background)] shadow-lg"
-                    >
-                        <ComboboxInput
-                            placeholder="Buscar carrera..."
-                            class="w-full border-0 border-b border-[var(--sispaa-surface)] bg-transparent px-3 py-2.5 text-sm focus:ring-0"
-                        />
-                        <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron carreras.</ComboboxEmpty>
-                        <ComboboxGroup class="max-h-60 overflow-y-auto p-1">
-                            <ComboboxItem
-                                v-for="c in carreras"
-                                :key="c.id"
-                                :value="{ value: c.id, label: c.nombre }"
-                                class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_12%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_18%,transparent)]"
-                            >
-                                {{ c.nombre }}
-                                <ComboboxItemIndicator><Check class="h-4 w-4 text-[var(--sispaa-primary)]" /></ComboboxItemIndicator>
-                            </ComboboxItem>
-                        </ComboboxGroup>
-                    </ComboboxList>
-                </Combobox>
-                <FormMessage v-if="errorMessage" />
-            </FormItem>
-        </FormField>
+        <!-- Representante de los beneficiarios -->
+        <div class="space-y-3 rounded-xl border border-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)] p-4">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+                <span class="text-sm font-medium text-[var(--sispaa-text)]">Representante de los beneficiarios (opcional)</span>
+                <label v-if="representantes.length" class="flex cursor-pointer items-center gap-2 text-xs text-[var(--sispaa-text)]">
+                    <input type="checkbox" v-model="usarRepExistente" class="accent-[var(--sispaa-primary)]" />
+                    Usar uno ya registrado
+                </label>
+            </div>
 
-        <FormField v-slot="{ errorMessage }" name="periodo_id">
-            <FormItem>
-                <FormLabel>Período *</FormLabel>
-                <Combobox v-model="selectedPeriodoObj" by="value">
-                    <ComboboxAnchor as-child>
-                        <ComboboxTrigger as-child>
-                            <FormControl>
-                                <Button type="button" variant="outline" class="w-full justify-between text-left text-sm font-normal">
-                                    {{ selectedPeriodoObj ? selectedPeriodoObj.label : 'Selecciona un período...' }}
-                                    <ChevronsUpDown class="h-4 w-4 opacity-50" />
-                                </Button>
-                            </FormControl>
-                        </ComboboxTrigger>
-                    </ComboboxAnchor>
-                    <ComboboxList
-                        class="w-[var(--reka-combobox-trigger-width)] min-w-[220px] rounded-lg border border-[var(--sispaa-surface)] bg-[var(--sispaa-background)] shadow-lg"
-                    >
-                        <ComboboxInput
-                            placeholder="Buscar período..."
-                            class="w-full border-0 border-b border-[var(--sispaa-surface)] bg-transparent px-3 py-2.5 text-sm focus:ring-0"
-                        />
-                        <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron períodos.</ComboboxEmpty>
-                        <ComboboxGroup class="max-h-60 overflow-y-auto p-1">
-                            <ComboboxItem
-                                v-for="p in periodos"
-                                :key="p.id"
-                                :value="{ value: p.id, label: p.nombre }"
-                                class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_12%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_18%,transparent)]"
-                            >
-                                {{ p.nombre }}
-                                <ComboboxItemIndicator><Check class="h-4 w-4 text-[var(--sispaa-primary)]" /></ComboboxItemIndicator>
-                            </ComboboxItem>
-                        </ComboboxGroup>
-                    </ComboboxList>
-                </Combobox>
-                <FormMessage v-if="errorMessage" />
-            </FormItem>
-        </FormField>
+            <div v-if="usarRepExistente">
+                <ComboSelect
+                    v-model="representanteId"
+                    :options="representanteOptions"
+                    placeholder="Selecciona un representante..."
+                    search-placeholder="Buscar representante..."
+                    empty-text="No hay representantes registrados."
+                    allow-empty
+                    empty-label="Sin representante"
+                />
+            </div>
+            <div v-else class="grid gap-3 sm:grid-cols-2">
+                <input v-model="repNombre" type="text" :class="inputClass" placeholder="Nombre del representante" />
+                <input v-model="repCedula" type="text" inputmode="numeric" maxlength="10" :class="inputClass" placeholder="Cédula" />
+                <input v-model="repCargo" type="text" :class="inputClass" placeholder="Cargo o rol (ej. Presidente del barrio)" />
+                <input v-model="repTelefono" type="text" inputmode="numeric" maxlength="10" :class="inputClass" placeholder="Teléfono de contacto" />
+            </div>
+            <p class="text-xs opacity-60 text-[var(--sispaa-text)]">
+                Es la persona que representa a los beneficiarios (distinta del líder/supervisor). Se registra aquí y queda disponible para reusar en otras actividades.
+            </p>
+        </div>
 
-        <FormField v-slot="{ errorMessage }" name="empresa_id">
+        <FormField v-slot="{ componentField }" name="fecha_inicio">
             <FormItem>
-                <FormLabel>Empresa (opcional)</FormLabel>
-                <Combobox v-model="selectedEmpresaObj" by="value">
-                    <ComboboxAnchor as-child>
-                        <ComboboxTrigger as-child>
-                            <FormControl>
-                                <Button type="button" variant="outline" class="w-full justify-between text-left text-sm font-normal">
-                                    {{ selectedEmpresaObj ? selectedEmpresaObj.label : 'Sin empresa asociada' }}
-                                    <ChevronsUpDown class="h-4 w-4 opacity-50" />
-                                </Button>
-                            </FormControl>
-                        </ComboboxTrigger>
-                    </ComboboxAnchor>
-                    <ComboboxList
-                        class="w-[var(--reka-combobox-trigger-width)] min-w-[220px] rounded-lg border border-[var(--sispaa-surface)] bg-[var(--sispaa-background)] shadow-lg"
-                    >
-                        <ComboboxInput
-                            placeholder="Buscar empresa..."
-                            class="w-full border-0 border-b border-[var(--sispaa-surface)] bg-transparent px-3 py-2.5 text-sm focus:ring-0"
-                        />
-                        <ComboboxEmpty class="py-2 text-center text-xs text-slate-400">No se encontraron empresas.</ComboboxEmpty>
-                        <ComboboxGroup class="max-h-60 overflow-y-auto p-1">
-                            <ComboboxItem
-                                :value="{ value: '', label: 'Sin empresa asociada' }"
-                                class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_12%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_18%,transparent)]"
-                            >
-                                Sin empresa asociada
-                                <ComboboxItemIndicator><Check class="h-4 w-4 text-[var(--sispaa-primary)]" /></ComboboxItemIndicator>
-                            </ComboboxItem>
-                            <ComboboxItem
-                                v-for="e in empresas"
-                                :key="e.id"
-                                :value="{ value: e.id, label: e.nombre }"
-                                class="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_12%,transparent)] data-[state=checked]:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_18%,transparent)]"
-                            >
-                                {{ e.nombre }}
-                                <ComboboxItemIndicator><Check class="h-4 w-4 text-[var(--sispaa-primary)]" /></ComboboxItemIndicator>
-                            </ComboboxItem>
-                        </ComboboxGroup>
-                    </ComboboxList>
-                </Combobox>
-                <FormMessage v-if="errorMessage" />
-            </FormItem>
-        </FormField>
-
-        <FormField v-slot="{ componentField }" name="fecha">
-            <FormItem>
-                <FormLabel>Fecha</FormLabel>
+                <FormLabel>Fecha de inicio *</FormLabel>
                 <FormControl>
                     <InputGroup>
                         <InputGroupAddon><Calendar class="h-4 w-4" /></InputGroupAddon>
@@ -312,6 +255,18 @@ const onSubmit = handleSubmit((values) => {
                 <FormMessage />
             </FormItem>
         </FormField>
+
+        <!-- Beneficiarios iniciales: matriz género x edad -->
+        <div class="space-y-2">
+            <div class="flex items-baseline justify-between">
+                <span class="text-sm font-medium text-[var(--sispaa-text)]">Beneficiarios iniciales</span>
+                <span class="text-xs opacity-60 text-[var(--sispaa-text)]">Puede quedar en 0 y agregarse después.</span>
+            </div>
+            <MatrizBeneficiarios v-model="matriz" :readonly="isEditing && !enEjecucion" />
+            <p v-if="isEditing && enEjecucion" class="text-xs opacity-60 text-[var(--sispaa-text)]">
+                Editas el conteo <strong>inicial</strong>. Los avances (adicionales) se agregan desde el detalle de la actividad.
+            </p>
+        </div>
 
         <div class="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:items-center">
             <Button

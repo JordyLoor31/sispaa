@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Reportes;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin\Carrera;
-use App\Models\Admin\Empresa;
 use App\Models\Admin\PeriodoAcademico;
+use App\Models\Vinculacion\Beneficiario;
 use App\Models\Vinculacion\ActividadVinculacion;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -42,7 +42,7 @@ class VinculacionReporteController extends Controller
             ->orderByDesc('total')
             ->get();
 
-        $empresasPorSector = Empresa::query()
+        $empresasPorSector = Beneficiario::query()
             ->selectRaw("COALESCE(NULLIF(sector, ''), 'Sin sector') as label, count(*) as total")
             ->groupBy('sector')
             ->orderByDesc('total')
@@ -56,7 +56,7 @@ class VinculacionReporteController extends Controller
                 'total_actividades' => $total,
                 'ejecutadas' => $ejecutadas,
                 'porcentaje_ejecutadas' => $total > 0 ? round(($ejecutadas / $total) * 100) : 0,
-                'total_empresas' => Empresa::count(),
+                'total_empresas' => Beneficiario::count(),
             ],
             'charts' => [
                 'porEstado' => ['labels' => $porEstado->pluck('label'), 'series' => $porEstado->pluck('total')],

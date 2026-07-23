@@ -12,7 +12,7 @@ import ReporteEstadisticoButton from '@/components/charts/ReporteEstadisticoButt
 const reportCharts = [
     { id: 'vinculacion-por-estado', title: 'Actividades por estado' },
     { id: 'vinculacion-por-carrera', title: 'Actividades por carrera' },
-    { id: 'empresas-por-sector', title: 'Empresas beneficiadas por sector' },
+    { id: 'empresas-por-sector', title: 'Beneficiarios por sector' },
 ];
 import type { ApexOptions } from 'apexcharts';
 
@@ -96,17 +96,17 @@ const hasData = (c: ChartData) => c.series.length > 0 && c.series.some((v) => v 
                     </div>
                     <div>
                         <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">Reportes — Vinculación</h1>
-                        <p class="mt-0.5 text-sm opacity-60 text-[var(--sispaa-text)]">Actividades de vinculación y empresas beneficiadas.</p>
+                        <p class="mt-0.5 text-sm opacity-60 text-[var(--sispaa-text)]">Actividades de vinculación y beneficiarios.</p>
                     </div>
                 </div>
                 <ReporteEstadisticoButton
                     titulo="Reporte Estadístico — Vinculación"
-                    subtitulo="Actividades de vinculación y empresas beneficiadas"
+                    subtitulo="Actividades de vinculación y beneficiarios"
                     :kpis="[
                         { label: 'Actividades', value: kpis.total_actividades },
                         { label: 'Ejecutadas', value: kpis.ejecutadas },
                         { label: '% Ejecutadas', value: kpis.porcentaje_ejecutadas + '%' },
-                        { label: 'Empresas', value: kpis.total_empresas },
+                        { label: 'Beneficiarios', value: kpis.total_empresas },
                     ]"
                     :charts="reportCharts"
                 />
@@ -159,7 +159,7 @@ const hasData = (c: ChartData) => c.series.length > 0 && c.series.some((v) => v 
                 </div>
                 <div class="rounded-2xl border p-5 shadow-sm bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]">
                     <div class="flex items-center justify-between">
-                        <p class="text-xs font-semibold uppercase opacity-60 text-[var(--sispaa-text)]">Empresas</p>
+                        <p class="text-xs font-semibold uppercase opacity-60 text-[var(--sispaa-text)]">Beneficiarios</p>
                         <Building2 class="h-5 w-5 text-[var(--sispaa-primary)]" />
                     </div>
                     <p class="mt-2 text-3xl font-extrabold text-[var(--sispaa-text)]">{{ kpis.total_empresas }}</p>
@@ -185,10 +185,10 @@ const hasData = (c: ChartData) => c.series.length > 0 && c.series.some((v) => v 
                 />
                 <ApexChartCard
                     chart-id="empresas-por-sector"
-                    title="Empresas beneficiadas por sector"
+                    title="Beneficiarios por sector"
                     type="bar"
                     class="xl:col-span-2"
-                    :series="[{ name: 'Empresas', data: charts.empresasPorSector.series }]"
+                    :series="[{ name: 'Beneficiarios', data: charts.empresasPorSector.series }]"
                     :options="barOptions(charts.empresasPorSector.labels, ['#0ea5e9'])"
                     :empty="!hasData(charts.empresasPorSector)"
                 />

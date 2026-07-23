@@ -14,21 +14,33 @@ class ActividadVinculacion extends Model
 
     protected $fillable = [
         'docente_lider_id',
+        'supervisor_id',
         'carrera_id',
         'periodo_id',
-        'empresa_id',
+        'beneficiario_id',
+        'representante_id',
         'nombre',
         'estado',
-        'fecha',
+        'fecha_inicio',
+        'fecha_fin',
+        'fecha_cierre',
+        'motivo_cancelacion',
     ];
 
     protected $casts = [
-        'fecha' => 'date',
+        'fecha_inicio' => 'date',
+        'fecha_fin' => 'date',
+        'fecha_cierre' => 'date',
     ];
 
     public function docenteLider()
     {
         return $this->belongsTo(\App\Models\User::class, 'docente_lider_id');
+    }
+
+    public function supervisor()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'supervisor_id');
     }
 
     public function carrera()
@@ -41,9 +53,26 @@ class ActividadVinculacion extends Model
         return $this->belongsTo(\App\Models\Admin\PeriodoAcademico::class, 'periodo_id');
     }
 
-    public function empresa()
+    public function beneficiario()
     {
-        return $this->belongsTo(\App\Models\Admin\Empresa::class);
+        return $this->belongsTo(Beneficiario::class);
+    }
+
+    public function representante()
+    {
+        return $this->belongsTo(Representante::class);
+    }
+
+    public function registros()
+    {
+        return $this->hasMany(BeneficiarioRegistro::class, 'actividad_vinculacion_id');
+    }
+
+    /** Registro inicial (conteo capturado al crear la actividad). */
+    public function registroInicial()
+    {
+        return $this->hasOne(BeneficiarioRegistro::class, 'actividad_vinculacion_id')
+            ->where('tipo', 'inicial');
     }
 
     public function creator()

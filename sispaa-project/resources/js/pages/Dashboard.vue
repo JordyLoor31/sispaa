@@ -143,7 +143,7 @@ const indicators = computed<Indicator[]>(() => {
             details: [
                 { label: 'Ejecutadas', value: s.vinculacion.ejecutadas, color: 'text-green-600 dark:text-green-400' },
                 { label: 'Pendientes', value: s.vinculacion.pendientes, color: 'text-yellow-600 dark:text-yellow-400' },
-                { label: 'Empresas Beneficiadas', value: s.vinculacion.empresas_beneficiadas },
+                { label: 'Beneficiarios', value: s.vinculacion.empresas_beneficiadas },
             ],
         },
         {

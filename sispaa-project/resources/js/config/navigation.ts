@@ -151,7 +151,7 @@ export const coordinadorNavItems: NavItem[] = [
         icon: Handshake,
         items: [
             { title: 'Actividades', href: route('vinculacion.actividades') },
-            { title: 'Empresas beneficiadas', href: route('vinculacion.empresas') },
+            { title: 'Beneficiarios', href: route('vinculacion.beneficiarios') },
         ],
     },
 ];

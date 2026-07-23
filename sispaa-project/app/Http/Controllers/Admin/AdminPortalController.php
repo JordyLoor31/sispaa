@@ -95,11 +95,10 @@ class AdminPortalController extends Controller
         $vinculacionStats = [
             'total_actividades' => ActividadVinculacion::count(),
             'ejecutadas' => ActividadVinculacion::where('estado', 'ejecutado')->count(),
-            'pendientes' => ActividadVinculacion::where('estado', 'pendiente')->count(),
-            'empresas_beneficiadas' => ActividadVinculacion::where('estado', 'ejecutado')
-                ->whereNotNull('empresa_id')
-                ->distinct('empresa_id')
-                ->count('empresa_id'),
+            'pendientes' => ActividadVinculacion::where('estado', 'en_ejecucion')->count(),
+            'empresas_beneficiadas' => ActividadVinculacion::whereNotNull('beneficiario_id')
+                ->distinct('beneficiario_id')
+                ->count('beneficiario_id'),
         ];
 
         // 7. Titulación

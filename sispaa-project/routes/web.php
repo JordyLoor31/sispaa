@@ -226,13 +226,15 @@ Route::middleware(['auth', 'verified', 'role:coordinador|SystemAdministrador'])
         Route::put('/actividades/{actividad}', [\App\Http\Controllers\Vinculacion\ActividadVinculacionController::class, 'update'])->name('actividades.update');
         Route::delete('/actividades/{actividad}', [\App\Http\Controllers\Vinculacion\ActividadVinculacionController::class, 'destroy'])->name('actividades.destroy');
 
-        Route::get('/empresas-beneficiadas', [\App\Http\Controllers\Vinculacion\EmpresaController::class, 'index'])->name('empresas');
-        Route::get('/empresas-beneficiadas/crear', [\App\Http\Controllers\Vinculacion\EmpresaController::class, 'create'])->name('empresas.create');
-        Route::post('/empresas-beneficiadas', [\App\Http\Controllers\Vinculacion\EmpresaController::class, 'store'])->name('empresas.store');
-        Route::get('/empresas-beneficiadas/{empresa}', [\App\Http\Controllers\Vinculacion\EmpresaController::class, 'show'])->name('empresas.show');
-        Route::get('/empresas-beneficiadas/{empresa}/editar', [\App\Http\Controllers\Vinculacion\EmpresaController::class, 'edit'])->name('empresas.edit');
-        Route::put('/empresas-beneficiadas/{empresa}', [\App\Http\Controllers\Vinculacion\EmpresaController::class, 'update'])->name('empresas.update');
-        Route::delete('/empresas-beneficiadas/{empresa}', [\App\Http\Controllers\Vinculacion\EmpresaController::class, 'destroy'])->name('empresas.destroy');
+        Route::post('/actividades/{actividad}/beneficiarios', [\App\Http\Controllers\Vinculacion\ActividadVinculacionController::class, 'agregarBeneficiarios'])->name('actividades.beneficiarios.store');
+
+        Route::get('/beneficiarios', [\App\Http\Controllers\Vinculacion\BeneficiarioController::class, 'index'])->name('beneficiarios');
+        Route::get('/beneficiarios/crear', [\App\Http\Controllers\Vinculacion\BeneficiarioController::class, 'create'])->name('beneficiarios.create');
+        Route::post('/beneficiarios', [\App\Http\Controllers\Vinculacion\BeneficiarioController::class, 'store'])->name('beneficiarios.store');
+        Route::get('/beneficiarios/{beneficiario}', [\App\Http\Controllers\Vinculacion\BeneficiarioController::class, 'show'])->name('beneficiarios.show');
+        Route::get('/beneficiarios/{beneficiario}/editar', [\App\Http\Controllers\Vinculacion\BeneficiarioController::class, 'edit'])->name('beneficiarios.edit');
+        Route::put('/beneficiarios/{beneficiario}', [\App\Http\Controllers\Vinculacion\BeneficiarioController::class, 'update'])->name('beneficiarios.update');
+        Route::delete('/beneficiarios/{beneficiario}', [\App\Http\Controllers\Vinculacion\BeneficiarioController::class, 'destroy'])->name('beneficiarios.destroy');
     });
 
 

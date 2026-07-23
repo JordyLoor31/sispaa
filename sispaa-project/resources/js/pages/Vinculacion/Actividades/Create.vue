@@ -3,13 +3,14 @@ import AppSidebarLayout from '@/layouts/app/AppSidebarLayout.vue';
 import { type BreadcrumbItemType } from '@/types';
 import { Head } from '@inertiajs/vue3';
 import ActividadForm from './ActividadForm.vue';
-import type { Catalogo } from './types';
+import type { BeneficiarioRef, Catalogo, RepresentanteRef } from './types';
 
 defineProps<{
     docentes: { id: number; name: string }[];
     carreras: Catalogo[];
     periodos: Catalogo[];
-    empresas: Catalogo[];
+    beneficiarios: BeneficiarioRef[];
+    representantes: RepresentanteRef[];
     breadcrumbs?: BreadcrumbItemType[];
 }>();
 </script>
@@ -24,7 +25,7 @@ defineProps<{
             </div>
 
             <div class="mx-auto w-full max-w-xl rounded-2xl border border-[var(--sispaa-surface)] bg-[var(--sispaa-background)] p-4 shadow-sm sm:p-6">
-                <ActividadForm :docentes="docentes" :carreras="carreras" :periodos="periodos" :empresas="empresas" />
+                <ActividadForm :docentes="docentes" :carreras="carreras" :periodos="periodos" :beneficiarios="beneficiarios" :representantes="representantes" />
             </div>
         </div>
     </AppSidebarLayout>
