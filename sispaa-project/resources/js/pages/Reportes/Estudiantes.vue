@@ -7,6 +7,15 @@ import { Users, UserCheck, AlertTriangle, ShieldCheck } from 'lucide-vue-next';
 import { BRAND_GRADIENT } from '@/lib/brand';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import ApexChartCard from '@/components/charts/ApexChartCard.vue';
+import ReporteEstadisticoButton from '@/components/charts/ReporteEstadisticoButton.vue';
+
+const reportCharts = [
+    { id: 'matriculados-por-carrera', title: 'Matriculados por carrera' },
+    { id: 'matriculados-por-estado', title: 'Matriculados por estado' },
+    { id: 'faltas-por-materia', title: 'Faltas por materia' },
+    { id: 'faltas-justificadas', title: 'Faltas justificadas vs. sin justificar' },
+    { id: 'justificaciones-por-estado', title: 'Solicitudes de justificación por estado' },
+];
 import type { ApexOptions } from 'apexcharts';
 
 interface Catalogo { id: number; nombre: string }
@@ -87,14 +96,27 @@ const hasData = (c: ChartData) => c.series.length > 0 && c.series.some((v) => v 
         <Head title="Reportes — Estudiantes" />
 
         <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[color:color-mix(in_srgb,var(--sispaa-surface)_30%,var(--sispaa-background))]">
-            <div class="flex items-center gap-3.5">
-                <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white shadow-sm" :style="BRAND_GRADIENT">
-                    <Users class="h-5 w-5" />
+            <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div class="flex items-center gap-3.5">
+                    <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white shadow-sm" :style="BRAND_GRADIENT">
+                        <Users class="h-5 w-5" />
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">Reportes — Estudiantes</h1>
+                        <p class="mt-0.5 text-sm opacity-60 text-[var(--sispaa-text)]">Matrículas, faltas y justificaciones del período seleccionado.</p>
+                    </div>
                 </div>
-                <div>
-                    <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">Reportes — Estudiantes</h1>
-                    <p class="mt-0.5 text-sm opacity-60 text-[var(--sispaa-text)]">Matrículas, faltas y justificaciones del período seleccionado.</p>
-                </div>
+                <ReporteEstadisticoButton
+                    titulo="Reporte Estadístico — Estudiantes"
+                    subtitulo="Matrículas, faltas y justificaciones del período seleccionado"
+                    :kpis="[
+                        { label: 'Matriculados', value: kpis.total_matriculados },
+                        { label: 'Total faltas', value: kpis.total_faltas },
+                        { label: 'Justificadas', value: kpis.faltas_justificadas },
+                        { label: '% Justificadas', value: kpis.porcentaje_justificadas + '%' },
+                    ]"
+                    :charts="reportCharts"
+                />
             </div>
 
             <!-- Filtros -->
