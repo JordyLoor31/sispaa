@@ -7,6 +7,13 @@ import { Handshake, Building2, Percent } from 'lucide-vue-next';
 import { BRAND_GRADIENT } from '@/lib/brand';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import ApexChartCard from '@/components/charts/ApexChartCard.vue';
+import ReporteEstadisticoButton from '@/components/charts/ReporteEstadisticoButton.vue';
+
+const reportCharts = [
+    { id: 'vinculacion-por-estado', title: 'Actividades por estado' },
+    { id: 'vinculacion-por-carrera', title: 'Actividades por carrera' },
+    { id: 'empresas-por-sector', title: 'Empresas beneficiadas por sector' },
+];
 import type { ApexOptions } from 'apexcharts';
 
 interface Catalogo { id: number; nombre: string }
@@ -82,14 +89,27 @@ const hasData = (c: ChartData) => c.series.length > 0 && c.series.some((v) => v 
         <Head title="Reportes — Vinculación" />
 
         <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[color:color-mix(in_srgb,var(--sispaa-surface)_30%,var(--sispaa-background))]">
-            <div class="flex items-center gap-3.5">
-                <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white shadow-sm" :style="BRAND_GRADIENT">
-                    <Handshake class="h-5 w-5" />
+            <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div class="flex items-center gap-3.5">
+                    <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white shadow-sm" :style="BRAND_GRADIENT">
+                        <Handshake class="h-5 w-5" />
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">Reportes — Vinculación</h1>
+                        <p class="mt-0.5 text-sm opacity-60 text-[var(--sispaa-text)]">Actividades de vinculación y empresas beneficiadas.</p>
+                    </div>
                 </div>
-                <div>
-                    <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">Reportes — Vinculación</h1>
-                    <p class="mt-0.5 text-sm opacity-60 text-[var(--sispaa-text)]">Actividades de vinculación y empresas beneficiadas.</p>
-                </div>
+                <ReporteEstadisticoButton
+                    titulo="Reporte Estadístico — Vinculación"
+                    subtitulo="Actividades de vinculación y empresas beneficiadas"
+                    :kpis="[
+                        { label: 'Actividades', value: kpis.total_actividades },
+                        { label: 'Ejecutadas', value: kpis.ejecutadas },
+                        { label: '% Ejecutadas', value: kpis.porcentaje_ejecutadas + '%' },
+                        { label: 'Empresas', value: kpis.total_empresas },
+                    ]"
+                    :charts="reportCharts"
+                />
             </div>
 
             <div class="flex flex-wrap items-end gap-3 rounded-2xl border p-4 shadow-sm bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]">

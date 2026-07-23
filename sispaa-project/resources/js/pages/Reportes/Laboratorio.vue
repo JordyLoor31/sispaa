@@ -7,6 +7,14 @@ import { FlaskConical, Microscope, Beaker } from 'lucide-vue-next';
 import { BRAND_GRADIENT } from '@/lib/brand';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import ApexChartCard from '@/components/charts/ApexChartCard.vue';
+import ReporteEstadisticoButton from '@/components/charts/ReporteEstadisticoButton.vue';
+
+const reportCharts = [
+    { id: 'practicas-por-carrera', title: 'Prácticas por carrera' },
+    { id: 'practicas-por-laboratorio', title: 'Prácticas por laboratorio' },
+    { id: 'equipos-por-estado', title: 'Equipos por estado' },
+    { id: 'reactivos-por-estado', title: 'Reactivos por estado' },
+];
 import type { ApexOptions } from 'apexcharts';
 
 interface Catalogo { id: number; nombre: string }
@@ -79,14 +87,26 @@ const hasData = (c: ChartData) => c.series.length > 0 && c.series.some((v) => v 
         <Head title="Reportes — Laboratorio" />
 
         <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[color:color-mix(in_srgb,var(--sispaa-surface)_30%,var(--sispaa-background))]">
-            <div class="flex items-center gap-3.5">
-                <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white shadow-sm" :style="BRAND_GRADIENT">
-                    <FlaskConical class="h-5 w-5" />
+            <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div class="flex items-center gap-3.5">
+                    <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white shadow-sm" :style="BRAND_GRADIENT">
+                        <FlaskConical class="h-5 w-5" />
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">Reportes — Laboratorio</h1>
+                        <p class="mt-0.5 text-sm opacity-60 text-[var(--sispaa-text)]">Uso de laboratorios por carrera y estado del inventario.</p>
+                    </div>
                 </div>
-                <div>
-                    <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">Reportes — Laboratorio</h1>
-                    <p class="mt-0.5 text-sm opacity-60 text-[var(--sispaa-text)]">Uso de laboratorios por carrera y estado del inventario.</p>
-                </div>
+                <ReporteEstadisticoButton
+                    titulo="Reporte Estadístico — Laboratorio"
+                    subtitulo="Uso de laboratorios por carrera y estado del inventario"
+                    :kpis="[
+                        { label: 'Prácticas', value: kpis.total_practicas },
+                        { label: 'Equipos', value: kpis.total_equipos },
+                        { label: 'Reactivos', value: kpis.total_reactivos },
+                    ]"
+                    :charts="reportCharts"
+                />
             </div>
 
             <div class="flex flex-wrap items-end gap-3 rounded-2xl border p-4 shadow-sm bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]">

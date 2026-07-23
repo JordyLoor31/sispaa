@@ -131,8 +131,5 @@ const submit = () => {
                 </TextLink>
             </div>
         </div>
-
-        <!-- Footer -->
-        <footer class="absolute bottom-4 right-6 text-sm [color:color-mix(in_srgb,var(--sispaa-text)_75%,transparent)]">© 2026 SISPAA. Todos los derechos reservados</footer>
     </div>
 </template>
