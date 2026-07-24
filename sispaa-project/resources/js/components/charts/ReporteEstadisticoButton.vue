@@ -14,6 +14,7 @@ import jsPDF from 'jspdf';
 import { FileText, LoaderCircle } from 'lucide-vue-next';
 import { ref } from 'vue';
 import { Button } from '@/components/ui/button';
+import logoUleamUrl from '@/assets/uleam.png';
 
 const props = defineProps<{
     titulo: string;
@@ -39,6 +40,35 @@ function loadImage(uri: string): Promise<HTMLImageElement> {
     });
 }
 
+/**
+ * Descarga la imagen como blob y la convierte a dataURL con FileReader (en
+ * vez de pasar por un <canvas>.toDataURL(), que puede fallar en silencio si
+ * el canvas queda "tainted"). Pasarle a jsPDF un HTMLImageElement directo
+ * (en vez de un dataURL string) también hacía que a veces ignorara el alto
+ * indicado y dibujara el logo mucho más grande de lo pedido, invadiendo el
+ * título de abajo -- por eso se normaliza siempre a dataURL, igual que ya
+ * se hace con las imágenes de los gráficos (ApexCharts.exec(..., 'dataURI')).
+ */
+async function loadImageAsDataUrl(uri: string): Promise<{ dataUrl: string; width: number; height: number }> {
+    const response = await fetch(uri);
+    if (!response.ok) throw new Error(`No se pudo descargar la imagen: ${response.status}`);
+    const blob = await response.blob();
+
+    const dataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(blob);
+    });
+
+    const { width, height } = await loadImage(dataUrl).then((img) => ({
+        width: img.naturalWidth || img.width,
+        height: img.naturalHeight || img.height,
+    }));
+
+    return { dataUrl, width, height };
+}
+
 async function generar() {
     if (generando.value) return;
     generando.value = true;
@@ -51,40 +81,54 @@ async function generar() {
         const contentW = pageW - margin * 2;
         const bottomLimit = pageH - 18; // deja espacio para el pie de página
 
-        // ── Portada / encabezado ──────────────────────────────────────────
+        // ── Portada / encabezado institucional ──────────────────────────────
         pdf.setFillColor(...PRIMARY);
         pdf.rect(0, 0, pageW, 6, 'F'); // franja superior de marca
 
+        // Logo ULEAM (arriba a la izquierda) + Facultad (arriba a la derecha),
+        // igual al membrete institucional usado en los documentos oficiales.
+        // Se sube pegado al borde superior (y=8) y con más ancho (32mm) para
+        // que se note más, dejando igual espacio de sobra antes del título.
+        try {
+            const { dataUrl, width, height } = await loadImageAsDataUrl(logoUleamUrl);
+            const logoW = 32;
+            const logoH = logoW * (height / width);
+            pdf.addImage(dataUrl, 'PNG', margin, 8, logoW, logoH);
+        } catch (e) {
+            // Si el logo no carga, se continúa sin él (no debe romper la
+            // descarga); se deja un aviso en consola para poder depurarlo.
+            console.warn('No se pudo cargar el logo institucional para el PDF:', e);
+        }
+
         pdf.setTextColor(...PRIMARY);
         pdf.setFont('helvetica', 'bold');
-        pdf.setFontSize(9);
-        pdf.text('SISPAA', margin, 18);
-        pdf.setTextColor(...MUTED);
-        pdf.setFont('helvetica', 'normal');
-        pdf.setFontSize(8);
-        pdf.text('Sistema Integral de Seguimiento de Procesos Académicos y Administrativos', margin, 23);
+        pdf.setFontSize(10);
+        pdf.text('Facultad de Ciencias de la Vida y Tecnologías', pageW - margin, 13, { align: 'right' });
+
+        pdf.setDrawColor(...LINE);
+        pdf.line(margin, 18, pageW - margin, 18);
 
         pdf.setTextColor(...TEXT);
         pdf.setFont('helvetica', 'bold');
         pdf.setFontSize(18);
-        pdf.text(props.titulo, margin, 36);
+        pdf.text(props.titulo, margin, 29);
 
         if (props.subtitulo) {
             pdf.setFont('helvetica', 'normal');
             pdf.setFontSize(10);
             pdf.setTextColor(...MUTED);
-            pdf.text(props.subtitulo, margin, 43);
+            pdf.text(props.subtitulo, margin, 36);
         }
 
         const fecha = new Date().toLocaleString('es-EC', { dateStyle: 'long', timeStyle: 'short' });
         pdf.setFontSize(9);
         pdf.setTextColor(...MUTED);
-        pdf.text(`Generado el ${fecha}`, margin, props.subtitulo ? 49 : 44);
+        pdf.text(`Generado el ${fecha}`, margin, props.subtitulo ? 42 : 37);
 
         pdf.setDrawColor(...LINE);
-        pdf.line(margin, 53, pageW - margin, 53);
+        pdf.line(margin, 49, pageW - margin, 49);
 
-        let y = 62;
+        let y = 58;
 
         // ── Indicadores clave ─────────────────────────────────────────────
         if (props.kpis?.length) {
@@ -187,7 +231,7 @@ async function generar() {
             pdf.setFont('helvetica', 'normal');
             pdf.setFontSize(8);
             pdf.setTextColor(...MUTED);
-            pdf.text('SISPAA — Reporte estadístico', margin, pageH - 7);
+            pdf.text('Documento descargado del Sistema SISPAA', margin, pageH - 7);
             pdf.text(`Página ${p} de ${total}`, pageW - margin, pageH - 7, { align: 'right' });
         }
 

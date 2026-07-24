@@ -1,20 +1,29 @@
 <script setup lang="ts">
 import AppSidebarLayout from '@/layouts/app/AppSidebarLayout.vue';
 import { type BreadcrumbItemType } from '@/types';
-import { Head, Link } from '@inertiajs/vue3';
-import { reactive } from 'vue';
-import { Plus, FolderOpen, Folders } from 'lucide-vue-next';
+import { Head, Link, router } from '@inertiajs/vue3';
+import { reactive, ref } from 'vue';
+import { Plus, FolderOpen, Folders, Search } from 'lucide-vue-next';
 import { BRAND_GRADIENT } from '@/lib/brand';
 import { FlexRender, getCoreRowModel, useVueTable } from '@tanstack/vue-table';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { useDebounceFn } from '@vueuse/core';
 import makeGrupoDocumentoColumns from './columns';
 import type { GrupoDocumento } from './types';
 
 const props = defineProps<{
     grupos: GrupoDocumento[];
+    filters?: { q?: string };
     breadcrumbs?: BreadcrumbItemType[];
 }>();
+
+const q = ref(props.filters?.q ?? '');
+const applyFilter = () => {
+    router.get(route('secretaria.grupos-documentos.index'), { q: q.value || undefined }, { preserveState: true, replace: true });
+};
+const debouncedSearch = useDebounceFn(applyFilter, 300);
 
 const columns = makeGrupoDocumentoColumns();
 
@@ -53,6 +62,17 @@ const table = useVueTable(
             </div>
 
             <div class="w-full space-y-4">
+                <div class="relative w-full max-w-sm">
+                    <Search class="absolute left-3 top-2.5 h-4 w-4 opacity-50 text-[var(--sispaa-text)]" />
+                    <Input
+                        v-model="q"
+                        type="text"
+                        placeholder="Buscar grupo de documentos..."
+                        class="rounded-lg pl-9 bg-[color:color-mix(in_srgb,var(--sispaa-surface)_35%,var(--sispaa-background))]"
+                        @input="debouncedSearch"
+                    />
+                </div>
+
                 <div class="overflow-hidden rounded-2xl border shadow-sm bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]">
                     <div class="overflow-x-auto">
                         <Table>

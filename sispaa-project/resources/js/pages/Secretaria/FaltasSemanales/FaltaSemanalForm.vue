@@ -37,7 +37,7 @@ const formSchema = toTypedSchema(
     z.object({
         carrera_id: requiredSelect('Selecciona una carrera.'),
         periodo_id: requiredSelect('Selecciona un período.'),
-        semana: z.union([z.string(), z.number()]).refine((v) => Number(v) >= 1 && Number(v) <= 52, { message: 'La semana debe estar entre 1 y 52.' }),
+        semana: z.union([z.string(), z.number()]).refine((v) => Number(v) >= 1 && Number(v) <= 16, { message: 'La semana debe estar entre 1 y 16.' }),
         cantidad_faltas: z.union([z.string(), z.number()]).refine((v) => Number(v) >= 0, { message: 'La cantidad de faltas no puede ser negativa.' }),
         observaciones: z.string().max(1000, 'Máximo 1000 caracteres.').nullable().optional(),
     }),
@@ -168,9 +168,9 @@ const onSubmit = handleSubmit((submitValues) => {
         <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <FormField v-slot="{ componentField }" name="semana">
                 <FormItem>
-                    <FormLabel>Semana (1-52) *</FormLabel>
+                    <FormLabel>Semana (1-16) *</FormLabel>
                     <FormControl>
-                        <Input type="number" min="1" max="52" placeholder="Ej. 3" v-bind="componentField" />
+                        <Input type="number" min="1" max="16" placeholder="Ej. 3" v-bind="componentField" />
                     </FormControl>
                     <FormMessage />
                 </FormItem>

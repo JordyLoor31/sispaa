@@ -3,11 +3,13 @@ import AppSidebarLayout from '@/layouts/app/AppSidebarLayout.vue';
 import { type BreadcrumbItemType } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { reactive, ref } from 'vue';
-import { Plus } from 'lucide-vue-next';
+import { Plus, Search } from 'lucide-vue-next';
 import { FlexRender, getCoreRowModel, useVueTable } from '@tanstack/vue-table';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useDebounceFn } from '@vueuse/core';
 import { toast } from 'vue-sonner';
 import makeReactivoColumns from './columns';
 import type { Catalogo, ReactivoItem } from './types';
@@ -15,14 +17,16 @@ import type { Catalogo, ReactivoItem } from './types';
 const props = defineProps<{
     reactivos: ReactivoItem[];
     laboratorios: Catalogo[];
-    filters: { laboratorio_id?: string };
+    filters: { laboratorio_id?: string; q?: string };
     breadcrumbs?: BreadcrumbItemType[];
 }>();
 
+const q = ref(props.filters.q ?? '');
 const filterLab = ref(props.filters.laboratorio_id || 'all');
 const applyFilter = () => {
-    router.get(route('laboratorio.reactivos'), { laboratorio_id: filterLab.value !== 'all' ? filterLab.value : undefined }, { preserveState: true, replace: true });
+    router.get(route('laboratorio.reactivos'), { q: q.value || undefined, laboratorio_id: filterLab.value !== 'all' ? filterLab.value : undefined }, { preserveState: true, replace: true });
 };
+const debouncedSearch = useDebounceFn(applyFilter, 300);
 
 const changeEstado = (r: ReactivoItem, estado: string) => {
     router.put(route('laboratorio.reactivos.update', r.id), { estado }, {
@@ -59,6 +63,16 @@ const table = useVueTable(reactive({
 
             <div class="w-full space-y-4">
                 <div class="flex flex-wrap gap-3">
+                    <div class="relative w-full max-w-sm">
+                        <Search class="absolute left-3 top-2.5 h-4 w-4 opacity-50 text-[var(--sispaa-text)]" />
+                        <Input
+                            v-model="q"
+                            type="text"
+                            placeholder="Buscar reactivo o fórmula..."
+                            class="rounded-lg pl-9 bg-[color:color-mix(in_srgb,var(--sispaa-surface)_35%,var(--sispaa-background))]"
+                            @input="debouncedSearch"
+                        />
+                    </div>
                     <Select v-model="filterLab" @update:model-value="applyFilter">
                         <SelectTrigger class="w-full sm:w-[220px]"><SelectValue placeholder="Laboratorio" /></SelectTrigger>
                         <SelectContent>

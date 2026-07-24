@@ -3,9 +3,12 @@ import AppSidebarLayout from '@/layouts/app/AppSidebarLayout.vue';
 import { type BreadcrumbItemType } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
 import { reactive, ref } from 'vue';
+import { Search } from 'lucide-vue-next';
 import { FlexRender, getCoreRowModel, useVueTable } from '@tanstack/vue-table';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { useDebounceFn } from '@vueuse/core';
 import makeMatriculadosColumns from './columns';
 import type { Catalogo, Paginated, StudentRow } from './types';
 
@@ -32,6 +35,8 @@ const navigateToPage = (url: string | null) => {
     if (url) router.get(url, {}, { preserveState: true });
 };
 
+const debouncedSearch = useDebounceFn(aplicar, 300);
+
 const columns = makeMatriculadosColumns();
 
 const table = useVueTable(reactive({
@@ -54,8 +59,16 @@ const table = useVueTable(reactive({
             <div class="flex flex-wrap items-end gap-3">
                 <div>
                     <label class="mb-1.5 block text-xs font-semibold uppercase opacity-60 text-[var(--sispaa-text)]">Buscar</label>
-                    <input v-model="q" @keyup.enter="aplicar" placeholder="Nombre, correo o cédula"
-                        class="w-full sm:w-[240px] rounded-lg text-sm text-[var(--sispaa-text)] border-[color:color-mix(in_srgb,var(--sispaa-text)_20%,transparent)]" />
+                    <div class="relative w-full max-w-sm">
+                        <Search class="absolute left-3 top-2.5 h-4 w-4 opacity-50 text-[var(--sispaa-text)]" />
+                        <Input
+                            v-model="q"
+                            type="text"
+                            placeholder="Nombre, correo o cédula"
+                            class="rounded-lg pl-9 bg-[color:color-mix(in_srgb,var(--sispaa-surface)_35%,var(--sispaa-background))]"
+                            @input="debouncedSearch"
+                        />
+                    </div>
                 </div>
                 <div>
                     <label class="mb-1.5 block text-xs font-semibold uppercase opacity-60 text-[var(--sispaa-text)]">Carrera</label>

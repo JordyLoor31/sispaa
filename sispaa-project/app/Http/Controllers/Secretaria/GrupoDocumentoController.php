@@ -26,14 +26,21 @@ class GrupoDocumentoController extends Controller
 {
     use HasBreadcrumbs;
 
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        $grupos = GrupoDocumento::with(['requisitos', 'creadoPor'])
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $q = trim((string) $request->input('q', ''));
+
+        $query = GrupoDocumento::with(['requisitos', 'creadoPor'])->orderBy('created_at', 'desc');
+
+        if ($q !== '') {
+            $query->where(function ($sub) use ($q) {
+                $sub->where('nombre', 'ilike', "%{$q}%")->orWhere('descripcion', 'ilike', "%{$q}%");
+            });
+        }
 
         return Inertia::render('Secretaria/GruposDocumentos/Index', [
-            'grupos' => $grupos,
+            'grupos' => $query->get(),
+            'filters' => ['q' => $q ?: null],
             'breadcrumbs' => $this->secretariaBreadcrumbs('Grupos de Documentos'),
         ]);
     }

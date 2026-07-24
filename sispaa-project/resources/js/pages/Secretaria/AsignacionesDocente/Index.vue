@@ -3,12 +3,14 @@ import AppSidebarLayout from '@/layouts/app/AppSidebarLayout.vue';
 import { type BreadcrumbItemType } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { reactive, ref } from 'vue';
-import { Plus, UserCog } from 'lucide-vue-next';
+import { Plus, Search, UserCog } from 'lucide-vue-next';
 import { BRAND_GRADIENT } from '@/lib/brand';
 import { FlexRender, getCoreRowModel, useVueTable } from '@tanstack/vue-table';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useDebounceFn } from '@vueuse/core';
 import makeAsignacionDocenteColumns from './columns';
 import type { AsignacionDocenteItem, Docente, MateriaOption, Paginated, PeriodoOption } from './types';
 
@@ -17,10 +19,11 @@ const props = defineProps<{
     docentes: Docente[];
     materias: MateriaOption[];
     periodos: PeriodoOption[];
-    filters: { docente_id?: string; materia_id?: string; periodo_id?: string };
+    filters: { docente_id?: string; materia_id?: string; periodo_id?: string; q?: string };
     breadcrumbs?: BreadcrumbItemType[];
 }>();
 
+const q = ref(props.filters.q ?? '');
 const filterDocente = ref(props.filters.docente_id || 'all');
 const filterMateria = ref(props.filters.materia_id || 'all');
 const filterPeriodo = ref(props.filters.periodo_id || 'all');
@@ -29,6 +32,7 @@ const applyFilters = () => {
     router.get(
         route('secretaria.asignaciones-docente.index'),
         {
+            q: q.value || undefined,
             docente_id: filterDocente.value !== 'all' ? filterDocente.value : undefined,
             materia_id: filterMateria.value !== 'all' ? filterMateria.value : undefined,
             periodo_id: filterPeriodo.value !== 'all' ? filterPeriodo.value : undefined,
@@ -36,6 +40,8 @@ const applyFilters = () => {
         { preserveState: true, replace: true },
     );
 };
+
+const debouncedSearch = useDebounceFn(applyFilters, 300);
 
 const columns = makeAsignacionDocenteColumns();
 
@@ -79,6 +85,16 @@ const navigateToPage = (url: string | null) => {
 
             <div class="w-full space-y-4">
                 <div class="flex flex-col flex-wrap gap-3 sm:flex-row">
+                    <div class="relative w-full max-w-sm">
+                        <Search class="absolute left-3 top-2.5 h-4 w-4 opacity-50 text-[var(--sispaa-text)]" />
+                        <Input
+                            v-model="q"
+                            type="text"
+                            placeholder="Buscar docente, materia o código..."
+                            class="rounded-lg pl-9 bg-[color:color-mix(in_srgb,var(--sispaa-surface)_35%,var(--sispaa-background))]"
+                            @input="debouncedSearch"
+                        />
+                    </div>
                     <Select v-model="filterDocente" @update:model-value="applyFilters">
                         <SelectTrigger class="w-full sm:w-[220px]"><SelectValue placeholder="Docente" /></SelectTrigger>
                         <SelectContent>

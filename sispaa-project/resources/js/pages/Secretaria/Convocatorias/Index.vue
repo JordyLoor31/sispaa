@@ -3,30 +3,34 @@ import AppSidebarLayout from '@/layouts/app/AppSidebarLayout.vue';
 import { type BreadcrumbItemType } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ref, reactive } from 'vue';
-import { Plus, Megaphone } from 'lucide-vue-next';
+import { Plus, Megaphone, Search } from 'lucide-vue-next';
 import { BRAND_GRADIENT } from '@/lib/brand';
 import { FlexRender, getCoreRowModel, useVueTable } from '@tanstack/vue-table';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useDebounceFn } from '@vueuse/core';
 import makeConvocatoriaColumns from './columns';
 import type { Convocatoria } from './types';
 
 const props = defineProps<{
     convocatorias: Convocatoria[];
-    filters: { modulo?: string };
+    filters: { modulo?: string; q?: string };
     modulos: string[];
     breadcrumbs?: BreadcrumbItemType[];
 }>();
 
+const q = ref(props.filters.q ?? '');
 const filterModulo = ref(props.filters.modulo || 'all');
 const applyFilter = () => {
     router.get(
         route('secretaria.convocatorias.index'),
-        { modulo: filterModulo.value !== 'all' ? filterModulo.value : undefined },
+        { q: q.value || undefined, modulo: filterModulo.value !== 'all' ? filterModulo.value : undefined },
         { preserveState: true, replace: true },
     );
 };
+const debouncedSearch = useDebounceFn(applyFilter, 300);
 
 const columns = makeConvocatoriaColumns();
 
@@ -65,7 +69,17 @@ const table = useVueTable(
             </div>
 
             <div class="w-full space-y-4">
-                <div class="flex gap-3">
+                <div class="flex flex-wrap gap-3">
+                    <div class="relative w-full max-w-sm">
+                        <Search class="absolute left-3 top-2.5 h-4 w-4 opacity-50 text-[var(--sispaa-text)]" />
+                        <Input
+                            v-model="q"
+                            type="text"
+                            placeholder="Buscar convocatoria..."
+                            class="rounded-lg pl-9 bg-[color:color-mix(in_srgb,var(--sispaa-surface)_35%,var(--sispaa-background))]"
+                            @input="debouncedSearch"
+                        />
+                    </div>
                     <Select v-model="filterModulo" @update:model-value="applyFilter">
                         <SelectTrigger class="w-full sm:w-[200px]"><SelectValue placeholder="Módulo" /></SelectTrigger>
                         <SelectContent>

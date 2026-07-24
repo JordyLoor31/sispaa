@@ -3,12 +3,14 @@ import AppSidebarLayout from '@/layouts/app/AppSidebarLayout.vue';
 import { type BreadcrumbItemType } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { reactive, ref } from 'vue';
-import { Plus, AlertTriangle } from 'lucide-vue-next';
+import { Plus, AlertTriangle, Search } from 'lucide-vue-next';
 import { BRAND_GRADIENT } from '@/lib/brand';
 import { FlexRender, getCoreRowModel, useVueTable } from '@tanstack/vue-table';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useDebounceFn } from '@vueuse/core';
 import makeFaltaSemanalColumns from './columns';
 import type { CarreraOption, FaltaSemanalItem, Paginated, PeriodoOption } from './types';
 
@@ -16,10 +18,11 @@ const props = defineProps<{
     faltas: Paginated<FaltaSemanalItem>;
     carreras: CarreraOption[];
     periodos: PeriodoOption[];
-    filters: { carrera_id?: string; periodo_id?: string };
+    filters: { carrera_id?: string; periodo_id?: string; q?: string };
     breadcrumbs?: BreadcrumbItemType[];
 }>();
 
+const q = ref(props.filters.q ?? '');
 const filterCarrera = ref(props.filters.carrera_id || 'all');
 const filterPeriodo = ref(props.filters.periodo_id || 'all');
 
@@ -27,12 +30,15 @@ const applyFilters = () => {
     router.get(
         route('secretaria.faltas-semanales.index'),
         {
+            q: q.value || undefined,
             carrera_id: filterCarrera.value !== 'all' ? filterCarrera.value : undefined,
             periodo_id: filterPeriodo.value !== 'all' ? filterPeriodo.value : undefined,
         },
         { preserveState: true, replace: true },
     );
 };
+
+const debouncedSearch = useDebounceFn(applyFilters, 300);
 
 const columns = makeFaltaSemanalColumns();
 
@@ -76,6 +82,16 @@ const navigateToPage = (url: string | null) => {
 
             <div class="w-full space-y-4">
                 <div class="flex flex-col flex-wrap gap-3 sm:flex-row">
+                    <div class="relative w-full max-w-sm">
+                        <Search class="absolute left-3 top-2.5 h-4 w-4 opacity-50 text-[var(--sispaa-text)]" />
+                        <Input
+                            v-model="q"
+                            type="text"
+                            placeholder="Buscar carrera u observaciones..."
+                            class="rounded-lg pl-9 bg-[color:color-mix(in_srgb,var(--sispaa-surface)_35%,var(--sispaa-background))]"
+                            @input="debouncedSearch"
+                        />
+                    </div>
                     <Select v-model="filterCarrera" @update:model-value="applyFilters">
                         <SelectTrigger class="w-full sm:w-[220px]"><SelectValue placeholder="Carrera" /></SelectTrigger>
                         <SelectContent>

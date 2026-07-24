@@ -27,16 +27,22 @@ class ConvocatoriaController extends Controller
     public function index(Request $request): Response
     {
         $modulo = $request->input('modulo', 'all');
+        $q = trim((string) $request->input('q', ''));
 
         $query = Convocatoria::with(['creadoPor', 'creator', 'updater'])->orderBy('fecha_fin', 'desc');
 
         if ($modulo && $modulo !== 'all') {
             $query->where('modulo', $modulo);
         }
+        if ($q !== '') {
+            $query->where(function ($sub) use ($q) {
+                $sub->where('titulo', 'ilike', "%{$q}%")->orWhere('descripcion', 'ilike', "%{$q}%");
+            });
+        }
 
         return Inertia::render('Secretaria/Convocatorias/Index', [
             'convocatorias' => $query->get(),
-            'filters' => $request->only(['modulo']),
+            'filters' => ['modulo' => $modulo, 'q' => $q ?: null],
             'modulos' => self::MODULOS,
             'breadcrumbs' => $this->secretariaBreadcrumbs('Convocatorias'),
         ]);

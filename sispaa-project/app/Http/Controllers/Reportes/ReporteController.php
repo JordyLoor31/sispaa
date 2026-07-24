@@ -222,8 +222,14 @@ class ReporteController extends Controller
         $filas = $this->obtenerTodasLasFilas($tipo, $request);
         $filename = 'reporte_' . $tipo . '_' . now()->format('Ymd_His') . '.pdf';
 
+        // isPhpEnabled: habilita el bloque <script type="text/php"> del blade,
+        // que usamos solo para dibujar "Página X de Y" con el contador real de
+        // dompdf (get_width()/get_height() + page_text). El contenido del
+        // script es fijo (nuestra propia vista, sin datos de usuario), así que
+        // no hay riesgo de inyección.
         $pdf = Pdf::loadView('reportes.pdf', compact('titulo', 'columnas', 'filas'))
-            ->setPaper('a4', 'landscape');
+            ->setPaper('a4', 'landscape')
+            ->setOption('isPhpEnabled', true);
 
         return $pdf->download($filename);
     }

@@ -17,10 +17,16 @@ class EquipoController extends Controller
     public function index(Request $request): Response
     {
         $laboratorioId = $request->input('laboratorio_id', 'all');
+        $q = trim((string) $request->input('q', ''));
 
         $query = Equipo::with('laboratorio');
         if ($laboratorioId !== 'all') {
             $query->where('laboratorio_id', $laboratorioId);
+        }
+        if ($q !== '') {
+            $query->where(function ($sub) use ($q) {
+                $sub->where('nombre', 'ilike', "%{$q}%")->orWhere('codigo', 'ilike', "%{$q}%");
+            });
         }
 
         return Inertia::render('Laboratorio/Equipos/Index', [
@@ -34,7 +40,7 @@ class EquipoController extends Controller
                 'laboratorio_id' => $e->laboratorio_id,
             ]),
             'laboratorios' => Laboratorio::where('estado', 'activo')->orderBy('nombre')->get(['id', 'nombre']),
-            'filters' => ['laboratorio_id' => $laboratorioId],
+            'filters' => ['laboratorio_id' => $laboratorioId, 'q' => $q ?: null],
             'breadcrumbs' => $this->laboratorioBreadcrumbs('Equipos'),
         ]);
     }

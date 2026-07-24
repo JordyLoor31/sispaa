@@ -53,6 +53,7 @@ class AsignacionDocenteController extends Controller
         $docenteId = $request->input('docente_id', 'all');
         $materiaId = $request->input('materia_id', 'all');
         $periodoId = $request->input('periodo_id', 'all');
+        $q = trim((string) $request->input('q', ''));
         $perPage = max(1, min(100, (int) $request->input('per_page', 15)));
 
         $query = AsignacionDocente::with(['docente:id,name,email', 'materia:id,nombre,codigo,carrera_id', 'materia.carrera:id,nombre,codigo', 'periodo:id,nombre,estado']);
@@ -66,6 +67,15 @@ class AsignacionDocenteController extends Controller
         if ($periodoId !== 'all') {
             $query->where('periodo_id', $periodoId);
         }
+        if ($q !== '') {
+            $query->where(function ($sub) use ($q) {
+                $sub->whereHas('docente', function ($d) use ($q) {
+                    $d->where('name', 'ilike', "%{$q}%")->orWhere('email', 'ilike', "%{$q}%");
+                })->orWhereHas('materia', function ($m) use ($q) {
+                    $m->where('nombre', 'ilike', "%{$q}%")->orWhere('codigo', 'ilike', "%{$q}%");
+                });
+            });
+        }
 
         $asignaciones = $query->orderByDesc('id')->paginate($perPage)->withQueryString();
 
@@ -74,7 +84,7 @@ class AsignacionDocenteController extends Controller
             'docentes' => $this->docentesDisponibles(),
             'materias' => $this->materiasDisponibles(),
             'periodos' => $this->periodosDisponibles(),
-            'filters' => ['docente_id' => $docenteId, 'materia_id' => $materiaId, 'periodo_id' => $periodoId],
+            'filters' => ['docente_id' => $docenteId, 'materia_id' => $materiaId, 'periodo_id' => $periodoId, 'q' => $q ?: null],
             'breadcrumbs' => $this->secretariaBreadcrumbs('Asignación de Docentes'),
         ]);
     }

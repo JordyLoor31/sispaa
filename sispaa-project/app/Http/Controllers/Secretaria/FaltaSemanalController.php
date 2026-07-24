@@ -38,6 +38,7 @@ class FaltaSemanalController extends Controller
     {
         $carreraId = $request->input('carrera_id', 'all');
         $periodoId = $request->input('periodo_id', 'all');
+        $q = trim((string) $request->input('q', ''));
         $perPage = max(1, min(100, (int) $request->input('per_page', 15)));
 
         $query = FaltaSemanal::with(['carrera:id,nombre', 'periodo:id,nombre,estado']);
@@ -48,6 +49,13 @@ class FaltaSemanalController extends Controller
         if ($periodoId !== 'all') {
             $query->where('periodo_id', $periodoId);
         }
+        if ($q !== '') {
+            $query->where(function ($sub) use ($q) {
+                $sub->whereHas('carrera', function ($c) use ($q) {
+                    $c->where('nombre', 'ilike', "%{$q}%");
+                })->orWhere('observaciones', 'ilike', "%{$q}%");
+            });
+        }
 
         $faltas = $query->orderByDesc('periodo_id')->orderByDesc('semana')->paginate($perPage)->withQueryString();
 
@@ -55,7 +63,7 @@ class FaltaSemanalController extends Controller
             'faltas' => $faltas,
             'carreras' => $this->carrerasDisponibles(),
             'periodos' => $this->periodosDisponibles(),
-            'filters' => ['carrera_id' => $carreraId, 'periodo_id' => $periodoId],
+            'filters' => ['carrera_id' => $carreraId, 'periodo_id' => $periodoId, 'q' => $q ?: null],
             'breadcrumbs' => $this->secretariaBreadcrumbs('Faltas Semanales'),
         ]);
     }
@@ -75,7 +83,7 @@ class FaltaSemanalController extends Controller
             'carrera_id' => ['required', Rule::exists('carreras', 'id')],
             'periodo_id' => ['required', Rule::exists('periodos_academicos', 'id')],
             'semana' => [
-                'required', 'integer', 'min:1', 'max:52',
+                'required', 'integer', 'min:1', 'max:16',
                 Rule::unique('faltas_semanales_carrera', 'semana')
                     ->where(fn ($q) => $q->where('carrera_id', request('carrera_id'))->where('periodo_id', request('periodo_id')))
                     ->ignore($faltaId),
