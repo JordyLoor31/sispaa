@@ -17,7 +17,7 @@
             </p>
           </div>
 
-          <div class="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
+          <div class="grid grid-cols-2 gap-3 text-sm">
             <div class="rounded-2xl border px-4 py-3" :style="{ borderColor: '#c8c8c8', backgroundColor: 'var(--sispaa-background)' }">
               <p :style="{ color: '#666' }">Total</p>
               <p class="mt-1 text-2xl font-semibold" :style="{ color: 'var(--sispaa-text)' }">{{ stats.total.toLocaleString('es-EC') }}</p>
@@ -25,14 +25,6 @@
             <div class="rounded-2xl border px-4 py-3" :style="{ borderColor: '#c8c8c8', backgroundColor: 'var(--sispaa-background)' }">
               <p :style="{ color: '#666' }">Activos</p>
               <p class="mt-1 text-2xl font-semibold" :style="{ color: '#88C273' }">{{ stats.activos.toLocaleString('es-EC') }}</p>
-            </div>
-            <div class="rounded-2xl border px-4 py-3" :style="{ borderColor: '#c8c8c8', backgroundColor: 'var(--sispaa-background)' }">
-              <p :style="{ color: '#666' }">Faltas</p>
-              <p class="mt-1 text-2xl font-semibold" :style="{ color: '#D4BDAC' }">{{ stats.faltas.toLocaleString('es-EC') }}</p>
-            </div>
-            <div class="rounded-2xl border px-4 py-3" :style="{ borderColor: '#c8c8c8', backgroundColor: 'var(--sispaa-background)' }">
-              <p :style="{ color: '#666' }">Justificadas</p>
-              <p class="mt-1 text-2xl font-semibold" :style="{ color: '#536493' }">{{ stats.justificadas.toLocaleString('es-EC') }}</p>
             </div>
           </div>
         </div>
@@ -139,13 +131,10 @@ import ApexChart from 'vue3-apexcharts';
 interface Stats {
     total: number;
     activos: number;
-    faltas: number;
-    justificadas: number;
 }
 
 interface EstadoMatricula {
     activos: number;
-    conFaltas: number;
     retirados: number;
 }
 
@@ -171,7 +160,6 @@ const props = defineProps<{
 
 const statusSeries = computed(() => [
     props.estadoMatricula.activos,
-    props.estadoMatricula.conFaltas,
     props.estadoMatricula.retirados,
 ]);
 
@@ -180,8 +168,8 @@ const statusChartOptions: ApexOptions = {
     background: 'transparent',
     foreColor: '#353535',
   },
-  labels: ['Activos', 'Con faltas', 'Retirados'],
-  colors: ['#88C273', '#D4BDAC', '#536493'],
+  labels: ['Activos', 'Retirados'],
+  colors: ['#88C273', '#536493'],
   legend: {
     position: 'bottom',
     labels: {
@@ -254,7 +242,6 @@ const careerChartOptions = computed<ApexOptions>(() => ({
 const badgeClass = (status: string) => {
     const map: Record<string, string> = {
         Activo: 'bg-[#88C273]/20 text-[#3b6b2b]',
-        'Con faltas': 'bg-[#D4BDAC]/30 text-[#7c5c47]',
         Retirado: 'bg-[#e0e0e0] text-[#555]',
         Egresado: 'bg-[#536493]/20 text-[#2e3f69]',
     };

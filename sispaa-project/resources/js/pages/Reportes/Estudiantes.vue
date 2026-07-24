@@ -2,8 +2,8 @@
 import AppSidebarLayout from '@/layouts/app/AppSidebarLayout.vue';
 import { type BreadcrumbItemType } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
-import { Users, UserCheck, AlertTriangle, ShieldCheck } from 'lucide-vue-next';
+import { ref } from 'vue';
+import { Users, AlertTriangle } from 'lucide-vue-next';
 import { BRAND_GRADIENT } from '@/lib/brand';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import ApexChartCard from '@/components/charts/ApexChartCard.vue';
@@ -12,9 +12,7 @@ import ReporteEstadisticoButton from '@/components/charts/ReporteEstadisticoButt
 const reportCharts = [
     { id: 'matriculados-por-carrera', title: 'Matriculados por carrera' },
     { id: 'matriculados-por-estado', title: 'Matriculados por estado' },
-    { id: 'faltas-por-materia', title: 'Faltas por materia' },
-    { id: 'faltas-justificadas', title: 'Faltas justificadas vs. sin justificar' },
-    { id: 'justificaciones-por-estado', title: 'Solicitudes de justificación por estado' },
+    { id: 'faltas-por-carrera', title: 'Faltas por carrera' },
 ];
 import type { ApexOptions } from 'apexcharts';
 
@@ -25,16 +23,11 @@ const props = defineProps<{
     kpis: {
         total_matriculados: number;
         total_faltas: number;
-        faltas_justificadas: number;
-        faltas_sin_justificar: number;
-        porcentaje_justificadas: number;
     };
     charts: {
         matriculadosPorCarrera: ChartData;
         matriculadosPorEstado: ChartData;
-        faltasPorMateria: ChartData;
-        faltasJustificadas: ChartData;
-        justificacionesPorEstado: ChartData;
+        faltasPorCarrera: ChartData;
     };
     periodos: Catalogo[];
     carreras: Catalogo[];
@@ -56,14 +49,12 @@ const aplicar = () => {
     }, { preserveState: true, replace: true });
 };
 
-const barOptions = (labels: string[], colors?: string[]): ApexOptions => ({
-    chart: { type: 'bar' },
-    plotOptions: { bar: { borderRadius: 6, columnWidth: '55%' } },
-    dataLabels: { enabled: true },
-    xaxis: { categories: labels, labels: { style: { colors: '#353535' } } },
-    yaxis: { labels: { style: { colors: '#353535' } } },
-    colors: colors ?? ['#3c6e71'],
-    grid: { borderColor: '#d9d9d9' },
+const pieOptions = (labels: string[], colors?: string[]): ApexOptions => ({
+    chart: { type: 'pie' },
+    labels,
+    colors: colors ?? ['#3c6e71', '#E4BC57', '#72c184', '#ef4444', '#536493'],
+    legend: { position: 'bottom' },
+    dataLabels: { enabled: true, formatter: (val: number) => Math.round(val) + '%' },
 });
 
 // Variante para barras "por carrera": cada barra toma el color de etiqueta
@@ -78,14 +69,6 @@ const barOptionsPorCarrera = (labels: string[], colors?: (string | null)[]): Ape
     yaxis: { labels: { style: { colors: '#353535' } } },
     colors: colors?.length ? colors.map((c) => c ?? '#3c6e71') : ['#3c6e71'],
     grid: { borderColor: '#d9d9d9' },
-});
-
-const pieOptions = (labels: string[], colors?: string[]): ApexOptions => ({
-    chart: { type: 'pie' },
-    labels,
-    colors: colors ?? ['#3c6e71', '#E4BC57', '#72c184', '#ef4444', '#536493'],
-    legend: { position: 'bottom' },
-    dataLabels: { enabled: true, formatter: (val: number) => Math.round(val) + '%' },
 });
 
 const hasData = (c: ChartData) => c.series.length > 0 && c.series.some((v) => v > 0);
@@ -103,17 +86,15 @@ const hasData = (c: ChartData) => c.series.length > 0 && c.series.some((v) => v 
                     </div>
                     <div>
                         <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">Reportes — Estudiantes</h1>
-                        <p class="mt-0.5 text-sm opacity-60 text-[var(--sispaa-text)]">Matrículas, faltas y justificaciones del período seleccionado.</p>
+                        <p class="mt-0.5 text-sm opacity-60 text-[var(--sispaa-text)]">Matrículas y faltas semanales por carrera del período seleccionado.</p>
                     </div>
                 </div>
                 <ReporteEstadisticoButton
                     titulo="Reporte Estadístico — Estudiantes"
-                    subtitulo="Matrículas, faltas y justificaciones del período seleccionado"
+                    subtitulo="Matrículas y faltas semanales por carrera del período seleccionado"
                     :kpis="[
                         { label: 'Matriculados', value: kpis.total_matriculados },
                         { label: 'Total faltas', value: kpis.total_faltas },
-                        { label: 'Justificadas', value: kpis.faltas_justificadas },
-                        { label: '% Justificadas', value: kpis.porcentaje_justificadas + '%' },
                     ]"
                     :charts="reportCharts"
                 />
@@ -144,7 +125,7 @@ const hasData = (c: ChartData) => c.series.length > 0 && c.series.some((v) => v 
             </div>
 
             <!-- KPIs -->
-            <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div class="grid gap-4 sm:grid-cols-2">
                 <div class="rounded-2xl border p-5 shadow-sm bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]">
                     <div class="flex items-center justify-between">
                         <p class="text-xs font-semibold uppercase opacity-60 text-[var(--sispaa-text)]">Matriculados</p>
@@ -158,20 +139,6 @@ const hasData = (c: ChartData) => c.series.length > 0 && c.series.some((v) => v 
                         <AlertTriangle class="h-5 w-5 text-[color:color-mix(in_srgb,#E4BC57_60%,var(--sispaa-text))]" />
                     </div>
                     <p class="mt-2 text-3xl font-extrabold text-[var(--sispaa-text)]">{{ kpis.total_faltas }}</p>
-                </div>
-                <div class="rounded-2xl border p-5 shadow-sm bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]">
-                    <div class="flex items-center justify-between">
-                        <p class="text-xs font-semibold uppercase opacity-60 text-[var(--sispaa-text)]">Justificadas</p>
-                        <ShieldCheck class="h-5 w-5 text-[var(--sispaa-secondary)]" />
-                    </div>
-                    <p class="mt-2 text-3xl font-extrabold text-[var(--sispaa-text)]">{{ kpis.faltas_justificadas }}</p>
-                </div>
-                <div class="rounded-2xl border p-5 shadow-sm bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]">
-                    <div class="flex items-center justify-between">
-                        <p class="text-xs font-semibold uppercase opacity-60 text-[var(--sispaa-text)]">% Justificadas</p>
-                        <UserCheck class="h-5 w-5 text-[var(--sispaa-primary)]" />
-                    </div>
-                    <p class="mt-2 text-3xl font-extrabold text-[var(--sispaa-text)]">{{ kpis.porcentaje_justificadas }}%</p>
                 </div>
             </div>
 
@@ -194,29 +161,13 @@ const hasData = (c: ChartData) => c.series.length > 0 && c.series.some((v) => v 
                     :empty="!hasData(charts.matriculadosPorEstado)"
                 />
                 <ApexChartCard
-                    chart-id="faltas-por-materia"
-                    title="Faltas por materia"
-                    subtitle="Top 10 materias con más faltas registradas"
+                    chart-id="faltas-por-carrera"
+                    title="Faltas por carrera"
+                    subtitle="Suma de faltas semanales registradas por Secretaría"
                     type="bar"
-                    :series="[{ name: 'Faltas', data: charts.faltasPorMateria.series }]"
-                    :options="barOptions(charts.faltasPorMateria.labels, ['#E4BC57'])"
-                    :empty="!hasData(charts.faltasPorMateria)"
-                />
-                <ApexChartCard
-                    chart-id="faltas-justificadas"
-                    title="Faltas justificadas vs. sin justificar"
-                    type="pie"
-                    :series="charts.faltasJustificadas.series"
-                    :options="pieOptions(charts.faltasJustificadas.labels, ['#72c184', '#ef4444'])"
-                    :empty="!hasData(charts.faltasJustificadas)"
-                />
-                <ApexChartCard
-                    chart-id="justificaciones-por-estado"
-                    title="Solicitudes de justificación por estado"
-                    type="pie"
-                    :series="charts.justificacionesPorEstado.series"
-                    :options="pieOptions(charts.justificacionesPorEstado.labels)"
-                    :empty="!hasData(charts.justificacionesPorEstado)"
+                    :series="[{ name: 'Faltas', data: charts.faltasPorCarrera.series }]"
+                    :options="barOptionsPorCarrera(charts.faltasPorCarrera.labels, charts.faltasPorCarrera.colors)"
+                    :empty="!hasData(charts.faltasPorCarrera)"
                 />
             </div>
         </div>

@@ -26,7 +26,6 @@ class EstudiantesController extends Controller
             ->join('roles', 'roles.id', '=', 'model_has_roles.role_id')
             ->leftJoin('matriculas', 'matriculas.estudiante_id', '=', 'users.id')
             ->leftJoin('carreras', 'carreras.id', '=', 'users.carrera_id')
-            ->leftJoin('faltas', 'faltas.estudiante_id', '=', 'users.id')
             ->leftJoin('documentos_estudiante', 'documentos_estudiante.estudiante_id', '=', 'users.id')
             ->where('roles.name', 'estudiante')
             ->select(
@@ -38,7 +37,6 @@ class EstudiantesController extends Controller
                 'users.carrera_id',
                 'carreras.nombre as carrera_nombre',
                 DB::raw('MAX(matriculas.estado) as matricula_estado'),
-                DB::raw('COUNT(DISTINCT faltas.id) as faltas_count'),
                 DB::raw('COUNT(DISTINCT documentos_estudiante.id) as documentos_count')
             )
             ->groupBy('users.id', 'users.name', 'users.email', 'users.cedula', 'users.telefono', 'users.carrera_id', 'carreras.nombre');

@@ -40,7 +40,6 @@ export const dashboardNavItem: NavItem = {
 export const revisionDocumentosNavItems: NavItem[] = [
     { title: 'Sílabos', href: route('coordinador.silabos.index') },
     { title: 'Informes de Asignatura', href: route('secretaria.informes.index') },
-    { title: 'Justificaciones', href: route('secretaria.justificaciones.index') },
     { title: 'Expediente / Documentos del Estudiante', href: route('secretaria.expediente.index') },
 ];
 
@@ -100,15 +99,6 @@ export const docenteNavItems: NavItem[] = [
         title: 'Titulación',
         href: route('titulacion.index'),
         icon: GraduationCap,
-    },
-    {
-        title: 'Mis Estudiantes',
-        href: route('estudiantes.faltas'),
-        icon: Book,
-        items: [
-            { title: 'Faltas', href: route('estudiantes.faltas') },
-            { title: 'Justificaciones de faltas', href: route('estudiantes.justificaciones') },
-        ],
     },
 ];
 
@@ -178,11 +168,6 @@ export const secretariaNavItems: NavItem[] = [
         icon: FileText,
     },
     {
-        title: 'Justificaciones',
-        href: route('secretaria.justificaciones.index'),
-        icon: Search,
-    },
-    {
         title: 'Titulación',
         href: route('titulacion.index'),
         icon: GraduationCap,
@@ -194,9 +179,12 @@ export const secretariaNavItems: NavItem[] = [
         items: [
             { title: 'Panel Estudiantes', href: route('estudiantes.index') },
             { title: 'Estudiantes matriculados', href: route('estudiantes.matriculados') },
-            { title: 'Faltas', href: route('estudiantes.faltas') },
-            { title: 'Justificaciones de faltas', href: route('estudiantes.justificaciones') },
         ],
+    },
+    {
+        title: 'Faltas Semanales',
+        href: route('secretaria.faltas-semanales.index'),
+        icon: Search,
     },
     {
         title: 'Asignación de Docentes',
@@ -248,16 +236,15 @@ export const secretariaNavItems: NavItem[] = [
  * Variante de secretariaNavItems solo para la vista "todo" de
  * SystemAdministrador: quita items que ya se ven en otro bloque de esa
  * misma vista consolidada, para no repetirlos dos veces en el sidebar.
- * - 'Expediente SGA' / 'Justificaciones' ahora viven, seccionados junto al
- *   resto de documentos que suben otros roles, dentro de "Revisión de
- *   Documentos".
+ * - 'Expediente SGA' ahora vive, seccionado junto al resto de documentos que
+ *   suben otros roles, dentro de "Revisión de Documentos".
  * - 'Titulación' ya aparece en el bloque "Coordinador" (coordinadorNavItems),
  *   que es quien la supervisa a nivel institucional; se quita de aquí para
  *   no repetirla (mismo caso que 'Investigación', ver docenteAdminOverviewNavItems).
- * - 'Estudiantes': Panel/Faltas/Justificaciones ya aparecen en el bloque
- *   "Coordinador" (gestionEstudiantesNavItems); 'Estudiantes matriculados'
- *   en cambio es exclusivo de Secretaría/SysAdmin (ya no de Coordinador),
- *   así que aquí SÍ se muestra, solo, dentro del bloque Secretaría.
+ * - 'Estudiantes': 'Panel Estudiantes' ya aparece en el bloque "Coordinador"
+ *   (gestionEstudiantesNavItems); 'Estudiantes matriculados' en cambio es
+ *   exclusivo de Secretaría/SysAdmin (ya no de Coordinador), así que aquí SÍ
+ *   se muestra, solo, dentro del bloque Secretaría.
  * ('Revisión de Sílabos' ya no aparece aquí: se quitó por completo de
  * secretariaNavItems, ver comentario sobre coordinadorNavItems.)
  * Se deriva por filtro/map (no se duplica a mano) para no desincronizarse
@@ -265,8 +252,8 @@ export const secretariaNavItems: NavItem[] = [
  * personal real de Secretaría lo sigue necesitando completo en su propio
  * menú (navByRole).
  */
-const TITULOS_YA_CUBIERTOS_EN_VISTA_ADMIN = new Set(['Expediente SGA', 'Justificaciones', 'Titulación']);
-const SUBITEMS_ESTUDIANTES_YA_CUBIERTOS_EN_VISTA_ADMIN = new Set(['Panel Estudiantes', 'Faltas', 'Justificaciones de faltas']);
+const TITULOS_YA_CUBIERTOS_EN_VISTA_ADMIN = new Set(['Expediente SGA', 'Titulación']);
+const SUBITEMS_ESTUDIANTES_YA_CUBIERTOS_EN_VISTA_ADMIN = new Set(['Panel Estudiantes']);
 export const secretariaAdminOverviewNavItems: NavItem[] = secretariaNavItems
     .filter((item) => !TITULOS_YA_CUBIERTOS_EN_VISTA_ADMIN.has(item.title))
     .map((item) => {
@@ -284,19 +271,9 @@ export const estudianteNavItems: NavItem[] = [
         icon: FileText,
     },
     {
-        title: 'Mis Justificaciones',
-        href: '/estudiante/justificaciones',
-        icon: Search,
-    },
-    {
         title: 'Mi Titulación',
         href: '/estudiante/titulacion',
         icon: GraduationCap,
-    },
-    {
-        title: 'Mis Asistencias',
-        href: '/estudiante/asistencias',
-        icon: Feather,
     },
     {
         title: 'Plantillas',
@@ -325,8 +302,8 @@ export const gestionEstudiantesNavItems: NavItem[] = [
             // aparece para Coordinador: a pedido, el listado institucional
             // general queda exclusivo de Secretaría/SystemAdministrador (ver
             // secretariaNavItems y el guard en EstudianteController::matriculados()).
-            { title: 'Faltas', href: route('estudiantes.faltas') },
-            { title: 'Justificaciones de faltas', href: route('estudiantes.justificaciones') },
+            // El reporte de faltas ya no es individual: ahora vive en
+            // Secretaría como "Faltas Semanales" (secretaria.faltas-semanales.*).
         ],
     },
 ];

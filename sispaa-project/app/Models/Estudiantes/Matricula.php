@@ -38,11 +38,6 @@ class Matricula extends Model
         return $this->belongsTo(\App\Models\Admin\Carrera::class);
     }
 
-    public function faltas()
-    {
-        return $this->hasMany(Falta::class, 'estudiante_id', 'estudiante_id');
-    }
-
     public function creator()
     {
         return $this->belongsTo(\App\Models\User::class, 'created_by');

@@ -8,7 +8,7 @@ use App\Models\Admin\Carrera;
 use App\Models\Admin\PeriodoAcademico;
 use App\Models\Documentos\DocumentoEstudiante;
 use App\Models\Documentos\GrupoDocumento;
-use App\Models\Estudiantes\Falta;
+use App\Models\Estudiantes\FaltaSemanal;
 use App\Models\Estudiantes\Matricula;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Database\Eloquent\Builder;
@@ -22,14 +22,15 @@ class ReporteController extends Controller
 {
     /**
      * Solo estos 3 reportes: los que se pueden construir con datos que ya
-     * existen en el sistema (matrículas, faltas/justificaciones, expediente
-     * de documentos de Secretaría), en vez de inventar indicadores nuevos.
+     * existen en el sistema (matrículas, faltas semanales por carrera,
+     * expediente de documentos de Secretaría), en vez de inventar
+     * indicadores nuevos.
      */
     private function tiposDisponibles(): array
     {
         return [
             'matriculados' => 'Estudiantes Matriculados',
-            'faltas' => 'Faltas y Justificaciones',
+            'faltas' => 'Faltas Semanales por Carrera',
             'documentos' => 'Expediente de Documentos',
         ];
     }
@@ -38,7 +39,7 @@ class ReporteController extends Controller
     {
         return match ($tipo) {
             'matriculados' => ['Cédula', 'Nombre', 'Email', 'Carrera', 'Período', 'Estado', 'Fecha Matrícula'],
-            'faltas' => ['Estudiante', 'Materia', 'Período', 'Fecha', 'Justificada', 'Estado Justificación', 'Motivo'],
+            'faltas' => ['Carrera', 'Período', 'Semana', 'Cantidad de Faltas', 'Observaciones'],
             'documentos' => ['Estudiante', 'Cédula', 'Grupo', 'Requisito', 'Tipo Documento', 'Estado', 'Fecha Revisión'],
             default => [],
         };
@@ -80,13 +81,16 @@ class ReporteController extends Controller
 
     private function queryFaltas(Request $request): Builder
     {
-        $query = Falta::with(['estudiante', 'materia', 'periodo', 'justificacion']);
+        $query = FaltaSemanal::with(['carrera', 'periodo']);
 
         if ($request->filled('periodo_id')) {
             $query->where('periodo_id', $request->periodo_id);
         }
+        if ($request->filled('carrera_id')) {
+            $query->where('carrera_id', $request->carrera_id);
+        }
 
-        return $query->orderByDesc('fecha');
+        return $query->orderByDesc('periodo_id')->orderByDesc('semana');
     }
 
     private function queryDocumentos(Request $request): Builder
@@ -123,13 +127,11 @@ class ReporteController extends Controller
                 $model->fecha_matricula?->format('Y-m-d') ?? '—',
             ],
             'faltas' => [
-                $model->estudiante?->name ?? '—',
-                $model->materia?->nombre ?? '—',
+                $model->carrera?->nombre ?? '—',
                 $model->periodo?->nombre ?? '—',
-                $model->fecha?->format('Y-m-d') ?? '—',
-                $model->justificada ? 'Sí' : 'No',
-                $model->justificacion?->estado ?? '—',
-                $model->motivo ?? '—',
+                $model->semana,
+                $model->cantidad_faltas,
+                $model->observaciones ?? '—',
             ],
             'documentos' => [
                 $model->estudiante?->name ?? '—',

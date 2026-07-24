@@ -49,10 +49,10 @@ Route::middleware(['auth', 'verified', 'role:docente|coordinador|secretaria|Syst
 
 
 // ESTUDIANTES (gestión/staff: coordinador y secretaría ven todo el listado
-// institucional; docente ve únicamente, en Faltas/Justificaciones, a los
-// estudiantes de las materias que tiene asignadas -- scoping en el
-// controlador. 'Matriculados' es información general y queda reservada a
-// secretaría/coordinador/SystemAdministrador).
+// institucional. 'Matriculados' es información general y queda reservada a
+// secretaría/coordinador/SystemAdministrador). El reporte de faltas ya no
+// es individual por estudiante: ver secretaria.faltas-semanales.* y el
+// gráfico "Faltas por carrera" en Reportes.
 Route::middleware(['auth', 'verified', 'role:coordinador|secretaria|docente|SystemAdministrador'])
     ->prefix('estudiantes')
     ->name('estudiantes.')
@@ -63,12 +63,6 @@ Route::middleware(['auth', 'verified', 'role:coordinador|secretaria|docente|Syst
 
         Route::get('/matriculados', [EstudianteController::class, 'matriculados'])
             ->name('matriculados');
-
-        Route::get('/faltas', [EstudianteController::class, 'faltas'])
-            ->name('faltas');
-
-        Route::get('/justificaciones', [EstudianteController::class, 'justificaciones'])
-            ->name('justificaciones');
     });
 
 
@@ -269,12 +263,7 @@ Route::middleware(['auth', 'verified', 'role:estudiante|SystemAdministrador'])
         Route::get('/documentos', [\App\Http\Controllers\Estudiantes\StudentPortalController::class, 'documentos'])->name('documentos');
         Route::post('/documentos/upload', [\App\Http\Controllers\Estudiantes\StudentPortalController::class, 'uploadDocumento'])->name('documentos.upload');
 
-        Route::get('/justificaciones', [\App\Http\Controllers\Estudiantes\StudentPortalController::class, 'justificaciones'])->name('justificaciones');
-        Route::post('/justificaciones/store', [\App\Http\Controllers\Estudiantes\StudentPortalController::class, 'storeJustificacion'])->name('justificaciones.store');
-
         Route::get('/titulacion', [\App\Http\Controllers\Estudiantes\StudentPortalController::class, 'titulacion'])->name('titulacion');
-
-        Route::get('/asistencias', [\App\Http\Controllers\Estudiantes\StudentPortalController::class, 'asistencias'])->name('asistencias');
 
         // Plantillas de Documentos publicadas por Secretaría (solo lectura +
         // descarga; la descarga en sí vive en la ruta compartida plantillas.descargar).
@@ -364,13 +353,21 @@ Route::middleware(['auth', 'verified', 'role:secretaria|SystemAdministrador'])
         Route::patch('/expediente/{documento}/review', [\App\Http\Controllers\Secretaria\ExpedienteController::class, 'review'])
             ->name('expediente.review');
 
-        // Justificaciones
-        Route::get('/justificaciones', [\App\Http\Controllers\Secretaria\JustificacionController::class, 'index'])
-            ->name('justificaciones.index');
-        Route::get('/justificaciones/{justificacion}', [\App\Http\Controllers\Secretaria\JustificacionController::class, 'show'])
-            ->name('justificaciones.show');
-        Route::patch('/justificaciones/{justificacion}/review', [\App\Http\Controllers\Secretaria\JustificacionController::class, 'review'])
-            ->name('justificacion.review');
+        // Faltas Semanales por Carrera (reemplaza el antiguo flujo de
+        // justificaciones individuales de faltas: ahora Secretaría solo
+        // registra un número agregado de faltas por carrera y semana).
+        Route::get('/faltas-semanales', [\App\Http\Controllers\Secretaria\FaltaSemanalController::class, 'index'])
+            ->name('faltas-semanales.index');
+        Route::get('/faltas-semanales/crear', [\App\Http\Controllers\Secretaria\FaltaSemanalController::class, 'create'])
+            ->name('faltas-semanales.create');
+        Route::post('/faltas-semanales', [\App\Http\Controllers\Secretaria\FaltaSemanalController::class, 'store'])
+            ->name('faltas-semanales.store');
+        Route::get('/faltas-semanales/{faltaSemanal}/editar', [\App\Http\Controllers\Secretaria\FaltaSemanalController::class, 'edit'])
+            ->name('faltas-semanales.edit');
+        Route::put('/faltas-semanales/{faltaSemanal}', [\App\Http\Controllers\Secretaria\FaltaSemanalController::class, 'update'])
+            ->name('faltas-semanales.update');
+        Route::delete('/faltas-semanales/{faltaSemanal}', [\App\Http\Controllers\Secretaria\FaltaSemanalController::class, 'destroy'])
+            ->name('faltas-semanales.destroy');
 
         // Matrículas
         Route::get('/matriculas', [\App\Http\Controllers\Secretaria\MatriculaController::class, 'index'])
@@ -472,15 +469,13 @@ Route::middleware(['auth', 'verified'])
     ->get('/plantillas/{plantilla}/descargar', [\App\Http\Controllers\Secretaria\PlantillaDocumentoController::class, 'descargar'])
     ->name('plantillas.descargar');
 
-// Archivos SENSIBLES por estudiante (expediente y adjuntos de justificaciones):
-// datos personales servidos desde el disco privado con control de acceso en el
-// controlador (dueño o Secretaría/SystemAdministrador). No son un simple gate
-// por rol, por eso solo llevan 'auth'/'verified' aquí.
+// Archivos SENSIBLES por estudiante (expediente): datos personales servidos
+// desde el disco privado con control de acceso en el controlador (dueño o
+// Secretaría/SystemAdministrador). No es un simple gate por rol, por eso
+// solo lleva 'auth'/'verified' aquí.
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/documentos/{documento}/archivo', [\App\Http\Controllers\Documentos\DocumentoEstudianController::class, 'documento'])
         ->name('documentos.archivo');
-    Route::get('/justificaciones/{justificacion}/archivo', [\App\Http\Controllers\Documentos\DocumentoEstudianController::class, 'justificacion'])
-        ->name('justificaciones.archivo');
 });
 
 

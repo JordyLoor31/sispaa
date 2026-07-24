@@ -66,9 +66,9 @@ class PeriodoAcademico extends Model
         return $this->hasMany(\App\Models\Estudiantes\Matricula::class);
     }
 
-    public function faltas()
+    public function faltasSemanales()
     {
-        return $this->hasMany(\App\Models\Estudiantes\Falta::class);
+        return $this->hasMany(\App\Models\Estudiantes\FaltaSemanal::class, 'periodo_id');
     }
 
     public function investigaciones()

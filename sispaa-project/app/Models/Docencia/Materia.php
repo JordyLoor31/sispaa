@@ -44,11 +44,6 @@ class Materia extends Model
         return $this->hasMany(InformeDocente::class);
     }
 
-    public function faltas()
-    {
-        return $this->hasMany(\App\Models\Estudiantes\Falta::class);
-    }
-
     public function practicasLaboratorio()
     {
         return $this->hasMany(\App\Models\Laboratorio\PracticaLaboratorio::class);

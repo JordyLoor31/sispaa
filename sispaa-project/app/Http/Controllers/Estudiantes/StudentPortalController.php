@@ -6,8 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Documentos\DocumentoEstudiante;
 use App\Models\Documentos\PlantillaDocumento;
 use App\Models\Documentos\RequisitoGrupo;
-use App\Models\Estudiantes\Falta;
-use App\Models\Estudiantes\JustificacionSolicitud;
 use App\Models\Titulacion\Titulacion;
 use App\Models\Admin\Notificacion;
 use Illuminate\Http\Request;
@@ -46,14 +44,7 @@ class StudentPortalController extends Controller
         $promedio = min(10.0, max(7.0, round($promedio, 2)));
         $semestre = (($user->id % 8) + 1) . 'º Semestre';
 
-        // 2. Faltas reales
-        $totalFaltas = Falta::where('estudiante_id', $user->id)->count();
-        $faltasSinJustificar = Falta::where('estudiante_id', $user->id)
-            ->where('justificada', false)
-            ->whereDoesntHave('justificacion')
-            ->count();
-
-        // 3. Expediente de documentos (catálogo dinámico gestionado por Secretaría)
+        // 2. Expediente de documentos (catálogo dinámico gestionado por Secretaría)
         $tiposRequeridos = $this->requisitosActivos();
 
         $documentosSubidos = DocumentoEstudiante::where('estudiante_id', $user->id)
@@ -69,27 +60,15 @@ class StudentPortalController extends Controller
         }
         $avanceSGA = $tiposRequeridos->count() > 0 ? round(($aprobadosCount / $tiposRequeridos->count()) * 100) : 0;
 
-        // 4. Actividades recientes/KPIs
+        // 3. Actividades recientes/KPIs
         $kpis = [
             'promedio' => $promedio,
             'semestre' => $semestre,
-            'total_faltas' => $totalFaltas,
-            'faltas_sin_justificar' => $faltasSinJustificar,
             'avance_sga' => $avanceSGA
         ];
 
-        // Faltas recientes sin justificar para alertar en el dashboard
-        $faltasRecientes = Falta::with('materia')
-            ->where('estudiante_id', $user->id)
-            ->where('justificada', false)
-            ->whereDoesntHave('justificacion')
-            ->orderBy('fecha', 'desc')
-            ->take(3)
-            ->get();
-
         return Inertia::render('Estudiantes/StudentDashboard', [
             'kpis' => $kpis,
-            'faltasRecientes' => $faltasRecientes
         ]);
     }
 
@@ -250,84 +229,6 @@ class StudentPortalController extends Controller
     }
 
     /**
-     * Historial de Justificaciones
-     */
-    public function justificaciones(): Response
-    {
-        $user = Auth::user();
-
-        // Obtener solicitudes enviadas
-        $solicitudes = JustificacionSolicitud::with(['falta.materia'])
-            ->whereHas('falta', function($q) use ($user) {
-                $q->where('estudiante_id', $user->id);
-            })
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        // Obtener faltas que se pueden justificar (justificada = false y sin solicitud)
-        $faltasPorJustificar = Falta::with('materia')
-            ->where('estudiante_id', $user->id)
-            ->where('justificada', false)
-            ->whereDoesntHave('justificacion')
-            ->orderBy('fecha', 'desc')
-            ->get();
-
-        return Inertia::render('Estudiantes/Justificaciones', [
-            'solicitudes' => $solicitudes,
-            'faltasPorJustificar' => $faltasPorJustificar
-        ]);
-    }
-
-    /**
-     * Crear solicitud de justificación
-     */
-    public function storeJustificacion(Request $request)
-    {
-        $request->validate([
-            'falta_id' => 'required|exists:faltas,id',
-            'motivo_estudiante' => 'required|string|min:10',
-            'archivo' => 'nullable|file|mimes:pdf,jpg,png,jpeg|max:5120',
-        ]);
-
-        $user = Auth::user();
-        
-        // Validar que la falta pertenezca al estudiante y no esté justificada
-        $falta = Falta::where('id', $request->falta_id)
-            ->where('estudiante_id', $user->id)
-            ->firstOrFail();
-
-        if ($falta->justificada || JustificacionSolicitud::where('falta_id', $falta->id)->exists()) {
-            return redirect()->back()->withErrors(['falta_id' => 'Esta falta ya tiene una solicitud de justificación activa o ya está justificada.']);
-        }
-
-        // Disco 'local' (privado): el adjunto suele ser un certificado médico.
-        // Se guarda la ruta relativa y se sirve solo vía
-        // route('justificaciones.archivo') con control de acceso.
-        $archivoPath = null;
-        if ($request->hasFile('archivo')) {
-            $archivoPath = $request->file('archivo')->store('justificaciones', 'local');
-        }
-
-        JustificacionSolicitud::create([
-            'falta_id'           => $falta->id,
-            'motivo_estudiante'  => $request->motivo_estudiante,
-            'archivo_adjunto'    => $archivoPath,
-            'estado'             => 'pendiente',
-            'comentario_revisor' => null,
-        ]);
-
-        // Crear notificación
-        Notificacion::create([
-            'user_id' => $user->id,
-            'titulo' => 'Solicitud de justificación enviada',
-            'mensaje' => 'Se ha enviado tu solicitud de justificación correctamente. Será revisada por tu docente.',
-            'leido' => false
-        ]);
-
-        return redirect()->back()->with('success', 'Solicitud enviada correctamente.');
-    }
-
-    /**
      * Mi Titulación
      */
     public function titulacion(): Response
@@ -373,23 +274,6 @@ class StudentPortalController extends Controller
             'titulacion' => $titulacion,
             'etapas' => $etapas,
             'progreso' => $progreso
-        ]);
-    }
-
-    /**
-     * Mis Asistencias
-     */
-    public function asistencias(): Response
-    {
-        $user = Auth::user();
-
-        $faltas = Falta::with(['materia.carrera', 'justificacion'])
-            ->where('estudiante_id', $user->id)
-            ->orderBy('fecha', 'desc')
-            ->get();
-
-        return Inertia::render('Estudiantes/StudentAsistencias', [
-            'faltas' => $faltas
         ]);
     }
 

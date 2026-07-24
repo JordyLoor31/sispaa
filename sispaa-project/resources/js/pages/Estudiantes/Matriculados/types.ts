@@ -12,7 +12,6 @@ export interface StudentRow {
     carrera_id: number | null;
     carrera_nombre: string | null;
     matricula_estado: string | null;
-    faltas_count: number;
     documentos_count: number;
 }
 

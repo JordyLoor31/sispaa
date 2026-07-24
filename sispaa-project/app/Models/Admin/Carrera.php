@@ -63,6 +63,11 @@ class Carrera extends Model
         return $this->hasMany(\App\Models\User::class);
     }
 
+    public function faltasSemanales()
+    {
+        return $this->hasMany(\App\Models\Estudiantes\FaltaSemanal::class);
+    }
+
     public function creator()
     {
         return $this->belongsTo(\App\Models\User::class, 'created_by');

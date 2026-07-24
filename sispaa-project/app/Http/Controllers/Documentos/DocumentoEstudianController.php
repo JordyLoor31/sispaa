@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Documentos;
 
 use App\Http\Controllers\Controller;
 use App\Models\Documentos\DocumentoEstudiante;
-use App\Models\Estudiantes\JustificacionSolicitud;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
@@ -38,21 +37,6 @@ class DocumentoEstudianController extends Controller
 
         $data = $documento->archivo_url; // array {path,name,...} por el cast
         $path = is_array($data) ? ($data['path'] ?? null) : null;
-
-        abort_unless($path && Storage::disk('local')->exists($path), 404, 'El archivo ya no está disponible.');
-
-        return Storage::disk('local')->response($path);
-    }
-
-    /** Adjunto de una solicitud de justificación. */
-    public function justificacion(JustificacionSolicitud $justificacion)
-    {
-        $estudianteId = $justificacion->falta->estudiante_id;
-
-        abort_unless($this->puedeVer($estudianteId), 403, 'No tienes permiso para ver este documento.');
-
-        // archivo_adjunto guarda la ruta relativa en el disco privado.
-        $path = $justificacion->archivo_adjunto;
 
         abort_unless($path && Storage::disk('local')->exists($path), 404, 'El archivo ya no está disponible.');
 

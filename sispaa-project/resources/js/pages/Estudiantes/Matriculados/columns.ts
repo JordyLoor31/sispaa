@@ -47,12 +47,6 @@ export function makeMatriculadosColumns(): ColumnDef<StudentRow>[] {
             }, row.original.matricula_estado ?? 'Sin matrícula'),
         },
         {
-            accessorKey: 'faltas_count',
-            meta: { label: 'Faltas' },
-            header: 'Faltas',
-            cell: ({ row }) => h('span', { class: 'opacity-70 text-[var(--sispaa-text)]' }, String(row.original.faltas_count)),
-        },
-        {
             accessorKey: 'documentos_count',
             meta: { label: 'Documentos' },
             header: 'Documentos',
