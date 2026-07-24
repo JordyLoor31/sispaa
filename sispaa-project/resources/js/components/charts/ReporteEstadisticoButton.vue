@@ -87,13 +87,16 @@ async function generar() {
 
         // Logo ULEAM (arriba a la izquierda) + Facultad (arriba a la derecha),
         // igual al membrete institucional usado en los documentos oficiales.
-        // Se sube pegado al borde superior (y=8) y con más ancho (32mm) para
-        // que se note más, dejando igual espacio de sobra antes del título.
+        // Se fija el ALTO (no el ancho) porque el PNG real es mucho más
+        // ancho que alto; escalar por ancho fijo dejaba una altura
+        // impredecible que a veces invadía la línea/título de abajo. Con
+        // alto fijo el resto del encabezado siempre tiene el mismo espacio
+        // libre, sin importar la proporción real de la imagen.
         try {
             const { dataUrl, width, height } = await loadImageAsDataUrl(logoUleamUrl);
-            const logoW = 32;
-            const logoH = logoW * (height / width);
-            pdf.addImage(dataUrl, 'PNG', margin, 8, logoW, logoH);
+            const logoH = 17;
+            const logoW = Math.min(logoH * (width / height), 65);
+            pdf.addImage(dataUrl, 'PNG', margin, 6, logoW, logoH);
         } catch (e) {
             // Si el logo no carga, se continúa sin él (no debe romper la
             // descarga); se deja un aviso en consola para poder depurarlo.
@@ -102,33 +105,33 @@ async function generar() {
 
         pdf.setTextColor(...PRIMARY);
         pdf.setFont('helvetica', 'bold');
-        pdf.setFontSize(10);
-        pdf.text('Facultad de Ciencias de la Vida y Tecnologías', pageW - margin, 13, { align: 'right' });
+        pdf.setFontSize(11);
+        pdf.text('Facultad de Ciencias de la Vida y Tecnologías', pageW - margin, 16, { align: 'right' });
 
         pdf.setDrawColor(...LINE);
-        pdf.line(margin, 18, pageW - margin, 18);
+        pdf.line(margin, 26, pageW - margin, 26);
 
         pdf.setTextColor(...TEXT);
         pdf.setFont('helvetica', 'bold');
         pdf.setFontSize(18);
-        pdf.text(props.titulo, margin, 29);
+        pdf.text(props.titulo, margin, 37);
 
         if (props.subtitulo) {
             pdf.setFont('helvetica', 'normal');
             pdf.setFontSize(10);
             pdf.setTextColor(...MUTED);
-            pdf.text(props.subtitulo, margin, 36);
+            pdf.text(props.subtitulo, margin, 44);
         }
 
         const fecha = new Date().toLocaleString('es-EC', { dateStyle: 'long', timeStyle: 'short' });
         pdf.setFontSize(9);
         pdf.setTextColor(...MUTED);
-        pdf.text(`Generado el ${fecha}`, margin, props.subtitulo ? 42 : 37);
+        pdf.text(`Generado el ${fecha}`, margin, props.subtitulo ? 50 : 45);
 
         pdf.setDrawColor(...LINE);
-        pdf.line(margin, 49, pageW - margin, 49);
+        pdf.line(margin, 57, pageW - margin, 57);
 
-        let y = 58;
+        let y = 66;
 
         // ── Indicadores clave ─────────────────────────────────────────────
         if (props.kpis?.length) {
