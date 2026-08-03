@@ -78,7 +78,7 @@ const onSubmit = handleSubmit((values) => {
                 </p>
             </div>
 
-            <div class="max-w-xl w-full mx-auto rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
+            <div class="max-w-5xl w-full mx-auto rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
                 <form class="space-y-5" @submit="onSubmit">
                     <FormField v-slot="{ componentField }" name="nombre">
                         <FormItem>

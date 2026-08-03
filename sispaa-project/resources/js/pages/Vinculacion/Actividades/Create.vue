@@ -24,7 +24,7 @@ defineProps<{
                 <h3 class="text-base font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">Nueva Actividad de Vinculación</h3>
             </div>
 
-            <div class="mx-auto w-full max-w-xl rounded-2xl border border-[var(--sispaa-surface)] bg-[var(--sispaa-background)] p-4 shadow-sm sm:p-6">
+            <div class="mx-auto w-full max-w-5xl rounded-2xl border border-[var(--sispaa-surface)] bg-[var(--sispaa-background)] p-4 shadow-sm sm:p-6">
                 <ActividadForm :docentes="docentes" :carreras="carreras" :periodos="periodos" :beneficiarios="beneficiarios" :representantes="representantes" />
             </div>
         </div>

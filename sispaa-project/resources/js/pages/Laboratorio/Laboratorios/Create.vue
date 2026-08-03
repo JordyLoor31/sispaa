@@ -21,7 +21,7 @@ defineProps<{
                 <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">Nuevo Laboratorio</h1>
             </div>
 
-            <div class="w-full max-w-xl mx-auto rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+            <div class="w-full max-w-5xl mx-auto rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
                 <LaboratorioForm :carreras="carreras" :responsables="responsables" />
             </div>
         </div>

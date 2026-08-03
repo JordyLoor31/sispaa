@@ -110,7 +110,7 @@ const onSubmit = handleSubmit((submitValues) => {
                 <p class="mt-1 text-sm opacity-60 text-[var(--sispaa-text)]">Inscribe un estudiante en un período académico y carrera.</p>
             </div>
 
-            <div class="max-w-xl w-full mx-auto rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
+            <div class="max-w-5xl w-full mx-auto rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
                 <form class="space-y-5" @submit="onSubmit">
                     <FormField v-slot="{ errorMessage }" name="estudiante_id">
                         <FormItem>

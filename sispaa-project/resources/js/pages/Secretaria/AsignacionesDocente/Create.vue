@@ -26,7 +26,7 @@ defineProps<{
                 </p>
             </div>
 
-            <div class="max-w-xl mx-auto w-full rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
+            <div class="max-w-5xl mx-auto w-full rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
                 <AsignacionDocenteForm :docentes="docentes" :materias="materias" :periodos="periodos" :tipos-rol="tiposRol" />
             </div>
         </div>

@@ -86,6 +86,7 @@ const dato = (valor: string | number | null | undefined) => (valor === null || v
                 </Button>
             </div>
 
+            <div class="max-w-5xl mx-auto w-full space-y-4 sm:space-y-6">
             <div v-if="!perfil" class="rounded-2xl border p-6 text-sm bg-[color:color-mix(in_srgb,#E4BC57_25%,transparent)] text-[color:color-mix(in_srgb,#E4BC57_65%,black)] border-[color:color-mix(in_srgb,#E4BC57_45%,transparent)]">
                 Este estudiante todavía no ha completado su perfil.
             </div>
@@ -171,6 +172,7 @@ const dato = (valor: string | number | null | undefined) => (valor === null || v
                     <p v-else class="text-sm opacity-50 text-[var(--sispaa-text)]">Sin familiares registrados.</p>
                 </div>
             </template>
+            </div>
         </div>
     </AppSidebarLayout>
 </template>

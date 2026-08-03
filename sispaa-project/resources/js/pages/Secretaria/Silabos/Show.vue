@@ -61,7 +61,8 @@ const submitReview = (accion: 'aprobar' | 'rechazar') => {
                 </Button>
             </div>
 
-            <div class="max-w-2xl w-full mx-auto grid gap-4 sm:gap-6 sm:grid-cols-2">
+            <div class="max-w-5xl mx-auto w-full space-y-4 sm:space-y-6">
+            <div class="w-full grid gap-4 sm:gap-6 sm:grid-cols-2">
                 <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
                     <h4 class="text-xs font-bold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)]">Estado</h4>
                     <span :class="['mt-2 inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold', estadoBadge(silabo.estado)]">
@@ -75,7 +76,7 @@ const submitReview = (accion: 'aprobar' | 'rechazar') => {
                 </div>
             </div>
 
-            <div class="max-w-2xl w-full mx-auto rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+            <div class="w-full rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
                 <h4 class="text-xs font-bold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)] mb-2">Archivo</h4>
                 <p v-if="silabo.fecha_subida" class="text-xs opacity-50 text-[var(--sispaa-text)] mb-2">Subido: {{ silabo.fecha_subida }}</p>
                 <a v-if="silabo.archivo_url" :href="silabo.archivo_url" target="_blank"
@@ -86,7 +87,7 @@ const submitReview = (accion: 'aprobar' | 'rechazar') => {
             </div>
 
             <!-- Revisión: solo si no está aprobado -->
-            <div v-if="silabo.estado !== 'aprobado'" class="max-w-2xl w-full mx-auto rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+            <div v-if="silabo.estado !== 'aprobado'" class="w-full rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
                 <h4 class="text-xs font-bold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)] mb-3">Revisar sílabo</h4>
                 <div class="space-y-4">
                     <div>
@@ -111,9 +112,10 @@ const submitReview = (accion: 'aprobar' | 'rechazar') => {
             </div>
 
             <!-- Ya aprobado -->
-            <div v-else-if="silabo.observaciones" class="max-w-2xl w-full mx-auto rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+            <div v-else-if="silabo.observaciones" class="w-full rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
                 <h4 class="text-xs font-bold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)] mb-2">Observaciones</h4>
                 <p class="text-sm text-[var(--sispaa-text)]">{{ silabo.observaciones }}</p>
+            </div>
             </div>
         </div>
     </AppSidebarLayout>

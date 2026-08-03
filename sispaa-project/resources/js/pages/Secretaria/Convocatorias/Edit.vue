@@ -24,7 +24,7 @@ const props = defineProps<{
                 </p>
             </div>
 
-            <div class="max-w-xl w-full mx-auto rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
+            <div class="max-w-5xl w-full mx-auto rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
                 <ConvocatoriaForm :convocatoria="convocatoria" :modulos="modulos" />
             </div>
         </div>

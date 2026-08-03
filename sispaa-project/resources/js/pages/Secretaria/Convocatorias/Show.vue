@@ -50,6 +50,7 @@ const formatDateTime = (date?: string) => {
                 </div>
             </div>
 
+            <div class="max-w-5xl mx-auto w-full space-y-4 sm:space-y-6">
             <div class="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
                 <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
                     <h4 class="text-xs font-bold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)]">Estado</h4>
@@ -95,6 +96,7 @@ const formatDateTime = (date?: string) => {
                         <p class="text-xs opacity-50 text-[var(--sispaa-text)] mt-0.5">{{ formatDateTime(convocatoria.updated_at) }}</p>
                     </div>
                 </div>
+            </div>
             </div>
         </div>
     </AppSidebarLayout>

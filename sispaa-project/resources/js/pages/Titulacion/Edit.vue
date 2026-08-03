@@ -90,7 +90,7 @@ const onSubmit = handleSubmit((values) => {
                 <p class="mt-1 text-sm opacity-60 text-[var(--sispaa-text)]">{{ props.titulacion.estudiante.name }}</p>
             </div>
 
-            <div class="w-full max-w-xl mx-auto rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
+            <div class="w-full max-w-5xl mx-auto rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
                 <form class="space-y-5" @submit="onSubmit">
                     <FormField v-slot="{ errorMessage }" name="tutor_id">
                         <FormItem>

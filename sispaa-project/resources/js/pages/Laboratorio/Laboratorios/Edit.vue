@@ -23,7 +23,7 @@ const props = defineProps<{
                 <p class="mt-1 text-sm opacity-60 text-[var(--sispaa-text)]">{{ props.laboratorio.nombre }}</p>
             </div>
 
-            <div class="w-full max-w-xl mx-auto rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+            <div class="w-full max-w-5xl mx-auto rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
                 <LaboratorioForm :laboratorio="laboratorio" :carreras="carreras" :responsables="responsables" />
             </div>
         </div>

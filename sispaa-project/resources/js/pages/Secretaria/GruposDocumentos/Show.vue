@@ -52,7 +52,8 @@ const submitNuevoRequisito = () => {
                 </Button>
             </div>
 
-            <div class="max-w-2xl w-full mx-auto grid gap-4 sm:gap-6 sm:grid-cols-2">
+            <div class="max-w-5xl mx-auto w-full space-y-4 sm:space-y-6">
+            <div class="w-full grid gap-4 sm:gap-6 sm:grid-cols-2">
                 <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
                     <h4 class="text-xs font-bold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)]">Estado</h4>
                     <p class="mt-2 text-sm font-semibold" :class="grupo.activo ? 'text-[color:color-mix(in_srgb,var(--sispaa-secondary)_55%,var(--sispaa-text))]' : 'opacity-50 text-[var(--sispaa-text)]'">
@@ -68,7 +69,7 @@ const submitNuevoRequisito = () => {
                 </div>
             </div>
 
-            <div class="max-w-2xl w-full mx-auto rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
+            <div class="w-full rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
                 <h4 class="text-xs font-bold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)] mb-3">Requisitos</h4>
                 <ul class="space-y-2">
                     <li v-for="r in grupo.requisitos" :key="r.id" class="text-sm text-[var(--sispaa-text)] flex items-center gap-2">
@@ -89,6 +90,7 @@ const submitNuevoRequisito = () => {
                         <Plus class="h-4 w-4 mr-1" /> Agregar
                     </Button>
                 </form>
+            </div>
             </div>
         </div>
     </AppSidebarLayout>

@@ -26,7 +26,7 @@ const props = defineProps<{
                 <p class="mt-1 text-sm opacity-70 text-[var(--sispaa-text)]">{{ props.actividad.nombre }}</p>
             </div>
 
-            <div class="mx-auto w-full max-w-xl rounded-2xl border border-[var(--sispaa-surface)] bg-[var(--sispaa-background)] p-4 shadow-sm sm:p-6">
+            <div class="mx-auto w-full max-w-5xl rounded-2xl border border-[var(--sispaa-surface)] bg-[var(--sispaa-background)] p-4 shadow-sm sm:p-6">
                 <ActividadForm :actividad="actividad" :docentes="docentes" :carreras="carreras" :periodos="periodos" :beneficiarios="beneficiarios" :representantes="representantes" />
             </div>
         </div>

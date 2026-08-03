@@ -153,6 +153,7 @@ const submitInforme = () => {
                 <p class="mt-1 text-sm opacity-60 text-[var(--sispaa-text)]">Equipo, hitos, seguimiento e informes del proyecto.</p>
             </div>
 
+            <div class="max-w-5xl mx-auto w-full space-y-4 sm:space-y-6">
             <!-- EQUIPO -->
             <div class="rounded-2xl border p-5 shadow-sm bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]">
                 <h2 class="mb-3 flex items-center gap-2 text-sm font-bold text-[var(--sispaa-text)]">
@@ -272,6 +273,7 @@ const submitInforme = () => {
                         Aún no se han subido informes trimestrales.
                     </div>
                 </div>
+            </div>
             </div>
         </div>
 

@@ -102,6 +102,7 @@ const infoCards = [
             </div>
 
             <!-- Datos de la cuenta -->
+            <div class="max-w-5xl mx-auto w-full">
             <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <div
                     v-for="card in infoCards"
@@ -118,6 +119,7 @@ const infoCards = [
                         </p>
                     </div>
                 </div>
+            </div>
             </div>
         </div>
     </AppSidebarLayout>

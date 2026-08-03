@@ -92,6 +92,7 @@ const finalizar = () => {
                 </div>
             </div>
 
+            <div class="max-w-5xl mx-auto w-full space-y-4 sm:space-y-6">
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
                 <div class="rounded-2xl p-5 shadow-sm sm:p-6 bg-[var(--sispaa-surface)]">
                     <h4 class="text-xs font-bold uppercase tracking-wider opacity-60 text-[var(--sispaa-text)]">Estado</h4>
@@ -157,6 +158,7 @@ const finalizar = () => {
                         </p>
                     </div>
                 </div>
+            </div>
             </div>
         </div>
     </AppSidebarLayout>

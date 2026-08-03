@@ -124,7 +124,7 @@ const submitCancelar = () => {
                 </div>
             </div>
 
-            <div class="mx-auto w-full max-w-3xl space-y-4 sm:space-y-6">
+            <div class="mx-auto w-full max-w-5xl space-y-4 sm:space-y-6">
                 <!-- Datos generales -->
                 <div class="grid gap-4 md:grid-cols-2">
                     <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">

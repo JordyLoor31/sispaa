@@ -68,7 +68,8 @@ const submitReview = (accion: 'aprobar' | 'rechazar') => {
                 </Button>
             </div>
 
-            <div class="max-w-2xl w-full mx-auto grid gap-4 sm:gap-6 sm:grid-cols-2">
+            <div class="max-w-5xl mx-auto w-full space-y-4 sm:space-y-6">
+            <div class="w-full grid gap-4 sm:gap-6 sm:grid-cols-2">
                 <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
                     <h4 class="text-xs font-bold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)]">Estado</h4>
                     <span :class="['mt-2 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold', estadoClasses[documento.estado]]">
@@ -84,7 +85,7 @@ const submitReview = (accion: 'aprobar' | 'rechazar') => {
                 </div>
             </div>
 
-            <div class="max-w-2xl w-full mx-auto rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+            <div class="w-full rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
                 <h4 class="text-xs font-bold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)] mb-3">Archivo</h4>
                 <div v-if="documento.archivo_meta" class="flex items-center gap-3 rounded-lg p-3 bg-[color:color-mix(in_srgb,var(--sispaa-text)_6%,transparent)]">
                     <FileText class="h-8 w-8 shrink-0 text-[var(--sispaa-primary)] opacity-70" />
@@ -103,7 +104,7 @@ const submitReview = (accion: 'aprobar' | 'rechazar') => {
             </div>
 
             <!-- Revisión: solo si está pendiente -->
-            <div v-if="documento.estado === 'pendiente'" class="max-w-2xl w-full mx-auto rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+            <div v-if="documento.estado === 'pendiente'" class="w-full rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
                 <h4 class="text-xs font-bold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)] mb-3">Revisar documento</h4>
                 <div class="space-y-4">
                     <div>
@@ -128,7 +129,7 @@ const submitReview = (accion: 'aprobar' | 'rechazar') => {
             </div>
 
             <!-- Ya revisado: histórico -->
-            <div v-else class="max-w-2xl w-full mx-auto rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+            <div v-else class="w-full rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
                 <h4 class="text-xs font-bold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)] mb-3">Resultado de la revisión</h4>
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
@@ -141,6 +142,7 @@ const submitReview = (accion: 'aprobar' | 'rechazar') => {
                         <p class="text-sm text-[var(--sispaa-text)]">{{ documento.observacion }}</p>
                     </div>
                 </div>
+            </div>
             </div>
         </div>
     </AppSidebarLayout>

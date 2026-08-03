@@ -46,32 +46,34 @@ const formatDate = (date?: string) => {
                 </div>
             </div>
 
-            <div class="max-w-2xl w-full mx-auto grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
-                <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
-                    <h4 class="text-xs font-bold opacity-60 text-[var(--sispaa-text)] uppercase tracking-wider">Laboratorio</h4>
-                    <p class="mt-2 text-sm font-semibold text-[var(--sispaa-text)]">{{ equipo.laboratorio }}</p>
-                </div>
-                <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
-                    <h4 class="text-xs font-bold opacity-60 text-[var(--sispaa-text)] uppercase tracking-wider">Cantidad</h4>
-                    <p class="mt-2 text-sm font-semibold text-[var(--sispaa-text)]">{{ equipo.cantidad }}</p>
-                </div>
-                <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
-                    <h4 class="text-xs font-bold opacity-60 text-[var(--sispaa-text)] uppercase tracking-wider">Estado</h4>
-                    <p class="mt-2 text-sm font-semibold text-[var(--sispaa-text)] capitalize">{{ equipo.estado }}</p>
-                </div>
-            </div>
-
-            <div class="max-w-2xl w-full mx-auto rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
-                <h4 class="text-xs font-bold opacity-60 text-[var(--sispaa-text)] uppercase tracking-wider mb-3">Auditoría</h4>
-                <div class="grid gap-4 sm:grid-cols-2">
-                    <div>
-                        <p class="text-xs opacity-50 text-[var(--sispaa-text)]">Creado por</p>
-                        <p class="text-sm font-semibold text-[var(--sispaa-text)]">{{ equipo.creator?.name ?? '—' }}</p>
-                        <p class="text-xs opacity-50 text-[var(--sispaa-text)] mt-0.5">{{ formatDate(equipo.created_at) }}</p>
+            <div class="max-w-5xl mx-auto w-full space-y-4 sm:space-y-6">
+                <div class="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
+                    <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+                        <h4 class="text-xs font-bold opacity-60 text-[var(--sispaa-text)] uppercase tracking-wider">Laboratorio</h4>
+                        <p class="mt-2 text-sm font-semibold text-[var(--sispaa-text)]">{{ equipo.laboratorio }}</p>
                     </div>
-                    <div>
-                        <p class="text-xs opacity-50 text-[var(--sispaa-text)]">Última actualización por</p>
-                        <p class="text-sm font-semibold text-[var(--sispaa-text)]">{{ equipo.updater?.name ?? '—' }}</p>
+                    <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+                        <h4 class="text-xs font-bold opacity-60 text-[var(--sispaa-text)] uppercase tracking-wider">Cantidad</h4>
+                        <p class="mt-2 text-sm font-semibold text-[var(--sispaa-text)]">{{ equipo.cantidad }}</p>
+                    </div>
+                    <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+                        <h4 class="text-xs font-bold opacity-60 text-[var(--sispaa-text)] uppercase tracking-wider">Estado</h4>
+                        <p class="mt-2 text-sm font-semibold text-[var(--sispaa-text)] capitalize">{{ equipo.estado }}</p>
+                    </div>
+                </div>
+
+                <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-surface)]">
+                    <h4 class="text-xs font-bold opacity-60 text-[var(--sispaa-text)] uppercase tracking-wider mb-3">Auditoría</h4>
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <div>
+                            <p class="text-xs opacity-50 text-[var(--sispaa-text)]">Creado por</p>
+                            <p class="text-sm font-semibold text-[var(--sispaa-text)]">{{ equipo.creator?.name ?? '—' }}</p>
+                            <p class="text-xs opacity-50 text-[var(--sispaa-text)] mt-0.5">{{ formatDate(equipo.created_at) }}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs opacity-50 text-[var(--sispaa-text)]">Última actualización por</p>
+                            <p class="text-sm font-semibold text-[var(--sispaa-text)]">{{ equipo.updater?.name ?? '—' }}</p>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -22,7 +22,7 @@ defineProps<{
                 <p class="mt-1 text-sm opacity-60 text-[var(--sispaa-text)]">Registra cuántas faltas hubo en una carrera durante una semana del período.</p>
             </div>
 
-            <div class="max-w-xl mx-auto w-full rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
+            <div class="max-w-5xl mx-auto w-full rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
                 <FaltaSemanalForm :carreras="carreras" :periodos="periodos" />
             </div>
         </div>

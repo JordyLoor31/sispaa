@@ -21,7 +21,7 @@ const props = defineProps<{
                 <p class="mt-1 text-sm opacity-60 text-[var(--sispaa-text)]">{{ props.beneficiario.nombre }}</p>
             </div>
 
-            <div class="mx-auto w-full max-w-xl rounded-2xl border p-5 shadow-sm sm:p-6 bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]">
+            <div class="mx-auto w-full max-w-5xl rounded-2xl border p-5 shadow-sm sm:p-6 bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]">
                 <BeneficiarioForm :beneficiario="beneficiario" />
             </div>
         </div>

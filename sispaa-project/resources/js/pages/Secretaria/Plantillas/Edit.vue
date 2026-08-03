@@ -18,7 +18,7 @@ defineProps<{
         <Head title="Editar Plantilla" />
 
         <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[color:color-mix(in_srgb,var(--sispaa-surface)_30%,var(--sispaa-background))]">
-            <div class="mx-auto w-full max-w-xl">
+            <div class="mx-auto w-full max-w-5xl">
                 <div class="overflow-hidden rounded-2xl border shadow-sm bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]">
                     <!-- Cabecera de la tarjeta -->
                     <div class="flex items-center gap-3.5 border-b p-5 sm:p-6 border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]">

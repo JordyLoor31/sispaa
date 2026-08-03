@@ -46,7 +46,8 @@ const formatDate = (date?: string) => {
                 </div>
             </div>
 
-            <div class="mx-auto grid w-full max-w-2xl gap-4 sm:gap-6 md:grid-cols-2">
+            <div class="max-w-5xl mx-auto w-full space-y-4 sm:space-y-6">
+            <div class="grid w-full gap-4 sm:gap-6 md:grid-cols-2">
                 <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
                     <h4 class="text-xs font-bold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)]">RUC</h4>
                     <p class="mt-2 text-sm font-semibold text-[var(--sispaa-text)]">{{ beneficiario.ruc ?? '—' }}</p>
@@ -61,7 +62,7 @@ const formatDate = (date?: string) => {
                 </div>
             </div>
 
-            <div class="mx-auto w-full max-w-2xl rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
+            <div class="w-full rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
                 <h4 class="mb-3 text-xs font-bold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)]">Auditoría</h4>
                 <div class="grid gap-4 sm:grid-cols-2">
                     <div>
@@ -74,6 +75,7 @@ const formatDate = (date?: string) => {
                         <p class="text-sm font-semibold text-[var(--sispaa-text)]">{{ beneficiario.updater?.name ?? '—' }}</p>
                     </div>
                 </div>
+            </div>
             </div>
         </div>
     </AppSidebarLayout>

@@ -26,7 +26,7 @@ defineProps<{
                 </p>
             </div>
 
-            <div class="w-full max-w-xl mx-auto rounded-2xl p-4 shadow-sm sm:p-6 bg-[var(--sispaa-surface)]">
+            <div class="w-full max-w-5xl mx-auto rounded-2xl p-4 shadow-sm sm:p-6 bg-[var(--sispaa-surface)]">
                 <CarreraForm :coordinadores="coordinadores" :paleta-colores="paletaColores" />
             </div>
         </div>

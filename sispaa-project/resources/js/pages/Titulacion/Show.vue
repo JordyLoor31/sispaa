@@ -56,7 +56,8 @@ const formatDate = (date?: string) => {
                 </div>
             </div>
 
-            <div class="max-w-2xl w-full mx-auto grid gap-6 sm:grid-cols-2">
+            <div class="max-w-5xl mx-auto w-full space-y-4 sm:space-y-6">
+            <div class="w-full grid gap-6 sm:grid-cols-2">
                 <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
                     <h4 class="text-xs font-bold uppercase tracking-wider opacity-60 text-[var(--sispaa-text)]">Estado</h4>
                     <span :class="['mt-2 inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold', estadoBadge(titulacion.estado)]">
@@ -70,12 +71,12 @@ const formatDate = (date?: string) => {
                 </div>
             </div>
 
-            <div class="max-w-2xl w-full mx-auto rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
+            <div class="w-full rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
                 <h4 class="mb-2 text-xs font-bold uppercase tracking-wider opacity-60 text-[var(--sispaa-text)]">Tema</h4>
                 <p class="text-sm text-[var(--sispaa-text)] opacity-80">{{ titulacion.tema }}</p>
             </div>
 
-            <div class="max-w-2xl w-full mx-auto rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
+            <div class="w-full rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
                 <h4 class="mb-3 text-xs font-bold uppercase tracking-wider opacity-60 text-[var(--sispaa-text)]">Auditoría</h4>
                 <div class="grid gap-4 sm:grid-cols-2">
                     <div>
@@ -88,6 +89,7 @@ const formatDate = (date?: string) => {
                         <p class="text-sm font-semibold text-[var(--sispaa-text)]">{{ titulacion.updater?.name ?? '—' }}</p>
                     </div>
                 </div>
+            </div>
             </div>
         </div>
     </AppSidebarLayout>
