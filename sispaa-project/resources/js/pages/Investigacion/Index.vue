@@ -3,13 +3,13 @@ import AppSidebarLayout from '@/layouts/app/AppSidebarLayout.vue';
 import { type BreadcrumbItemType } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
-import { Plus, FlaskConical, ChevronRight, Trash2, Pencil } from 'lucide-vue-next';
+import { Plus, FlaskConical } from 'lucide-vue-next';
 import { BRAND_GRADIENT } from '@/lib/brand';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { toast } from 'vue-sonner';
+import { DataTable } from '@/components/ui/data-table';
 import type { ProyectoItem, Catalogo } from './types';
+import makeProyectoColumns from './columns';
 
 const props = defineProps<{
     proyectos: ProyectoItem[];
@@ -23,32 +23,7 @@ const applyFilter = () => {
     router.get(route('investigacion.index'), { estado: filterEstado.value !== 'all' ? filterEstado.value : undefined }, { preserveState: true, replace: true });
 };
 
-// ── Cambiar estado (acción inline, no amerita página propia) ─────────
-const changeEstado = (p: ProyectoItem, estado: string) => {
-    router.put(route('investigacion.update', p.id), { estado }, {
-        preserveScroll: true,
-        onSuccess: () => toast.success('Estado actualizado.'),
-    });
-};
-
-// ── Eliminar ──────────────────────────────────────────
-const deleteTarget = ref<ProyectoItem | null>(null);
-const confirmDelete = () => {
-    if (!deleteTarget.value) return;
-    router.delete(route('investigacion.destroy', deleteTarget.value.id), {
-        preserveScroll: true,
-        onSuccess: () => { toast.success('Proyecto eliminado.'); deleteTarget.value = null; },
-    });
-};
-
-const estadoBadge = (estado: string) => {
-    const map: Record<string, string> = {
-        en_curso: 'bg-[color:color-mix(in_srgb,var(--sispaa-accent)_20%,transparent)] text-[var(--sispaa-accent)]',
-        pausada: 'bg-[color:color-mix(in_srgb,#E4BC57_45%,transparent)] text-[color:color-mix(in_srgb,#E4BC57_55%,var(--sispaa-text))]',
-        finalizada: 'bg-[color:color-mix(in_srgb,var(--sispaa-secondary)_30%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-secondary)_55%,var(--sispaa-text))]',
-    };
-    return map[estado] ?? map.en_curso;
-};
+const columns = makeProyectoColumns();
 </script>
 
 <template>
@@ -74,7 +49,7 @@ const estadoBadge = (estado: string) => {
                 </Button>
             </div>
 
-            <div class="w-full max-w-5xl mx-auto space-y-4">
+            <div class="w-full space-y-4">
                 <div class="flex gap-3">
                     <Select v-model="filterEstado" @update:model-value="applyFilter">
                         <SelectTrigger class="w-full sm:w-[180px]"><SelectValue placeholder="Estado" /></SelectTrigger>
@@ -87,71 +62,15 @@ const estadoBadge = (estado: string) => {
                     </Select>
                 </div>
 
-                <div class="grid gap-4 md:grid-cols-2">
-                    <div v-for="p in proyectos" :key="p.id"
-                        class="flex flex-col gap-3 rounded-2xl border p-5 shadow-sm bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]">
-                        <div class="flex items-start justify-between">
-                            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-[var(--sispaa-primary)] bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]">
-                                <FlaskConical class="h-4.5 w-4.5" />
-                            </div>
-                            <span :class="['inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold', estadoBadge(p.estado)]">
-                                {{ p.estado.replace('_', ' ') }}
-                            </span>
+                <DataTable :columns="columns" :data="proyectos">
+                    <template #empty>
+                        <div class="flex h-12 w-12 items-center justify-center rounded-full bg-[color:color-mix(in_srgb,var(--sispaa-text)_6%,transparent)]">
+                            <FlaskConical class="h-5 w-5 opacity-40 text-[var(--sispaa-text)]" />
                         </div>
-                        <div>
-                            <h3 class="text-sm font-bold text-[var(--sispaa-text)]">{{ p.titulo }}</h3>
-                            <p v-if="p.objetivo" class="mt-1 text-xs opacity-70 text-[var(--sispaa-text)] line-clamp-2">{{ p.objetivo }}</p>
-                            <p class="mt-2 text-xs opacity-60 text-[var(--sispaa-text)]">Líder: {{ p.lider.name }}<span v-if="p.colider"> · Colíder: {{ p.colider.name }}</span></p>
-                            <p class="text-xs opacity-60 text-[var(--sispaa-text)]">{{ p.periodo }}<span v-if="p.miembros.length"> · {{ p.miembros.length }} miembro(s) más</span></p>
-                            <p class="mt-1 text-xs opacity-60 text-[var(--sispaa-text)]">Hitos: {{ p.hitos_completados }}/{{ p.total_hitos }} completados</p>
-                        </div>
-
-                        <div v-if="p.puede_gestionar" class="flex items-center gap-2">
-                            <Select :model-value="p.estado" @update:model-value="val => changeEstado(p, val as string)">
-                                <SelectTrigger class="h-8 w-full bg-[var(--sispaa-background)] text-xs"><SelectValue /></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="en_curso">En curso</SelectItem>
-                                    <SelectItem value="pausada">Pausada</SelectItem>
-                                    <SelectItem value="finalizada">Finalizada</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        <div class="flex flex-wrap items-center gap-2 border-t pt-2 border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
-                            <Link :href="route('investigacion.hitos', p.id)"
-                                class="inline-flex items-center gap-1 text-xs font-semibold text-[var(--sispaa-primary)] hover:opacity-80">
-                                Ver hitos y seguimiento <ChevronRight class="h-3.5 w-3.5" />
-                            </Link>
-                            <div class="ml-auto flex items-center gap-1" v-if="p.puede_gestionar || p.es_propio">
-                                <Link v-if="p.puede_gestionar" :href="route('investigacion.edit', p.id)" class="rounded-lg p-1.5 opacity-60 text-[var(--sispaa-text)] hover:opacity-100 hover:bg-[color:color-mix(in_srgb,var(--sispaa-background)_60%,transparent)]">
-                                    <Pencil class="h-3.5 w-3.5" />
-                                </Link>
-                                <button v-if="p.es_propio" @click="deleteTarget = p" class="rounded-lg p-1.5 text-rose-500 hover:bg-rose-50">
-                                    <Trash2 class="h-3.5 w-3.5" />
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div v-if="proyectos.length === 0" class="col-span-full rounded-2xl border border-dashed p-10 text-center text-sm opacity-50 border-[color:color-mix(in_srgb,var(--sispaa-text)_25%,transparent)] text-[var(--sispaa-text)]">
-                        No hay proyectos de investigación todavía.
-                    </div>
-                </div>
+                        <p class="text-sm font-medium opacity-70 text-[var(--sispaa-text)]">No hay proyectos de investigación todavía.</p>
+                    </template>
+                </DataTable>
             </div>
         </div>
-
-        <!-- Confirmar eliminación -->
-        <AlertDialog :open="!!deleteTarget" @update:open="val => { if (!val) deleteTarget = null; }">
-            <AlertDialogContent>
-                <AlertDialogHeader>
-                    <AlertDialogTitle>¿Eliminar proyecto?</AlertDialogTitle>
-                    <AlertDialogDescription>Se eliminará "{{ deleteTarget?.titulo }}" y sus hitos/seguimiento. Esta acción no se puede deshacer.</AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                    <AlertDialogAction @click="confirmDelete" class="bg-rose-600 hover:bg-rose-500">Eliminar</AlertDialogAction>
-                </AlertDialogFooter>
-            </AlertDialogContent>
-        </AlertDialog>
     </AppSidebarLayout>
 </template>

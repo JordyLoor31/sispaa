@@ -6,7 +6,9 @@ import { Head, Link, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import { Plus, Flag, MessageCircleQuestion, ArrowLeft, Pencil, FileText, Upload, Download, Users } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from '@/components/ui/sheet';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'vue-sonner';
 
 interface Hito {
@@ -277,114 +279,114 @@ const submitInforme = () => {
             </div>
         </div>
 
-        <!-- Sheet: Hito -->
-        <Sheet :open="showHitoForm" @update:open="val => showHitoForm = val">
-            <SheetContent class="sm:max-w-md overflow-y-auto">
-                <SheetHeader>
-                    <SheetTitle>{{ editingHito ? 'Editar Hito' : 'Nuevo Hito' }}</SheetTitle>
-                </SheetHeader>
-                <form @submit.prevent="submitHito" class="mt-6 space-y-5">
+        <!-- Dialog: Hito -->
+        <Dialog v-model:open="showHitoForm">
+            <DialogContent class="sm:max-w-lg">
+                <DialogHeader>
+                    <DialogTitle>{{ editingHito ? 'Editar Hito' : 'Nuevo Hito' }}</DialogTitle>
+                </DialogHeader>
+                <form @submit.prevent="submitHito" class="mt-2 space-y-5">
                     <div>
                         <label class="mb-1.5 block text-sm font-semibold text-[var(--sispaa-text)]">Nombre *</label>
-                        <input v-model="hitoForm.nombre" type="text" placeholder="Ej. Revisión bibliográfica" class="w-full rounded-lg border-[color:color-mix(in_srgb,var(--sispaa-text)_20%,transparent)] bg-[var(--sispaa-background)] text-sm text-[var(--sispaa-text)]" />
+                        <Input v-model="hitoForm.nombre" type="text" placeholder="Ej. Revisión bibliográfica" class="text-[var(--sispaa-text)]" />
                         <p v-if="hitoForm.errors.nombre" class="mt-1 text-xs text-rose-500">{{ hitoForm.errors.nombre }}</p>
                     </div>
                     <div>
                         <label class="mb-1.5 block text-sm font-semibold text-[var(--sispaa-text)]">Descripción</label>
-                        <textarea v-model="hitoForm.descripcion" rows="3" placeholder="Detalles del hito..." class="w-full rounded-lg border-[color:color-mix(in_srgb,var(--sispaa-text)_20%,transparent)] bg-[var(--sispaa-background)] text-sm text-[var(--sispaa-text)]"></textarea>
+                        <Textarea v-model="hitoForm.descripcion" rows="3" placeholder="Detalles del hito..." class="text-[var(--sispaa-text)]" />
                     </div>
                     <div>
                         <label class="mb-1.5 block text-sm font-semibold text-[var(--sispaa-text)]">Fecha planificada</label>
-                        <input v-model="hitoForm.fecha_planificada" type="date" class="w-full rounded-lg border-[color:color-mix(in_srgb,var(--sispaa-text)_20%,transparent)] bg-[var(--sispaa-background)] text-sm text-[var(--sispaa-text)]" />
+                        <Input v-model="hitoForm.fecha_planificada" type="date" class="text-[var(--sispaa-text)]" />
                     </div>
                     <div>
                         <label class="mb-1.5 block text-sm font-semibold text-[var(--sispaa-text)]">
                             Avance: {{ hitoForm.porcentaje_avance }}%
                         </label>
-                        <input v-model.number="hitoForm.porcentaje_avance" type="range" min="0" max="100" step="5" class="w-full accent-[var(--sispaa-primary)]" />
+                        <Input v-model.number="hitoForm.porcentaje_avance" type="range" min="0" max="100" step="5" class="h-auto cursor-pointer border-0 bg-transparent p-0 shadow-none accent-[var(--sispaa-primary)] focus-visible:ring-0" />
                         <p v-if="hitoForm.errors.porcentaje_avance" class="mt-1 text-xs text-rose-500">{{ hitoForm.errors.porcentaje_avance }}</p>
                     </div>
-                    <SheetFooter class="gap-2 pt-4">
+                    <DialogFooter class="gap-2 pt-4">
                         <Button type="button" variant="outline" @click="showHitoForm = false">Cancelar</Button>
                         <Button type="submit" :disabled="hitoForm.processing" class="font-semibold text-white bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)]">
                             {{ hitoForm.processing ? 'Guardando...' : 'Guardar' }}
                         </Button>
-                    </SheetFooter>
+                    </DialogFooter>
                 </form>
-            </SheetContent>
-        </Sheet>
+            </DialogContent>
+        </Dialog>
 
-        <!-- Sheet: Nueva pregunta (líder/colíder) -->
-        <Sheet :open="showPreguntaForm" @update:open="val => showPreguntaForm = val">
-            <SheetContent class="sm:max-w-md overflow-y-auto">
-                <SheetHeader>
-                    <SheetTitle>Nueva Pregunta de Seguimiento</SheetTitle>
-                </SheetHeader>
-                <form @submit.prevent="submitPregunta" class="mt-6 space-y-5">
+        <!-- Dialog: Nueva pregunta (líder/colíder) -->
+        <Dialog v-model:open="showPreguntaForm">
+            <DialogContent class="sm:max-w-lg">
+                <DialogHeader>
+                    <DialogTitle>Nueva Pregunta de Seguimiento</DialogTitle>
+                </DialogHeader>
+                <form @submit.prevent="submitPregunta" class="mt-2 space-y-5">
                     <div>
                         <label class="mb-1.5 block text-sm font-semibold text-[var(--sispaa-text)]">Pregunta *</label>
-                        <textarea v-model="preguntaForm.pregunta" rows="4" placeholder="Escribe tu pregunta de seguimiento..." class="w-full rounded-lg border-[color:color-mix(in_srgb,var(--sispaa-text)_20%,transparent)] bg-[var(--sispaa-background)] text-sm text-[var(--sispaa-text)]"></textarea>
+                        <Textarea v-model="preguntaForm.pregunta" rows="4" placeholder="Escribe tu pregunta de seguimiento..." class="text-[var(--sispaa-text)]" />
                         <p v-if="preguntaForm.errors.pregunta" class="mt-1 text-xs text-rose-500">{{ preguntaForm.errors.pregunta }}</p>
                     </div>
-                    <SheetFooter class="gap-2 pt-4">
+                    <DialogFooter class="gap-2 pt-4">
                         <Button type="button" variant="outline" @click="showPreguntaForm = false">Cancelar</Button>
                         <Button type="submit" :disabled="preguntaForm.processing" class="font-semibold text-white bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)]">
                             {{ preguntaForm.processing ? 'Enviando...' : 'Enviar' }}
                         </Button>
-                    </SheetFooter>
+                    </DialogFooter>
                 </form>
-            </SheetContent>
-        </Sheet>
+            </DialogContent>
+        </Dialog>
 
-        <!-- Sheet: Responder (docente) -->
-        <Sheet :open="!!respondiendo" @update:open="val => { if (!val) respondiendo = null; }">
-            <SheetContent class="sm:max-w-md overflow-y-auto">
-                <SheetHeader>
-                    <SheetTitle>Responder Seguimiento</SheetTitle>
-                </SheetHeader>
-                <div class="mt-4 rounded-lg p-3 text-sm text-[var(--sispaa-text)] opacity-80 bg-[var(--sispaa-background)]">
+        <!-- Dialog: Responder (docente) -->
+        <Dialog :open="!!respondiendo" @update:open="val => { if (!val) respondiendo = null; }">
+            <DialogContent class="sm:max-w-lg">
+                <DialogHeader>
+                    <DialogTitle>Responder Seguimiento</DialogTitle>
+                </DialogHeader>
+                <div class="mt-2 rounded-lg p-3 text-sm text-[var(--sispaa-text)] opacity-80 bg-[var(--sispaa-background)]">
                     {{ respondiendo?.pregunta }}
                 </div>
-                <form @submit.prevent="submitRespuesta" class="mt-5 space-y-5">
+                <form @submit.prevent="submitRespuesta" class="mt-3 space-y-5">
                     <div>
                         <label class="mb-1.5 block text-sm font-semibold text-[var(--sispaa-text)]">Respuesta *</label>
-                        <textarea v-model="respuestaForm.respuesta" rows="5" placeholder="Escribe tu respuesta..." class="w-full rounded-lg border-[color:color-mix(in_srgb,var(--sispaa-text)_20%,transparent)] bg-[var(--sispaa-background)] text-sm text-[var(--sispaa-text)]"></textarea>
+                        <Textarea v-model="respuestaForm.respuesta" rows="5" placeholder="Escribe tu respuesta..." class="text-[var(--sispaa-text)]" />
                         <p v-if="respuestaForm.errors.respuesta" class="mt-1 text-xs text-rose-500">{{ respuestaForm.errors.respuesta }}</p>
                     </div>
-                    <SheetFooter class="gap-2 pt-4">
+                    <DialogFooter class="gap-2 pt-4">
                         <Button type="button" variant="outline" @click="respondiendo = null">Cancelar</Button>
                         <Button type="submit" :disabled="respuestaForm.processing" class="font-semibold text-white bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)]">
                             {{ respuestaForm.processing ? 'Guardando...' : 'Guardar respuesta' }}
                         </Button>
-                    </SheetFooter>
+                    </DialogFooter>
                 </form>
-            </SheetContent>
-        </Sheet>
+            </DialogContent>
+        </Dialog>
 
-        <!-- Sheet: Subir informe trimestral (líder) -->
-        <Sheet :open="showInformeForm" @update:open="val => showInformeForm = val">
-            <SheetContent class="sm:max-w-md overflow-y-auto">
-                <SheetHeader>
-                    <SheetTitle>Subir Informe Trimestral</SheetTitle>
-                </SheetHeader>
-                <form @submit.prevent="submitInforme" class="mt-6 space-y-5">
+        <!-- Dialog: Subir informe trimestral (líder) -->
+        <Dialog v-model:open="showInformeForm">
+            <DialogContent class="sm:max-w-lg">
+                <DialogHeader>
+                    <DialogTitle>Subir Informe Trimestral</DialogTitle>
+                </DialogHeader>
+                <form @submit.prevent="submitInforme" class="mt-2 space-y-5">
                     <div>
                         <label class="mb-1.5 block text-sm font-semibold text-[var(--sispaa-text)]">Archivo (PDF o Word) *</label>
-                        <input type="file" accept=".pdf,.doc,.docx" @change="onArchivoChange" class="w-full rounded-lg border-[color:color-mix(in_srgb,var(--sispaa-text)_20%,transparent)] bg-[var(--sispaa-background)] text-sm text-[var(--sispaa-text)]" />
+                        <Input type="file" accept=".pdf,.doc,.docx" @change="onArchivoChange" class="text-[var(--sispaa-text)]" />
                         <p v-if="informeForm.errors.archivo" class="mt-1 text-xs text-rose-500">{{ informeForm.errors.archivo }}</p>
                     </div>
                     <div>
                         <label class="mb-1.5 block text-sm font-semibold text-[var(--sispaa-text)]">Observaciones</label>
-                        <textarea v-model="informeForm.observaciones" rows="3" placeholder="Notas sobre el avance de este trimestre..." class="w-full rounded-lg border-[color:color-mix(in_srgb,var(--sispaa-text)_20%,transparent)] bg-[var(--sispaa-background)] text-sm text-[var(--sispaa-text)]"></textarea>
+                        <Textarea v-model="informeForm.observaciones" rows="3" placeholder="Notas sobre el avance de este trimestre..." class="text-[var(--sispaa-text)]" />
                     </div>
-                    <SheetFooter class="gap-2 pt-4">
+                    <DialogFooter class="gap-2 pt-4">
                         <Button type="button" variant="outline" @click="showInformeForm = false">Cancelar</Button>
                         <Button type="submit" :disabled="informeForm.processing" class="font-semibold text-white bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)]">
                             {{ informeForm.processing ? 'Subiendo...' : 'Subir' }}
                         </Button>
-                    </SheetFooter>
+                    </DialogFooter>
                 </form>
-            </SheetContent>
-        </Sheet>
+            </DialogContent>
+        </Dialog>
     </AppSidebarLayout>
 </template>

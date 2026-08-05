@@ -198,6 +198,7 @@ class InvestigacionController extends Controller
                 'id' => $investigacion->id,
                 'titulo' => $investigacion->titulo,
                 'objetivo' => $investigacion->objetivo,
+                'estado' => $investigacion->estado,
                 'lider_id' => $investigacion->lider_id,
                 'colider_id' => $investigacion->colider_id,
                 'miembros' => $investigacion->miembros()->pluck('users.id'),

@@ -1,14 +1,8 @@
-// Configuración central de navegación del Sidebar, segmentada por rol (RBAC).
-//
-// Cada rol de Spatie (ver database/seeders/RolesPermissionsSeeder.php) tiene su
-// propio bloque de items aquí. Un usuario normal solo ve el bloque de SU rol
-// (lista plana, como hasta ahora). El rol raíz `SYSTEM_ADMINISTRADOR` es la
-// excepción: ve TODOS los bloques a la vez, agrupados y en cascada (colapsables)
-// por nombre de rol, para poder navegar/supervisar cualquier módulo del sistema.
-//
-// Al agregar una vista nueva a un módulo, agregar el item aquí una sola vez:
-// automáticamente aparecerá tanto en el menú del rol dueño como en la vista
-// "todo" de SystemAdministrador.
+// Configuración central del Sidebar por rol (RBAC).
+// Cada rol de Spatie tiene su bloque de items; el usuario normal ve solo los
+// de sus roles (lista plana). SystemAdministrador ve todos agrupados en cascada.
+// Agregar un item aquí lo muestra en el menú del rol dueño y en la vista del
+// SysAdmin a la vez.
 
 import { type NavItem } from '@/types';
 import { BarChart3, Bell, Book, BookOpen, Calendar, ClipboardCheck, Feather, FileText, Files, FolderOpen, GraduationCap, Handshake, LayoutGrid, Megaphone, Search, Settings, User, UserCog, Users, type LucideIcon } from 'lucide-vue-next';
@@ -30,12 +24,8 @@ export const dashboardNavItem: NavItem = {
 };
 
 /**
- * Menú cascada exclusivo de la vista "todo" de SystemAdministrador: agrupa
- * en un solo lugar todos los documentos que sube cada rol (docente,
- * coordinador, estudiante...) para revisión, en vez de repetirlos sueltos
- * dentro de los bloques de Docente/Secretaría como pasaba antes. Reutiliza
- * 100% las rutas/controladores/vistas de Secretaría y Docencia: no hay
- * pantallas nuevas, solo una entrada de menú distinta.
+ * Menú exclusivo de la vista SysAdmin: agrupa los documentos que suben todos
+ * los roles para revisión, reutilizando las rutas/vistas existentes.
  */
 export const revisionDocumentosNavItems: NavItem[] = [
     { title: 'Sílabos', href: route('coordinador.silabos.index') },
@@ -73,13 +63,8 @@ export const systemAdministradorNavItems: NavItem[] = [
     },
 ];
 
-/**
- * Rol Docente: docencia e investigación. El bloque "Laboratorio" se ocultó
- * a pedido (no se usa por ahora); las rutas/vistas siguen existiendo, solo
- * se quitó la entrada del menú. Para reactivarlo, restaurar el item que
- * enlazaba a laboratorio.index (con sus 6 sub-items) en este array y en
- * docenteAdminOverviewNavItems.
- */
+/** Rol Docente: docencia, investigación y titulación. "Laboratorio" se ocultó
+ *  a pedido (las rutas existen, solo se quitó del menú). */
 export const docenteNavItems: NavItem[] = [
     {
         title: 'Docencia',
@@ -103,18 +88,9 @@ export const docenteNavItems: NavItem[] = [
 ];
 
 /**
- * Variante del bloque "Docente" para SystemAdministrador cuando NO tiene
- * también el rol docente. El antiguo item "Docencia" (Sílabos subidos /
- * Informes de Asignatura) se quitó de aquí porque ahora vive, seccionado
- * junto al resto de documentos que suben otros roles, dentro de "Revisión
- * de Documentos" (ver revisionDocumentosNavItems / systemAdministradorNavItems).
- * El bloque "Laboratorio" se ocultó a pedido (no se usa por ahora).
- * 'Investigación' también se quitó de aquí: ya aparece en el bloque
- * Coordinador (coordinadorNavItems), que es quien la supervisa a nivel
- * institucional; mostrarla también aquí la duplicaba en la vista
- * consolidada de SystemAdministrador. Si en el futuro este array vuelve a
- * quedar vacío, resolveSidebarNav() omite el grupo completo (ver más abajo),
- * así que no hace falta dejar aquí un item "de relleno".
+ * Variante del bloque Docente para la vista SysAdmin (cuando no tiene el rol
+ * docente): "Docencia" e "Investigación" ya viven en otros bloques de esa
+ * misma vista, así que este grupo queda vacío y resolveSidebarNav() lo omite.
  */
 export const docenteAdminOverviewNavItems: NavItem[] = [];
 
@@ -147,13 +123,9 @@ export const coordinadorNavItems: NavItem[] = [
 ];
 
 /**
- * Variante de coordinadorNavItems solo para la vista "todo" de
- * SystemAdministrador: quita 'Revisión de Sílabos' porque ya vive,
- * seccionado junto al resto de documentos que suben otros roles, dentro de
- * "Revisión de Documentos" (revisionDocumentosNavItems, bloque
- * Administración) — mismo criterio que TITULOS_YA_CUBIERTOS_EN_VISTA_ADMIN
- * para Secretaría. coordinadorNavItems en sí queda intacto: el coordinador
- * real lo sigue necesitando completo en su propio menú (navByRole).
+ * Variante para la vista SysAdmin: quita 'Revisión de Sílabos', que ya vive
+ * en "Revisión de Documentos". coordinadorNavItems queda intacto para el
+ * coordinador real (navByRole).
  */
 const TITULOS_YA_CUBIERTOS_COORDINADOR_EN_VISTA_ADMIN = new Set(['Revisión de Sílabos']);
 export const coordinadorAdminOverviewNavItems: NavItem[] = coordinadorNavItems
@@ -233,24 +205,10 @@ export const secretariaNavItems: NavItem[] = [
 ];
 
 /**
- * Variante de secretariaNavItems solo para la vista "todo" de
- * SystemAdministrador: quita items que ya se ven en otro bloque de esa
- * misma vista consolidada, para no repetirlos dos veces en el sidebar.
- * - 'Expediente SGA' ahora vive, seccionado junto al resto de documentos que
- *   suben otros roles, dentro de "Revisión de Documentos".
- * - 'Titulación' ya aparece en el bloque "Coordinador" (coordinadorNavItems),
- *   que es quien la supervisa a nivel institucional; se quita de aquí para
- *   no repetirla (mismo caso que 'Investigación', ver docenteAdminOverviewNavItems).
- * - 'Estudiantes': 'Panel Estudiantes' ya aparece en el bloque "Coordinador"
- *   (gestionEstudiantesNavItems); 'Estudiantes matriculados' en cambio es
- *   exclusivo de Secretaría/SysAdmin (ya no de Coordinador), así que aquí SÍ
- *   se muestra, solo, dentro del bloque Secretaría.
- * ('Revisión de Sílabos' ya no aparece aquí: se quitó por completo de
- * secretariaNavItems, ver comentario sobre coordinadorNavItems.)
- * Se deriva por filtro/map (no se duplica a mano) para no desincronizarse
- * si secretariaNavItems cambia. secretariaNavItems en sí queda intacto: el
- * personal real de Secretaría lo sigue necesitando completo en su propio
- * menú (navByRole).
+ * Variante para la vista SysAdmin: quita items que ya se ven en otro bloque
+ * de esa misma vista, para no repetirlos en el sidebar. Se deriva por
+ * filtro/map para no desincronizarse si secretariaNavItems cambia; este
+ * array queda intacto para el personal real de Secretaría (navByRole).
  */
 const TITULOS_YA_CUBIERTOS_EN_VISTA_ADMIN = new Set(['Expediente SGA', 'Titulación']);
 const SUBITEMS_ESTUDIANTES_YA_CUBIERTOS_EN_VISTA_ADMIN = new Set(['Panel Estudiantes']);
@@ -287,10 +245,7 @@ export const estudianteNavItems: NavItem[] = [
     },
 ];
 
-/**
- * Ítems relacionados a Estudiantes que hoy administra el staff
- * (secretaría/coordinación), separados del portal propio del estudiante.
- */
+/** Ítems de Estudiantes que administra el staff, separados del portal del estudiante. */
 export const gestionEstudiantesNavItems: NavItem[] = [
     {
         title: 'Estudiantes',
@@ -298,12 +253,8 @@ export const gestionEstudiantesNavItems: NavItem[] = [
         icon: Book,
         items: [
             { title: 'Panel Estudiantes', href: route('estudiantes.index') },
-            // 'Estudiantes matriculados' (estudiantes.matriculados) ya no
-            // aparece para Coordinador: a pedido, el listado institucional
-            // general queda exclusivo de Secretaría/SystemAdministrador (ver
-            // secretariaNavItems y el guard en EstudianteController::matriculados()).
-            // El reporte de faltas ya no es individual: ahora vive en
-            // Secretaría como "Faltas Semanales" (secretaria.faltas-semanales.*).
+            // 'Estudiantes matriculados' y el reporte de faltas quedaron
+            // exclusivos de Secretaría/SystemAdministrador (por pedido).
         ],
     },
 ];
@@ -319,7 +270,7 @@ export interface NavRoleGroup {
 export const roleNavGroups: NavRoleGroup[] = [
     { key: 'administracion', label: 'Administración', items: systemAdministradorNavItems, icon: Settings },
     { key: 'docente', label: 'Docente', items: docenteNavItems, icon: Feather },
-    { key: 'coordinador', label: 'Coordinador', items: [...coordinadorAdminOverviewNavItems, ...gestionEstudiantesNavItems], icon: Users },
+    { key: 'coordinador', label: 'Coordinación', items: [...coordinadorAdminOverviewNavItems, ...gestionEstudiantesNavItems], icon: Users },
     { key: 'secretaria', label: 'Secretaría', items: secretariaAdminOverviewNavItems, icon: FileText },
     { key: 'estudiante', label: 'Estudiante', items: estudianteNavItems, icon: User },
 ];
@@ -333,18 +284,10 @@ export const navByRole: Record<string, NavItem[]> = {
 };
 
 /**
- * Resuelve qué debe pintar el Sidebar para un set de roles del usuario actual.
- * - SystemAdministrador -> modo "god view": grupos colapsables por rol.
- *   El grupo "Docente" muestra la vista de supervisión (todos los sílabos e
- *   informes) en vez de "Mis Sílabos"/"Mis Informes" en primera persona,
- *   salvo que el SystemAdministrador también tenga el rol docente. El grupo
- *   "Estudiante" (autoservicio en primera persona) se omite por completo,
- *   salvo que también tenga el rol estudiante, ya que sus equivalentes de
- *   supervisión (expediente, justificaciones, documentos) ya están cubiertos
- *   por los grupos Secretaría/Coordinador.
- * - Cualquier otro rol reconocido -> lista plana combinando los menús de
- *   TODOS los roles que tenga (ej. alguien con docente + coordinador ve
- *   ambos menús seguidos, no solo el primero que coincida).
+ * Resuelve qué pinta el Sidebar para los roles del usuario:
+ * - SystemAdministrador -> grupos colapsables por rol ("Docente" usa la vista
+ *   de supervisión y "Estudiante" se omite salvo que también tenga el rol).
+ * - Otros roles -> lista plana combinando los menús de todos sus roles.
  * - Sin rol reconocido -> solo la Vista general.
  */
 export function resolveSidebarNav(userRoles: string[] = []): { mode: 'grouped' | 'flat'; groups?: NavRoleGroup[]; items?: NavItem[] } {
