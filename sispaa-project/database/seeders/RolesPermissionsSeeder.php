@@ -27,7 +27,6 @@ class RolesPermissionsSeeder extends Seeder
             'justificaciones.review',
             'convocatorias.manage',
             'grupos_documentos.manage',
-            'notificaciones.manage-masivas',
         ];
 
         $docentePermissions = [

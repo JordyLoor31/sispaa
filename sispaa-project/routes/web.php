@@ -394,12 +394,6 @@ Route::middleware(['auth', 'verified', 'role:secretaria|SystemAdministrador'])
         Route::post('/grupos-documentos/{grupo}/toggle', [\App\Http\Controllers\Secretaria\GrupoDocumentoController::class, 'toggle'])
             ->name('grupos-documentos.toggle');
 
-        // Notificaciones Masivas
-        Route::get('/notificaciones-masivas', [\App\Http\Controllers\Secretaria\NotificacionMasivaController::class, 'index'])
-            ->name('notificaciones-masivas.index');
-        Route::post('/notificaciones-masivas', [\App\Http\Controllers\Secretaria\NotificacionMasivaController::class, 'store'])
-            ->name('notificaciones-masivas.store');
-
         // Revisión de Sílabos: se movió a coordinador.silabos.* (ver más abajo,
         // grupo "COORDINADOR - Revisión de Sílabos"). Secretaría ya no tiene
         // acceso a este módulo.

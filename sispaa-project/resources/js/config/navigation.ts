@@ -5,7 +5,7 @@
 // SysAdmin a la vez.
 
 import { type NavItem } from '@/types';
-import { BarChart3, Bell, Book, BookOpen, Calendar, ClipboardCheck, Feather, FileText, Files, FolderOpen, GraduationCap, Handshake, LayoutGrid, Megaphone, Search, Settings, User, UserCog, Users, type LucideIcon } from 'lucide-vue-next';
+import { BarChart3, Book, BookOpen, Calendar, ClipboardCheck, Feather, FileText, Files, FolderOpen, GraduationCap, Handshake, LayoutGrid, Megaphone, Search, Settings, User, UserCog, Users, type LucideIcon } from 'lucide-vue-next';
 
 /** Nombres de rol tal como están sembrados en Spatie (roles.name). */
 export const ROLES = {
@@ -131,8 +131,8 @@ const TITULOS_YA_CUBIERTOS_COORDINADOR_EN_VISTA_ADMIN = new Set(['Revisión de S
 export const coordinadorAdminOverviewNavItems: NavItem[] = coordinadorNavItems
     .filter((item) => !TITULOS_YA_CUBIERTOS_COORDINADOR_EN_VISTA_ADMIN.has(item.title));
 
-/** Rol Secretaría: expediente SGA, justificaciones, convocatorias, grupos de
- *  documentos y notificaciones masivas. */
+/** Rol Secretaría: expediente SGA, justificaciones, convocatorias y grupos de
+ *  documentos. */
 export const secretariaNavItems: NavItem[] = [
     {
         title: 'Expediente SGA',
@@ -176,11 +176,6 @@ export const secretariaNavItems: NavItem[] = [
         title: 'Grupos de Documentos',
         href: route('secretaria.grupos-documentos.index'),
         icon: FolderOpen,
-    },
-    {
-        title: 'Notificaciones Masivas',
-        href: route('secretaria.notificaciones-masivas.index'),
-        icon: Bell,
     },
     {
         title: 'Reportes',
