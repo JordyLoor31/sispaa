@@ -43,7 +43,7 @@ class PeriodoAcademico extends Model
      * Un periodo académico es una entidad global compartida por todas las
      * carreras (ej. "2026-1"), no un registro por carrera. El alcance por
      * carrera se resuelve en cada tabla dependiente que ya tiene su propio
-     * carrera_id (matriculas, actividades_vinculacion) o vía materia->carrera
+     * carrera_id (actividades_vinculacion) o vía materia->carrera
      * (silabos, informes_docente, asignaciones_docente, practicas_laboratorio).
      */
     public function asignacionesDocente()
@@ -59,11 +59,6 @@ class PeriodoAcademico extends Model
     public function informesDocente()
     {
         return $this->hasMany(\App\Models\Docencia\InformeDocente::class);
-    }
-
-    public function matriculas()
-    {
-        return $this->hasMany(\App\Models\Estudiantes\Matricula::class);
     }
 
     public function faltasSemanales()

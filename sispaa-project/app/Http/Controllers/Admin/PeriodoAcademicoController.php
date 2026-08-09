@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Traits\HasBreadcrumbs;
 use App\Models\Admin\PeriodoAcademico;
-use App\Models\Estudiantes\Matricula;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
@@ -77,7 +76,6 @@ class PeriodoAcademicoController extends Controller
 
         return Inertia::render('Admin/Periodos/Show', [
             'periodo' => $periodo,
-            'totalMatriculados' => Matricula::where('periodo_id', $periodo->id)->count(),
             'breadcrumbs' => $this->adminBreadcrumbs('Gestión de Periodos', 'Ver Periodo', route('admin.periodos.index'), $periodo->nombre),
         ]);
     }

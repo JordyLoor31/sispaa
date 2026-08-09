@@ -105,7 +105,7 @@ trait HasBreadcrumbs
         return $this->moduleBreadcrumbs('Docencia', null, $section, $action, $sectionRoute, $itemTitle);
     }
 
-    /** Breadcrumbs para Estudiantes (gestión staff: Matriculados, Faltas, Justificaciones) */
+    /** Breadcrumbs para Estudiantes (gestión staff: listado del sistema) */
     protected function estudiantesBreadcrumbs(string $section, ?string $action = null, ?string $sectionRoute = null, ?string $itemTitle = null): array
     {
         return $this->moduleBreadcrumbs('Estudiantes', route('estudiantes.index'), $section, $action, $sectionRoute, $itemTitle);

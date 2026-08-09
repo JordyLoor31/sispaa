@@ -131,8 +131,8 @@ const TITULOS_YA_CUBIERTOS_COORDINADOR_EN_VISTA_ADMIN = new Set(['Revisión de S
 export const coordinadorAdminOverviewNavItems: NavItem[] = coordinadorNavItems
     .filter((item) => !TITULOS_YA_CUBIERTOS_COORDINADOR_EN_VISTA_ADMIN.has(item.title));
 
-/** Rol Secretaría: expediente SGA, justificaciones, matrículas, convocatorias,
- *  grupos de documentos y notificaciones masivas. */
+/** Rol Secretaría: expediente SGA, justificaciones, convocatorias, grupos de
+ *  documentos y notificaciones masivas. */
 export const secretariaNavItems: NavItem[] = [
     {
         title: 'Expediente SGA',
@@ -149,8 +149,7 @@ export const secretariaNavItems: NavItem[] = [
         href: route('estudiantes.index'),
         icon: Book,
         items: [
-            { title: 'Panel Estudiantes', href: route('estudiantes.index') },
-            { title: 'Estudiantes matriculados', href: route('estudiantes.matriculados') },
+            { title: 'Estudiantes', href: route('estudiantes.index') },
         ],
     },
     {
@@ -167,11 +166,6 @@ export const secretariaNavItems: NavItem[] = [
         title: 'Plantillas de Documentos',
         href: route('secretaria.plantillas.index'),
         icon: Files,
-    },
-    {
-        title: 'Matrículas',
-        href: route('secretaria.matriculas.index'),
-        icon: Book,
     },
     {
         title: 'Convocatorias',
@@ -211,7 +205,7 @@ export const secretariaNavItems: NavItem[] = [
  * array queda intacto para el personal real de Secretaría (navByRole).
  */
 const TITULOS_YA_CUBIERTOS_EN_VISTA_ADMIN = new Set(['Expediente SGA', 'Titulación']);
-const SUBITEMS_ESTUDIANTES_YA_CUBIERTOS_EN_VISTA_ADMIN = new Set(['Panel Estudiantes']);
+const SUBITEMS_ESTUDIANTES_YA_CUBIERTOS_EN_VISTA_ADMIN = new Set(['Estudiantes']);
 export const secretariaAdminOverviewNavItems: NavItem[] = secretariaNavItems
     .filter((item) => !TITULOS_YA_CUBIERTOS_EN_VISTA_ADMIN.has(item.title))
     .map((item) => {
@@ -252,9 +246,7 @@ export const gestionEstudiantesNavItems: NavItem[] = [
         href: route('estudiantes.index'),
         icon: Book,
         items: [
-            { title: 'Panel Estudiantes', href: route('estudiantes.index') },
-            // 'Estudiantes matriculados' y el reporte de faltas quedaron
-            // exclusivos de Secretaría/SystemAdministrador (por pedido).
+            { title: 'Estudiantes', href: route('estudiantes.index') },
         ],
     },
 ];

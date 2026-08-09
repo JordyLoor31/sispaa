@@ -81,7 +81,7 @@ const submit = () => {
                     </div>
 
                     <div v-if="roster.length === 0" class="px-4 py-10 text-center text-sm opacity-50 text-[var(--sispaa-text)]">
-                        No hay estudiantes matriculados en esta carrera para el período de la práctica.
+                        No hay estudiantes registrados en esta carrera.
                     </div>
                 </div>
             </div>

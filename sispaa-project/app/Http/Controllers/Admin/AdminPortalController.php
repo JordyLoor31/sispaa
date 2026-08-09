@@ -7,7 +7,6 @@ use App\Http\Controllers\Traits\HasBreadcrumbs;
 use App\Models\Admin\Carrera;
 use App\Models\Docencia\Materia;
 use App\Models\Docencia\InformeDocente;
-use App\Models\Estudiantes\Matricula;
 use App\Models\Investigacion\HitoInvestigacion;
 use App\Models\Investigacion\Investigacion;
 use App\Models\Laboratorio\Equipo;
@@ -48,26 +47,14 @@ class AdminPortalController extends Controller
             'informes_incumplidos' => $informesIncumplidos,
         ];
 
-        // 2. Deserción estudiantil
-        $totalMatriculados = Matricula::count();
-        $totalRetirados = Matricula::where('estado', 'retirado')->count();
-        $desercionEstudiantil = $totalMatriculados > 0 ? round(($totalRetirados / $totalMatriculados) * 100, 2) : 0;
-
-        $estudiantesStats = [
-            'matriculados' => $totalMatriculados,
-            'activos' => Matricula::where('estado', 'activo')->count(),
-            'retirados' => $totalRetirados,
-            'egresados' => Matricula::where('estado', 'egresado')->count(),
-        ];
-
-        // 3. Inventario de Laboratorio (real, ya no simulado)
+        // 2. Inventario de Laboratorio (real, ya no simulado)
         $inventarioStats = [
             'total_equipos' => Equipo::count(),
             'total_reactivos' => Reactivo::count(),
             'reactivos_bajo_stock' => Reactivo::where('estado', 'agotado')->orWhere('cantidad', '<=', 5)->count(),
         ];
 
-        // 4. Investigación
+        // 3. Investigación
         $totalHitosInvestigacion = HitoInvestigacion::count();
         $investigacionStats = [
             'total_proyectos' => Investigacion::count(),
@@ -77,7 +64,7 @@ class AdminPortalController extends Controller
             'total_hitos' => $totalHitosInvestigacion,
         ];
 
-        // 5. Prácticas de Laboratorio
+        // 4. Prácticas de Laboratorio
         $practicasPorCarrera = PracticaLaboratorio::join('materias', 'materias.id', '=', 'practicas_laboratorio.materia_id')
             ->join('carreras', 'carreras.id', '=', 'materias.carrera_id')
             ->select('carreras.nombre as carrera', DB::raw('count(*) as total'))
@@ -91,7 +78,7 @@ class AdminPortalController extends Controller
             'por_carrera' => $practicasPorCarrera,
         ];
 
-        // 6. Vinculación
+        // 5. Vinculación
         $vinculacionStats = [
             'total_actividades' => ActividadVinculacion::count(),
             'ejecutadas' => ActividadVinculacion::where('estado', 'ejecutado')->count(),
@@ -101,7 +88,7 @@ class AdminPortalController extends Controller
                 ->count('beneficiario_id'),
         ];
 
-        // 7. Titulación
+        // 6. Titulación
         $titulacionStats = [
             'total' => Titulacion::count(),
             'en_proceso' => Titulacion::where('estado', 'en_proceso')->count(),
@@ -109,12 +96,11 @@ class AdminPortalController extends Controller
             'graduado' => Titulacion::where('estado', 'graduado')->count(),
         ];
 
-        // 8. Estadísticas generales
+        // 7. Estadísticas generales
         $stats = [
             'cumplimiento_docente' => $cumplimientoDocente,
             'total_informes' => $totalInformes,
             'informes_entregados' => $informesEntregados,
-            'desercion_estudiantil' => $desercionEstudiantil,
             'total_estudiantes' => User::role('estudiante')->count(),
             'total_docentes' => User::role('docente')->count(),
             'total_carreras' => Carrera::count(),
@@ -125,7 +111,6 @@ class AdminPortalController extends Controller
             'vinculacion' => $vinculacionStats,
             'titulacion' => $titulacionStats,
             'docencia' => $docenciaStats,
-            'estudiantes' => $estudiantesStats,
         ];
 
         return Inertia::render('Dashboard', [

@@ -26,7 +26,6 @@ interface Stats {
     cumplimiento_docente: number;
     total_informes: number;
     informes_entregados: number;
-    desercion_estudiantil: number;
     total_estudiantes: number;
     total_docentes: number;
     total_carreras: number;
@@ -59,12 +58,6 @@ interface Stats {
         informes_cumplidos: number;
         informes_pendientes: number;
         informes_incumplidos: number;
-    };
-    estudiantes: {
-        matriculados: number;
-        activos: number;
-        retirados: number;
-        egresados: number;
     };
 }
 
@@ -124,14 +117,12 @@ const indicators = computed<Indicator[]>(() => {
         },
         {
             title: 'Estudiantes',
-            mainValue: s.estudiantes.matriculados,
-            mainLabel: 'Matriculados',
+            mainValue: s.total_estudiantes,
+            mainLabel: 'Estudiantes del sistema',
             icon: BookOpen,
             color: 'bg-green-500',
             details: [
-                { label: 'Activos', value: s.estudiantes.activos, color: 'text-green-600 dark:text-green-400' },
-                { label: 'Retirados', value: s.estudiantes.retirados, color: 'text-red-600 dark:text-red-400' },
-                { label: 'Egresados', value: s.estudiantes.egresados, color: 'text-blue-600 dark:text-blue-400' },
+                { label: 'Registrados en el sistema', value: s.total_estudiantes },
             ],
         },
         {
@@ -187,7 +178,7 @@ const indicators = computed<Indicator[]>(() => {
                         <div class="mt-4">
                             <span class="text-3xl font-extrabold" :style="{ color: SISPAA.text }">{{ stats.total_estudiantes }}</span>
                         </div>
-                        <p class="mt-2 text-xs opacity-60" :style="{ color: SISPAA.text }">Total matriculados activos</p>
+                        <p class="mt-2 text-xs opacity-60" :style="{ color: SISPAA.text }">Estudiantes registrados en el sistema</p>
                     </div>
 
                     <div class="rounded-2xl p-6 shadow-sm" :style="{ backgroundColor: SISPAA.surface }">

@@ -38,10 +38,7 @@ const estadoDoc = ref(props.filters.estado || 'all');
 
 const filtrosActivos = computed(() => {
     const f: Record<string, string> = { tipo: tipo.value };
-    if (tipo.value === 'matriculados') {
-        if (periodoId.value !== 'all') f.periodo_id = periodoId.value;
-        if (carreraId.value !== 'all') f.carrera_id = carreraId.value;
-    } else if (tipo.value === 'faltas') {
+    if (tipo.value === 'faltas') {
         if (periodoId.value !== 'all') f.periodo_id = periodoId.value;
         if (carreraId.value !== 'all') f.carrera_id = carreraId.value;
     } else if (tipo.value === 'documentos') {
@@ -108,30 +105,7 @@ const table = useVueTable(
                     </Select>
                 </div>
 
-                <template v-if="tipo === 'matriculados'">
-                    <div>
-                        <label class="mb-1.5 block text-xs font-semibold uppercase opacity-60 text-[var(--sispaa-text)]">Período</label>
-                        <Select v-model="periodoId" @update:model-value="aplicar">
-                            <SelectTrigger class="w-full sm:w-[180px] bg-[color:color-mix(in_srgb,var(--sispaa-surface)_35%,var(--sispaa-background))]"><SelectValue /></SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">Todos</SelectItem>
-                                <SelectItem v-for="p in periodos" :key="p.id" :value="String(p.id)">{{ p.nombre }}</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div>
-                        <label class="mb-1.5 block text-xs font-semibold uppercase opacity-60 text-[var(--sispaa-text)]">Carrera</label>
-                        <Select v-model="carreraId" @update:model-value="aplicar">
-                            <SelectTrigger class="w-full sm:w-[180px] bg-[color:color-mix(in_srgb,var(--sispaa-surface)_35%,var(--sispaa-background))]"><SelectValue /></SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">Todas</SelectItem>
-                                <SelectItem v-for="c in carreras" :key="c.id" :value="String(c.id)">{{ c.nombre }}</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                </template>
-
-                <template v-else-if="tipo === 'faltas'">
+                <template v-if="tipo === 'faltas'">
                     <div>
                         <label class="mb-1.5 block text-xs font-semibold uppercase opacity-60 text-[var(--sispaa-text)]">Período</label>
                         <Select v-model="periodoId" @update:model-value="aplicar">

@@ -45,6 +45,11 @@ class EstudianteFamiliarController extends Controller
 
     public function update(UpdateEstudianteFamiliarRequest $request, EstudianteFamiliar $familiar)
     {
+        abort_unless(
+            $familiar->user_id === $request->user()->id || $request->user()->hasRole('SystemAdministrador'),
+            403
+        );
+
         $familiar->update($request->validated());
 
         return redirect()->back()->with('success', 'Familiar actualizado correctamente.');

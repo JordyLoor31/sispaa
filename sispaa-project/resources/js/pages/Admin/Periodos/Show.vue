@@ -28,7 +28,6 @@ interface Periodo {
 
 const props = defineProps<{
     periodo: Periodo;
-    totalMatriculados?: number;
     breadcrumbs?: BreadcrumbItemType[];
 }>();
 
@@ -93,7 +92,7 @@ const finalizar = () => {
             </div>
 
             <div class="max-w-5xl mx-auto w-full space-y-4 sm:space-y-6">
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
                 <div class="rounded-2xl p-5 shadow-sm sm:p-6 bg-[var(--sispaa-surface)]">
                     <h4 class="text-xs font-bold uppercase tracking-wider opacity-60 text-[var(--sispaa-text)]">Estado</h4>
                     <p class="mt-2 text-sm font-semibold" :class="ESTADO_CLASS[periodo.estado]">
@@ -104,12 +103,6 @@ const finalizar = () => {
                     <h4 class="text-xs font-bold uppercase tracking-wider opacity-60 text-[var(--sispaa-text)]">Duración</h4>
                     <p class="mt-2 text-sm font-semibold text-[var(--sispaa-text)]">
                         {{ formatDate(periodo.fecha_inicio) }} — {{ formatDate(periodo.fecha_fin) }}
-                    </p>
-                </div>
-                <div class="rounded-2xl p-5 shadow-sm sm:p-6 bg-[var(--sispaa-surface)]">
-                    <h4 class="text-xs font-bold uppercase tracking-wider opacity-60 text-[var(--sispaa-text)]">Matriculados</h4>
-                    <p class="mt-2 text-sm font-semibold text-[var(--sispaa-text)]">
-                        {{ totalMatriculados ?? 0 }} estudiantes
                     </p>
                 </div>
                 <div class="rounded-2xl p-5 shadow-sm sm:p-6 bg-[var(--sispaa-surface)]">

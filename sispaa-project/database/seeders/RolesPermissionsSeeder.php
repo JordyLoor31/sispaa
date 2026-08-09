@@ -25,7 +25,6 @@ class RolesPermissionsSeeder extends Seeder
         $secretariaPermissions = [
             'expediente.review',
             'justificaciones.review',
-            'matriculas.manage',
             'convocatorias.manage',
             'grupos_documentos.manage',
             'notificaciones.manage-masivas',
@@ -48,7 +47,6 @@ class RolesPermissionsSeeder extends Seeder
 
         $estudiantePermissions = [
             'indicadores.view-own',
-            'matriculas.view-own',
             'faltas.view-own',
             'justificaciones.create',
             'documentos.upload',

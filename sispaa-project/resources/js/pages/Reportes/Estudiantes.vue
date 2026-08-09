@@ -10,8 +10,7 @@ import ApexChartCard from '@/components/charts/ApexChartCard.vue';
 import ReporteEstadisticoButton from '@/components/charts/ReporteEstadisticoButton.vue';
 
 const reportCharts = [
-    { id: 'matriculados-por-carrera', title: 'Matriculados por carrera' },
-    { id: 'matriculados-por-estado', title: 'Matriculados por estado' },
+    { id: 'estudiantes-por-carrera', title: 'Estudiantes por carrera' },
     { id: 'faltas-por-carrera', title: 'Faltas por carrera' },
 ];
 import type { ApexOptions } from 'apexcharts';
@@ -21,12 +20,11 @@ interface ChartData { labels: string[]; series: number[]; colors?: (string | nul
 
 const props = defineProps<{
     kpis: {
-        total_matriculados: number;
+        total_estudiantes: number;
         total_faltas: number;
     };
     charts: {
-        matriculadosPorCarrera: ChartData;
-        matriculadosPorEstado: ChartData;
+        estudiantesPorCarrera: ChartData;
         faltasPorCarrera: ChartData;
     };
     periodos: Catalogo[];
@@ -49,14 +47,6 @@ const aplicar = () => {
     }, { preserveState: true, replace: true });
 };
 
-const pieOptions = (labels: string[], colors?: string[]): ApexOptions => ({
-    chart: { type: 'pie' },
-    labels,
-    colors: colors ?? ['#3c6e71', '#E4BC57', '#72c184', '#ef4444', '#536493'],
-    legend: { position: 'bottom' },
-    dataLabels: { enabled: true, formatter: (val: number) => Math.round(val) + '%' },
-});
-
 // Variante para barras "por carrera": cada barra toma el color de etiqueta
 // asignado a su carrera (plotOptions.bar.distributed colorea cada punto
 // individualmente dentro de una sola serie).
@@ -71,8 +61,7 @@ const barOptionsPorCarrera = (labels: string[], colors?: (string | null)[]): Ape
     grid: { borderColor: '#d9d9d9' },
 });
 
-const hasData = (c: ChartData) => c.series.length > 0 && c.series.some((v) => v > 0);
-</script>
+const hasData = (c: ChartData) => c.series.length > 0 && c.series.some((v) => v > 0);</script>
 
 <template>
     <AppSidebarLayout :breadcrumbs="breadcrumbs">
@@ -86,14 +75,14 @@ const hasData = (c: ChartData) => c.series.length > 0 && c.series.some((v) => v 
                     </div>
                     <div>
                         <h1 class="text-xl font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">Reportes — Estudiantes</h1>
-                        <p class="mt-0.5 text-sm opacity-60 text-[var(--sispaa-text)]">Matrículas y faltas semanales por carrera del período seleccionado.</p>
+                        <p class="mt-0.5 text-sm opacity-60 text-[var(--sispaa-text)]">Estudiantes del sistema y faltas semanales por carrera del período seleccionado.</p>
                     </div>
                 </div>
                 <ReporteEstadisticoButton
                     titulo="Reporte Estadístico — Estudiantes"
-                    subtitulo="Matrículas y faltas semanales por carrera del período seleccionado"
+                    subtitulo="Estudiantes del sistema y faltas semanales por carrera del período seleccionado"
                     :kpis="[
-                        { label: 'Matriculados', value: kpis.total_matriculados },
+                        { label: 'Estudiantes', value: kpis.total_estudiantes },
                         { label: 'Total faltas', value: kpis.total_faltas },
                     ]"
                     :charts="reportCharts"
@@ -128,10 +117,10 @@ const hasData = (c: ChartData) => c.series.length > 0 && c.series.some((v) => v 
             <div class="grid gap-4 sm:grid-cols-2">
                 <div class="rounded-2xl border p-5 shadow-sm bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]">
                     <div class="flex items-center justify-between">
-                        <p class="text-xs font-semibold uppercase opacity-60 text-[var(--sispaa-text)]">Matriculados</p>
+                        <p class="text-xs font-semibold uppercase opacity-60 text-[var(--sispaa-text)]">Estudiantes</p>
                         <Users class="h-5 w-5 text-[var(--sispaa-primary)]" />
                     </div>
-                    <p class="mt-2 text-3xl font-extrabold text-[var(--sispaa-text)]">{{ kpis.total_matriculados }}</p>
+                    <p class="mt-2 text-3xl font-extrabold text-[var(--sispaa-text)]">{{ kpis.total_estudiantes }}</p>
                 </div>
                 <div class="rounded-2xl border p-5 shadow-sm bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]">
                     <div class="flex items-center justify-between">
@@ -145,20 +134,12 @@ const hasData = (c: ChartData) => c.series.length > 0 && c.series.some((v) => v 
             <!-- Gráficos -->
             <div class="grid gap-4 sm:gap-6 xl:grid-cols-2">
                 <ApexChartCard
-                    chart-id="matriculados-por-carrera"
-                    title="Matriculados por carrera"
+                    chart-id="estudiantes-por-carrera"
+                    title="Estudiantes por carrera"
                     type="bar"
-                    :series="[{ name: 'Matriculados', data: charts.matriculadosPorCarrera.series }]"
-                    :options="barOptionsPorCarrera(charts.matriculadosPorCarrera.labels, charts.matriculadosPorCarrera.colors)"
-                    :empty="!hasData(charts.matriculadosPorCarrera)"
-                />
-                <ApexChartCard
-                    chart-id="matriculados-por-estado"
-                    title="Matriculados por estado"
-                    type="pie"
-                    :series="charts.matriculadosPorEstado.series"
-                    :options="pieOptions(charts.matriculadosPorEstado.labels)"
-                    :empty="!hasData(charts.matriculadosPorEstado)"
+                    :series="[{ name: 'Estudiantes', data: charts.estudiantesPorCarrera.series }]"
+                    :options="barOptionsPorCarrera(charts.estudiantesPorCarrera.labels, charts.estudiantesPorCarrera.colors)"
+                    :empty="!hasData(charts.estudiantesPorCarrera)"
                 />
                 <ApexChartCard
                     chart-id="faltas-por-carrera"

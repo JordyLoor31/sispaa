@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\Estudiantes\EstudianteController;
-use App\Http\Controllers\Api\EstudiantesController as ApiEstudiantesController;
 use App\Http\Controllers\Docencia\DocenteController;
 use App\Http\Controllers\Docencia\SilaboController;
 use App\Http\Controllers\Investigacion\InvestigacionController;
@@ -48,11 +47,10 @@ Route::middleware(['auth', 'verified', 'role:docente|coordinador|secretaria|Syst
     });
 
 
-// ESTUDIANTES (gestión/staff: coordinador y secretaría ven todo el listado
-// institucional. 'Matriculados' es información general y queda reservada a
-// secretaría/coordinador/SystemAdministrador). El reporte de faltas ya no
-// es individual por estudiante: ver secretaria.faltas-semanales.* y el
-// gráfico "Faltas por carrera" en Reportes.
+// ESTUDIANTES (gestión/staff: coordinador y secretaría ven el listado
+// institucional de estudiantes del sistema). El reporte de faltas ya no es
+// individual por estudiante: ver secretaria.faltas-semanales.* y el gráfico
+// "Faltas por carrera" en Reportes. Las matrículas se retiraron del sistema.
 Route::middleware(['auth', 'verified', 'role:coordinador|secretaria|docente|SystemAdministrador'])
     ->prefix('estudiantes')
     ->name('estudiantes.')
@@ -60,9 +58,6 @@ Route::middleware(['auth', 'verified', 'role:coordinador|secretaria|docente|Syst
 
         Route::get('/', [EstudianteController::class, 'index'])
             ->name('index');
-
-        Route::get('/matriculados', [EstudianteController::class, 'matriculados'])
-            ->name('matriculados');
     });
 
 
@@ -368,16 +363,6 @@ Route::middleware(['auth', 'verified', 'role:secretaria|SystemAdministrador'])
             ->name('faltas-semanales.update');
         Route::delete('/faltas-semanales/{faltaSemanal}', [\App\Http\Controllers\Secretaria\FaltaSemanalController::class, 'destroy'])
             ->name('faltas-semanales.destroy');
-
-        // Matrículas
-        Route::get('/matriculas', [\App\Http\Controllers\Secretaria\MatriculaController::class, 'index'])
-            ->name('matriculas.index');
-        Route::get('/matriculas/crear', [\App\Http\Controllers\Secretaria\MatriculaController::class, 'create'])
-            ->name('matriculas.create');
-        Route::post('/matriculas', [\App\Http\Controllers\Secretaria\MatriculaController::class, 'store'])
-            ->name('matriculas.store');
-        Route::patch('/matriculas/{matricula}/estado', [\App\Http\Controllers\Secretaria\MatriculaController::class, 'updateEstado'])
-            ->name('matriculas.update-estado');
 
         // Convocatorias
         Route::get('/convocatorias', [\App\Http\Controllers\Secretaria\ConvocatoriaController::class, 'index'])

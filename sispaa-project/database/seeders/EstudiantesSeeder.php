@@ -2,8 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\Admin\PeriodoAcademico;
-use App\Models\Estudiantes\Matricula;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
@@ -32,18 +30,6 @@ class EstudiantesSeeder extends Seeder
             ['codigo' => 'AGP', 'cantidad' => 33],
         ];
 
-        // El periodo académico es una sola entidad compartida por todas las
-        // carreras (ej. "2026-1"), no un registro por carrera.
-        $periodo = PeriodoAcademico::firstOrCreate(
-            ['nombre' => '2026-1'],
-            [
-                'fecha_inicio' => Carbon::now()->startOfMonth()->toDateString(),
-                'fecha_fin' => Carbon::now()->addMonths(5)->endOfMonth()->toDateString(),
-                'tipo' => 'semestral',
-                'estado' => true,
-            ]
-        );
-
         $fake = fake('es_ES');
         $created = 0;
         $existing = 0;
@@ -69,18 +55,6 @@ class EstudiantesSeeder extends Seeder
                 );
 
                 $user->assignRole('estudiante');
-
-                Matricula::firstOrCreate(
-                    [
-                        'estudiante_id' => $user->id,
-                        'periodo_id' => $periodo->id,
-                    ],
-                    [
-                        'carrera_id' => $carrera->id,
-                        'estado' => 'activo',
-                        'fecha_matricula' => Carbon::now()->toDateString(),
-                    ]
-                );
 
                 if ($user->wasRecentlyCreated) {
                     $created++;

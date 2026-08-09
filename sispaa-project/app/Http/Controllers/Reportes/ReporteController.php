@@ -9,7 +9,6 @@ use App\Models\Admin\PeriodoAcademico;
 use App\Models\Documentos\DocumentoEstudiante;
 use App\Models\Documentos\GrupoDocumento;
 use App\Models\Estudiantes\FaltaSemanal;
-use App\Models\Estudiantes\Matricula;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -21,15 +20,13 @@ use Maatwebsite\Excel\Facades\Excel;
 class ReporteController extends Controller
 {
     /**
-     * Solo estos 3 reportes: los que se pueden construir con datos que ya
-     * existen en el sistema (matrículas, faltas semanales por carrera,
-     * expediente de documentos de Secretaría), en vez de inventar
-     * indicadores nuevos.
+     * Solo estos reportes: los que se pueden construir con datos que ya
+     * existen en el sistema (faltas semanales por carrera, expediente de
+     * documentos de Secretaría), en vez de inventar indicadores nuevos.
      */
     private function tiposDisponibles(): array
     {
         return [
-            'matriculados' => 'Estudiantes Matriculados',
             'faltas' => 'Faltas Semanales por Carrera',
             'documentos' => 'Expediente de Documentos',
         ];
@@ -38,7 +35,6 @@ class ReporteController extends Controller
     private function columnas(string $tipo): array
     {
         return match ($tipo) {
-            'matriculados' => ['Cédula', 'Nombre', 'Email', 'Carrera', 'Período', 'Estado', 'Fecha Matrícula'],
             'faltas' => ['Carrera', 'Período', 'Semana', 'Cantidad de Faltas', 'Observaciones'],
             'documentos' => ['Estudiante', 'Cédula', 'Grupo', 'Requisito', 'Tipo Documento', 'Estado', 'Fecha Revisión'],
             default => [],
@@ -58,25 +54,10 @@ class ReporteController extends Controller
     private function query(string $tipo, Request $request): Builder
     {
         return match ($tipo) {
-            'matriculados' => $this->queryMatriculados($request),
             'faltas' => $this->queryFaltas($request),
             'documentos' => $this->queryDocumentos($request),
-            default => Matricula::query()->whereRaw('1 = 0'),
+            default => FaltaSemanal::query()->whereRaw('1 = 0'),
         };
-    }
-
-    private function queryMatriculados(Request $request): Builder
-    {
-        $query = Matricula::with(['estudiante', 'carrera', 'periodo']);
-
-        if ($request->filled('periodo_id')) {
-            $query->where('periodo_id', $request->periodo_id);
-        }
-        if ($request->filled('carrera_id')) {
-            $query->where('carrera_id', $request->carrera_id);
-        }
-
-        return $query->orderBy('id');
     }
 
     private function queryFaltas(Request $request): Builder
@@ -117,15 +98,6 @@ class ReporteController extends Controller
         // un estudiante/materia/carrera eliminado) ya no rompe el reporte
         // completo con un error 500; la celda queda en '—'.
         return match ($tipo) {
-            'matriculados' => [
-                $model->estudiante?->cedula ?? '—',
-                $model->estudiante?->name ?? '—',
-                $model->estudiante?->email ?? '—',
-                $model->carrera?->nombre ?? '—',
-                $model->periodo?->nombre ?? '—',
-                $model->estado,
-                $model->fecha_matricula?->format('Y-m-d') ?? '—',
-            ],
             'faltas' => [
                 $model->carrera?->nombre ?? '—',
                 $model->periodo?->nombre ?? '—',
@@ -161,9 +133,9 @@ class ReporteController extends Controller
      */
     public function index(Request $request): Response
     {
-        $tipo = $request->input('tipo', 'matriculados');
+        $tipo = $request->input('tipo', 'faltas');
         if (!array_key_exists($tipo, $this->tiposDisponibles())) {
-            $tipo = 'matriculados';
+            $tipo = 'faltas';
         }
 
         $perPage = max(1, min(100, (int) $request->input('per_page', 15)));
@@ -187,7 +159,7 @@ class ReporteController extends Controller
 
     public function exportCsv(Request $request)
     {
-        $tipo = $request->input('tipo', 'matriculados');
+        $tipo = $request->input('tipo', 'faltas');
         $columnas = $this->columnas($tipo);
         $filas = $this->obtenerTodasLasFilas($tipo, $request);
         $filename = 'reporte_' . $tipo . '_' . now()->format('Ymd_His') . '.csv';
@@ -206,7 +178,7 @@ class ReporteController extends Controller
 
     public function exportXlsx(Request $request)
     {
-        $tipo = $request->input('tipo', 'matriculados');
+        $tipo = $request->input('tipo', 'faltas');
         $columnas = $this->columnas($tipo);
         $filas = $this->obtenerTodasLasFilas($tipo, $request);
         $filename = 'reporte_' . $tipo . '_' . now()->format('Ymd_His') . '.xlsx';
@@ -216,7 +188,7 @@ class ReporteController extends Controller
 
     public function exportPdf(Request $request)
     {
-        $tipo = $request->input('tipo', 'matriculados');
+        $tipo = $request->input('tipo', 'faltas');
         $titulo = $this->tituloReporte($tipo);
         $columnas = $this->columnas($tipo);
         $filas = $this->obtenerTodasLasFilas($tipo, $request);

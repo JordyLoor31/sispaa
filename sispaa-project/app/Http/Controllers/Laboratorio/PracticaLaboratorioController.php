@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Traits\HasBreadcrumbs;
 use App\Models\Admin\PeriodoAcademico;
 use App\Models\Docencia\Materia;
-use App\Models\Estudiantes\Matricula;
 use App\Models\Laboratorio\AsistenciaPractica;
 use App\Models\Laboratorio\Equipo;
 use App\Models\Laboratorio\Laboratorio;
@@ -204,8 +203,8 @@ class PracticaLaboratorioController extends Controller
     }
 
     /**
-     * Asistencia de una práctica puntual: roster de estudiantes matriculados
-     * en la misma carrera/período de la materia de la práctica.
+     * Asistencia de una práctica puntual: roster de estudiantes del sistema
+     * que pertenecen a la misma carrera de la materia de la práctica.
      */
     public function asistencia(PracticaLaboratorio $practica): Response
     {
@@ -213,17 +212,15 @@ class PracticaLaboratorioController extends Controller
 
         $practica->load('materia.carrera');
 
-        $estudianteIds = Matricula::where('carrera_id', $practica->materia->carrera_id)
-            ->where('periodo_id', $practica->periodo_id)
-            ->pluck('estudiante_id');
-
         $asistenciasExistentes = $practica->asistencias()->pluck('asistio', 'estudiante_id');
 
-        $roster = User::whereIn('id', $estudianteIds)->orderBy('name')->get(['id', 'name'])->map(fn ($e) => [
-            'id' => $e->id,
-            'name' => $e->name,
-            'asistio' => (bool) ($asistenciasExistentes[$e->id] ?? false),
-        ]);
+        $roster = User::where('carrera_id', $practica->materia->carrera_id)
+            ->whereHas('roles', fn ($q) => $q->where('name', 'estudiante'))
+            ->orderBy('name')->get(['id', 'name'])->map(fn ($e) => [
+                'id' => $e->id,
+                'name' => $e->name,
+                'asistio' => (bool) ($asistenciasExistentes[$e->id] ?? false),
+            ]);
 
         return Inertia::render('Laboratorio/Asistencia', [
             'practica' => [
