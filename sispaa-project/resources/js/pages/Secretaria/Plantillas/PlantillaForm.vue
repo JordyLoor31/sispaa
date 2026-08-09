@@ -12,6 +12,7 @@ const isEditing = !!props.plantilla;
 
 const form = useForm({
     nombre_doc: props.plantilla?.nombre_doc ?? '',
+    descripcion: props.plantilla?.descripcion ?? '',
     archivo: null as File | null,
 });
 
@@ -57,6 +58,17 @@ const submit = () => {
                 class="h-11 w-full rounded-lg border px-3 text-sm text-[var(--sispaa-text)] bg-[color:color-mix(in_srgb,var(--sispaa-surface)_22%,var(--sispaa-background))] border-[color:color-mix(in_srgb,var(--sispaa-text)_18%,transparent)] focus:border-[var(--sispaa-primary)] focus:outline-none focus:ring-2 focus:ring-[color:color-mix(in_srgb,var(--sispaa-primary)_30%,transparent)]"
             />
             <p v-if="form.errors.nombre_doc" class="text-xs text-rose-500 mt-1">{{ form.errors.nombre_doc }}</p>
+        </div>
+
+        <div>
+            <label class="block text-sm font-semibold text-[var(--sispaa-text)] mb-1.5">Descripción</label>
+            <textarea
+                v-model="form.descripcion"
+                rows="3"
+                placeholder="Explica brevemente para qué sirve este formato (ej. 'Para solicitar el certificado de matrícula del periodo en curso')..."
+                class="w-full rounded-lg border px-3 py-2.5 text-sm text-[var(--sispaa-text)] bg-[color:color-mix(in_srgb,var(--sispaa-surface)_22%,var(--sispaa-background))] border-[color:color-mix(in_srgb,var(--sispaa-text)_18%,transparent)] focus:border-[var(--sispaa-primary)] focus:outline-none focus:ring-2 focus:ring-[color:color-mix(in_srgb,var(--sispaa-primary)_30%,transparent)]"
+            />
+            <p v-if="form.errors.descripcion" class="text-xs text-rose-500 mt-1">{{ form.errors.descripcion }}</p>
         </div>
 
         <div>

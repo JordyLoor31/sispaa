@@ -30,6 +30,7 @@ class PlantillaDocumentoController extends Controller
         return [
             'id' => $p->id,
             'nombre_doc' => $p->nombre_doc,
+            'descripcion' => $p->descripcion,
             'ver_url' => route('plantillas.descargar', $p->id),
             'creado_por' => $p->creator?->name,
             'created_at' => $p->created_at?->format('d/m/Y H:i'),
@@ -46,7 +47,8 @@ class PlantillaDocumentoController extends Controller
         $query = PlantillaDocumento::with(['creator', 'updater']);
 
         if ($q) {
-            $query->where('nombre_doc', 'ilike', "%{$q}%");
+            $query->where('nombre_doc', 'ilike', "%{$q}%")
+                ->orWhere('descripcion', 'ilike', "%{$q}%");
         }
 
         $plantillas = $query->orderByDesc('id')
@@ -72,6 +74,7 @@ class PlantillaDocumentoController extends Controller
     {
         $request->validate([
             'nombre_doc' => 'required|string|max:255',
+            'descripcion' => 'nullable|string|max:1000',
             'archivo' => 'required|file|mimes:pdf,doc,docx,xls,xlsx|max:10240',
         ]);
 
@@ -79,6 +82,7 @@ class PlantillaDocumentoController extends Controller
 
         PlantillaDocumento::create([
             'nombre_doc' => $request->nombre_doc,
+            'descripcion' => $request->descripcion,
             'url_doc' => '/storage/' . $path,
         ]);
 
@@ -97,10 +101,14 @@ class PlantillaDocumentoController extends Controller
     {
         $request->validate([
             'nombre_doc' => 'required|string|max:255',
+            'descripcion' => 'nullable|string|max:1000',
             'archivo' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx|max:10240',
         ]);
 
-        $data = ['nombre_doc' => $request->nombre_doc];
+        $data = [
+            'nombre_doc' => $request->nombre_doc,
+            'descripcion' => $request->descripcion,
+        ];
 
         if ($request->hasFile('archivo')) {
             $data['url_doc'] = '/storage/' . $request->file('archivo')->store('plantillas', 'public');

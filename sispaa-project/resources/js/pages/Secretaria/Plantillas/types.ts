@@ -1,6 +1,7 @@
 export interface PlantillaItem {
     id: number;
     nombre_doc: string;
+    descripcion: string | null;
     ver_url: string;
     creado_por: string | null;
     created_at: string | null;

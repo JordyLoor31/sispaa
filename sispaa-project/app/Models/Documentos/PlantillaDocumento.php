@@ -20,6 +20,7 @@ class PlantillaDocumento extends Model
 
     protected $fillable = [
         'nombre_doc',
+        'descripcion',
         'url_doc',
     ];
 
