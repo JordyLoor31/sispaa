@@ -48,12 +48,18 @@ class PerfilEstudianteController extends Controller
         return Facultad::where('activa', true)->orderBy('id')->first();
     }
 
-    private function resolverEstudiante(Request $request, ?User $estudiante): User
+    /**
+     * @param  list<string>  $rolesAdicionales  Roles staff con acceso de lectura
+     *                                           a este perfil (ver show()).
+     */
+    private function resolverEstudiante(Request $request, ?User $estudiante, array $rolesAdicionales = []): User
     {
         $estudiante = $estudiante ?? $request->user();
 
         abort_unless(
-            $estudiante->id === $request->user()->id || $request->user()->hasRole('SystemAdministrador'),
+            $estudiante->id === $request->user()->id
+                || $request->user()->hasRole('SystemAdministrador')
+                || $request->user()->hasAnyRole($rolesAdicionales),
             403
         );
 
@@ -89,23 +95,27 @@ class PerfilEstudianteController extends Controller
     }
 
     /**
-     * Vista de solo lectura para Secretaría/SystemAdministrador: se llega
-     * desde el data table de Usuarios (Admin/Usuarios/Show.vue) con el
-     * botón "Ver Datos Adicionales", no desde un listado propio del módulo.
+     * Vista de solo lectura del perfil de un estudiante. Se llega desde:
+     * - Admin/Usuarios/Show.vue con el botón "Ver Datos Adicionales" (SysAdmin).
+     * - Estudiantes/Index.vue con "Ver datos personales" (staff).
      */
     public function show(Request $request, ?User $estudiante = null): Response
     {
-        $estudiante = $this->resolverEstudiante($request, $estudiante);
+        $estudiante = $this->resolverEstudiante($request, $estudiante, ['secretaria', 'coordinador', 'docente']);
         $this->cargarDetalle($estudiante);
 
-        return Inertia::render('Estudiantes/Perfil/Show', [
-            'estudiante' => $this->serializarDetalle($estudiante),
-            'breadcrumbs' => $this->adminBreadcrumbs(
+        $breadcrumbs = $request->routeIs('estudiantes.perfil')
+            ? $this->estudiantesBreadcrumbs('Estudiantes', 'Datos Personales', route('estudiantes.index'), $estudiante->name)
+            : $this->adminBreadcrumbs(
                 'Usuarios',
                 'Datos Adicionales',
                 route('admin.usuarios.show', $estudiante->id),
                 $estudiante->name,
-            ),
+            );
+
+        return Inertia::render('Estudiantes/Perfil/Show', [
+            'estudiante' => $this->serializarDetalle($estudiante),
+            'breadcrumbs' => $breadcrumbs,
         ]);
     }
 

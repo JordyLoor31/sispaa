@@ -13,7 +13,11 @@ const props = defineProps<{
 
 const formatDateTime = (date?: string) => {
     if (!date) return '—';
-    return new Date(date).toLocaleString('es-EC', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    const d = new Date(date);
+    if (Number.isNaN(d.getTime())) return date;
+    const datePart = d.toLocaleDateString('es-EC', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    const timePart = d.toLocaleTimeString('es-EC', { hour: '2-digit', minute: '2-digit', hour12: false });
+    return `${datePart} ${timePart}`;
 };
 </script>
 
@@ -68,7 +72,7 @@ const formatDateTime = (date?: string) => {
                     <h4 class="text-xs font-bold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)]">Ventana de fechas</h4>
                     <p class="mt-2 flex items-center gap-1.5 text-sm font-semibold text-[var(--sispaa-text)]">
                         <Calendar class="h-3.5 w-3.5 opacity-50" />
-                        {{ convocatoria.fecha_inicio }} — {{ convocatoria.fecha_fin }}
+                        {{ formatDateTime(convocatoria.fecha_inicio) }} — {{ formatDateTime(convocatoria.fecha_fin) }}
                     </p>
                 </div>
             </div>

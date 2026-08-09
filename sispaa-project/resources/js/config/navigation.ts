@@ -30,7 +30,7 @@ export const dashboardNavItem: NavItem = {
 export const revisionDocumentosNavItems: NavItem[] = [
     { title: 'Sílabos', href: route('coordinador.silabos.index') },
     { title: 'Informes de Asignatura', href: route('secretaria.informes.index') },
-    { title: 'Expediente / Documentos del Estudiante', href: route('secretaria.expediente.index') },
+    { title: 'Expediente / Documentos del Estudiante', href: route('estudiantes.index') },
 ];
 
 /** Exclusivo de SystemAdministrador (gestión del sistema en sí). */
@@ -131,26 +131,18 @@ const TITULOS_YA_CUBIERTOS_COORDINADOR_EN_VISTA_ADMIN = new Set(['Revisión de S
 export const coordinadorAdminOverviewNavItems: NavItem[] = coordinadorNavItems
     .filter((item) => !TITULOS_YA_CUBIERTOS_COORDINADOR_EN_VISTA_ADMIN.has(item.title));
 
-/** Rol Secretaría: expediente SGA, justificaciones, convocatorias y grupos de
- *  documentos. */
+/** Rol Secretaría: expediente de estudiantes (index + show), justificaciones,
+ *  convocatorias y grupos de documentos. */
 export const secretariaNavItems: NavItem[] = [
     {
-        title: 'Expediente SGA',
-        href: route('secretaria.expediente.index'),
-        icon: FileText,
+        title: 'Estudiantes',
+        href: route('estudiantes.index'),
+        icon: Book,
     },
     {
         title: 'Titulación',
         href: route('titulacion.index'),
         icon: GraduationCap,
-    },
-    {
-        title: 'Estudiantes',
-        href: route('estudiantes.index'),
-        icon: Book,
-        items: [
-            { title: 'Estudiantes', href: route('estudiantes.index') },
-        ],
     },
     {
         title: 'Faltas Semanales',
@@ -199,16 +191,9 @@ export const secretariaNavItems: NavItem[] = [
  * filtro/map para no desincronizarse si secretariaNavItems cambia; este
  * array queda intacto para el personal real de Secretaría (navByRole).
  */
-const TITULOS_YA_CUBIERTOS_EN_VISTA_ADMIN = new Set(['Expediente SGA', 'Titulación']);
-const SUBITEMS_ESTUDIANTES_YA_CUBIERTOS_EN_VISTA_ADMIN = new Set(['Estudiantes']);
+const TITULOS_YA_CUBIERTOS_EN_VISTA_ADMIN = new Set(['Titulación']);
 export const secretariaAdminOverviewNavItems: NavItem[] = secretariaNavItems
-    .filter((item) => !TITULOS_YA_CUBIERTOS_EN_VISTA_ADMIN.has(item.title))
-    .map((item) => {
-        if (item.title === 'Estudiantes' && item.items) {
-            return { ...item, items: item.items.filter((sub) => !SUBITEMS_ESTUDIANTES_YA_CUBIERTOS_EN_VISTA_ADMIN.has(sub.title)) };
-        }
-        return item;
-    });
+    .filter((item) => !TITULOS_YA_CUBIERTOS_EN_VISTA_ADMIN.has(item.title));
 
 /** Rol Estudiante: portal propio del estudiante. */
 export const estudianteNavItems: NavItem[] = [

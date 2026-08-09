@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Estudiantes\EstudianteController;
+use App\Http\Controllers\Estudiantes\PerfilEstudianteController;
 use App\Http\Controllers\Docencia\DocenteController;
 use App\Http\Controllers\Docencia\SilaboController;
 use App\Http\Controllers\Investigacion\InvestigacionController;
@@ -35,8 +36,7 @@ Route::get('dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 
-// NOTIFICACIONES (centro compartido de staff: docente/coordinador/secretaría/
-// SystemAdministrador; el estudiante tiene el suyo propio bajo 'estudiante/notificaciones')
+// NOTIFICACIONES (staff; el estudiante tiene las suyas bajo 'estudiante/notificaciones')
 Route::middleware(['auth', 'verified', 'role:docente|coordinador|secretaria|SystemAdministrador'])
     ->prefix('notificaciones')
     ->name('notificaciones.')
@@ -47,10 +47,7 @@ Route::middleware(['auth', 'verified', 'role:docente|coordinador|secretaria|Syst
     });
 
 
-// ESTUDIANTES (gestión/staff: coordinador y secretaría ven el listado
-// institucional de estudiantes del sistema). El reporte de faltas ya no es
-// individual por estudiante: ver secretaria.faltas-semanales.* y el gráfico
-// "Faltas por carrera" en Reportes. Las matrículas se retiraron del sistema.
+// ESTUDIANTES (listado institucional de estudiantes del sistema)
 Route::middleware(['auth', 'verified', 'role:coordinador|secretaria|docente|SystemAdministrador'])
     ->prefix('estudiantes')
     ->name('estudiantes.')
@@ -58,13 +55,14 @@ Route::middleware(['auth', 'verified', 'role:coordinador|secretaria|docente|Syst
 
         Route::get('/', [EstudianteController::class, 'index'])
             ->name('index');
+        Route::get('/{estudiante}', [EstudianteController::class, 'show'])
+            ->name('show');
+        Route::get('/{estudiante}/perfil', [PerfilEstudianteController::class, 'show'])
+            ->name('perfil');
+        Route::patch('/{estudiante}/documentos/{documento}/review', [EstudianteController::class, 'review'])
+            ->name('review');
     });
 
-
-// Nota: la vista de gestión/supervisión de Informes de Asignatura (todos los
-// docentes) vivía aquí como docencia.informes-asignaturas. Se reemplazó por
-// secretaria.informes.* (InformeRevisionController), que sigue el mismo
-// patrón Index+Show con revisión que Sílabos/Justificaciones.
 
 // DOCENCIA - Autoservicio del Docente (Mis Sílabos / Mis Informes)
 Route::middleware(['auth', 'verified', 'role:docente|SystemAdministrador'])
@@ -156,19 +154,9 @@ Route::middleware(['auth', 'verified', 'role:docente|SystemAdministrador'])
     });
 
 
-// TITULACIÓN (panel único del coordinador; consolida temas/en-proceso/graduados)
-// Ver (index/show): coordinador y SystemAdministrador ven todos los procesos;
-// secretaría también ve todos (solo lectura); docente ve únicamente los
-// procesos donde él es el tutor asignado (scoping en el controlador).
-// Gestionar (crear/editar/eliminar/cambiar estado): solo coordinador y
-// SystemAdministrador, como antes.
-// Escritura (coordinador/SystemAdministrador). IMPORTANTE: este grupo va
-// ANTES del de lectura para que la ruta literal '/crear' se registre antes
-// que la comodín '/{titulacion}' (show); si no, Laravel interpreta "crear"
-// como un id de titulación y devuelve 404 al abrir "Registrar Tema".
-// COORDINADOR - Revisión de Sílabos: exclusivo de coordinador/SystemAdministrador
-// (secretaría ya no tiene acceso). Coordinador y SystemAdministrador ven y
-// revisan los sílabos de CUALQUIER docente, sin acotar por carrera.
+// TITULACIÓN. Escritura (coordinador/SystemAdministrador): este grupo va ANTES
+// del de lectura para que '/crear' se registre antes que la comodín '/{titulacion}'.
+// COORDINADOR - Revisión de Sílabos (exclusivo coordinador/SystemAdministrador).
 Route::middleware(['auth', 'verified', 'role:coordinador|SystemAdministrador'])
     ->prefix('coordinador/silabos')
     ->name('coordinador.silabos.')
@@ -247,10 +235,9 @@ Route::middleware(['auth', 'verified', 'role:secretaria|SystemAdministrador'])
     });
 
 
-// PORTAL DEL ESTUDIANTE (Rutas específicas para el estudiante)
-// Nota: 'role:' de Spatie no respeta el Gate::before bypass de SystemAdministrador
-// (ese bypass solo cubre Gate::allows()/permission:), por eso se agrega explícitamente
-// como alternativa aquí para que pueda entrar a cualquier vista que ve en el Sidebar.
+// PORTAL DEL ESTUDIANTE
+// 'role:' de Spatie no respeta el bypass Gate::before de SystemAdministrador, por
+// eso se agrega explícitamente como alternativa para que vea el portal.
 Route::middleware(['auth', 'verified', 'role:estudiante|SystemAdministrador'])
     ->prefix('estudiante')
     ->name('student.')
@@ -260,20 +247,19 @@ Route::middleware(['auth', 'verified', 'role:estudiante|SystemAdministrador'])
 
         Route::get('/titulacion', [\App\Http\Controllers\Estudiantes\StudentPortalController::class, 'titulacion'])->name('titulacion');
 
-        // Plantillas de Documentos publicadas por Secretaría (solo lectura +
-        // descarga; la descarga en sí vive en la ruta compartida plantillas.descargar).
+        // Plantillas de Documentos (solo lectura; la descarga vive en plantillas.descargar)
         Route::get('/plantillas', [\App\Http\Controllers\Estudiantes\StudentPortalController::class, 'plantillas'])->name('plantillas');
 
         Route::get('/perfil', [\App\Http\Controllers\Estudiantes\StudentPortalController::class, 'perfil'])->name('perfil');
 
-        // "Mis Datos": vista de solo lectura con todo lo completado en el wizard
+        // "Mis Datos": vista de solo lectura de lo completado en el wizard
         Route::get('/perfil/datos', [\App\Http\Controllers\Estudiantes\PerfilEstudianteController::class, 'misDatos'])->name('perfil.show');
 
-        // Wizard "Completar mi perfil" (perfiles_estudiantes + estudiante_datos_adicionales)
+        // Wizard "Completar mi perfil"
         Route::get('/perfil/editar', [\App\Http\Controllers\Estudiantes\PerfilEstudianteController::class, 'edit'])->name('perfil.edit');
         Route::put('/perfil', [\App\Http\Controllers\Estudiantes\PerfilEstudianteController::class, 'update'])->name('perfil.update');
 
-        // Familiares/representantes (estudiante_familiares), CRUD inline dentro del paso 4 del wizard
+        // Familiares/representantes (CRUD inline en el paso 4 del wizard)
         Route::post('/perfil/familiares', [\App\Http\Controllers\Estudiantes\EstudianteFamiliarController::class, 'store'])->name('familiares.store');
         Route::put('/perfil/familiares/{familiar}', [\App\Http\Controllers\Estudiantes\EstudianteFamiliarController::class, 'update'])->name('familiares.update');
         Route::delete('/perfil/familiares/{familiar}', [\App\Http\Controllers\Estudiantes\EstudianteFamiliarController::class, 'destroy'])->name('familiares.destroy');
@@ -283,12 +269,12 @@ Route::middleware(['auth', 'verified', 'role:estudiante|SystemAdministrador'])
         Route::get('/notificaciones/recientes', [\App\Http\Controllers\Estudiantes\StudentPortalController::class, 'recientesNotificaciones'])->name('notificaciones.recientes');
     });
 
-// PORTAL DEL ADMINISTRADOR (Rutas específicas para SystemAdministrador)
+// PORTAL DEL ADMINISTRADOR
 Route::middleware(['auth', 'verified', 'role:SystemAdministrador'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
-        // Gestión de Usuarios (CRUD completo, ver UserController)
+        // Gestión de Usuarios
         Route::get('/usuarios', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('usuarios.index');
         Route::get('/usuarios/crear', [\App\Http\Controllers\Admin\UserController::class, 'create'])->name('usuarios.create');
         Route::post('/usuarios', [\App\Http\Controllers\Admin\UserController::class, 'store'])->name('usuarios.store');
@@ -297,7 +283,7 @@ Route::middleware(['auth', 'verified', 'role:SystemAdministrador'])
         Route::put('/usuarios/{user}', [\App\Http\Controllers\Admin\UserController::class, 'update'])->name('usuarios.update');
         Route::post('/usuarios/{user}/toggle-status', [\App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])->name('usuarios.toggle-status');
 
-        // Carreras (CRUD completo, ver CarreraController)
+        // Carreras
         Route::get('/carreras', [\App\Http\Controllers\Admin\CarreraController::class, 'index'])->name('carreras.index');
         Route::get('/carreras/crear', [\App\Http\Controllers\Admin\CarreraController::class, 'create'])->name('carreras.create');
         Route::post('/carreras', [\App\Http\Controllers\Admin\CarreraController::class, 'store'])->name('carreras.store');
@@ -313,9 +299,7 @@ Route::middleware(['auth', 'verified', 'role:SystemAdministrador'])
         Route::delete('/materias/{materia}', [\App\Http\Controllers\Admin\AdminPortalController::class, 'materiaDestroy'])->name('materias.destroy');
         Route::post('/materias/{materia}/toggle-status', [\App\Http\Controllers\Admin\AdminPortalController::class, 'materiaToggleStatus'])->name('materias.toggle-status');
 
-        // Gestión de Periodos (CRUD completo, ver PeriodoAcademicoController).
-        // Reemplaza la antigua pantalla "Fechas y Convocatorias": aquí se crea
-        // y edita el periodo junto con sus fechas límite de sílabos/informes.
+        // Gestión de Periodos (con fechas límite de sílabos/informes)
         Route::get('/periodos', [\App\Http\Controllers\Admin\PeriodoAcademicoController::class, 'index'])->name('periodos.index');
         Route::get('/periodos/crear', [\App\Http\Controllers\Admin\PeriodoAcademicoController::class, 'create'])->name('periodos.create');
         Route::post('/periodos', [\App\Http\Controllers\Admin\PeriodoAcademicoController::class, 'store'])->name('periodos.store');
@@ -325,11 +309,7 @@ Route::middleware(['auth', 'verified', 'role:SystemAdministrador'])
         Route::post('/periodos/{periodo}/activar', [\App\Http\Controllers\Admin\PeriodoAcademicoController::class, 'activate'])->name('periodos.activate');
         Route::post('/periodos/{periodo}/finalizar', [\App\Http\Controllers\Admin\PeriodoAcademicoController::class, 'finalize'])->name('periodos.finalize');
 
-        // Datos adicionales de un estudiante (solo lectura): se llega desde
-        // Admin/Usuarios/Show.vue con el botón "Ver Datos Adicionales", no
-        // desde un listado propio. {estudiante} llega ya resuelto por route
-        // model binding al mismo PerfilEstudianteController que usa el
-        // wizard de autoservicio.
+        // Datos adicionales de un estudiante (solo lectura, ver Admin/Usuarios/Show.vue)
         Route::get('/estudiantes/perfiles/{estudiante}', [\App\Http\Controllers\Estudiantes\PerfilEstudianteController::class, 'show'])->name('estudiantes.perfiles.show');
     });
 
@@ -340,17 +320,7 @@ Route::middleware(['auth', 'verified', 'role:secretaria|SystemAdministrador'])
     ->name('secretaria.')
     ->group(function () {
 
-        // Expediente SGA
-        Route::get('/expediente', [\App\Http\Controllers\Secretaria\ExpedienteController::class, 'index'])
-            ->name('expediente.index');
-        Route::get('/expediente/{documento}', [\App\Http\Controllers\Secretaria\ExpedienteController::class, 'show'])
-            ->name('expediente.show');
-        Route::patch('/expediente/{documento}/review', [\App\Http\Controllers\Secretaria\ExpedienteController::class, 'review'])
-            ->name('expediente.review');
-
-        // Faltas Semanales por Carrera (reemplaza el antiguo flujo de
-        // justificaciones individuales de faltas: ahora Secretaría solo
-        // registra un número agregado de faltas por carrera y semana).
+        // Faltas Semanales por Carrera (número agregado por carrera y semana)
         Route::get('/faltas-semanales', [\App\Http\Controllers\Secretaria\FaltaSemanalController::class, 'index'])
             ->name('faltas-semanales.index');
         Route::get('/faltas-semanales/crear', [\App\Http\Controllers\Secretaria\FaltaSemanalController::class, 'create'])
@@ -394,11 +364,7 @@ Route::middleware(['auth', 'verified', 'role:secretaria|SystemAdministrador'])
         Route::post('/grupos-documentos/{grupo}/toggle', [\App\Http\Controllers\Secretaria\GrupoDocumentoController::class, 'toggle'])
             ->name('grupos-documentos.toggle');
 
-        // Revisión de Sílabos: se movió a coordinador.silabos.* (ver más abajo,
-        // grupo "COORDINADOR - Revisión de Sílabos"). Secretaría ya no tiene
-        // acceso a este módulo.
-
-        // Revisión de Informes de Asignatura (mismo patrón que Sílabos)
+        // Revisión de Informes de Asignatura
         Route::get('/informes', [\App\Http\Controllers\Secretaria\InformeRevisionController::class, 'index'])
             ->name('informes.index');
         Route::get('/informes/{informe}', [\App\Http\Controllers\Secretaria\InformeRevisionController::class, 'show'])
@@ -408,8 +374,7 @@ Route::middleware(['auth', 'verified', 'role:secretaria|SystemAdministrador'])
         Route::get('/informes/{informe}/ver', [\App\Http\Controllers\Secretaria\InformeRevisionController::class, 'ver'])
             ->name('informes.ver');
 
-        // Asignación de Docentes (vincula docente + materia + período + grupo;
-        // alimenta Mis Sílabos/Mis Informes/Mis Estudiantes/Titulación del docente)
+        // Asignación de Docentes (docente + materia + período + grupo)
         Route::get('/asignaciones-docente', [\App\Http\Controllers\Secretaria\AsignacionDocenteController::class, 'index'])
             ->name('asignaciones-docente.index');
         Route::get('/asignaciones-docente/crear', [\App\Http\Controllers\Secretaria\AsignacionDocenteController::class, 'create'])
@@ -423,9 +388,7 @@ Route::middleware(['auth', 'verified', 'role:secretaria|SystemAdministrador'])
         Route::delete('/asignaciones-docente/{asignacion}', [\App\Http\Controllers\Secretaria\AsignacionDocenteController::class, 'destroy'])
             ->name('asignaciones-docente.destroy');
 
-        // Plantillas de Documentos (formatos institucionales que sube
-        // Secretaría y cualquier estudiante puede descargar desde su portal;
-        // ver también la ruta compartida plantillas.descargar más abajo).
+        // Plantillas de Documentos (formatos institucionales para descargar)
         Route::get('/plantillas', [\App\Http\Controllers\Secretaria\PlantillaDocumentoController::class, 'index'])
             ->name('plantillas.index');
         Route::get('/plantillas/crear', [\App\Http\Controllers\Secretaria\PlantillaDocumentoController::class, 'create'])
@@ -440,25 +403,19 @@ Route::middleware(['auth', 'verified', 'role:secretaria|SystemAdministrador'])
             ->name('plantillas.destroy');
     });
 
-// Descarga de Plantillas de Documentos: compartida entre Secretaría (las
-// administra) y cualquier estudiante (las descarga desde su portal, ver
-// student.plantillas). No es información sensible por estudiante, así que
-// basta con estar autenticado (sin restricción de rol).
+// Descarga de Plantillas: compartida entre Secretaría (las administra) y
+// cualquier estudiante (las descarga). Basta estar autenticado.
 Route::middleware(['auth', 'verified'])
     ->get('/plantillas/{plantilla}/descargar', [\App\Http\Controllers\Secretaria\PlantillaDocumentoController::class, 'descargar'])
     ->name('plantillas.descargar');
 
-// Archivos SENSIBLES por estudiante (expediente): datos personales servidos
-// desde el disco privado con control de acceso en el controlador (dueño o
-// Secretaría/SystemAdministrador). No es un simple gate por rol, por eso
-// solo lleva 'auth'/'verified' aquí.
+// Archivos SENSIBLES por estudiante (expediente): disco privado con control
+// de acceso en el controlador (dueño o Secretaría/SystemAdministrador).
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/documentos/{documento}/archivo', [\App\Http\Controllers\Documentos\DocumentoEstudianController::class, 'documento'])
         ->name('documentos.archivo');
 });
 
-
-// ARCHIVOS EXTRA
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

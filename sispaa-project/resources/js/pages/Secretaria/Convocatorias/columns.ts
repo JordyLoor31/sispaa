@@ -8,6 +8,14 @@ const estadoBadge = (activa: boolean) =>
         ? 'bg-[color:color-mix(in_srgb,var(--sispaa-secondary)_30%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-secondary)_55%,var(--sispaa-text))]'
         : 'bg-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-text)_60%,transparent)]';
 
+const formatDateTime = (value: string) => {
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return value;
+    const date = d.toLocaleDateString('es-EC', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    const time = d.toLocaleTimeString('es-EC', { hour: '2-digit', minute: '2-digit', hour12: false });
+    return `${date} ${time}`;
+};
+
 export function makeConvocatoriaColumns(): ColumnDef<Convocatoria>[] {
     return [
         {
@@ -30,7 +38,7 @@ export function makeConvocatoriaColumns(): ColumnDef<Convocatoria>[] {
             id: 'vigencia',
             header: 'Vigencia',
             cell: ({ row }) =>
-                h('span', { class: 'text-xs opacity-60 text-[var(--sispaa-text)]' }, `${row.original.fecha_inicio} — ${row.original.fecha_fin}`),
+                h('span', { class: 'text-xs opacity-60 text-[var(--sispaa-text)]' }, `${formatDateTime(row.original.fecha_inicio)} — ${formatDateTime(row.original.fecha_fin)}`),
         },
         {
             id: 'estado',

@@ -61,7 +61,7 @@ class DocumentoEstudiante extends Model
      * (documentos.archivo) que lo sirve desde el disco privado con control
      * de acceso, NO a /storage/... (que sería público). El nombre del
      * accessor se mantiene como "archivo_publico_url" (con "o") porque así lo
-     * consumen ExpedienteController y StudentPortalController.
+     * consumen EstudianteController y StudentPortalController.
      */
     public function getArchivoPublicoUrlAttribute(): ?string
     {
