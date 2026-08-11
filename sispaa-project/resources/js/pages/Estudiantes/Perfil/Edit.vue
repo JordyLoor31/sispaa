@@ -1161,7 +1161,7 @@ const comboboxListClass = 'w-[var(--reka-combobox-trigger-width)] min-w-[220px] 
                         Aún no has agregado ningún familiar. Agrega al menos uno con el formulario de abajo antes de finalizar tu perfil.
                     </div>
 
-                    <div class="overflow-hidden rounded-xl border border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
+                    <div class="overflow-x-auto rounded-xl border border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
                         <Table>
                             <TableHeader>
                                 <TableRow v-for="headerGroup in familiarTable.getHeaderGroups()" :key="headerGroup.id">

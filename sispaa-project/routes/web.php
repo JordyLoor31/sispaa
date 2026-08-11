@@ -60,6 +60,7 @@ Route::middleware(['auth', 'verified', 'role:coordinador|secretaria|docente|Syst
         Route::get('/{estudiante}/perfil', [PerfilEstudianteController::class, 'show'])
             ->name('perfil');
         Route::patch('/{estudiante}/documentos/{documento}/review', [EstudianteController::class, 'review'])
+            ->middleware('role:secretaria|SystemAdministrador')
             ->name('review');
     });
 
@@ -361,6 +362,8 @@ Route::middleware(['auth', 'verified', 'role:secretaria|SystemAdministrador'])
             ->name('grupos-documentos.show');
         Route::post('/grupos-documentos/{grupo}/requisitos', [\App\Http\Controllers\Secretaria\GrupoDocumentoController::class, 'requisitoStore'])
             ->name('grupos-documentos.requisitos.store');
+        Route::put('/grupos-documentos/requisitos/{requisito}', [\App\Http\Controllers\Secretaria\GrupoDocumentoController::class, 'requisitoUpdate'])
+            ->name('grupos-documentos.requisitos.update');
         Route::post('/grupos-documentos/{grupo}/toggle', [\App\Http\Controllers\Secretaria\GrupoDocumentoController::class, 'toggle'])
             ->name('grupos-documentos.toggle');
 

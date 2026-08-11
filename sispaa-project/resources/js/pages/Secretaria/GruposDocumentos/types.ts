@@ -6,6 +6,7 @@ export interface AuditUser {
 export interface Requisito {
     id: number;
     nombre: string;
+    formatos_permitidos?: string[] | null;
     orden: number;
     activo: boolean;
 }

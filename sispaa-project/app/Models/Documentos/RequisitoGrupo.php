@@ -14,6 +14,7 @@ class RequisitoGrupo extends Model
     protected $fillable = [
         'grupo_id',
         'nombre',
+        'formatos_permitidos',
         'orden',
         'activo',
     ];
@@ -21,6 +22,7 @@ class RequisitoGrupo extends Model
     protected $casts = [
         'activo' => 'boolean',
         'orden' => 'integer',
+        'formatos_permitidos' => 'array',
     ];
 
     public function grupo()

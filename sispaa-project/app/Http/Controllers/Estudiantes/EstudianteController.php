@@ -139,10 +139,15 @@ class EstudianteController extends Controller
     }
 
     /**
-     * Aprueba o rechaza un documento del expediente de un estudiante.
+     * Aprueba o rechaza un documento del expediente de un estudiante. El
+     * parámetro $estudiante (route model binding del segmento {estudiante})
+     * debe declararse para que el dispatcher no asigne su valor (string) al
+     * parámetro $documento al despachar posicionalmente.
      */
-    public function review(Request $request, DocumentoEstudiante $documento)
+    public function review(Request $request, User $estudiante, DocumentoEstudiante $documento)
     {
+        abort_unless($documento->estudiante_id === $estudiante->id, 404);
+
         $request->validate([
             'accion' => 'required|in:aprobar,rechazar',
             'observacion' => 'nullable|string|max:500',

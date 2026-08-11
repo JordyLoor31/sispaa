@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Secretaria;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Traits\HasBreadcrumbs;
 use App\Models\Admin\Notificacion;
+use App\Models\Documentos\DocumentoEstudiante;
 use App\Models\Documentos\GrupoDocumento;
 use App\Models\Documentos\RequisitoGrupo;
 use App\Models\User;
@@ -25,6 +26,13 @@ use Inertia\Response;
 class GrupoDocumentoController extends Controller
 {
     use HasBreadcrumbs;
+
+    /**
+     * Extensiones aceptadas por el sistema al subir un documento del
+     * expediente. Cada requisito puede restringir este conjunto (ej. solo
+     * pdf); null significa "todas estas".
+     */
+    public const FORMATOS_PERMITIDOS = ['pdf', 'jpg', 'png', 'jpeg'];
 
     public function index(Request $request): Response
     {
@@ -59,6 +67,9 @@ class GrupoDocumentoController extends Controller
             'descripcion' => 'nullable|string|max:1000',
             'requisitos' => 'required|array|min:1',
             'requisitos.*' => 'required|string|max:255',
+            'requisitos_formatos' => 'nullable|array',
+            'requisitos_formatos.*' => 'array',
+            'requisitos_formatos.*.*' => 'in:' . implode(',', self::FORMATOS_PERMITIDOS),
         ]);
 
         $grupo = GrupoDocumento::create([
@@ -69,9 +80,12 @@ class GrupoDocumentoController extends Controller
         ]);
 
         foreach ($request->requisitos as $orden => $nombreRequisito) {
+            $formatos = $request->input("requisitos_formatos.{$orden}");
+
             RequisitoGrupo::create([
                 'grupo_id' => $grupo->id,
                 'nombre' => $nombreRequisito,
+                'formatos_permitidos' => !empty($formatos) ? array_values($formatos) : null,
                 'orden' => $orden,
                 'activo' => true,
             ]);
@@ -119,6 +133,8 @@ class GrupoDocumentoController extends Controller
     {
         $request->validate([
             'nombre' => 'required|string|max:255',
+            'formatos' => 'nullable|array',
+            'formatos.*' => 'in:' . implode(',', self::FORMATOS_PERMITIDOS),
         ]);
 
         $ordenMax = $grupo->requisitos()->max('orden') ?? -1;
@@ -126,10 +142,40 @@ class GrupoDocumentoController extends Controller
         RequisitoGrupo::create([
             'grupo_id' => $grupo->id,
             'nombre' => $request->nombre,
+            'formatos_permitidos' => !empty($request->formatos) ? array_values($request->formatos) : null,
             'orden' => $ordenMax + 1,
             'activo' => true,
         ]);
 
         return redirect()->back()->with('success', 'Requisito agregado al grupo.');
+    }
+
+    /**
+     * Edita un requisito (nombre y/o formatos permitidos). Si se renombra el
+     * requisito, los documentos ya cargados bajo él se actualizan para que el
+     * tipo_documento denormalizado no quede desincronizado.
+     */
+    public function requisitoUpdate(Request $request, RequisitoGrupo $requisito)
+    {
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+            'formatos' => 'nullable|array',
+            'formatos.*' => 'in:' . implode(',', self::FORMATOS_PERMITIDOS),
+        ]);
+
+        $nombreAnterior = $requisito->nombre;
+
+        $requisito->update([
+            'nombre' => $request->nombre,
+            'formatos_permitidos' => !empty($request->formatos) ? array_values($request->formatos) : null,
+        ]);
+
+        if ($nombreAnterior !== $request->nombre) {
+            DocumentoEstudiante::where('requisito_id', $requisito->id)
+                ->where('tipo_documento', $nombreAnterior)
+                ->update(['tipo_documento' => $request->nombre]);
+        }
+
+        return redirect()->back()->with('success', 'Requisito actualizado correctamente.');
     }
 }

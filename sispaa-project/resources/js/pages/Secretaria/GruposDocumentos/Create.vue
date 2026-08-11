@@ -11,12 +11,27 @@ import { Button } from '@/components/ui/button';
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupTextarea } from '@/components/ui/input-group';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'vue-sonner';
+import { FORMATOS_DOCUMENTO } from '@/lib/formatos-documento';
 
 defineProps<{
     breadcrumbs?: BreadcrumbItemType[];
 }>();
 
-const requisitosDraft = ref<string[]>(['']);
+interface RequisitoDraft {
+    nombre: string;
+    formatos: string[];
+}
+
+const requisitosDraft = ref<RequisitoDraft[]>([{ nombre: '', formatos: [] }]);
+
+const toggleFormato = (requisito: RequisitoDraft, ext: string) => {
+    const idx = requisito.formatos.indexOf(ext);
+    if (idx >= 0) {
+        requisito.formatos.splice(idx, 1);
+    } else {
+        requisito.formatos.push(ext);
+    }
+};
 
 const formSchema = toTypedSchema(
     z.object({
@@ -35,11 +50,14 @@ const { handleSubmit, setErrors } = useForm({
 
 const processing = ref(false);
 
-const addRequisitoField = () => requisitosDraft.value.push('');
+const addRequisitoField = () => requisitosDraft.value.push({ nombre: '', formatos: [] });
 const removeRequisitoField = (index: number) => requisitosDraft.value.splice(index, 1);
 
 const onSubmit = handleSubmit((values) => {
-    const requisitos = requisitosDraft.value.map((r) => r.trim()).filter((r) => r.length > 0);
+    const requisitos = requisitosDraft.value.map((r) => r.nombre.trim()).filter((r) => r.length > 0);
+    const requisitosFormatos = requisitosDraft.value
+        .filter((r) => r.nombre.trim().length > 0)
+        .map((r) => (r.formatos.length > 0 ? r.formatos : null));
 
     if (requisitos.length === 0) {
         toast.error('Agrega al menos un requisito.');
@@ -50,7 +68,7 @@ const onSubmit = handleSubmit((values) => {
 
     router.post(
         route('secretaria.grupos-documentos.store'),
-        { ...values, requisitos },
+        { ...values, requisitos, requisitos_formatos: requisitosFormatos },
         {
             preserveScroll: true,
             onSuccess: () => toast.success('Grupo creado y estudiantes notificados.'),
@@ -107,20 +125,37 @@ const onSubmit = handleSubmit((values) => {
 
                     <div>
                         <label class="mb-1.5 block text-sm font-semibold text-[var(--sispaa-text)]">Requisitos *</label>
-                        <div class="space-y-2">
-                            <div v-for="(_, index) in requisitosDraft" :key="index" class="flex items-center gap-2">
-                                <InputGroup>
-                                    <InputGroupAddon><ListChecks class="h-4 w-4" /></InputGroupAddon>
-                                    <InputGroupInput v-model="requisitosDraft[index]" type="text" placeholder="Ej: Cédula de identidad" />
-                                </InputGroup>
-                                <button
-                                    v-if="requisitosDraft.length > 1"
-                                    type="button"
-                                    class="shrink-0 rounded-lg p-2 opacity-50 text-[var(--sispaa-text)] hover:opacity-100 hover:bg-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]"
-                                    @click="removeRequisitoField(index)"
-                                >
-                                    <X class="h-4 w-4" />
-                                </button>
+                        <div class="space-y-3">
+                            <div v-for="(requisito, index) in requisitosDraft" :key="index" class="rounded-xl border p-3 space-y-2 border-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)] bg-[color:color-mix(in_srgb,var(--sispaa-surface)_35%,var(--sispaa-background))]">
+                                <div class="flex items-center gap-2">
+                                    <InputGroup>
+                                        <InputGroupAddon><ListChecks class="h-4 w-4" /></InputGroupAddon>
+                                        <InputGroupInput v-model="requisito.nombre" type="text" placeholder="Ej: Cédula de identidad" />
+                                    </InputGroup>
+                                    <button
+                                        v-if="requisitosDraft.length > 1"
+                                        type="button"
+                                        class="shrink-0 rounded-lg p-2 opacity-50 text-[var(--sispaa-text)] hover:opacity-100 hover:bg-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]"
+                                        @click="removeRequisitoField(index)"
+                                    >
+                                        <X class="h-4 w-4" />
+                                    </button>
+                                </div>
+                                <div class="flex flex-wrap items-center gap-2 pl-1">
+                                    <span class="text-xs font-semibold opacity-60 text-[var(--sispaa-text)]">Formatos permitidos:</span>
+                                    <label
+                                        v-for="f in FORMATOS_DOCUMENTO"
+                                        :key="f.ext"
+                                        class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold transition-colors"
+                                        :class="requisito.formatos.includes(f.ext)
+                                            ? 'border-[var(--sispaa-primary)] text-[var(--sispaa-primary)] bg-[color:color-mix(in_srgb,var(--sispaa-primary)_12%,transparent)]'
+                                            : 'opacity-50 text-[var(--sispaa-text)] border-[color:color-mix(in_srgb,var(--sispaa-text)_20%,transparent)] hover:opacity-100'"
+                                    >
+                                        <input type="checkbox" class="hidden" :checked="requisito.formatos.includes(f.ext)" @change="toggleFormato(requisito, f.ext)" />
+                                        {{ f.label }}
+                                    </label>
+                                    <span v-if="requisito.formatos.length === 0" class="text-xs opacity-50 text-[var(--sispaa-text)]">(todos: PDF, JPG, PNG, JPEG)</span>
+                                </div>
                             </div>
                         </div>
                         <button type="button" class="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-[var(--sispaa-primary)] hover:opacity-80" @click="addRequisitoField">

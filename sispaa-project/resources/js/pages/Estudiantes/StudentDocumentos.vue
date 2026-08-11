@@ -5,6 +5,7 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import { FileText, CheckCircle2, AlertCircle, Clock, UploadCloud, X, ArrowUpRight } from 'lucide-vue-next';
+import { etiquetasFormatos, mimesParaFormatos } from '@/lib/formatos-documento';
 
 interface DocumentoExpediente {
     tipo: string;
@@ -13,6 +14,7 @@ interface DocumentoExpediente {
     estado: 'pendiente' | 'aprobado' | 'rechazada' | 'no_subido' | string;
     observacion: string | null;
     updated_at: string | null;
+    formatos_permitidos?: string[] | null;
 }
 
 const props = defineProps<{
@@ -58,6 +60,14 @@ const closeUploadModal = () => {
     form.archivo = null;
 };
 
+// Formatos permitidos configurados por Secretaría para el documento activo.
+const activeFormats = computed(() => {
+    const doc = props.expediente.find((d) => d.tipo === activeDocType.value);
+    return doc?.formatos_permitidos?.length ? doc.formatos_permitidos : null;
+});
+const activeMimes = computed(() => mimesParaFormatos(activeFormats.value ?? ['pdf', 'jpg', 'png', 'jpeg']));
+const activeFormatosLabel = computed(() => etiquetasFormatos(activeFormats.value));
+
 // Drag and drop handlers
 const onDragOver = (e: DragEvent) => {
     e.preventDefault();
@@ -89,10 +99,9 @@ const handleFile = (file: File) => {
         form.setError('archivo', 'El archivo no debe pesar más de 5MB.');
         return;
     }
-    // Validate type (pdf, images)
-    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
-    if (!allowedTypes.includes(file.type)) {
-        form.setError('archivo', 'Tipo de archivo no permitido. Solo se aceptan PDFs e imágenes (JPG, PNG).');
+    // Validate type against the formats configured for this document
+    if (!activeMimes.value.includes(file.type)) {
+        form.setError('archivo', `Tipo de archivo no permitido. Solo se aceptan: ${activeFormatosLabel.value}.`);
         return;
     }
 
@@ -240,10 +249,10 @@ const submitUpload = () => {
                                     : 'border-[color:color-mix(in_srgb,var(--sispaa-text)_25%,transparent)] hover:border-[var(--sispaa-primary)]'
                             ]"
                         >
-                            <input ref="fileInputRef" type="file" class="hidden" accept=".pdf,image/*" @change="onFileSelect" />
+                            <input ref="fileInputRef" type="file" class="hidden" :accept="activeMimes.join(',')" @change="onFileSelect" />
                             <UploadCloud class="mb-2 h-10 w-10 text-[var(--sispaa-primary)]" />
                             <p class="text-sm font-semibold opacity-80 text-[var(--sispaa-text)]">Arrastra tu archivo aquí</p>
-                            <p class="mt-1 text-xs opacity-50 text-[var(--sispaa-text)]">O haz clic para explorar en tu equipo (PDF, JPG, PNG)</p>
+                            <p class="mt-1 text-xs opacity-50 text-[var(--sispaa-text)]">O haz clic para explorar en tu equipo ({{ activeFormatosLabel }})</p>
                             <p class="text-xxs mt-2 opacity-50 text-[var(--sispaa-text)]">Peso máximo sugerido: 5MB</p>
                         </div>
 

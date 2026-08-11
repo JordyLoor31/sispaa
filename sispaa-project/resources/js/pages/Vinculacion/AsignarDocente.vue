@@ -22,7 +22,7 @@
     </div>
 
     <!-- ✅ MÉTRICAS -->
-    <div class="grid grid-cols-4 gap-4 mb-6">
+    <div class="grid grid-cols-2 gap-4 mb-6 sm:grid-cols-4">
 
         <div class="card">
             <p class="label">Total asignados</p>
@@ -47,7 +47,7 @@
     </div>
 
     <!-- ✅ FILTROS -->
-    <div class="flex gap-4 mb-4">
+    <div class="flex flex-col gap-4 mb-4 sm:flex-row">
 
         <select v-model="filtroCarrera" class="input">
             <option value="">Todas las carreras</option>
@@ -61,7 +61,7 @@
     </div>
 
     <!-- ✅ TABLA -->
-    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+    <div class="bg-white rounded-xl shadow-sm overflow-x-auto">
 
         <table class="w-full text-sm">
 

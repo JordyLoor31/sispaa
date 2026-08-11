@@ -58,6 +58,7 @@ const observaciones = ref<Record<number, string>>({});
 const reviewForm = useForm({ accion: '' as '' | 'aprobar' | 'rechazar', observacion: '' });
 
 const submitReview = (doc: DocumentoRow, accion: 'aprobar' | 'rechazar') => {
+    reviewForm.accion = accion;
     reviewForm.observacion = observaciones.value[doc.id] ?? '';
     if (accion === 'rechazar' && reviewForm.observacion.trim().length < 5) {
         reviewForm.setError('observacion', 'Debes indicar el motivo del rechazo (mínimo 5 caracteres).');

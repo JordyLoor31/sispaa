@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Estudiantes;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Secretaria\GrupoDocumentoController;
 use App\Models\Documentos\DocumentoEstudiante;
 use App\Models\Documentos\PlantillaDocumento;
 use App\Models\Documentos\RequisitoGrupo;
@@ -12,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -30,6 +32,29 @@ class StudentPortalController extends Controller
             ->orderBy('grupo_id')
             ->orderBy('orden')
             ->pluck('nombre');
+    }
+
+    /**
+     * Igual que requisitosActivos() pero como modelo, para poder exponer el
+     * campo formatos_permitidos que Secretaría configura por requisito.
+     */
+    private function requisitosActivosConFormatos()
+    {
+        return RequisitoGrupo::where('activo', true)
+            ->whereHas('grupo', fn ($q) => $q->where('activo', true))
+            ->orderBy('grupo_id')
+            ->orderBy('orden')
+            ->get()
+            ->keyBy('nombre');
+    }
+
+    /**
+     * Extensiones permitidas para un requisito; si no se configuraron,
+     * se usan todas las aceptadas por el sistema.
+     */
+    private function formatosPermitidos(?RequisitoGrupo $requisito): array
+    {
+        return $requisito?->formatos_permitidos ?: GrupoDocumentoController::FORMATOS_PERMITIDOS;
     }
 
     /**
@@ -79,6 +104,7 @@ class StudentPortalController extends Controller
     {
         $user = Auth::user();
         $tiposRequeridos = $this->requisitosActivos();
+        $requisitosConFormatos = $this->requisitosActivosConFormatos();
 
         $documentosDb = DocumentoEstudiante::where('estudiante_id', $user->id)
             ->whereIn('tipo_documento', $tiposRequeridos)
@@ -87,6 +113,9 @@ class StudentPortalController extends Controller
 
         $expediente = [];
         foreach ($tiposRequeridos as $tipo) {
+            $requisito = $requisitosConFormatos->get($tipo);
+            $formatos = $this->formatosPermitidos($requisito);
+
             if (isset($documentosDb[$tipo])) {
                 $doc = $documentosDb[$tipo];
                 // archivo_url es JSON: {"path":"...","name":"...","size":...}
@@ -98,6 +127,7 @@ class StudentPortalController extends Controller
                     'estado' => $doc->estado,
                     'observacion' => $doc->observacion,
                     'updated_at' => $doc->updated_at->diffForHumans(),
+                    'formatos_permitidos' => $formatos,
                 ];
             } else {
                 $expediente[] = [
@@ -107,6 +137,7 @@ class StudentPortalController extends Controller
                     'estado' => 'no_subido',
                     'observacion' => null,
                     'updated_at' => null,
+                    'formatos_permitidos' => $formatos,
                 ];
             }
         }
@@ -141,22 +172,28 @@ class StudentPortalController extends Controller
      */
     public function uploadDocumento(Request $request)
     {
+        // Resolver a qué requisito del catálogo dinámico corresponde este tipo,
+        // para dejar el documento enlazado a su grupo/requisito (además del
+        // campo de texto tipo_documento, que se conserva por compatibilidad)
+        // y aplicar los formatos permitidos configurados por Secretaría.
+        $requisito = RequisitoGrupo::where('nombre', $request->tipo_documento)
+            ->where('activo', true)
+            ->first();
+
+        $formatos = $this->formatosPermitidos($requisito);
+
         $request->validate([
             // El tipo debe existir en el catálogo dinámico de requisitos
             // activos; antes se aceptaba texto libre, lo que permitía crear
             // filas de documento con tipos arbitrarios.
-            'tipo_documento' => ['required', 'string', \Illuminate\Validation\Rule::in($this->requisitosActivos()->all())],
-            'archivo' => 'required|file|mimes:pdf,jpg,png,jpeg|max:5120', // Max 5MB
+            'tipo_documento' => ['required', 'string', Rule::in($this->requisitosActivos()->all())],
+            // Los mimes dependen de los formatos configurados para el requisito
+            // (ej. solo pdf); si no hay configuración se aceptan todos.
+            'archivo' => ['required', 'file', 'mimes:' . implode(',', $formatos), 'max:5120'], // Max 5MB
         ], [
             'tipo_documento.in' => 'El tipo de documento no corresponde a un requisito válido.',
+            'archivo.mimes' => 'El archivo debe estar en formato: ' . implode(', ', array_map('strtoupper', $formatos)) . '.',
         ]);
-
-        // Resolver a qué requisito del catálogo dinámico corresponde este tipo,
-        // para dejar el documento enlazado a su grupo/requisito (además del
-        // campo de texto tipo_documento, que se conserva por compatibilidad).
-        $requisito = RequisitoGrupo::where('nombre', $request->tipo_documento)
-            ->where('activo', true)
-            ->first();
 
         $user = Auth::user();
         $file = $request->file('archivo');
