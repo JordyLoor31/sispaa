@@ -2,7 +2,6 @@ import type { ColumnDef } from '@tanstack/vue-table';
 import { h } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
 import { FolderOpen, MoreHorizontal, Eye, Power } from 'lucide-vue-next';
-import { toast } from 'vue-sonner';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import type { GrupoDocumento } from './types';
@@ -13,7 +12,6 @@ const toggleGrupo = (grupo: GrupoDocumento) => {
         {},
         {
             preserveScroll: true,
-            onSuccess: () => toast.success(grupo.activo ? 'Grupo desactivado.' : 'Grupo activado.'),
         },
     );
 };

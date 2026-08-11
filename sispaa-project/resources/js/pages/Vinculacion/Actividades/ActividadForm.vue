@@ -9,6 +9,7 @@ import { useForm } from 'vee-validate';
 import { computed, ref } from 'vue';
 import * as z from 'zod';
 import ComboSelect from './ComboSelect.vue';
+import { toast } from 'vue-sonner';
 import MatrizBeneficiarios from './MatrizBeneficiarios.vue';
 import {
     conteosToMatriz,
@@ -115,6 +116,8 @@ const goBack = () => {
 const onSubmit = handleSubmit((values) => {
     processing.value = true;
 
+    const toastId = toast.loading('Guardando actividad...');
+
     const payload = {
         ...values,
         representante_id: usarRepExistente.value ? values.representante_id : null,
@@ -130,6 +133,7 @@ const onSubmit = handleSubmit((values) => {
         onError: (serverErrors: Record<string, string>) => setErrors(serverErrors),
         onFinish: () => {
             processing.value = false;
+            toast.dismiss(toastId);
         },
     };
 

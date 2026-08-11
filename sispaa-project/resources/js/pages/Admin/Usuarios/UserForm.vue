@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Check, ChevronsUpDown, ArrowLeft, User, Mail, Lock, IdCard, Phone } from 'lucide-vue-next';
+import { toast } from 'vue-sonner';
 import { errorCedulaEcuatoriana } from '@/lib/cedula';
 import { errorCorreoInstitucional } from '@/lib/correo';
 import {
@@ -86,7 +87,7 @@ const { handleSubmit, setErrors, defineField } = useForm({
     },
 });
 
-const [roles] = defineField('roles');
+const [rolesSeleccionados] = defineField('roles');
 const [carreraId] = defineField('carrera_id');
 
 const selectedCarreraObj = ref<{ value: string | number; label: string } | null>(
@@ -95,10 +96,10 @@ const selectedCarreraObj = ref<{ value: string | number; label: string } | null>
 
 // 'coordinador' es un rol adicional sobre 'docente', no un reemplazo:
 // solo se puede marcar si 'docente' también está marcado.
-const hasDocente = computed(() => (roles.value ?? []).includes('docente'));
+const hasDocente = computed(() => (rolesSeleccionados.value ?? []).includes('docente'));
 
 const toggleRole = (roleName: string) => {
-    const current = [...(roles.value ?? [])];
+    const current = [...(rolesSeleccionados.value ?? [])];
     const idx = current.indexOf(roleName);
     if (idx >= 0) {
         current.splice(idx, 1);
@@ -109,7 +110,7 @@ const toggleRole = (roleName: string) => {
     } else {
         current.push(roleName);
     }
-    roles.value = current;
+    rolesSeleccionados.value = current;
 };
 
 watch(selectedCarreraObj, (newVal) => {
@@ -120,6 +121,8 @@ const processing = ref(false);
 
 const onSubmit = handleSubmit((values) => {
     processing.value = true;
+
+    const toastId = toast.loading('Guardando usuario...');
 
     const payload = {
         ...values,
@@ -133,6 +136,7 @@ const onSubmit = handleSubmit((values) => {
         },
         onFinish: () => {
             processing.value = false;
+            toast.dismiss(toastId);
         },
     };
 
@@ -239,14 +243,14 @@ const onSubmit = handleSubmit((values) => {
                             :disabled="role.name === 'coordinador' && !hasDocente"
                             :class="[
                                 'inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors',
-                                (roles ?? []).includes(role.name)
+                                (rolesSeleccionados ?? []).includes(role.name)
                                     ? 'border-[var(--sispaa-primary)] bg-[var(--sispaa-primary)] text-white'
                                     : 'text-[var(--sispaa-text)] bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)] hover:border-[color:var(--sispaa-primary)]',
                                 role.name === 'coordinador' && !hasDocente ? 'cursor-not-allowed opacity-40 hover:border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]' : '',
                             ]"
                             @click="toggleRole(role.name)"
                         >
-                            <Check v-if="(roles ?? []).includes(role.name)" class="h-3.5 w-3.5" />
+                            <Check v-if="(rolesSeleccionados ?? []).includes(role.name)" class="h-3.5 w-3.5" />
                             {{ role.name.charAt(0).toUpperCase() + role.name.slice(1) }}
                         </button>
                     </div>

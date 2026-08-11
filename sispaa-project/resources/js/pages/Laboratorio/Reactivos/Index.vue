@@ -10,7 +10,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useDebounceFn } from '@vueuse/core';
-import { toast } from 'vue-sonner';
 import makeReactivoColumns from './columns';
 import type { Catalogo, ReactivoItem } from './types';
 
@@ -31,7 +30,6 @@ const debouncedSearch = useDebounceFn(applyFilter, 300);
 const changeEstado = (r: ReactivoItem, estado: string) => {
     router.put(route('laboratorio.reactivos.update', r.id), { estado }, {
         preserveScroll: true,
-        onSuccess: () => toast.success('Estado actualizado.'),
     });
 };
 

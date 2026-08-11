@@ -78,12 +78,12 @@ const submitHito = () => {
     if (editingHito.value) {
         hitoForm.put(route('investigacion.hitos.update', editingHito.value.id), {
             preserveScroll: true,
-            onSuccess: () => { toast.success('Hito actualizado.'); showHitoForm.value = false; },
+            onSuccess: () => { showHitoForm.value = false; },
         });
     } else {
         hitoForm.post(route('investigacion.hitos.store', props.proyecto.id), {
             preserveScroll: true,
-            onSuccess: () => { toast.success('Hito agregado.'); showHitoForm.value = false; hitoForm.reset(); },
+            onSuccess: () => { showHitoForm.value = false; hitoForm.reset(); },
         });
     }
 };
@@ -96,7 +96,6 @@ const submitPregunta = () => {
     preguntaForm.post(route('investigacion.seguimiento.store', props.proyecto.id), {
         preserveScroll: true,
         onSuccess: () => {
-            toast.success('Pregunta agregada.');
             showPreguntaForm.value = false;
             preguntaForm.reset();
         },
@@ -115,7 +114,7 @@ const submitRespuesta = () => {
     if (!respondiendo.value) return;
     respuestaForm.patch(route('investigacion.seguimiento.responder', respondiendo.value.id), {
         preserveScroll: true,
-        onSuccess: () => { toast.success('Respuesta guardada.'); respondiendo.value = null; },
+        onSuccess: () => { respondiendo.value = null; },
     });
 };
 
@@ -130,14 +129,16 @@ const onArchivoChange = (event: Event) => {
     informeForm.archivo = file;
 };
 const submitInforme = () => {
+    const toastId = toast.loading('Subiendo informe trimestral...');
     informeForm.post(route('investigacion.informes.store', props.proyecto.id), {
         preserveScroll: true,
         forceFormData: true,
+        onFinish: () => toast.dismiss(toastId),
         onSuccess: () => {
-            toast.success('Informe trimestral subido.');
             showInformeForm.value = false;
             informeForm.reset();
         },
+        onError: () => toast.error('No se pudo subir el informe trimestral.'),
     });
 };
 </script>

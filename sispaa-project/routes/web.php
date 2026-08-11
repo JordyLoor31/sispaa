@@ -360,6 +360,8 @@ Route::middleware(['auth', 'verified', 'role:secretaria|SystemAdministrador'])
             ->name('grupos-documentos.store');
         Route::get('/grupos-documentos/{grupo}', [\App\Http\Controllers\Secretaria\GrupoDocumentoController::class, 'show'])
             ->name('grupos-documentos.show');
+        Route::put('/grupos-documentos/{grupo}', [\App\Http\Controllers\Secretaria\GrupoDocumentoController::class, 'update'])
+            ->name('grupos-documentos.update');
         Route::post('/grupos-documentos/{grupo}/requisitos', [\App\Http\Controllers\Secretaria\GrupoDocumentoController::class, 'requisitoStore'])
             ->name('grupos-documentos.requisitos.store');
         Route::put('/grupos-documentos/requisitos/{requisito}', [\App\Http\Controllers\Secretaria\GrupoDocumentoController::class, 'requisitoUpdate'])

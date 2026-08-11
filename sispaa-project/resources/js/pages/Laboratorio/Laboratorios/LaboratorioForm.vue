@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Check, ChevronsUpDown, FlaskConical, MapPin, Users2 } from 'lucide-vue-next';
+import { toast } from 'vue-sonner';
 import {
     Combobox,
     ComboboxAnchor,
@@ -19,7 +20,6 @@ import {
     ComboboxList,
     ComboboxTrigger,
 } from '@/components/ui/combobox';
-import { toast } from 'vue-sonner';
 import type { Catalogo, LaboratorioItem, Persona } from './types';
 
 const props = defineProps<{
@@ -75,6 +75,8 @@ const processing = ref(false);
 const onSubmit = handleSubmit((values) => {
     processing.value = true;
 
+    const toastId = toast.loading('Guardando laboratorio...');
+
     const payload = {
         ...values,
         carrera_id: values.carrera_id === '' ? null : values.carrera_id,
@@ -83,10 +85,10 @@ const onSubmit = handleSubmit((values) => {
 
     const options = {
         preserveScroll: true,
-        onSuccess: () => toast.success(isEdit ? 'Laboratorio actualizado.' : 'Laboratorio registrado.'),
         onError: (serverErrors: Record<string, string>) => setErrors(serverErrors),
         onFinish: () => {
             processing.value = false;
+            toast.dismiss(toastId);
         },
     };
 

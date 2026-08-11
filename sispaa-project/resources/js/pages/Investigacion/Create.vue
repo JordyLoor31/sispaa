@@ -105,15 +105,17 @@ const processing = ref(false);
 const onSubmit = handleSubmit((values) => {
     processing.value = true;
 
+    const toastId = toast.loading('Guardando proyecto...');
+
     router.post(route('investigacion.store'), values, {
         preserveScroll: true,
-        onSuccess: () => toast.success('Proyecto creado.'),
         onError: (serverErrors: Record<string, string>) => {
             setErrors(serverErrors);
             toast.error('Revisa los campos del formulario.');
         },
         onFinish: () => {
             processing.value = false;
+            toast.dismiss(toastId);
         },
     });
 });

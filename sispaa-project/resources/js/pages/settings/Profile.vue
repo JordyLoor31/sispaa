@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/AppLayout.vue';
 import SettingsLayout from '@/layouts/settings/Layout.vue';
 import { type BreadcrumbItem, type SharedData, type User } from '@/types';
+import { toast } from 'vue-sonner';
 
 interface Props {
     mustVerifyEmail: boolean;
@@ -36,8 +37,10 @@ const form = useForm({
 });
 
 const submit = () => {
+    const toastId = toast.loading('Guardando perfil...');
     form.patch(route('profile.update'), {
         preserveScroll: true,
+        onFinish: () => toast.dismiss(toastId),
     });
 };
 </script>

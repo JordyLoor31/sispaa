@@ -7,7 +7,6 @@ import { Plus, FlaskConical, Pencil, Trash2, ClipboardList } from 'lucide-vue-ne
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { toast } from 'vue-sonner';
 import type { Catalogo, PracticaItem } from './types';
 
 const props = defineProps<{
@@ -27,7 +26,7 @@ const confirmDelete = () => {
     if (!deleteTarget.value) return;
     router.delete(route('laboratorio.practicas.destroy', deleteTarget.value.id), {
         preserveScroll: true,
-        onSuccess: () => { toast.success('Práctica eliminada.'); deleteTarget.value = null; },
+        onSuccess: () => { deleteTarget.value = null; },
     });
 };
 </script>

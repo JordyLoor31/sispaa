@@ -7,7 +7,6 @@ import { Plus, Users, Eye, Pencil, Trash2 } from 'lucide-vue-next';
 import { BRAND_GRADIENT } from '@/lib/brand';
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { toast } from 'vue-sonner';
 import { type Beneficiario, TIPO_BENEFICIARIO_LABELS } from './types';
 
 defineProps<{
@@ -20,7 +19,7 @@ const confirmDelete = () => {
     if (!deleteTarget.value) return;
     router.delete(route('vinculacion.beneficiarios.destroy', deleteTarget.value.id), {
         preserveScroll: true,
-        onSuccess: () => { toast.success('Beneficiario eliminado.'); deleteTarget.value = null; },
+        onSuccess: () => { deleteTarget.value = null; },
     });
 };
 </script>

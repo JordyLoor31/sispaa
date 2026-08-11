@@ -2,7 +2,7 @@
 import AppSidebarLayout from '@/layouts/app/AppSidebarLayout.vue';
 import { type BreadcrumbItemType } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { ArrowLeft, ArrowUpRight, CheckCircle2, XCircle, Clock, FileText, Eye, GraduationCap, Users } from 'lucide-vue-next';
+import { ArrowLeft, CheckCircle2, XCircle, Clock, FileText, Eye, GraduationCap, Users } from 'lucide-vue-next';
 import { ref } from 'vue';
 import { toast } from 'vue-sonner';
 import { BRAND_GRADIENT, STATUS_COLORS, tintedBadgeStyle, neutralBadgeStyle } from '@/lib/brand';
@@ -68,12 +68,6 @@ const submitReview = (doc: DocumentoRow, accion: 'aprobar' | 'rechazar') => {
         route('estudiantes.review', { estudiante: props.estudiante.id, documento: doc.id }),
         {
             preserveScroll: true,
-            onSuccess: () =>
-                toast.success(
-                    accion === 'aprobar'
-                        ? 'Documento aprobado correctamente.'
-                        : 'Documento rechazado. Estudiante notificado.',
-                ),
             onError: () => toast.error('Error al procesar la revisión.'),
         },
     );

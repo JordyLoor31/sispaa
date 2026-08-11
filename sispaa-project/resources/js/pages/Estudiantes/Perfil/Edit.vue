@@ -6,6 +6,7 @@ import { toTypedSchema } from '@vee-validate/zod';
 import { useForm } from 'vee-validate';
 import * as z from 'zod';
 import { computed, ref, watch } from 'vue';
+import { toast } from 'vue-sonner';
 import {
     ArrowLeft, ArrowRight, Check, ChevronsUpDown, Save, Users, GraduationCap,
     Home, IdCard, Plus, X, Building2,
@@ -410,15 +411,15 @@ const onSubmit = handleSubmit(
             fecha_graduacion: formValues.fecha_graduacion || null,
         };
 
-        // eslint-disable-next-line no-console
         console.log('[Perfil] Enviando al servidor:', payload);
+
+        const toastId = toast.loading('Guardando perfil...');
 
         router.put(route('student.perfil.update'), payload, {
             preserveScroll: true,
             onError: (serverErrors: Record<string, string>) => {
                 const claves = Object.keys(serverErrors);
                 if (claves.length > 0) {
-                    // eslint-disable-next-line no-console
                     console.warn('[Perfil] El servidor rechazó el guardado, datos faltantes/ inválidos:', serverErrors);
                     abrirAlertaFaltantes(
                         serverErrors.familiares
@@ -430,14 +431,13 @@ const onSubmit = handleSubmit(
                 setErrors(serverErrors);
                 processing.value = false;
             },
-            onFinish: () => { processing.value = false; },
+            onFinish: () => { processing.value = false; toast.dismiss(toastId); },
         });
     },
     ({ errors }) => {
         // Envío inválido: en vez de saltar de paso en silencio, se explica
         // exactamente qué falta antes de mover al estudiante al paso correcto.
         const claves = Object.keys(errors);
-        // eslint-disable-next-line no-console
         console.warn('[Perfil] Validación del formulario falló antes de enviar, campos faltantes/inválidos:', errors);
         abrirAlertaFaltantes(claves.map((campo) => ETIQUETAS_CAMPOS[campo] ?? campo));
         irAlPrimerPasoConError(claves);
@@ -484,8 +484,10 @@ function editarFamiliar(familiar: Familiar) {
 }
 
 function guardarFamiliar() {
+    const toastId = toast.loading(editandoFamiliarId.value ? 'Guardando familiar...' : 'Agregando familiar...');
     const opciones = {
         preserveScroll: true,
+        onFinish: () => toast.dismiss(toastId),
         onSuccess: () => nuevoFamiliar(),
     };
 
@@ -498,7 +500,11 @@ function guardarFamiliar() {
 
 function eliminarFamiliar(familiar: Familiar) {
     if (!confirm(`¿Eliminar a ${familiar.nombres} de tus familiares registrados?`)) return;
-    router.delete(route('student.familiares.destroy', familiar.id), { preserveScroll: true });
+    const toastId = toast.loading('Eliminando familiar...');
+    router.delete(route('student.familiares.destroy', familiar.id), {
+        preserveScroll: true,
+        onFinish: () => toast.dismiss(toastId),
+    });
 }
 
 const familiarColumns = makeFamiliarColumns({ onEdit: editarFamiliar, onDelete: eliminarFamiliar });

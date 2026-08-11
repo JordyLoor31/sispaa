@@ -45,7 +45,6 @@ const submitAdicionales = () => {
         {
             preserveScroll: true,
             onSuccess: () => {
-                toast.success('Beneficiarios adicionales registrados.');
                 addOpen.value = false;
                 addMatriz.value = emptyMatriz();
                 addObs.value = '';
@@ -68,7 +67,7 @@ const submitEjecutar = () => {
         { estado: 'ejecutado', fecha_fin: fechaFin.value },
         {
             preserveScroll: true,
-            onSuccess: () => { toast.success('Actividad marcada como ejecutada.'); ejecutarOpen.value = false; },
+            onSuccess: () => { ejecutarOpen.value = false; },
             onError: (e) => toast.error(e.fecha_fin ?? 'No se pudo actualizar el estado.'),
             onFinish: () => { ejecutarProcessing.value = false; },
         },
@@ -88,7 +87,7 @@ const submitCancelar = () => {
         { estado: 'cancelado', fecha_cierre: fechaCierre.value || null, motivo_cancelacion: motivo.value || null },
         {
             preserveScroll: true,
-            onSuccess: () => { toast.success('Actividad cancelada.'); cancelarOpen.value = false; },
+            onSuccess: () => { cancelarOpen.value = false; },
             onError: () => toast.error('No se pudo cancelar la actividad.'),
             onFinish: () => { cancelarProcessing.value = false; },
         },

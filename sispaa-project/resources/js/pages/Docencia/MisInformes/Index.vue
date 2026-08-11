@@ -67,10 +67,11 @@ const submit = () => {
         return;
     }
 
+    const toastId = toast.loading('Subiendo informe...');
     form.post(route('docencia.mis-informes.upload'), {
         preserveScroll: true,
+        onFinish: () => toast.dismiss(toastId),
         onSuccess: () => {
-            toast.success('Informe subido correctamente.');
             closeUpload();
         },
         onError: () => toast.error('No se pudo subir el informe.'),

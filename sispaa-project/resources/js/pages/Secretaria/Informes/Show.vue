@@ -31,7 +31,6 @@ const submitReview = (accion: 'aprobar' | 'rechazar') => {
     }
     reviewForm.patch(route('secretaria.informes.review', props.informe.id), {
         preserveScroll: true,
-        onSuccess: () => toast.success(accion === 'aprobar' ? 'Informe aprobado.' : 'Informe rechazado.'),
         onError: () => toast.error('Revisa los campos del formulario.'),
     });
 };

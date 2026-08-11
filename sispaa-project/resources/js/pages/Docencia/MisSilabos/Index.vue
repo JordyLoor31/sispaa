@@ -67,10 +67,11 @@ const submit = () => {
         return;
     }
 
+    const toastId = toast.loading('Subiendo sílabo...');
     form.post(route('docencia.mis-silabos.upload'), {
         preserveScroll: true,
+        onFinish: () => toast.dismiss(toastId),
         onSuccess: () => {
-            toast.success('Sílabo subido correctamente.');
             closeUpload();
         },
         onError: () => toast.error('No se pudo subir el sílabo.'),

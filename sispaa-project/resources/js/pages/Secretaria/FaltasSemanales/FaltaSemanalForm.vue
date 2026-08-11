@@ -5,6 +5,7 @@ import { useForm } from 'vee-validate';
 import * as z from 'zod';
 import { ref, watch } from 'vue';
 import { Check, ChevronsUpDown, AlertTriangle } from 'lucide-vue-next';
+import { toast } from 'vue-sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { InputGroup, InputGroupTextarea } from '@/components/ui/input-group';
@@ -76,6 +77,8 @@ const processing = ref(false);
 const onSubmit = handleSubmit((submitValues) => {
     processing.value = true;
 
+    const toastId = toast.loading('Guardando registro de faltas...');
+
     const options = {
         preserveScroll: true,
         onError: (serverErrors: Record<string, string>) => {
@@ -83,6 +86,7 @@ const onSubmit = handleSubmit((submitValues) => {
         },
         onFinish: () => {
             processing.value = false;
+            toast.dismiss(toastId);
         },
     };
 

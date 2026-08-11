@@ -24,7 +24,7 @@ import {
 import { toast } from 'vue-sonner';
 import type { Persona } from './columns';
 
-const props = defineProps<{
+defineProps<{
     estudiantes: Persona[];
     tutores: Persona[];
     breadcrumbs?: BreadcrumbItemType[];
@@ -70,15 +70,17 @@ const processing = ref(false);
 const onSubmit = handleSubmit((values) => {
     processing.value = true;
 
+    const toastId = toast.loading('Guardando proceso de titulación...');
+
     router.post(route('titulacion.store'), values, {
         preserveScroll: true,
-        onSuccess: () => toast.success('Proceso de titulación registrado.'),
         onError: (serverErrors: Record<string, string>) => {
             setErrors(serverErrors);
             toast.error('Revisa los campos del formulario.');
         },
         onFinish: () => {
             processing.value = false;
+            toast.dismiss(toastId);
         },
     });
 });

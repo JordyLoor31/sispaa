@@ -5,6 +5,7 @@ import { useForm } from 'vee-validate';
 import * as z from 'zod';
 import { ref, watch } from 'vue';
 import { Check, ChevronsUpDown, GraduationCap, Lock } from 'lucide-vue-next';
+import { toast } from 'vue-sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -86,6 +87,8 @@ const processing = ref(false);
 const onSubmit = handleSubmit((submitValues) => {
     processing.value = true;
 
+    const toastId = toast.loading('Guardando asignación...');
+
     const options = {
         preserveScroll: true,
         onError: (serverErrors: Record<string, string>) => {
@@ -93,6 +96,7 @@ const onSubmit = handleSubmit((submitValues) => {
         },
         onFinish: () => {
             processing.value = false;
+            toast.dismiss(toastId);
         },
     };
 

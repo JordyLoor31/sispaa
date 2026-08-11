@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Check, ChevronsUpDown, BookOpen, Hash, Award, Layers } from 'lucide-vue-next';
+import { toast } from 'vue-sonner';
 import {
     Combobox,
     ComboboxAnchor,
@@ -127,6 +128,8 @@ watch(
 const onSubmit = handleSubmit((values) => {
     processing.value = true;
 
+    const toastId = toast.loading('Guardando materia...');
+
     const options = {
         onSuccess: () => {
             emit('update:open', false);
@@ -137,6 +140,7 @@ const onSubmit = handleSubmit((values) => {
         },
         onFinish: () => {
             processing.value = false;
+            toast.dismiss(toastId);
         },
     };
 

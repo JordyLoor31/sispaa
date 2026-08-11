@@ -6,6 +6,7 @@ import { Head, useForm } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import { FileText, CheckCircle2, AlertCircle, Clock, UploadCloud, X, ArrowUpRight } from 'lucide-vue-next';
 import { etiquetasFormatos, mimesParaFormatos } from '@/lib/formatos-documento';
+import { toast } from 'vue-sonner';
 
 interface DocumentoExpediente {
     tipo: string;
@@ -119,11 +120,14 @@ const submitUpload = () => {
         return;
     }
 
+    const toastId = toast.loading('Subiendo documento...');
     form.post(route('student.documentos.upload'), {
         preserveScroll: true,
+        onFinish: () => toast.dismiss(toastId),
         onSuccess: () => {
             closeUploadModal();
         },
+        onError: () => toast.error('No se pudo subir el documento.'),
     });
 };
 </script>

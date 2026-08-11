@@ -2,6 +2,7 @@
 import { useForm } from '@inertiajs/vue3';
 import { Button } from '@/components/ui/button';
 import { FileText, UploadCloud, X } from 'lucide-vue-next';
+import { toast } from 'vue-sonner';
 import type { PlantillaItem } from './types';
 
 const props = defineProps<{
@@ -34,7 +35,12 @@ const submit = () => {
         return;
     }
 
-    const options = { preserveScroll: true };
+    const toastId = toast.loading(isEditing ? 'Guardando plantilla...' : 'Creando plantilla...');
+    const options = {
+        preserveScroll: true,
+        onFinish: () => toast.dismiss(toastId),
+        onError: () => toast.error('No se pudo guardar la plantilla.'),
+    };
 
     // Los archivos se suben siempre por POST (multipart); para editar se
     // spoofea el método PUT vía _method, que es lo que recomienda Inertia

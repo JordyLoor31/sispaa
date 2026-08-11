@@ -5,7 +5,6 @@ import { Head, Link, useForm } from '@inertiajs/vue3';
 import { ArrowLeft, FolderOpen, Plus, Pencil, Check, X } from 'lucide-vue-next';
 import { ref } from 'vue';
 import { Button } from '@/components/ui/button';
-import { toast } from 'vue-sonner';
 import type { GrupoDocumento, Requisito } from './types';
 import { FORMATOS_DOCUMENTO, etiquetasFormatos } from '@/lib/formatos-documento';
 
@@ -17,6 +16,31 @@ const props = defineProps<{
 const formatDate = (date?: string) => {
     if (!date) return '—';
     return new Date(date).toLocaleDateString('es-EC', { day: '2-digit', month: '2-digit', year: 'numeric' });
+};
+
+// Edición del grupo en sí (nombre + descripción)
+const editandoGrupo = ref(false);
+const editarGrupoForm = useForm({ nombre: '', descripcion: '' });
+
+const startEditGrupo = () => {
+    editarGrupoForm.nombre = props.grupo.nombre;
+    editarGrupoForm.descripcion = props.grupo.descripcion ?? '';
+    editarGrupoForm.clearErrors();
+    editandoGrupo.value = true;
+};
+
+const cancelEditGrupo = () => {
+    editandoGrupo.value = false;
+    editarGrupoForm.reset();
+};
+
+const submitEditarGrupo = () => {
+    editarGrupoForm.put(route('secretaria.grupos-documentos.update', props.grupo.id), {
+        preserveScroll: true,
+        onSuccess: () => {
+            editandoGrupo.value = false;
+        },
+    });
 };
 
 const nuevoRequisitoForm = useForm({ nombre: '', formatos: [] as string[] });
@@ -34,7 +58,6 @@ const submitNuevoRequisito = () => {
     nuevoRequisitoForm.post(route('secretaria.grupos-documentos.requisitos.store', props.grupo.id), {
         preserveScroll: true,
         onSuccess: () => {
-            toast.success('Requisito agregado.');
             nuevoRequisitoForm.reset();
         },
     });
@@ -70,7 +93,6 @@ const submitEditarRequisito = () => {
     editarRequisitoForm.put(route('secretaria.grupos-documentos.requisitos.update', editandoId.value), {
         preserveScroll: true,
         onSuccess: () => {
-            toast.success('Requisito actualizado.');
             editandoId.value = null;
         },
     });
@@ -92,11 +114,40 @@ const submitEditarRequisito = () => {
                         <p v-if="grupo.descripcion" class="mt-1 text-sm opacity-60 text-[var(--sispaa-text)]">{{ grupo.descripcion }}</p>
                     </div>
                 </div>
-                <Button as-child variant="outline">
-                    <Link :href="route('secretaria.grupos-documentos.index')">
-                        <ArrowLeft class="h-4 w-4 mr-1.5" /> Volver
-                    </Link>
-                </Button>
+                <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+                    <Button v-if="!editandoGrupo" variant="outline" @click="startEditGrupo">
+                        <Pencil class="h-4 w-4 mr-1.5" /> Editar
+                    </Button>
+                    <Button as-child variant="outline">
+                        <Link :href="route('secretaria.grupos-documentos.index')">
+                            <ArrowLeft class="h-4 w-4 mr-1.5" /> Volver
+                        </Link>
+                    </Button>
+                </div>
+            </div>
+
+            <div v-if="editandoGrupo" class="max-w-5xl mx-auto w-full rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
+                <h4 class="text-xs font-bold uppercase tracking-wider opacity-50 text-[var(--sispaa-text)] mb-4">Editar grupo de documentos</h4>
+                <form @submit.prevent="submitEditarGrupo" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-[var(--sispaa-text)] mb-1.5">Nombre *</label>
+                        <input v-model="editarGrupoForm.nombre" type="text" class="w-full rounded-lg border-0 bg-[var(--sispaa-background)] text-sm text-[var(--sispaa-text)] focus:ring-2 focus:ring-[var(--sispaa-primary)]" />
+                        <p v-if="editarGrupoForm.errors.nombre" class="text-xs text-rose-500 mt-1">{{ editarGrupoForm.errors.nombre }}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-[var(--sispaa-text)] mb-1.5">Descripción</label>
+                        <textarea v-model="editarGrupoForm.descripcion" rows="2" class="w-full rounded-lg border-0 bg-[var(--sispaa-background)] text-sm text-[var(--sispaa-text)] focus:ring-2 focus:ring-[var(--sispaa-primary)]"></textarea>
+                        <p v-if="editarGrupoForm.errors.descripcion" class="text-xs text-rose-500 mt-1">{{ editarGrupoForm.errors.descripcion }}</p>
+                    </div>
+                    <div class="flex items-center gap-2 pt-1">
+                        <Button type="submit" :disabled="editarGrupoForm.processing" class="font-semibold text-white bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)]">
+                            <Check class="h-4 w-4 mr-1" /> Guardar cambios
+                        </Button>
+                        <Button type="button" variant="outline" :disabled="editarGrupoForm.processing" @click="cancelEditGrupo">
+                            Cancelar
+                        </Button>
+                    </div>
+                </form>
             </div>
 
             <div class="max-w-5xl mx-auto w-full space-y-4 sm:space-y-6">

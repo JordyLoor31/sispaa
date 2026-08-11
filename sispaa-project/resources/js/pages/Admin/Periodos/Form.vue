@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Check, ChevronsUpDown, ArrowLeft, CalendarRange, Clock } from 'lucide-vue-next';
+import { toast } from 'vue-sonner';
 import {
     Combobox,
     ComboboxAnchor,
@@ -86,6 +87,8 @@ watch(selectedEstadoObj, (newVal) => {
 const onSubmit = handleSubmit((values) => {
     processing.value = true;
 
+    const toastId = toast.loading('Guardando periodo académico...');
+
     const payload = {
         ...values,
         fecha_limite_silabo: values.fecha_limite_silabo || null,
@@ -99,6 +102,7 @@ const onSubmit = handleSubmit((values) => {
         },
         onFinish: () => {
             processing.value = false;
+            toast.dismiss(toastId);
         },
     };
 

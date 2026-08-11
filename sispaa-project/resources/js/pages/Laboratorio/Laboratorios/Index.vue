@@ -6,7 +6,6 @@ import { ref } from 'vue';
 import { Plus, MapPin, Eye, Pencil, Trash2 } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { toast } from 'vue-sonner';
 import type { LaboratorioItem } from './types';
 
 defineProps<{
@@ -17,7 +16,6 @@ defineProps<{
 const toggleEstado = (l: LaboratorioItem) => {
     router.put(route('laboratorio.laboratorios.update', l.id), { estado: l.estado === 'activo' ? 'inactivo' : 'activo' }, {
         preserveScroll: true,
-        onSuccess: () => toast.success('Estado actualizado.'),
     });
 };
 
@@ -26,7 +24,7 @@ const confirmDelete = () => {
     if (!deleteTarget.value) return;
     router.delete(route('laboratorio.laboratorios.destroy', deleteTarget.value.id), {
         preserveScroll: true,
-        onSuccess: () => { toast.success('Laboratorio eliminado.'); deleteTarget.value = null; },
+        onSuccess: () => { deleteTarget.value = null; },
     });
 };
 </script>

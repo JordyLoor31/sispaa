@@ -4,7 +4,6 @@ import { type BreadcrumbItemType } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { ArrowLeft, Check, X } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
-import { toast } from 'vue-sonner';
 
 interface RosterItem { id: number; name: string; asistio: boolean }
 
@@ -34,7 +33,6 @@ const marcarTodos = (valor: boolean) => {
 const submit = () => {
     form.post(route('laboratorio.practicas.asistencia.store', props.practica.id), {
         preserveScroll: true,
-        onSuccess: () => toast.success('Asistencia guardada.'),
     });
 };
 </script>

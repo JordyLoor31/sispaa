@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupTextarea } from '@/components/ui/input-group';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Check, ChevronsUpDown, Hash, Calendar, Clock, BookOpen, Layers, Award, GraduationCap, Users2 } from 'lucide-vue-next';
+import { toast } from 'vue-sonner';
 import {
     Combobox,
     ComboboxAnchor,
@@ -19,7 +20,6 @@ import {
     ComboboxList,
     ComboboxTrigger,
 } from '@/components/ui/combobox';
-import { toast } from 'vue-sonner';
 import type { Catalogo, PracticaEditItem } from './types';
 
 const props = defineProps<{
@@ -132,12 +132,14 @@ const processing = ref(false);
 const onSubmit = handleSubmit((values) => {
     processing.value = true;
 
+    const toastId = toast.loading('Guardando práctica...');
+
     const options = {
         preserveScroll: true,
-        onSuccess: () => toast.success(isEdit ? 'Práctica actualizada.' : 'Práctica registrada.'),
         onError: (serverErrors: Record<string, string>) => setErrors(serverErrors),
         onFinish: () => {
             processing.value = false;
+            toast.dismiss(toastId);
         },
     };
 

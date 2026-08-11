@@ -31,7 +31,6 @@ const submitReview = (accion: 'aprobar' | 'rechazar') => {
     }
     reviewForm.patch(route('coordinador.silabos.review', props.silabo.id), {
         preserveScroll: true,
-        onSuccess: () => toast.success(accion === 'aprobar' ? 'Sílabo aprobado.' : 'Sílabo rechazado.'),
         onError: () => toast.error('Revisa los campos del formulario.'),
     });
 };

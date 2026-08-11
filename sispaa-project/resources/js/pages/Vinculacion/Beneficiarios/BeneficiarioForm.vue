@@ -9,6 +9,7 @@ import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/in
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Building2, Hash, Briefcase, Phone, MapPin } from 'lucide-vue-next';
+import { toast } from 'vue-sonner';
 import type { Beneficiario, TipoBeneficiario } from './types';
 
 const props = defineProps<{
@@ -70,11 +71,14 @@ const goBack = () => {
 const onSubmit = handleSubmit((formValues) => {
     processing.value = true;
 
+    const toastId = toast.loading('Guardando beneficiario...');
+
     const options = {
         preserveScroll: true,
         onError: (serverErrors: Record<string, string>) => setErrors(serverErrors),
         onFinish: () => {
             processing.value = false;
+            toast.dismiss(toastId);
         },
     };
 

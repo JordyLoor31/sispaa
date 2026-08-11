@@ -9,6 +9,7 @@ import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupTextarea } from
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Megaphone, FileText, Calendar } from 'lucide-vue-next';
+import { toast } from 'vue-sonner';
 import type { Convocatoria } from './types';
 
 const props = defineProps<{
@@ -55,11 +56,14 @@ const processing = ref(false);
 const onSubmit = handleSubmit((values) => {
     processing.value = true;
 
+    const toastId = toast.loading('Guardando convocatoria...');
+
     const options = {
         preserveScroll: true,
         onError: (serverErrors: Record<string, string>) => setErrors(serverErrors),
         onFinish: () => {
             processing.value = false;
+            toast.dismiss(toastId);
         },
     };
 

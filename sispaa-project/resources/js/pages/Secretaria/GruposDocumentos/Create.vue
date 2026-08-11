@@ -71,7 +71,6 @@ const onSubmit = handleSubmit((values) => {
         { ...values, requisitos, requisitos_formatos: requisitosFormatos },
         {
             preserveScroll: true,
-            onSuccess: () => toast.success('Grupo creado y estudiantes notificados.'),
             onError: (serverErrors: Record<string, string>) => {
                 setErrors(serverErrors);
                 toast.error('Revisa los campos del formulario.');

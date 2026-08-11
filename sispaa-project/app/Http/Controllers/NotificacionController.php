@@ -36,7 +36,7 @@ class NotificacionController extends Controller
             ->where('leido', false)
             ->update(['leido' => true]);
 
-        return redirect()->back()->with('success', 'Notificaciones marcadas como leídas.');
+        return redirect()->back()->with('info', 'Notificaciones marcadas como leídas.');
     }
 
     /**

@@ -129,6 +129,24 @@ class GrupoDocumentoController extends Controller
             : 'Grupo desactivado correctamente.');
     }
 
+    /**
+     * Edita los datos del grupo (nombre y descripción).
+     */
+    public function update(Request $request, GrupoDocumento $grupo)
+    {
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+            'descripcion' => 'nullable|string|max:1000',
+        ]);
+
+        $grupo->update([
+            'nombre' => $request->nombre,
+            'descripcion' => $request->descripcion,
+        ]);
+
+        return redirect()->back()->with('success', 'Grupo actualizado correctamente.');
+    }
+
     public function requisitoStore(Request $request, GrupoDocumento $grupo)
     {
         $request->validate([

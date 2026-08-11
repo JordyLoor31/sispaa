@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Check, ChevronsUpDown, ArrowLeft, GraduationCap, Hash, Palette } from 'lucide-vue-next';
+import { toast } from 'vue-sonner';
 import {
     Combobox,
     ComboboxAnchor,
@@ -77,6 +78,8 @@ watch(selectedCoordinadorObj, (newVal) => {
 const onSubmit = handleSubmit((values) => {
     processing.value = true;
 
+    const toastId = toast.loading('Guardando carrera...');
+
     const payload = {
         ...values,
         coordinador_id: values.coordinador_id === '' ? null : values.coordinador_id,
@@ -89,6 +92,7 @@ const onSubmit = handleSubmit((values) => {
         },
         onFinish: () => {
             processing.value = false;
+            toast.dismiss(toastId);
         },
     };
 
