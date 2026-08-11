@@ -3,7 +3,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { Progress } from '@/components/ui/progress';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
-import { GraduationCap, User, Calendar, CheckCircle2, Clock, Info } from 'lucide-vue-next';
+import { GraduationCap, User, Calendar, CheckCircle2, Clock } from 'lucide-vue-next';
 
 interface Tutor {
     id: number;

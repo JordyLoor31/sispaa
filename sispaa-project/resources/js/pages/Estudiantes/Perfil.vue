@@ -2,7 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
-import { User, Mail, Shield, Phone, Bookmark, BookOpen, ClipboardEdit, FileText } from 'lucide-vue-next';
+import { User, Mail, Shield, Phone, BookOpen, ClipboardEdit, FileText } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 
 interface UserData {

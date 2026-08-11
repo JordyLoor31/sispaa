@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupTextarea } from '@/components/ui/input-group';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'vue-sonner';
+import { useSubmitToast } from '@/composables/useSubmitToast';
 import { FORMATOS_DOCUMENTO } from '@/lib/formatos-documento';
 
 defineProps<{
@@ -66,19 +67,20 @@ const onSubmit = handleSubmit((values) => {
 
     processing.value = true;
 
+    const { withToast } = useSubmitToast('Creando grupo de documentos...', 'Revisa los campos del formulario.');
+
     router.post(
         route('secretaria.grupos-documentos.store'),
         { ...values, requisitos, requisitos_formatos: requisitosFormatos },
-        {
+        withToast({
             preserveScroll: true,
             onError: (serverErrors: Record<string, string>) => {
                 setErrors(serverErrors);
-                toast.error('Revisa los campos del formulario.');
             },
             onFinish: () => {
                 processing.value = false;
             },
-        },
+        }),
     );
 });
 </script>

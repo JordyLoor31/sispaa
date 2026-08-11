@@ -7,6 +7,7 @@ import { ref } from 'vue';
 import { Button } from '@/components/ui/button';
 import type { GrupoDocumento, Requisito } from './types';
 import { FORMATOS_DOCUMENTO, etiquetasFormatos } from '@/lib/formatos-documento';
+import { useSubmitToast } from '@/composables/useSubmitToast';
 
 const props = defineProps<{
     grupo: GrupoDocumento;
@@ -35,12 +36,13 @@ const cancelEditGrupo = () => {
 };
 
 const submitEditarGrupo = () => {
-    editarGrupoForm.put(route('secretaria.grupos-documentos.update', props.grupo.id), {
+    const { withToast } = useSubmitToast('Guardando grupo...');
+    editarGrupoForm.put(route('secretaria.grupos-documentos.update', props.grupo.id), withToast({
         preserveScroll: true,
         onSuccess: () => {
             editandoGrupo.value = false;
         },
-    });
+    }));
 };
 
 const nuevoRequisitoForm = useForm({ nombre: '', formatos: [] as string[] });
@@ -55,12 +57,13 @@ const toggleFormato = (ext: string) => {
 };
 
 const submitNuevoRequisito = () => {
-    nuevoRequisitoForm.post(route('secretaria.grupos-documentos.requisitos.store', props.grupo.id), {
+    const { withToast } = useSubmitToast('Agregando requisito...');
+    nuevoRequisitoForm.post(route('secretaria.grupos-documentos.requisitos.store', props.grupo.id), withToast({
         preserveScroll: true,
         onSuccess: () => {
             nuevoRequisitoForm.reset();
         },
-    });
+    }));
 };
 
 // Edición de un requisito existente (nombre + formatos permitidos)
@@ -90,12 +93,13 @@ const cancelEdit = () => {
 
 const submitEditarRequisito = () => {
     if (editandoId.value === null) return;
-    editarRequisitoForm.put(route('secretaria.grupos-documentos.requisitos.update', editandoId.value), {
+    const { withToast } = useSubmitToast('Guardando requisito...');
+    editarRequisitoForm.put(route('secretaria.grupos-documentos.requisitos.update', editandoId.value), withToast({
         preserveScroll: true,
         onSuccess: () => {
             editandoId.value = null;
         },
-    });
+    }));
 };
 </script>
 

@@ -4,7 +4,7 @@ import { type BreadcrumbItemType } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { ArrowLeft, CheckCircle2, XCircle, BookOpen, ArrowUpRight } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
-import { toast } from 'vue-sonner';
+import { useSubmitToast } from '@/composables/useSubmitToast';
 import type { SilaboItem } from './types';
 
 const props = defineProps<{
@@ -29,10 +29,10 @@ const submitReview = (accion: 'aprobar' | 'rechazar') => {
         reviewForm.setError('observaciones', 'Debes indicar el motivo del rechazo (mínimo 5 caracteres).');
         return;
     }
-    reviewForm.patch(route('coordinador.silabos.review', props.silabo.id), {
+    const { withToast } = useSubmitToast('Guardando revisión...', 'Revisa los campos del formulario.');
+    reviewForm.patch(route('coordinador.silabos.review', props.silabo.id), withToast({
         preserveScroll: true,
-        onError: () => toast.error('Revisa los campos del formulario.'),
-    });
+    }));
 };
 </script>
 

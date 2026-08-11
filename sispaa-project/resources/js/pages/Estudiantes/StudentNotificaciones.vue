@@ -2,7 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
-import { Bell, CheckCircle2, Clock, Inbox, MailOpen } from 'lucide-vue-next';
+import { Bell, Clock, Inbox, MailOpen } from 'lucide-vue-next';
 
 interface Notificacion {
     id: number;

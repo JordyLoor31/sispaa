@@ -26,13 +26,21 @@ const showConfirmPassword = ref(false);
 // App\Rules\CedulaEcuatoriana y App\Rules\CorreoInstitucional).
 const validarCedula = (): boolean => {
     const error = errorCedulaEcuatoriana(form.cedula);
-    error ? form.setError('cedula', error) : form.clearErrors('cedula');
+    if (error) {
+        form.setError('cedula', error);
+    } else {
+        form.clearErrors('cedula');
+    }
     return !error;
 };
 
 const validarCorreo = (): boolean => {
     const error = errorCorreoInstitucional(form.email);
-    error ? form.setError('email', error) : form.clearErrors('email');
+    if (error) {
+        form.setError('email', error);
+    } else {
+        form.clearErrors('email');
+    }
     return !error;
 };
 

@@ -6,7 +6,7 @@ import { Head, useForm } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import { FileText, CheckCircle2, Clock, UploadCloud, X, ArrowUpRight } from 'lucide-vue-next';
 import { BRAND_GRADIENT, STATUS_COLORS, neutralBadgeStyle, tintedBadgeStyle } from '@/lib/brand';
-import { toast } from 'vue-sonner';
+import { useSubmitToast } from '@/composables/useSubmitToast';
 
 interface InformeItem {
     materia_id: number;
@@ -67,15 +67,13 @@ const submit = () => {
         return;
     }
 
-    const toastId = toast.loading('Subiendo informe...');
-    form.post(route('docencia.mis-informes.upload'), {
+    const { withToast } = useSubmitToast('Subiendo informe...', 'No se pudo subir el informe.');
+    form.post(route('docencia.mis-informes.upload'), withToast({
         preserveScroll: true,
-        onFinish: () => toast.dismiss(toastId),
         onSuccess: () => {
             closeUpload();
         },
-        onError: () => toast.error('No se pudo subir el informe.'),
-    });
+    }));
 };
 
 // Estilos inline theme-aware (ver @/lib/brand): antes mezclaban con negro

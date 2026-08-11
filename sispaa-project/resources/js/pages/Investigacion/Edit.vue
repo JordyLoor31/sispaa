@@ -11,7 +11,7 @@ import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupTextarea } from
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Check, ChevronsUpDown, FlaskConical, X } from 'lucide-vue-next';
-import { toast } from 'vue-sonner';
+import { useSubmitToast } from '@/composables/useSubmitToast';
 import {
     Combobox,
     ComboboxAnchor,
@@ -115,16 +115,15 @@ const processing = ref(false);
 const onSubmit = handleSubmit((values) => {
     processing.value = true;
 
-    const toastId = toast.loading('Guardando proyecto...');
+    const { withToast } = useSubmitToast('Guardando proyecto...');
 
-    router.put(route('investigacion.update', props.proyecto.id), values, {
+    router.put(route('investigacion.update', props.proyecto.id), values, withToast({
         preserveScroll: true,
         onError: (serverErrors: Record<string, string>) => setErrors(serverErrors),
         onFinish: () => {
             processing.value = false;
-            toast.dismiss(toastId);
         },
-    });
+    }));
 });
 </script>
 

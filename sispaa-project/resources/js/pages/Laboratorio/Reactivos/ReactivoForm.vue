@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Check, ChevronsUpDown, TestTube2, Beaker, Scale, Ruler } from 'lucide-vue-next';
-import { toast } from 'vue-sonner';
+import { useSubmitToast } from '@/composables/useSubmitToast';
 import {
     Combobox,
     ComboboxAnchor,
@@ -67,16 +67,15 @@ const processing = ref(false);
 const onSubmit = handleSubmit((values) => {
     processing.value = true;
 
-    const toastId = toast.loading('Guardando reactivo...');
+    const { withToast } = useSubmitToast('Guardando reactivo...');
 
-    const options = {
+    const options = withToast({
         preserveScroll: true,
         onError: (serverErrors: Record<string, string>) => setErrors(serverErrors),
         onFinish: () => {
             processing.value = false;
-            toast.dismiss(toastId);
         },
-    };
+    });
 
     if (isEdit && props.reactivo) {
         router.put(route('laboratorio.reactivos.update', props.reactivo.id), values, options);

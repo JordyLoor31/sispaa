@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Check, ChevronsUpDown, ArrowLeft, CalendarRange, Clock } from 'lucide-vue-next';
-import { toast } from 'vue-sonner';
+import { useSubmitToast } from '@/composables/useSubmitToast';
 import {
     Combobox,
     ComboboxAnchor,
@@ -87,7 +87,7 @@ watch(selectedEstadoObj, (newVal) => {
 const onSubmit = handleSubmit((values) => {
     processing.value = true;
 
-    const toastId = toast.loading('Guardando periodo académico...');
+    const { withToast } = useSubmitToast('Guardando periodo académico...');
 
     const payload = {
         ...values,
@@ -95,16 +95,15 @@ const onSubmit = handleSubmit((values) => {
         fecha_limite_informe: values.fecha_limite_informe || null,
     };
 
-    const options = {
+    const options = withToast({
         onError: (serverErrors: Record<string, string>) => {
             setErrors(serverErrors);
             processing.value = false;
         },
         onFinish: () => {
             processing.value = false;
-            toast.dismiss(toastId);
         },
-    };
+    });
 
     if (props.periodo) {
         router.put(route('admin.periodos.update', props.periodo.id), payload, options);

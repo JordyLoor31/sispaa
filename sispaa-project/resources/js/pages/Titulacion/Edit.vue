@@ -11,7 +11,7 @@ import { InputGroup, InputGroupTextarea, InputGroupAddon, InputGroupInput } from
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Check, ChevronsUpDown, Calendar } from 'lucide-vue-next';
-import { toast } from 'vue-sonner';
+import { useSubmitToast } from '@/composables/useSubmitToast';
 import {
     Combobox,
     ComboboxAnchor,
@@ -69,16 +69,15 @@ const processing = ref(false);
 const onSubmit = handleSubmit((values) => {
     processing.value = true;
 
-    const toastId = toast.loading('Guardando proceso de titulación...');
+    const { withToast } = useSubmitToast('Guardando proceso de titulación...');
 
-    router.put(route('titulacion.update', props.titulacion.id), values, {
+    router.put(route('titulacion.update', props.titulacion.id), values, withToast({
         preserveScroll: true,
         onError: (serverErrors: Record<string, string>) => setErrors(serverErrors),
         onFinish: () => {
             processing.value = false;
-            toast.dismiss(toastId);
         },
-    });
+    }));
 });
 </script>
 

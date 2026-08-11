@@ -9,7 +9,7 @@ import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/in
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Building2, Hash, Briefcase, Phone, MapPin } from 'lucide-vue-next';
-import { toast } from 'vue-sonner';
+import { useSubmitToast } from '@/composables/useSubmitToast';
 import type { Beneficiario, TipoBeneficiario } from './types';
 
 const props = defineProps<{
@@ -71,16 +71,15 @@ const goBack = () => {
 const onSubmit = handleSubmit((formValues) => {
     processing.value = true;
 
-    const toastId = toast.loading('Guardando beneficiario...');
+    const { withToast } = useSubmitToast('Guardando beneficiario...');
 
-    const options = {
+    const options = withToast({
         preserveScroll: true,
         onError: (serverErrors: Record<string, string>) => setErrors(serverErrors),
         onFinish: () => {
             processing.value = false;
-            toast.dismiss(toastId);
         },
-    };
+    });
 
     if (isEditing && props.beneficiario) {
         router.put(route('vinculacion.beneficiarios.update', props.beneficiario.id), formValues, options);

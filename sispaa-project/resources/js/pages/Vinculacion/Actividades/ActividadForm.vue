@@ -9,7 +9,7 @@ import { useForm } from 'vee-validate';
 import { computed, ref } from 'vue';
 import * as z from 'zod';
 import ComboSelect from './ComboSelect.vue';
-import { toast } from 'vue-sonner';
+import { useSubmitToast } from '@/composables/useSubmitToast';
 import MatrizBeneficiarios from './MatrizBeneficiarios.vue';
 import {
     conteosToMatriz,
@@ -116,7 +116,7 @@ const goBack = () => {
 const onSubmit = handleSubmit((values) => {
     processing.value = true;
 
-    const toastId = toast.loading('Guardando actividad...');
+    const { withToast } = useSubmitToast('Guardando actividad...');
 
     const payload = {
         ...values,
@@ -128,14 +128,13 @@ const onSubmit = handleSubmit((values) => {
         conteos: matrizToConteos(matriz.value),
     };
 
-    const options = {
+    const options = withToast({
         preserveScroll: true,
         onError: (serverErrors: Record<string, string>) => setErrors(serverErrors),
         onFinish: () => {
             processing.value = false;
-            toast.dismiss(toastId);
         },
-    };
+    });
 
     if (isEditing && props.actividad) {
         router.put(route('vinculacion.actividades.update', props.actividad.id), payload, options);

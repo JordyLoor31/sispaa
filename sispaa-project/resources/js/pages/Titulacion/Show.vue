@@ -6,7 +6,7 @@ import { ArrowLeft, Pencil, GraduationCap } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 import type { Titulacion } from './columns';
 
-const props = defineProps<{
+defineProps<{
     titulacion: Titulacion;
     puedeGestionar: boolean;
     breadcrumbs?: BreadcrumbItemType[];

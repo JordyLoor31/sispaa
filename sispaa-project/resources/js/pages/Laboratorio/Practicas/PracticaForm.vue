@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupTextarea } from '@/components/ui/input-group';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Check, ChevronsUpDown, Hash, Calendar, Clock, BookOpen, Layers, Award, GraduationCap, Users2 } from 'lucide-vue-next';
-import { toast } from 'vue-sonner';
+import { useSubmitToast } from '@/composables/useSubmitToast';
 import {
     Combobox,
     ComboboxAnchor,
@@ -132,16 +132,15 @@ const processing = ref(false);
 const onSubmit = handleSubmit((values) => {
     processing.value = true;
 
-    const toastId = toast.loading('Guardando práctica...');
+    const { withToast } = useSubmitToast('Guardando práctica...');
 
-    const options = {
+    const options = withToast({
         preserveScroll: true,
         onError: (serverErrors: Record<string, string>) => setErrors(serverErrors),
         onFinish: () => {
             processing.value = false;
-            toast.dismiss(toastId);
         },
-    };
+    });
 
     if (isEdit && props.practica) {
         router.put(route('laboratorio.practicas.update', props.practica.id), values, options);

@@ -112,7 +112,7 @@
 </AppSidebarLayout>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import AppSidebarLayout from '@/layouts/app/AppSidebarLayout.vue'
 import { ref, computed } from 'vue'
 

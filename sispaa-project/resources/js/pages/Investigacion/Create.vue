@@ -21,7 +21,7 @@ import {
     ComboboxList,
     ComboboxTrigger,
 } from '@/components/ui/combobox';
-import { toast } from 'vue-sonner';
+import { useSubmitToast } from '@/composables/useSubmitToast';
 import type { Catalogo } from './types';
 
 const props = defineProps<{
@@ -105,19 +105,17 @@ const processing = ref(false);
 const onSubmit = handleSubmit((values) => {
     processing.value = true;
 
-    const toastId = toast.loading('Guardando proyecto...');
+    const { withToast } = useSubmitToast('Guardando proyecto...', 'Revisa los campos del formulario.');
 
-    router.post(route('investigacion.store'), values, {
+    router.post(route('investigacion.store'), values, withToast({
         preserveScroll: true,
         onError: (serverErrors: Record<string, string>) => {
             setErrors(serverErrors);
-            toast.error('Revisa los campos del formulario.');
         },
         onFinish: () => {
             processing.value = false;
-            toast.dismiss(toastId);
         },
-    });
+    }));
 });
 </script>
 

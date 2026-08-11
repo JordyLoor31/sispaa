@@ -4,7 +4,7 @@ import { type BreadcrumbItemType } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { ArrowLeft, CheckCircle2, XCircle, Clock, FileText, Eye, GraduationCap, Users } from 'lucide-vue-next';
 import { ref } from 'vue';
-import { toast } from 'vue-sonner';
+import { useSubmitToast } from '@/composables/useSubmitToast';
 import { BRAND_GRADIENT, STATUS_COLORS, tintedBadgeStyle, neutralBadgeStyle } from '@/lib/brand';
 import { Button } from '@/components/ui/button';
 
@@ -64,12 +64,12 @@ const submitReview = (doc: DocumentoRow, accion: 'aprobar' | 'rechazar') => {
         reviewForm.setError('observacion', 'Debes indicar el motivo del rechazo (mínimo 5 caracteres).');
         return;
     }
+    const { withToast } = useSubmitToast('Procesando revisión...', 'Error al procesar la revisión.');
     reviewForm.patch(
         route('estudiantes.review', { estudiante: props.estudiante.id, documento: doc.id }),
-        {
+        withToast({
             preserveScroll: true,
-            onError: () => toast.error('Error al procesar la revisión.'),
-        },
+        }),
     );
 };
 

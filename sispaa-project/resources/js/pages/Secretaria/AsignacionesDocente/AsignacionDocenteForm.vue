@@ -5,7 +5,7 @@ import { useForm } from 'vee-validate';
 import * as z from 'zod';
 import { ref, watch } from 'vue';
 import { Check, ChevronsUpDown, GraduationCap, Lock } from 'lucide-vue-next';
-import { toast } from 'vue-sonner';
+import { useSubmitToast } from '@/composables/useSubmitToast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -87,18 +87,17 @@ const processing = ref(false);
 const onSubmit = handleSubmit((submitValues) => {
     processing.value = true;
 
-    const toastId = toast.loading('Guardando asignación...');
+    const { withToast } = useSubmitToast('Guardando asignación...');
 
-    const options = {
+    const options = withToast({
         preserveScroll: true,
         onError: (serverErrors: Record<string, string>) => {
             setErrors(serverErrors);
         },
         onFinish: () => {
             processing.value = false;
-            toast.dismiss(toastId);
         },
-    };
+    });
 
     if (isEditing && props.asignacion) {
         router.put(route('secretaria.asignaciones-docente.update', props.asignacion.id), submitValues, options);

@@ -5,7 +5,7 @@ import { type BreadcrumbItemType } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import { BookOpen, CheckCircle2, Clock, UploadCloud, X, ArrowUpRight } from 'lucide-vue-next';
-import { toast } from 'vue-sonner';
+import { useSubmitToast } from '@/composables/useSubmitToast';
 
 interface SilaboItem {
     materia_id: number;
@@ -67,15 +67,13 @@ const submit = () => {
         return;
     }
 
-    const toastId = toast.loading('Subiendo sílabo...');
-    form.post(route('docencia.mis-silabos.upload'), {
+    const { withToast } = useSubmitToast('Subiendo sílabo...', 'No se pudo subir el sílabo.');
+    form.post(route('docencia.mis-silabos.upload'), withToast({
         preserveScroll: true,
-        onFinish: () => toast.dismiss(toastId),
         onSuccess: () => {
             closeUpload();
         },
-        onError: () => toast.error('No se pudo subir el sílabo.'),
-    });
+    }));
 };
 
 const estadoBadge = (estado: string) => {

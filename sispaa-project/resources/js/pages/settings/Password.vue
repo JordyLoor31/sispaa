@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { type BreadcrumbItem } from '@/types';
-import { toast } from 'vue-sonner';
+import { useSubmitToast } from '@/composables/useSubmitToast';
 
 interface Props {
     className?: string;
@@ -36,10 +36,9 @@ const form = useForm({
 });
 
 const updatePassword = () => {
-    const toastId = toast.loading('Actualizando contraseña...');
-    form.put(route('password.update'), {
+    const { withToast } = useSubmitToast('Actualizando contraseña...');
+    form.put(route('password.update'), withToast({
         preserveScroll: true,
-        onFinish: () => toast.dismiss(toastId),
         onSuccess: () => form.reset(),
         onError: (errors: any) => {
             if (errors.password) {
@@ -56,7 +55,7 @@ const updatePassword = () => {
                 }
             }
         },
-    });
+    }));
 };
 </script>
 

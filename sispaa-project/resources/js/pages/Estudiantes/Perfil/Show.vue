@@ -4,6 +4,7 @@ import { type BreadcrumbItemType } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
 import { ArrowLeft, GraduationCap, Home, IdCard, Users } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
+import { usePermissions } from '@/composables/usePermissions';
 import { PARENTESCO_LABELS, type Familiar } from './columns';
 
 interface PerfilEstudiante {

@@ -8,7 +8,7 @@ import { BRAND_GRADIENT } from '@/lib/brand';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { toast } from 'vue-sonner';
+import { useSubmitToast } from '@/composables/useSubmitToast';
 import { type Actividad, type EstadoActividad, ESTADO_LABELS } from './types';
 
 const props = defineProps<{
@@ -27,11 +27,11 @@ const deleteTarget = ref<Actividad | null>(null);
 const confirmDelete = () => {
     const target = deleteTarget.value;
     if (!target) return;
-    router.delete(route('vinculacion.actividades.destroy', target.id), {
+    const { withToast } = useSubmitToast('Eliminando actividad...', 'No se pudo eliminar la actividad.');
+    router.delete(route('vinculacion.actividades.destroy', target.id), withToast({
         preserveScroll: true,
         onSuccess: () => { deleteTarget.value = null; },
-        onError: () => toast.error('No se pudo eliminar la actividad.'),
-    });
+    }));
 };
 
 // Colores por estado: en_ejecucion = dorado, ejecutado = secundario, cancelado = rojo.

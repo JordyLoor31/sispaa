@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Check, ChevronsUpDown, ArrowLeft, User, Mail, Lock, IdCard, Phone } from 'lucide-vue-next';
-import { toast } from 'vue-sonner';
+import { useSubmitToast } from '@/composables/useSubmitToast';
 import { errorCedulaEcuatoriana } from '@/lib/cedula';
 import { errorCorreoInstitucional } from '@/lib/correo';
 import {
@@ -122,23 +122,22 @@ const processing = ref(false);
 const onSubmit = handleSubmit((values) => {
     processing.value = true;
 
-    const toastId = toast.loading('Guardando usuario...');
+    const { withToast } = useSubmitToast('Guardando usuario...');
 
     const payload = {
         ...values,
         carrera_id: values.carrera_id === '' ? null : values.carrera_id,
     };
 
-    const options = {
+    const options = withToast({
         onError: (serverErrors: Record<string, string>) => {
             setErrors(serverErrors);
             processing.value = false;
         },
         onFinish: () => {
             processing.value = false;
-            toast.dismiss(toastId);
         },
-    };
+    });
 
     if (props.usuario) {
         router.put(route('admin.usuarios.update', props.usuario.id), payload, options);

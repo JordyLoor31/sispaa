@@ -6,7 +6,7 @@ import { toTypedSchema } from '@vee-validate/zod';
 import { useForm } from 'vee-validate';
 import * as z from 'zod';
 import { computed, ref, watch } from 'vue';
-import { toast } from 'vue-sonner';
+import { useSubmitToast } from '@/composables/useSubmitToast';
 import {
     ArrowLeft, ArrowRight, Check, ChevronsUpDown, Save, Users, GraduationCap,
     Home, IdCard, Plus, X, Building2,
@@ -413,9 +413,9 @@ const onSubmit = handleSubmit(
 
         console.log('[Perfil] Enviando al servidor:', payload);
 
-        const toastId = toast.loading('Guardando perfil...');
+        const { withToast } = useSubmitToast('Guardando perfil...');
 
-        router.put(route('student.perfil.update'), payload, {
+        router.put(route('student.perfil.update'), payload, withToast({
             preserveScroll: true,
             onError: (serverErrors: Record<string, string>) => {
                 const claves = Object.keys(serverErrors);
@@ -431,8 +431,8 @@ const onSubmit = handleSubmit(
                 setErrors(serverErrors);
                 processing.value = false;
             },
-            onFinish: () => { processing.value = false; toast.dismiss(toastId); },
-        });
+            onFinish: () => { processing.value = false; },
+        }));
     },
     ({ errors }) => {
         // Envío inválido: en vez de saltar de paso en silencio, se explica
@@ -484,12 +484,11 @@ function editarFamiliar(familiar: Familiar) {
 }
 
 function guardarFamiliar() {
-    const toastId = toast.loading(editandoFamiliarId.value ? 'Guardando familiar...' : 'Agregando familiar...');
-    const opciones = {
+    const { withToast } = useSubmitToast(editandoFamiliarId.value ? 'Guardando familiar...' : 'Agregando familiar...');
+    const opciones = withToast({
         preserveScroll: true,
-        onFinish: () => toast.dismiss(toastId),
         onSuccess: () => nuevoFamiliar(),
-    };
+    });
 
     if (editandoFamiliarId.value) {
         familiarForm.put(route('student.familiares.update', editandoFamiliarId.value), opciones);
@@ -500,11 +499,10 @@ function guardarFamiliar() {
 
 function eliminarFamiliar(familiar: Familiar) {
     if (!confirm(`¿Eliminar a ${familiar.nombres} de tus familiares registrados?`)) return;
-    const toastId = toast.loading('Eliminando familiar...');
-    router.delete(route('student.familiares.destroy', familiar.id), {
+    const { withToast } = useSubmitToast('Eliminando familiar...', 'No se pudo eliminar el familiar.');
+    router.delete(route('student.familiares.destroy', familiar.id), withToast({
         preserveScroll: true,
-        onFinish: () => toast.dismiss(toastId),
-    });
+    }));
 }
 
 const familiarColumns = makeFamiliarColumns({ onEdit: editarFamiliar, onDelete: eliminarFamiliar });

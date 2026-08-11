@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { toast } from 'vue-sonner';
+import { useSubmitToast } from '@/composables/useSubmitToast';
 
 interface Hito {
     id: number;
@@ -75,16 +75,17 @@ const openEditHito = (h: Hito) => {
 };
 
 const submitHito = () => {
+    const { withToast } = useSubmitToast(editingHito.value ? 'Guardando hito...' : 'Creando hito...');
     if (editingHito.value) {
-        hitoForm.put(route('investigacion.hitos.update', editingHito.value.id), {
+        hitoForm.put(route('investigacion.hitos.update', editingHito.value.id), withToast({
             preserveScroll: true,
             onSuccess: () => { showHitoForm.value = false; },
-        });
+        }));
     } else {
-        hitoForm.post(route('investigacion.hitos.store', props.proyecto.id), {
+        hitoForm.post(route('investigacion.hitos.store', props.proyecto.id), withToast({
             preserveScroll: true,
             onSuccess: () => { showHitoForm.value = false; hitoForm.reset(); },
-        });
+        }));
     }
 };
 
@@ -93,13 +94,14 @@ const puedePreguntar = props.esLider || props.esColider;
 const showPreguntaForm = ref(false);
 const preguntaForm = useForm({ pregunta: '' });
 const submitPregunta = () => {
-    preguntaForm.post(route('investigacion.seguimiento.store', props.proyecto.id), {
+    const { withToast } = useSubmitToast('Publicando pregunta...');
+    preguntaForm.post(route('investigacion.seguimiento.store', props.proyecto.id), withToast({
         preserveScroll: true,
         onSuccess: () => {
             showPreguntaForm.value = false;
             preguntaForm.reset();
         },
-    });
+    }));
 };
 
 // ── Seguimiento: docente responde ────────────────────
@@ -112,10 +114,11 @@ const openResponder = (s: Seguimiento) => {
 };
 const submitRespuesta = () => {
     if (!respondiendo.value) return;
-    respuestaForm.patch(route('investigacion.seguimiento.responder', respondiendo.value.id), {
+    const { withToast } = useSubmitToast('Guardando respuesta...');
+    respuestaForm.patch(route('investigacion.seguimiento.responder', respondiendo.value.id), withToast({
         preserveScroll: true,
         onSuccess: () => { respondiendo.value = null; },
-    });
+    }));
 };
 
 // ── Informe trimestral: solo el líder puede subirlo ──
@@ -129,17 +132,15 @@ const onArchivoChange = (event: Event) => {
     informeForm.archivo = file;
 };
 const submitInforme = () => {
-    const toastId = toast.loading('Subiendo informe trimestral...');
-    informeForm.post(route('investigacion.informes.store', props.proyecto.id), {
+    const { withToast } = useSubmitToast('Subiendo informe trimestral...', 'No se pudo subir el informe trimestral.');
+    informeForm.post(route('investigacion.informes.store', props.proyecto.id), withToast({
         preserveScroll: true,
         forceFormData: true,
-        onFinish: () => toast.dismiss(toastId),
         onSuccess: () => {
             showInformeForm.value = false;
             informeForm.reset();
         },
-        onError: () => toast.error('No se pudo subir el informe trimestral.'),
-    });
+    }));
 };
 </script>
 

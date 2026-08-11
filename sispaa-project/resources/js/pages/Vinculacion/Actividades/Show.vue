@@ -6,7 +6,7 @@ import { ArrowLeft, Pencil, Handshake, Users, Plus, CheckCircle2, XCircle } from
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
-import { toast } from 'vue-sonner';
+import { useSubmitToast } from '@/composables/useSubmitToast';
 import { ref } from 'vue';
 import MatrizBeneficiarios from './MatrizBeneficiarios.vue';
 import { type Actividad, type EstadoActividad, type Matriz, ESTADO_LABELS, GENEROS, RANGOS_EDAD, emptyMatriz, matrizToConteos } from './types';
@@ -39,19 +39,19 @@ const addProcessing = ref(false);
 
 const submitAdicionales = () => {
     addProcessing.value = true;
+    const { withToast } = useSubmitToast('Registrando beneficiarios...', 'Revisa los datos: registra al menos una cantidad.');
     router.post(
         route('vinculacion.actividades.beneficiarios.store', props.actividad.id),
         { fecha: addFecha.value, observacion: addObs.value, conteos: matrizToConteos(addMatriz.value) },
-        {
+        withToast({
             preserveScroll: true,
             onSuccess: () => {
                 addOpen.value = false;
                 addMatriz.value = emptyMatriz();
                 addObs.value = '';
             },
-            onError: () => toast.error('Revisa los datos: registra al menos una cantidad.'),
             onFinish: () => { addProcessing.value = false; },
-        },
+        }),
     );
 };
 
@@ -62,15 +62,15 @@ const ejecutarProcessing = ref(false);
 
 const submitEjecutar = () => {
     ejecutarProcessing.value = true;
+    const { withToast } = useSubmitToast('Guardando estado...', (errors) => errors.fecha_fin ?? 'No se pudo actualizar el estado.');
     router.put(
         route('vinculacion.actividades.update', props.actividad.id),
         { estado: 'ejecutado', fecha_fin: fechaFin.value },
-        {
+        withToast({
             preserveScroll: true,
             onSuccess: () => { ejecutarOpen.value = false; },
-            onError: (e) => toast.error(e.fecha_fin ?? 'No se pudo actualizar el estado.'),
             onFinish: () => { ejecutarProcessing.value = false; },
-        },
+        }),
     );
 };
 
@@ -82,15 +82,15 @@ const cancelarProcessing = ref(false);
 
 const submitCancelar = () => {
     cancelarProcessing.value = true;
+    const { withToast } = useSubmitToast('Cancelando actividad...', 'No se pudo cancelar la actividad.');
     router.put(
         route('vinculacion.actividades.update', props.actividad.id),
         { estado: 'cancelado', fecha_cierre: fechaCierre.value || null, motivo_cancelacion: motivo.value || null },
-        {
+        withToast({
             preserveScroll: true,
             onSuccess: () => { cancelarOpen.value = false; },
-            onError: () => toast.error('No se pudo cancelar la actividad.'),
             onFinish: () => { cancelarProcessing.value = false; },
-        },
+        }),
     );
 };
 </script>
