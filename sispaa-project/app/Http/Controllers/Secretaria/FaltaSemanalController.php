@@ -31,7 +31,7 @@ class FaltaSemanalController extends Controller
 
     private function periodosDisponibles()
     {
-        return PeriodoAcademico::orderByDesc('id')->get(['id', 'nombre', 'estado']);
+        return PeriodoAcademico::vigente()->orderByDesc('id')->get(['id', 'nombre', 'estado']);
     }
 
     public function index(Request $request): Response

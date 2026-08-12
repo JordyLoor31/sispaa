@@ -30,4 +30,45 @@ class AsignacionDocente extends Model
     {
         return $this->belongsTo(\App\Models\Admin\PeriodoAcademico::class, 'periodo_id');
     }
+
+    /**
+     * Replica las asignaciones de un periodo a otro (docente, materia,
+     * tipo_rol y grupo), respetando la clave única (docente, materia,
+     * periodo, grupo): las filas que ya existan en el periodo destino se
+     * omiten. Se usa al activar un periodo nuevo para que los docentes ya
+     * tengan sus materias asignadas y la carrera quede vinculada sin
+     * reingresar todo a mano. Devuelve cuántas asignaciones se copiaron.
+     */
+    public static function copiarDesdePeriodo(int $desdePeriodoId, int $haciaPeriodoId): int
+    {
+        $origenes = self::where('periodo_id', $desdePeriodoId)->get();
+
+        $copiadas = 0;
+        foreach ($origenes as $origen) {
+            $query = self::where('periodo_id', $haciaPeriodoId)
+                ->where('docente_id', $origen->docente_id)
+                ->where('materia_id', $origen->materia_id);
+
+            if ($origen->grupo === null) {
+                $query->whereNull('grupo');
+            } else {
+                $query->where('grupo', $origen->grupo);
+            }
+
+            if ($query->exists()) {
+                continue;
+            }
+
+            self::create([
+                'periodo_id' => $haciaPeriodoId,
+                'docente_id' => $origen->docente_id,
+                'materia_id' => $origen->materia_id,
+                'tipo_rol' => $origen->tipo_rol,
+                'grupo' => $origen->grupo,
+            ]);
+            $copiadas++;
+        }
+
+        return $copiadas;
+    }
 }

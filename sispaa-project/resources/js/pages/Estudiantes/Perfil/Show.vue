@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppSidebarLayout from '@/layouts/app/AppSidebarLayout.vue';
+import { computed } from 'vue';
 import { type BreadcrumbItemType } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
 import { ArrowLeft, GraduationCap, Home, IdCard, Users } from 'lucide-vue-next';
@@ -64,6 +65,15 @@ const perfil = props.estudiante.perfilEstudiante;
 const datos = props.estudiante.datosAdicionales;
 
 const dato = (valor: string | number | null | undefined) => (valor === null || valor === undefined || valor === '' ? '—' : String(valor));
+
+const { isSystemAdmin } = usePermissions();
+
+const backHref = computed(() =>
+    isSystemAdmin()
+        ? route('admin.usuarios.show', props.estudiante.id)
+        : route('estudiantes.show', props.estudiante.id),
+);
+const backLabel = computed(() => (isSystemAdmin() ? 'Volver al Usuario' : 'Volver al Estudiante'));
 </script>
 
 <template>
@@ -81,8 +91,8 @@ const dato = (valor: string | number | null | undefined) => (valor === null || v
                     </p>
                 </div>
                 <Button as-child variant="outline">
-                    <Link :href="route('admin.usuarios.show', estudiante.id)">
-                        <ArrowLeft class="mr-1.5 h-4 w-4" /> Volver al Usuario
+                    <Link :href="backHref">
+                        <ArrowLeft class="mr-1.5 h-4 w-4" /> {{ backLabel }}
                     </Link>
                 </Button>
             </div>

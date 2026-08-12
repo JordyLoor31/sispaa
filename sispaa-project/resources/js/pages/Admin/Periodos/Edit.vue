@@ -2,8 +2,9 @@
 import AppSidebarLayout from '@/layouts/app/AppSidebarLayout.vue';
 import { type BreadcrumbItemType } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
-import { FlagTriangleRight } from 'lucide-vue-next';
+import { FlagTriangleRight, PlayCircle } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
+import { useSubmitToast } from '@/composables/useSubmitToast';
 import PeriodoForm from './Form.vue';
 import type { Periodo } from './columns';
 
@@ -12,10 +13,22 @@ const props = defineProps<{
     breadcrumbs?: BreadcrumbItemType[];
 }>();
 
-// Acción rápida para finalizar sin pasar por el combobox de Estado + Guardar
-// (antes vivía como botón en la tabla del listado; ahora solo aquí).
-const finalizar = () => {
-    router.post(route('admin.periodos.finalizar', props.periodo.id), {}, { preserveScroll: true });
+// Acción rápida según el estado: activar cuando está planificado, desactivar
+// cuando está activo (equivalente al antiguo "Finalizar", mejor nombrado).
+const activar = () => {
+    const { withToast } = useSubmitToast(
+        'Activando periodo...',
+        (errors) => errors.estado ?? 'No se pudo activar el periodo.',
+    );
+    router.post(route('admin.periodos.activar', props.periodo.id), {}, withToast({ preserveScroll: true }));
+};
+
+const desactivar = () => {
+    const { withToast } = useSubmitToast(
+        'Desactivando periodo...',
+        (errors) => errors.estado ?? 'No se pudo desactivar el periodo.',
+    );
+    router.post(route('admin.periodos.finalizar', props.periodo.id), {}, withToast({ preserveScroll: true }));
 };
 </script>
 
@@ -33,8 +46,11 @@ const finalizar = () => {
                         {{ props.periodo.nombre }}
                     </p>
                 </div>
-                <Button v-if="periodo.estado === 'activo'" @click="finalizar" variant="outline" class="text-rose-500 border-rose-200 hover:bg-rose-50">
-                    <FlagTriangleRight class="h-4 w-4 mr-1.5" /> Finalizar Periodo
+                <Button v-if="periodo.estado === 'planificado'" @click="activar" class="text-white bg-[var(--sispaa-secondary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-secondary)_85%,black)]">
+                    <PlayCircle class="h-4 w-4 mr-1.5" /> Activar Periodo
+                </Button>
+                <Button v-else-if="periodo.estado === 'activo'" @click="desactivar" variant="outline" class="text-rose-500 border-rose-200 hover:bg-rose-50">
+                    <FlagTriangleRight class="h-4 w-4 mr-1.5" /> Desactivar Periodo
                 </Button>
             </div>
 

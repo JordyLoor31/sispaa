@@ -47,7 +47,7 @@ class DocenteController extends Controller
 
         $asignaciones = AsignacionDocente::with(['materia.carrera', 'periodo'])
             ->where('docente_id', $docenteId)
-            ->whereHas('periodo', fn ($q) => $q->where('estado', 'activo'))
+            ->whereHas('periodo', fn ($q) => $q->vigente())
             ->get();
 
         $pares = $asignaciones

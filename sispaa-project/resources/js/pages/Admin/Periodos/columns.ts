@@ -36,6 +36,19 @@ interface PeriodoColumnsOptions {
     onActivar: (periodo: Periodo) => void;
 }
 
+const formatDateTime = (value: string | null | undefined): string => {
+    if (!value) return '—';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return value;
+    return date.toLocaleString('es-EC', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+    });
+};
+
 export function makePeriodoColumns({ onActivar }: PeriodoColumnsOptions): ColumnDef<Periodo>[] {
     return [
         {
@@ -54,7 +67,7 @@ export function makePeriodoColumns({ onActivar }: PeriodoColumnsOptions): Column
             id: 'duracion',
             meta: { label: 'Duración' },
             header: 'Duración',
-            cell: ({ row }) => h('span', { class: 'text-sm opacity-80 text-[var(--sispaa-text)]' }, `${row.original.fecha_inicio} — ${row.original.fecha_fin}`),
+            cell: ({ row }) => h('span', { class: 'text-sm opacity-80 text-[var(--sispaa-text)]' }, `${formatDateTime(row.original.fecha_inicio)} — ${formatDateTime(row.original.fecha_fin)}`),
         },
         {
             accessorKey: 'estado',

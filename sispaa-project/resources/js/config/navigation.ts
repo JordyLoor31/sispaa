@@ -30,7 +30,6 @@ export const dashboardNavItem: NavItem = {
 export const revisionDocumentosNavItems: NavItem[] = [
     { title: 'Sílabos', href: route('coordinador.silabos.index') },
     { title: 'Informes de Asignatura', href: route('secretaria.informes.index') },
-    { title: 'Expediente / Documentos del Estudiante', href: route('estudiantes.index') },
 ];
 
 /** Exclusivo de SystemAdministrador (gestión del sistema en sí). */
@@ -219,18 +218,6 @@ export const estudianteNavItems: NavItem[] = [
     },
 ];
 
-/** Ítems de Estudiantes que administra el staff, separados del portal del estudiante. */
-export const gestionEstudiantesNavItems: NavItem[] = [
-    {
-        title: 'Estudiantes',
-        href: route('estudiantes.index'),
-        icon: Book,
-        items: [
-            { title: 'Estudiantes', href: route('estudiantes.index') },
-        ],
-    },
-];
-
 /** Un bloque por rol, usado para armar la vista "todo" en cascada de SystemAdministrador. */
 export interface NavRoleGroup {
     key: string;
@@ -242,7 +229,7 @@ export interface NavRoleGroup {
 export const roleNavGroups: NavRoleGroup[] = [
     { key: 'administracion', label: 'Administración', items: systemAdministradorNavItems, icon: Settings },
     { key: 'docente', label: 'Docente', items: docenteNavItems, icon: Feather },
-    { key: 'coordinador', label: 'Coordinación', items: [...coordinadorAdminOverviewNavItems, ...gestionEstudiantesNavItems], icon: Users },
+    { key: 'coordinador', label: 'Coordinación', items: coordinadorAdminOverviewNavItems, icon: Users },
     { key: 'secretaria', label: 'Secretaría', items: secretariaAdminOverviewNavItems, icon: FileText },
     { key: 'estudiante', label: 'Estudiante', items: estudianteNavItems, icon: User },
 ];
@@ -251,7 +238,7 @@ export const roleNavGroups: NavRoleGroup[] = [
 export const navByRole: Record<string, NavItem[]> = {
     [ROLES.SECRETARIA]: secretariaNavItems,
     [ROLES.DOCENTE]: docenteNavItems,
-    [ROLES.COORDINADOR]: [...coordinadorNavItems, ...gestionEstudiantesNavItems],
+    [ROLES.COORDINADOR]: coordinadorNavItems,
     [ROLES.ESTUDIANTE]: estudianteNavItems,
 };
 
@@ -286,7 +273,7 @@ export function resolveSidebarNav(userRoles: string[] = []): { mode: 'grouped' |
     const matchedRoles = Object.keys(navByRole).filter((role) => userRoles.includes(role));
 
     // Combina los items de cada rol coincidente evitando duplicar el mismo href
-    // (relevante para docente+coordinador, ambos con acceso a "Estudiantes").
+    // (relevante si un usuario tiene varios roles con ítems en común).
     const seenHrefs = new Set<string>();
     const items: NavItem[] = [];
     for (const role of matchedRoles) {

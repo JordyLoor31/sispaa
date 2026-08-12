@@ -46,7 +46,7 @@ const formSchema = toTypedSchema(
     }),
 );
 
-const { handleSubmit, setErrors, defineField } = useForm({
+const { handleSubmit, setErrors, setFieldValue, defineField } = useForm({
     validationSchema: formSchema,
     initialValues: {
         nombre: props.periodo?.nombre ?? '',
@@ -83,6 +83,24 @@ watch(() => estadoField.value, (newVal) => {
 watch(selectedEstadoObj, (newVal) => {
     if (newVal) estadoField.value = newVal.value;
 });
+
+// Si el periodo prop cambia (p. ej. al volver de activar/desactivar desde el
+// botón rápido, Inertia reusa el mismo componente), hay que sincronizar el
+// formulario; si no, el combobox queda con el estado viejo y "Guardar Cambios"
+// revierte el estado recién cambiado.
+watch(
+    () => props.periodo,
+    (p) => {
+        if (!p) return;
+        setFieldValue('nombre', p.nombre);
+        setFieldValue('fecha_inicio', p.fecha_inicio);
+        setFieldValue('fecha_fin', p.fecha_fin);
+        setFieldValue('tipo', p.tipo as 'semestral' | 'anual');
+        setFieldValue('estado', p.estado);
+        setFieldValue('fecha_limite_silabo', p.fecha_limite_silabo ?? '');
+        setFieldValue('fecha_limite_informe', p.fecha_limite_informe ?? '');
+    },
+);
 
 const onSubmit = handleSubmit((values) => {
     processing.value = true;

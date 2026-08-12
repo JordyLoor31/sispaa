@@ -40,6 +40,31 @@ class PeriodoAcademico extends Model
     }
 
     /**
+     * Período "vigente": activo y dentro de su rango de fechas (fecha_fin aún
+     * no vencida). Es el que consumen los demás roles (docente, secretaría,
+     * coordinación): un período que ya venció deja de aparecer aquí aunque el
+     * estado en BD no se haya flipado aún a finalizado.
+     */
+    public function scopeVigente($query)
+    {
+        return $query->where('estado', self::ESTADO_ACTIVO)
+            ->whereDate('fecha_fin', '>=', now()->toDateString());
+    }
+
+    /**
+     * Desactiva automáticamente los períodos activos cuya fecha_fin ya pasó
+     * (los marca como finalizado). Lo llama el scheduler y también el listado
+     * del admin, para que un período vencido no siga apareciendo como activo.
+     */
+    public static function finalizarVencidos(): int
+    {
+        return self::query()
+            ->where('estado', self::ESTADO_ACTIVO)
+            ->whereDate('fecha_fin', '<', now()->toDateString())
+            ->update(['estado' => self::ESTADO_FINALIZADO]);
+    }
+
+    /**
      * Un periodo académico es una entidad global compartida por todas las
      * carreras (ej. "2026-1"), no un registro por carrera. El alcance por
      * carrera se resuelve en cada tabla dependiente que ya tiene su propio

@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Traits\HasBreadcrumbs;
 use App\Models\Admin\PeriodoAcademico;
+use App\Models\Docencia\AsignacionDocente;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -25,6 +27,11 @@ class PeriodoAcademicoController extends Controller
 
     public function index(Request $request): Response
     {
+        // Desactiva automáticamente los períodos activos cuya fecha_fin ya
+        // venció, para que el listado refleje el estado real (mismo criterio
+        // que usa el scheduler diario).
+        PeriodoAcademico::finalizarVencidos();
+
         $query = PeriodoAcademico::query();
 
         if ($q = $request->input('q')) {
@@ -99,11 +106,34 @@ class PeriodoAcademicoController extends Controller
             'fecha_limite_informe' => 'nullable|date',
         ]);
 
+        // Un periodo con fecha de fin ya vencida no puede activarse: el
+        // scheduler/listado lo desactiva solo al instante, así que dejarlo
+        // "activo" sería un cambio que no se guarda. Mejor avisar y pedir que
+        // primero se extienda la fecha de fin.
+        if ($validated['estado'] === PeriodoAcademico::ESTADO_ACTIVO
+            && Carbon::parse($validated['fecha_fin'])->isPast()) {
+            return back()->withErrors([
+                'estado' => 'No se puede activar: la fecha de fin ('.Carbon::parse($validated['fecha_fin'])->format('d/m/Y').') ya venció. Extiende la fecha de fin para poder activar el periodo.',
+            ])->withInput();
+        }
+
+        // Se copia desde el periodo anterior cronológico (sin importar si ya
+        // quedó finalizado solo por vencimiento): así el nuevo periodo arranca
+        // con las mismas materias asignadas a los docentes.
+        $anterior = PeriodoAcademico::where('id', '!=', $periodo->id)
+            ->orderByDesc('fecha_inicio')
+            ->first();
+
         $this->aplicarEstado($periodo, $validated['estado']);
 
         $periodo->update($validated);
 
-        return redirect()->route('admin.periodos.index')->with('success', 'Periodo académico actualizado correctamente.');
+        $mensaje = 'Periodo académico actualizado correctamente.';
+        if ($validated['estado'] === PeriodoAcademico::ESTADO_ACTIVO && $anterior) {
+            $mensaje = $this->mensajeConCopiadas($mensaje, $this->copiarAsignaciones($anterior, $periodo));
+        }
+
+        return redirect()->route('admin.periodos.index')->with('success', $mensaje);
     }
 
     /**
@@ -112,17 +142,34 @@ class PeriodoAcademicoController extends Controller
      */
     public function activate(PeriodoAcademico $periodo)
     {
+        if ($periodo->fecha_fin->isPast()) {
+            return back()->withErrors([
+                'estado' => 'No se puede activar: la fecha de fin ('.$periodo->fecha_fin->format('d/m/Y').') ya venció. Extiende la fecha de fin para poder activar el periodo.',
+            ]);
+        }
+
+        // Mismo criterio que update(): el anterior se busca por cronología,
+        // no por estado (puede que ya se haya finalizado solo al vencer).
+        $anterior = PeriodoAcademico::where('id', '!=', $periodo->id)
+            ->orderByDesc('fecha_inicio')
+            ->first();
+
         $this->aplicarEstado($periodo, PeriodoAcademico::ESTADO_ACTIVO);
         $periodo->update(['estado' => PeriodoAcademico::ESTADO_ACTIVO]);
 
-        return back()->with('success', 'Periodo activado correctamente.');
+        $mensaje = 'Periodo activado correctamente.';
+        if ($anterior) {
+            $mensaje = $this->mensajeConCopiadas($mensaje, $this->copiarAsignaciones($anterior, $periodo));
+        }
+
+        return back()->with('success', $mensaje);
     }
 
     public function finalize(PeriodoAcademico $periodo)
     {
         $periodo->update(['estado' => PeriodoAcademico::ESTADO_FINALIZADO]);
 
-        return back()->with('success', 'Periodo finalizado correctamente.');
+        return back()->with('success', 'Periodo desactivado correctamente.');
     }
 
     /**
@@ -137,5 +184,26 @@ class PeriodoAcademicoController extends Controller
                 ->where('estado', PeriodoAcademico::ESTADO_ACTIVO)
                 ->update(['estado' => PeriodoAcademico::ESTADO_FINALIZADO]);
         }
+    }
+
+    /**
+     * Copia las asignaciones de docentes del periodo anterior al nuevo, para
+     * que la carrera quede vinculada al nuevo periodo sin reingresar todo a
+     * mano. Devuelve cuántas asignaciones se copiaron.
+     */
+    private function copiarAsignaciones(PeriodoAcademico $anterior, PeriodoAcademico $nuevo): int
+    {
+        return AsignacionDocente::copiarDesdePeriodo($anterior->id, $nuevo->id);
+    }
+    /**
+     * Añade al mensaje de éxito cuántas asignaciones se replicaron, si hubo.
+     */
+    private function mensajeConCopiadas(string $mensaje, int $copiadas): string
+    {
+        if ($copiadas > 0) {
+            $mensaje .= " Se copiaron {$copiadas} asignaciones de docentes del periodo anterior.";
+        }
+
+        return $mensaje;
     }
 }
