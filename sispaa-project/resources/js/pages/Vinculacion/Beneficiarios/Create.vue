@@ -13,7 +13,7 @@ defineProps<{
     <AppSidebarLayout :breadcrumbs="breadcrumbs">
         <Head title="Nuevo Beneficiario" />
 
-        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[color:color-mix(in_srgb,var(--sispaa-surface)_35%,white)]">
+        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[var(--sispaa-background)]">
             <div>
                 <h1 class="text-base font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">Nuevo Beneficiario</h1>
             </div>
