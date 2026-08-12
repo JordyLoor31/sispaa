@@ -2,46 +2,54 @@
 import AppSidebarLayout from '@/layouts/app/AppSidebarLayout.vue';
 import { type BreadcrumbItemType } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
-import { Plus, Handshake, Eye, Pencil, Trash2, Users } from 'lucide-vue-next';
+import { reactive, ref } from 'vue';
+import { Plus, Search, Handshake } from 'lucide-vue-next';
 import { BRAND_GRADIENT } from '@/lib/brand';
+import { FlexRender, getCoreRowModel, useVueTable } from '@tanstack/vue-table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { useSubmitToast } from '@/composables/useSubmitToast';
-import { type Actividad, type EstadoActividad, ESTADO_LABELS } from './types';
+import { Input } from '@/components/ui/input';
+import { useDebounceFn } from '@vueuse/core';
+import type { Actividad } from './types';
+import makeActividadColumns from './columns';
+
+interface Paginated<T> { data: T[]; current_page: number; last_page: number; per_page: number; total: number; links: any[] }
 
 const props = defineProps<{
-    actividades: Actividad[];
-    filters: { estado?: string };
+    actividades: Paginated<Actividad>;
+    filters: { estado?: string; q?: string; per_page?: number };
     stats: { en_ejecucion: number; ejecutadas: number; canceladas: number; total: number };
     breadcrumbs?: BreadcrumbItemType[];
 }>();
 
+const search = ref(props.filters.q || '');
 const filterEstado = ref(props.filters.estado || 'all');
+
 const applyFilter = () => {
-    router.get(route('vinculacion.actividades'), { estado: filterEstado.value !== 'all' ? filterEstado.value : undefined }, { preserveState: true, replace: true });
+    router.get(
+        route('vinculacion.actividades'),
+        {
+            estado: filterEstado.value !== 'all' ? filterEstado.value : undefined,
+            q: search.value || undefined,
+            per_page: props.actividades.per_page,
+        },
+        { preserveState: true, replace: true },
+    );
 };
+const debouncedSearch = useDebounceFn(applyFilter, 300);
 
-const deleteTarget = ref<Actividad | null>(null);
-const confirmDelete = () => {
-    const target = deleteTarget.value;
-    if (!target) return;
-    const { withToast } = useSubmitToast('Eliminando actividad...', 'No se pudo eliminar la actividad.');
-    router.delete(route('vinculacion.actividades.destroy', target.id), withToast({
-        preserveScroll: true,
-        onSuccess: () => { deleteTarget.value = null; },
-    }));
+const columns = makeActividadColumns();
+
+const table = useVueTable(reactive({
+    get data() { return props.actividades.data; },
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+}));
+
+const navigateToPage = (url: string | null) => {
+    if (url) router.get(url, {}, { preserveState: true });
 };
-
-// Colores por estado: en_ejecucion = dorado, ejecutado = secundario, cancelado = rojo.
-const estadoBadge = (estado: EstadoActividad) => {
-    if (estado === 'ejecutado') return 'bg-[color:color-mix(in_srgb,var(--sispaa-secondary)_30%,transparent)] text-[color:color-mix(in_srgb,var(--sispaa-secondary)_55%,var(--sispaa-text))]';
-    if (estado === 'cancelado') return 'bg-rose-500/15 text-rose-600';
-    return 'bg-[color:color-mix(in_srgb,#E4BC57_45%,transparent)] text-[color:color-mix(in_srgb,#E4BC57_55%,var(--sispaa-text))]';
-};
-
-const beneficiarioNombre = (a: Actividad) => (typeof a.beneficiario === 'string' ? a.beneficiario : a.beneficiario?.nombre ?? null);
 </script>
 
 <template>
@@ -85,10 +93,20 @@ const beneficiarioNombre = (a: Actividad) => (typeof a.beneficiario === 'string'
                 </div>
             </div>
 
-            <div class="w-full max-w-5xl space-y-4">
-                <div class="flex gap-3">
+            <div class="w-full space-y-4">
+                <div class="flex flex-col gap-3 sm:flex-row">
+                    <div class="relative w-full max-w-sm">
+                        <Search class="absolute left-3 top-2.5 h-4 w-4 opacity-50 text-[var(--sispaa-text)]" />
+                        <Input
+                            v-model="search"
+                            type="text"
+                            placeholder="Buscar por nombre, carrera, período, líder o beneficiario..."
+                            class="rounded-lg pl-9 bg-[color:color-mix(in_srgb,var(--sispaa-surface)_35%,var(--sispaa-background))]"
+                            @input="debouncedSearch"
+                        />
+                    </div>
                     <Select v-model="filterEstado" @update:model-value="applyFilter">
-                        <SelectTrigger class="w-[200px]"><SelectValue placeholder="Estado" /></SelectTrigger>
+                        <SelectTrigger class="w-full sm:w-[200px]"><SelectValue placeholder="Estado" /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">Todos los estados</SelectItem>
                             <SelectItem value="en_ejecucion">En ejecución</SelectItem>
@@ -98,59 +116,54 @@ const beneficiarioNombre = (a: Actividad) => (typeof a.beneficiario === 'string'
                     </Select>
                 </div>
 
-                <div class="grid gap-4 md:grid-cols-2">
-                    <div v-for="a in actividades" :key="a.id"
-                        class="flex flex-col gap-3 rounded-2xl border p-5 shadow-sm bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]">
-                        <div class="flex items-start justify-between">
-                            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-[var(--sispaa-primary)] bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]">
-                                <Handshake class="h-4.5 w-4.5" />
-                            </div>
-                            <span :class="['inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold', estadoBadge(a.estado)]">
-                                {{ ESTADO_LABELS[a.estado] }}
-                            </span>
-                        </div>
-                        <div>
-                            <h3 class="text-sm font-bold text-[var(--sispaa-text)]">{{ a.nombre }}</h3>
-                            <p class="mt-1 text-sm opacity-80 text-[var(--sispaa-text)]">{{ a.carrera }} · {{ a.periodo }}</p>
-                            <p class="mt-1 text-sm opacity-80 text-[var(--sispaa-text)]">Líder: {{ a.docente_lider?.name }}</p>
-                            <p v-if="a.supervisor" class="text-sm opacity-80 text-[var(--sispaa-text)]">Supervisor: {{ a.supervisor.name }}</p>
-                            <p v-if="beneficiarioNombre(a)" class="text-sm opacity-70 text-[var(--sispaa-text)]">Beneficiario: {{ beneficiarioNombre(a) }}</p>
-                            <p v-if="a.fecha_inicio" class="text-sm opacity-70 text-[var(--sispaa-text)]">Inicio: {{ a.fecha_inicio }}<span v-if="a.fecha_fin"> · Fin: {{ a.fecha_fin }}</span></p>
-                            <p class="mt-1 inline-flex items-center gap-1 text-sm font-semibold text-[var(--sispaa-primary)]">
-                                <Users class="h-3.5 w-3.5" /> {{ a.total_beneficiarios ?? 0 }} beneficiario(s)
-                            </p>
-                        </div>
-                        <div class="flex items-center gap-2 border-t pt-2 border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
-                            <Link :href="route('vinculacion.actividades.show', a.id)" class="inline-flex items-center gap-1 text-xs font-semibold opacity-70 text-[var(--sispaa-text)] hover:opacity-100 hover:text-[var(--sispaa-primary)]">
-                                <Eye class="h-3.5 w-3.5" /> Ver
-                            </Link>
-                            <Link :href="route('vinculacion.actividades.edit', a.id)" class="inline-flex items-center gap-1 text-xs font-semibold opacity-70 text-[var(--sispaa-text)] hover:opacity-100 hover:text-[var(--sispaa-primary)]">
-                                <Pencil class="h-3.5 w-3.5" /> Editar
-                            </Link>
-                            <button type="button" @click="deleteTarget = a" class="ml-auto inline-flex items-center gap-1 text-xs font-semibold text-rose-500 hover:text-rose-600">
-                                <Trash2 class="h-3.5 w-3.5" /> Eliminar
-                            </button>
-                        </div>
+                <div class="rounded-lg overflow-hidden bg-[var(--sispaa-background)] border border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
+                    <div class="overflow-x-auto">
+                        <Table>
+                            <TableHeader>
+                                <TableRow v-for="hg in table.getHeaderGroups()" :key="hg.id"
+                                    class="border-b border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
+                                    <TableHead v-for="header in hg.headers" :key="header.id"
+                                        class="h-9 whitespace-nowrap px-3 text-xs font-semibold uppercase tracking-wider opacity-60 text-[var(--sispaa-text)]">
+                                        <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header" :props="header.getContext()" />
+                                    </TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody class="divide-y divide-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)] text-sm">
+                                <template v-if="table.getRowModel().rows?.length">
+                                    <TableRow v-for="row in table.getRowModel().rows" :key="row.id"
+                                        class="transition-colors hover:bg-[color:color-mix(in_srgb,var(--sispaa-surface)_50%,transparent)]">
+                                        <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id" class="whitespace-nowrap px-3 py-2 text-[var(--sispaa-text)]">
+                                            <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
+                                        </TableCell>
+                                    </TableRow>
+                                </template>
+                                <TableRow v-else>
+                                    <TableCell :colspan="columns.length" class="h-40 text-center">
+                                        <div class="flex flex-col items-center gap-2 opacity-50 text-[var(--sispaa-text)]">
+                                            <Handshake class="h-8 w-8" />
+                                            <span class="text-sm font-medium">No hay actividades que coincidan con el filtro</span>
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            </TableBody>
+                        </Table>
                     </div>
-
-                    <div v-if="actividades.length === 0" class="col-span-full rounded-2xl border border-dashed p-10 text-center text-sm opacity-50 border-[color:color-mix(in_srgb,var(--sispaa-text)_25%,transparent)] text-[var(--sispaa-text)]">
-                        No hay actividades de vinculación registradas.
+                    <div class="flex flex-col items-start gap-3 border-t px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]">
+                        <span class="text-xs opacity-60 text-[var(--sispaa-text)]">Mostrando {{ actividades.data.length }} de {{ actividades.total }} actividades</span>
+                        <div class="flex flex-wrap items-center gap-1">
+                            <button
+                                v-for="link in actividades.links"
+                                :key="link.label"
+                                @click="navigateToPage(link.url)"
+                                :disabled="!link.url || link.active"
+                                v-html="link.label"
+                                class="rounded-lg px-3 py-1.5 text-xs font-semibold transition-all"
+                                :class="[link.active ? 'text-white shadow-sm bg-[var(--sispaa-primary)]' : 'border text-[var(--sispaa-text)] bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-surface)_50%,transparent)] disabled:opacity-40']"
+                            />
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <AlertDialog :open="!!deleteTarget" @update:open="val => { if (!val) deleteTarget = null; }">
-            <AlertDialogContent>
-                <AlertDialogHeader>
-                    <AlertDialogTitle>¿Eliminar actividad?</AlertDialogTitle>
-                    <AlertDialogDescription>Se eliminará "{{ deleteTarget?.nombre }}". Esta acción no se puede deshacer.</AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                    <Button type="button" class="bg-rose-600 text-white hover:bg-rose-500" @click="confirmDelete">Eliminar</Button>
-                </AlertDialogFooter>
-            </AlertDialogContent>
-        </AlertDialog>
     </AppSidebarLayout>
 </template>

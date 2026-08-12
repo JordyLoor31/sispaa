@@ -21,10 +21,26 @@ class BeneficiarioController extends Controller
 {
     use HasBreadcrumbs;
 
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        return Inertia::render('Vinculacion/Beneficiarios/Index', [
-            'beneficiarios' => Beneficiario::withCount('actividadesVinculacion')->orderBy('nombre')->get()->map(fn ($b) => [
+        $q = $request->input('q');
+        $perPage = max(1, min(100, (int) $request->input('per_page', 15)));
+
+        $query = Beneficiario::withCount('actividadesVinculacion');
+        if ($q) {
+            $query->where(function ($w) use ($q) {
+                $w->where('nombre', 'ilike', "%{$q}%")
+                    ->orWhere('ruc', 'ilike', "%{$q}%")
+                    ->orWhere('cedula', 'ilike', "%{$q}%")
+                    ->orWhere('sector', 'ilike', "%{$q}%")
+                    ->orWhere('contacto', 'ilike', "%{$q}%");
+            });
+        }
+
+        $beneficiarios = $query->orderBy('nombre')
+            ->paginate($perPage)
+            ->withQueryString()
+            ->through(fn ($b) => [
                 'id' => $b->id,
                 'tipo' => $b->tipo,
                 'nombre' => $b->nombre,
@@ -33,7 +49,11 @@ class BeneficiarioController extends Controller
                 'sector' => $b->sector,
                 'contacto' => $b->contacto,
                 'actividades_count' => $b->actividades_vinculacion_count,
-            ]),
+            ]);
+
+        return Inertia::render('Vinculacion/Beneficiarios/Index', [
+            'beneficiarios' => $beneficiarios,
+            'filters' => ['q' => $q, 'per_page' => $perPage],
             'breadcrumbs' => $this->vinculacionBreadcrumbs('Beneficiarios'),
         ]);
     }

@@ -2,25 +2,49 @@
 import AppSidebarLayout from '@/layouts/app/AppSidebarLayout.vue';
 import { type BreadcrumbItemType } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
-import { Plus, Users, Eye, Pencil, Trash2 } from 'lucide-vue-next';
+import { reactive, ref } from 'vue';
+import { Plus, Search, Users } from 'lucide-vue-next';
 import { BRAND_GRADIENT } from '@/lib/brand';
+import { FlexRender, getCoreRowModel, useVueTable } from '@tanstack/vue-table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { type Beneficiario, TIPO_BENEFICIARIO_LABELS } from './types';
+import { Input } from '@/components/ui/input';
+import { useDebounceFn } from '@vueuse/core';
+import type { Beneficiario } from './types';
+import makeBeneficiarioColumns from './columns';
 
-defineProps<{
-    beneficiarios: Beneficiario[];
+interface Paginated<T> { data: T[]; current_page: number; last_page: number; per_page: number; total: number; links: any[] }
+
+const props = defineProps<{
+    beneficiarios: Paginated<Beneficiario>;
+    filters: { q?: string; per_page?: number };
     breadcrumbs?: BreadcrumbItemType[];
 }>();
 
-const deleteTarget = ref<Beneficiario | null>(null);
-const confirmDelete = () => {
-    if (!deleteTarget.value) return;
-    router.delete(route('vinculacion.beneficiarios.destroy', deleteTarget.value.id), {
-        preserveScroll: true,
-        onSuccess: () => { deleteTarget.value = null; },
-    });
+const search = ref(props.filters.q || '');
+
+const applyFilter = () => {
+    router.get(
+        route('vinculacion.beneficiarios'),
+        {
+            q: search.value || undefined,
+            per_page: props.beneficiarios.per_page,
+        },
+        { preserveState: true, replace: true },
+    );
+};
+const debouncedSearch = useDebounceFn(applyFilter, 300);
+
+const columns = makeBeneficiarioColumns();
+
+const table = useVueTable(reactive({
+    get data() { return props.beneficiarios.data; },
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+}));
+
+const navigateToPage = (url: string | null) => {
+    if (url) router.get(url, {}, { preserveState: true });
 };
 </script>
 
@@ -46,56 +70,68 @@ const confirmDelete = () => {
                 </Button>
             </div>
 
-            <div class="grid w-full max-w-5xl gap-4 md:grid-cols-2">
-                <div v-for="b in beneficiarios" :key="b.id"
-                    class="flex flex-col gap-3 rounded-2xl border p-5 shadow-sm bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_12%,transparent)]">
-                    <div class="flex items-start justify-between">
-                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-[var(--sispaa-primary)] bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)]">
-                            <Users class="h-4.5 w-4.5" />
-                        </div>
-                        <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold text-[var(--sispaa-text)] bg-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]">
-                            {{ b.actividades_count ?? 0 }} actividad(es)
-                        </span>
-                    </div>
-                    <div>
-                        <span class="inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--sispaa-primary)] bg-[color:color-mix(in_srgb,var(--sispaa-primary)_12%,transparent)]">
-                            {{ TIPO_BENEFICIARIO_LABELS[b.tipo] }}
-                        </span>
-                        <h3 class="mt-1.5 text-sm font-bold text-[var(--sispaa-text)]">{{ b.nombre }}</h3>
-                        <p v-if="b.ruc" class="mt-0.5 text-xs opacity-70 text-[var(--sispaa-text)]">RUC: {{ b.ruc }}</p>
-                        <p v-if="b.sector" class="mt-1 text-xs opacity-50 text-[var(--sispaa-text)]">{{ b.sector }}</p>
-                        <p v-if="b.contacto" class="text-xs opacity-50 text-[var(--sispaa-text)]">{{ b.contacto }}</p>
-                    </div>
-                    <div class="flex items-center gap-2 border-t pt-2 border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
-                        <Link :href="route('vinculacion.beneficiarios.show', b.id)" class="inline-flex items-center gap-1 text-xs font-semibold opacity-70 text-[var(--sispaa-text)] hover:opacity-100 hover:text-[var(--sispaa-primary)]">
-                            <Eye class="h-3.5 w-3.5" /> Ver
-                        </Link>
-                        <Link :href="route('vinculacion.beneficiarios.edit', b.id)" class="inline-flex items-center gap-1 text-xs font-semibold opacity-70 text-[var(--sispaa-text)] hover:opacity-100 hover:text-[var(--sispaa-primary)]">
-                            <Pencil class="h-3.5 w-3.5" /> Editar
-                        </Link>
-                        <button @click="deleteTarget = b" class="ml-auto inline-flex items-center gap-1 text-xs font-semibold text-rose-500 hover:text-rose-600">
-                            <Trash2 class="h-3.5 w-3.5" /> Eliminar
-                        </button>
+            <div class="w-full space-y-4">
+                <div class="flex flex-col gap-3 sm:flex-row">
+                    <div class="relative w-full max-w-sm">
+                        <Search class="absolute left-3 top-2.5 h-4 w-4 opacity-50 text-[var(--sispaa-text)]" />
+                        <Input
+                            v-model="search"
+                            type="text"
+                            placeholder="Buscar por nombre, RUC, cédula, sector o contacto..."
+                            class="rounded-lg pl-9 bg-[color:color-mix(in_srgb,var(--sispaa-surface)_35%,var(--sispaa-background))]"
+                            @input="debouncedSearch"
+                        />
                     </div>
                 </div>
 
-                <div v-if="beneficiarios.length === 0" class="col-span-full rounded-2xl border border-dashed p-10 text-center text-sm opacity-50 border-[color:color-mix(in_srgb,var(--sispaa-text)_25%,transparent)] text-[var(--sispaa-text)]">
-                    No hay beneficiarios registrados.
+                <div class="rounded-lg overflow-hidden bg-[var(--sispaa-background)] border border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
+                    <div class="overflow-x-auto">
+                        <Table>
+                            <TableHeader>
+                                <TableRow v-for="hg in table.getHeaderGroups()" :key="hg.id"
+                                    class="border-b border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
+                                    <TableHead v-for="header in hg.headers" :key="header.id"
+                                        class="h-9 whitespace-nowrap px-3 text-xs font-semibold uppercase tracking-wider opacity-60 text-[var(--sispaa-text)]">
+                                        <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header" :props="header.getContext()" />
+                                    </TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody class="divide-y divide-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)] text-sm">
+                                <template v-if="table.getRowModel().rows?.length">
+                                    <TableRow v-for="row in table.getRowModel().rows" :key="row.id"
+                                        class="transition-colors hover:bg-[color:color-mix(in_srgb,var(--sispaa-surface)_50%,transparent)]">
+                                        <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id" class="whitespace-nowrap px-3 py-2 text-[var(--sispaa-text)]">
+                                            <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
+                                        </TableCell>
+                                    </TableRow>
+                                </template>
+                                <TableRow v-else>
+                                    <TableCell :colspan="columns.length" class="h-40 text-center">
+                                        <div class="flex flex-col items-center gap-2 opacity-50 text-[var(--sispaa-text)]">
+                                            <Users class="h-8 w-8" />
+                                            <span class="text-sm font-medium">No hay beneficiarios que coincidan con el filtro</span>
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            </TableBody>
+                        </Table>
+                    </div>
+                    <div class="flex flex-col items-start gap-3 border-t px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]">
+                        <span class="text-xs opacity-60 text-[var(--sispaa-text)]">Mostrando {{ beneficiarios.data.length }} de {{ beneficiarios.total }} beneficiarios</span>
+                        <div class="flex flex-wrap items-center gap-1">
+                            <button
+                                v-for="link in beneficiarios.links"
+                                :key="link.label"
+                                @click="navigateToPage(link.url)"
+                                :disabled="!link.url || link.active"
+                                v-html="link.label"
+                                class="rounded-lg px-3 py-1.5 text-xs font-semibold transition-all"
+                                :class="[link.active ? 'text-white shadow-sm bg-[var(--sispaa-primary)]' : 'border text-[var(--sispaa-text)] bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-surface)_50%,transparent)] disabled:opacity-40']"
+                            />
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-
-        <AlertDialog :open="!!deleteTarget" @update:open="val => { if (!val) deleteTarget = null; }">
-            <AlertDialogContent>
-                <AlertDialogHeader>
-                    <AlertDialogTitle>¿Eliminar beneficiario?</AlertDialogTitle>
-                    <AlertDialogDescription>Se eliminará "{{ deleteTarget?.nombre }}". Esta acción no se puede deshacer.</AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                    <AlertDialogAction @click="confirmDelete" class="bg-rose-600 hover:bg-rose-500">Eliminar</AlertDialogAction>
-                </AlertDialogFooter>
-            </AlertDialogContent>
-        </AlertDialog>
     </AppSidebarLayout>
 </template>

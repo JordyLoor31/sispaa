@@ -54,26 +54,43 @@ class ActividadVinculacionController extends Controller
             $query->where('estado', $estado);
         }
 
-        $actividades = $query->orderByDesc('created_at')->get()->map(fn ($a) => [
-            'id' => $a->id,
-            'nombre' => $a->nombre,
-            'estado' => $a->estado,
-            'fecha_inicio' => $a->fecha_inicio?->format('Y-m-d'),
-            'fecha_fin' => $a->fecha_fin?->format('Y-m-d'),
-            'docente_lider' => $a->docenteLider ? ['id' => $a->docenteLider->id, 'name' => $a->docenteLider->name] : null,
-            'supervisor' => $a->supervisor ? ['id' => $a->supervisor->id, 'name' => $a->supervisor->name] : null,
-            'carrera_id' => $a->carrera_id,
-            'carrera' => $a->carrera?->nombre,
-            'periodo_id' => $a->periodo_id,
-            'periodo' => $a->periodo?->nombre,
-            'beneficiario_id' => $a->beneficiario_id,
-            'beneficiario' => $a->beneficiario?->nombre,
-            'total_beneficiarios' => $this->totalBeneficiarios($a),
-        ]);
+        $q = $request->input('q');
+        if ($q) {
+            $query->where(function ($w) use ($q) {
+                $w->where('nombre', 'ilike', "%{$q}%")
+                    ->orWhereHas('carrera', fn ($c) => $c->where('nombre', 'ilike', "%{$q}%"))
+                    ->orWhereHas('periodo', fn ($p) => $p->where('nombre', 'ilike', "%{$q}%"))
+                    ->orWhereHas('docenteLider', fn ($d) => $d->where('name', 'ilike', "%{$q}%"))
+                    ->orWhereHas('supervisor', fn ($d) => $d->where('name', 'ilike', "%{$q}%"))
+                    ->orWhereHas('beneficiario', fn ($b) => $b->where('nombre', 'ilike', "%{$q}%"));
+            });
+        }
+
+        $perPage = max(1, min(100, (int) $request->input('per_page', 15)));
+
+        $actividades = $query->orderByDesc('created_at')
+            ->paginate($perPage)
+            ->withQueryString()
+            ->through(fn ($a) => [
+                'id' => $a->id,
+                'nombre' => $a->nombre,
+                'estado' => $a->estado,
+                'fecha_inicio' => $a->fecha_inicio?->format('Y-m-d'),
+                'fecha_fin' => $a->fecha_fin?->format('Y-m-d'),
+                'docente_lider' => $a->docenteLider ? ['id' => $a->docenteLider->id, 'name' => $a->docenteLider->name] : null,
+                'supervisor' => $a->supervisor ? ['id' => $a->supervisor->id, 'name' => $a->supervisor->name] : null,
+                'carrera_id' => $a->carrera_id,
+                'carrera' => $a->carrera?->nombre,
+                'periodo_id' => $a->periodo_id,
+                'periodo' => $a->periodo?->nombre,
+                'beneficiario_id' => $a->beneficiario_id,
+                'beneficiario' => $a->beneficiario?->nombre,
+                'total_beneficiarios' => $this->totalBeneficiarios($a),
+            ]);
 
         return Inertia::render('Vinculacion/Actividades/Index', [
             'actividades' => $actividades,
-            'filters' => ['estado' => $estado],
+            'filters' => ['estado' => $estado, 'q' => $q, 'per_page' => $perPage],
             'stats' => [
                 'en_ejecucion' => ActividadVinculacion::where('estado', 'en_ejecucion')->count(),
                 'ejecutadas' => ActividadVinculacion::where('estado', 'ejecutado')->count(),
