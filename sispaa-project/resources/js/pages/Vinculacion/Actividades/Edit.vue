@@ -20,7 +20,7 @@ const props = defineProps<{
     <AppSidebarLayout :breadcrumbs="breadcrumbs">
         <Head :title="`Editar ${props.actividad.nombre}`" />
 
-        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[color:color-mix(in_srgb,var(--sispaa-surface)_35%,white)]">
+        <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[color:color-mix(in_srgb,var(--sispaa-surface)_30%,var(--sispaa-background))]">
             <div>
                 <h2 class="text-base font-bold tracking-tight text-[var(--sispaa-text)] sm:text-2xl">Editar Actividad</h2>
                 <p class="mt-1 text-sm opacity-70 text-[var(--sispaa-text)]">{{ props.actividad.nombre }}</p>

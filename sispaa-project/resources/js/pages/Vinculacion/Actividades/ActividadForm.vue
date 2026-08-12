@@ -33,22 +33,40 @@ const props = defineProps<{
 }>();
 
 const isEditing = !!props.actividad;
-const enEjecucion = !isEditing || props.actividad?.estado === 'en_ejecucion';
+
+// "Usar uno ya registrado" se decide antes que el esquema porque este lo usa
+// para validar (o eximir) los campos del representante nuevo.
+const usarRepExistente = ref(isEditing && !!props.actividad?.representante_id);
 
 const requiredSelect = (message: string) =>
     z.union([z.string(), z.number()]).nullable().refine((v) => v !== '' && v !== null && v !== undefined, { message });
 
-const formSchema = toTypedSchema(
-    z.object({
-        nombre: z.string().min(1, 'El nombre es obligatorio.').max(255, 'El nombre no puede superar los 255 caracteres.'),
-        docente_lider_id: requiredSelect('Selecciona un líder.'),
-        supervisor_id: requiredSelect('Selecciona un supervisor.'),
-        carrera_id: requiredSelect('Selecciona una carrera.'),
-        periodo_id: requiredSelect('Selecciona un período.'),
-        beneficiario_id: requiredSelect('Selecciona un beneficiario.'),
-        representante_id: z.union([z.string(), z.number()]).nullable(),
-        fecha_inicio: z.string().min(1, 'La fecha de inicio es obligatoria.'),
-    }),
+const opcionalDigitos = (message: string) =>
+    z
+        .union([z.string(), z.number()])
+        .nullable()
+        .refine(
+            (v) => usarRepExistente.value || v === null || v === '' || /^\d{10}$/.test(String(v)),
+            { message },
+        );
+
+const formSchema = computed(() =>
+    toTypedSchema(
+        z.object({
+            nombre: z.string().min(1, 'El nombre es obligatorio.').max(255, 'El nombre no puede superar los 255 caracteres.'),
+            docente_lider_id: requiredSelect('Selecciona un líder.'),
+            supervisor_id: requiredSelect('Selecciona un supervisor.'),
+            carrera_id: requiredSelect('Selecciona una carrera.'),
+            periodo_id: requiredSelect('Selecciona un período.'),
+            beneficiario_id: requiredSelect('Selecciona un beneficiario.'),
+            representante_id: z.union([z.string(), z.number()]).nullable(),
+            representante_nombre: z.union([z.string(), z.number()]).nullable(),
+            representante_cedula: opcionalDigitos('La cédula debe tener exactamente 10 dígitos.'),
+            representante_cargo: z.union([z.string(), z.number()]).nullable(),
+            representante_telefono: opcionalDigitos('El teléfono debe tener exactamente 10 dígitos.'),
+            fecha_inicio: z.string().min(1, 'La fecha de inicio es obligatoria.'),
+        }),
+    ),
 );
 
 const { handleSubmit, setErrors, defineField } = useForm({
@@ -61,6 +79,10 @@ const { handleSubmit, setErrors, defineField } = useForm({
         periodo_id: props.actividad?.periodo_id ?? null,
         beneficiario_id: props.actividad?.beneficiario_id ?? null,
         representante_id: props.actividad?.representante_id ?? null,
+        representante_nombre: props.actividad?.representante?.nombre ?? '',
+        representante_cedula: props.actividad?.representante?.cedula ?? '',
+        representante_cargo: props.actividad?.representante?.cargo ?? '',
+        representante_telefono: props.actividad?.representante?.telefono ?? '',
         fecha_inicio: props.actividad?.fecha_inicio ?? '',
     },
 });
@@ -91,12 +113,12 @@ const representanteOptions = computed(() =>
     })),
 );
 
-// Representante: se puede registrar uno nuevo (inline) o reusar uno existente.
-const usarRepExistente = ref(isEditing && !!props.actividad?.representante_id);
-const repNombre = ref(props.actividad?.representante?.nombre ?? '');
-const repCedula = ref(props.actividad?.representante?.cedula ?? '');
-const repCargo = ref(props.actividad?.representante?.cargo ?? '');
-const repTelefono = ref(props.actividad?.representante?.telefono ?? '');
+// Representante nuevo (inline): campos registrados en el esquema para que las
+// validaciones (clientes y del servidor) se muestren en el formulario.
+const [repNombre] = defineField('representante_nombre');
+const [repCedula] = defineField('representante_cedula');
+const [repCargo] = defineField('representante_cargo');
+const [repTelefono] = defineField('representante_telefono');
 
 // Matriz de beneficiarios iniciales
 const matriz = ref<Matriz>(
@@ -236,10 +258,42 @@ const inputClass =
                 />
             </div>
             <div v-else class="grid gap-3 sm:grid-cols-2">
-                <input v-model="repNombre" type="text" :class="inputClass" placeholder="Nombre del representante" />
-                <input v-model="repCedula" type="text" inputmode="numeric" maxlength="10" :class="inputClass" placeholder="Cédula" />
-                <input v-model="repCargo" type="text" :class="inputClass" placeholder="Cargo o rol (ej. Presidente del barrio)" />
-                <input v-model="repTelefono" type="text" inputmode="numeric" maxlength="10" :class="inputClass" placeholder="Teléfono de contacto" />
+                <FormField v-slot="{ errorMessage }" name="representante_nombre">
+                    <FormItem>
+                        <FormLabel>Nombre del representante</FormLabel>
+                        <FormControl>
+                            <input v-model="repNombre" type="text" :class="inputClass" placeholder="Ej. Pedro Martínez" />
+                        </FormControl>
+                        <FormMessage v-if="errorMessage" />
+                    </FormItem>
+                </FormField>
+                <FormField v-slot="{ errorMessage }" name="representante_cedula">
+                    <FormItem>
+                        <FormLabel>Cédula</FormLabel>
+                        <FormControl>
+                            <input v-model="repCedula" type="text" inputmode="numeric" maxlength="10" :class="inputClass" placeholder="10 dígitos" />
+                        </FormControl>
+                        <FormMessage v-if="errorMessage" />
+                    </FormItem>
+                </FormField>
+                <FormField v-slot="{ errorMessage }" name="representante_cargo">
+                    <FormItem>
+                        <FormLabel>Cargo o rol</FormLabel>
+                        <FormControl>
+                            <input v-model="repCargo" type="text" :class="inputClass" placeholder="Ej. Presidente del barrio" />
+                        </FormControl>
+                        <FormMessage v-if="errorMessage" />
+                    </FormItem>
+                </FormField>
+                <FormField v-slot="{ errorMessage }" name="representante_telefono">
+                    <FormItem>
+                        <FormLabel>Teléfono de contacto</FormLabel>
+                        <FormControl>
+                            <input v-model="repTelefono" type="text" inputmode="numeric" maxlength="10" :class="inputClass" placeholder="10 dígitos" />
+                        </FormControl>
+                        <FormMessage v-if="errorMessage" />
+                    </FormItem>
+                </FormField>
             </div>
             <p class="text-xs opacity-60 text-[var(--sispaa-text)]">
                 Es la persona que representa a los beneficiarios (distinta del líder/supervisor). Se registra aquí y queda disponible para reusar en otras actividades.
@@ -265,9 +319,9 @@ const inputClass =
                 <span class="text-sm font-medium text-[var(--sispaa-text)]">Beneficiarios iniciales</span>
                 <span class="text-xs opacity-60 text-[var(--sispaa-text)]">Puede quedar en 0 y agregarse después.</span>
             </div>
-            <MatrizBeneficiarios v-model="matriz" :readonly="isEditing && !enEjecucion" />
-            <p v-if="isEditing && enEjecucion" class="text-xs opacity-60 text-[var(--sispaa-text)]">
-                Editas el conteo <strong>inicial</strong>. Los avances (adicionales) se agregan desde el detalle de la actividad.
+            <MatrizBeneficiarios v-model="matriz" />
+            <p v-if="isEditing" class="text-xs opacity-60 text-[var(--sispaa-text)]">
+                Editas el conteo <strong>inicial</strong> (puedes poner más o menos personas). El total consolidado con los avances adicionales se recalcula automáticamente.
             </p>
         </div>
 

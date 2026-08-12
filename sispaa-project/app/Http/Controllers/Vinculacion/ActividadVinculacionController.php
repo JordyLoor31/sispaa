@@ -251,9 +251,9 @@ class ActividadVinculacionController extends Controller
                 'fecha_inicio' => $data['fecha_inicio'],
             ]);
 
-            // El conteo inicial solo se puede corregir mientras la actividad
-            // siga "en ejecución"; una vez ejecutada queda consolidada.
-            if ($actividad->estado === 'en_ejecucion' && $request->has('conteos')) {
+            // El conteo inicial se puede corregir en cualquier estado (más o
+            // menos beneficiarios); el total consolidado se recalcula.
+            if ($request->has('conteos')) {
                 DB::transaction(function () use ($actividad, $request) {
                     $actividad->registros()->where('tipo', 'inicial')->each(fn ($r) => $r->delete());
                     $this->guardarConteos($actividad, 'inicial', $actividad->fecha_inicio?->format('Y-m-d'), null, $request->input('conteos', []));
@@ -264,6 +264,8 @@ class ActividadVinculacionController extends Controller
         // 2) Cambio de estado (con la lógica de fechas de fin/cierre).
         if ($request->filled('estado')) {
             $this->cambiarEstado($request, $actividad);
+
+            return redirect()->route('vinculacion.actividades.show', $actividad)->with('success', 'Actividad actualizada.');
         }
 
         return redirect()->route('vinculacion.actividades')->with('success', 'Actividad actualizada.');

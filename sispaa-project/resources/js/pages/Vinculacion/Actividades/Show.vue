@@ -2,12 +2,13 @@
 import AppSidebarLayout from '@/layouts/app/AppSidebarLayout.vue';
 import { type BreadcrumbItemType } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { ArrowLeft, Pencil, Handshake, Users, Plus, CheckCircle2, XCircle } from 'lucide-vue-next';
+import { ArrowLeft, Handshake, Users, Plus } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { useSubmitToast } from '@/composables/useSubmitToast';
 import { ref } from 'vue';
+import ComboSelect from './ComboSelect.vue';
 import MatrizBeneficiarios from './MatrizBeneficiarios.vue';
 import { type Actividad, type EstadoActividad, type Matriz, ESTADO_LABELS, GENEROS, RANGOS_EDAD, emptyMatriz, matrizToConteos } from './types';
 
@@ -93,6 +94,37 @@ const submitCancelar = () => {
         }),
     );
 };
+
+// --- Reactivar (volver a En ejecución) ---
+const reactivarOpen = ref(false);
+const reactivarProcessing = ref(false);
+
+const submitReactivar = () => {
+    reactivarProcessing.value = true;
+    const { withToast } = useSubmitToast('Reactivando actividad...', 'No se pudo reactivar la actividad.');
+    router.put(
+        route('vinculacion.actividades.update', props.actividad.id),
+        { estado: 'en_ejecucion' },
+        withToast({
+            preserveScroll: true,
+            onFinish: () => { reactivarProcessing.value = false; },
+        }),
+    );
+};
+
+const estadoOptions = [
+    { value: 'en_ejecucion' as EstadoActividad, label: ESTADO_LABELS.en_ejecucion },
+    { value: 'ejecutado' as EstadoActividad, label: ESTADO_LABELS.ejecutado },
+    { value: 'cancelado' as EstadoActividad, label: ESTADO_LABELS.cancelado },
+];
+
+const onEstadoChange = (estado: string | number | null) => {
+    const next = estado as EstadoActividad;
+    if (next === props.actividad.estado) return;
+    if (next === 'ejecutado') ejecutarOpen.value = true;
+    else if (next === 'cancelado') cancelarOpen.value = true;
+    else reactivarOpen.value = true;
+};
 </script>
 
 <template>
@@ -116,9 +148,6 @@ const submitCancelar = () => {
                 <div class="flex items-center gap-2">
                     <Button as-child class="text-white bg-[var(--sispaa-accent)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-accent)_85%,black)]">
                         <Link :href="route('vinculacion.actividades')"><ArrowLeft class="h-4 w-4 mr-1.5" /> Volver</Link>
-                    </Button>
-                    <Button as-child class="text-white bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)]">
-                        <Link :href="route('vinculacion.actividades.edit', actividad.id)"><Pencil class="h-4 w-4 mr-1.5" /> Editar</Link>
                     </Button>
                 </div>
             </div>
@@ -197,13 +226,19 @@ const submitCancelar = () => {
                 </div>
 
                 <!-- Gestión de estado -->
-                <div v-if="actividad.estado === 'en_ejecucion'" class="flex flex-wrap gap-2 rounded-2xl border border-dashed p-4 border-[color:color-mix(in_srgb,var(--sispaa-text)_20%,transparent)]">
-                    <Button type="button" class="inline-flex items-center gap-1.5 bg-[var(--sispaa-secondary)] font-semibold text-white hover:bg-[color:color-mix(in_srgb,var(--sispaa-secondary)_85%,black)]" @click="ejecutarOpen = true">
-                        <CheckCircle2 class="h-4 w-4" /> Marcar como Ejecutada
-                    </Button>
-                    <Button type="button" variant="outline" class="inline-flex items-center gap-1.5 border-rose-500/40 font-semibold text-rose-600 hover:bg-rose-500/10" @click="cancelarOpen = true">
-                        <XCircle class="h-4 w-4" /> Cancelar actividad
-                    </Button>
+                <div class="rounded-2xl border border-dashed border-[color:color-mix(in_srgb,var(--sispaa-text)_20%,transparent)] p-4">
+                    <label class="mb-2 block text-sm font-semibold text-[var(--sispaa-text)]">Estado de la actividad</label>
+                    <ComboSelect
+                        :model-value="actividad.estado"
+                        :options="estadoOptions"
+                        placeholder="Selecciona un estado..."
+                        search-placeholder="Buscar estado..."
+                        empty-text="Sin opciones."
+                        @update:model-value="onEstadoChange"
+                    />
+                    <p class="mt-2 text-xs opacity-60 text-[var(--sispaa-text)]">
+                        Al seleccionar <strong>Ejecutado</strong> se pedirá la fecha de fin. Al elegir <strong>Cancelado</strong> puedes registrar fecha de cierre y motivo.
+                    </p>
                 </div>
             </div>
         </div>
@@ -276,6 +311,22 @@ const submitCancelar = () => {
                     <Button type="button" variant="outline" @click="cancelarOpen = false">Volver</Button>
                     <Button type="button" :disabled="cancelarProcessing" class="bg-rose-600 text-white hover:bg-rose-500" @click="submitCancelar">
                         {{ cancelarProcessing ? 'Guardando...' : 'Cancelar actividad' }}
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+
+        <!-- Dialog: reactivar -->
+        <Dialog v-model:open="reactivarOpen">
+            <DialogContent class="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle>Reactivar actividad</DialogTitle>
+                    <DialogDescription>La actividad vuelve a "En ejecución" y se limpian las fechas de fin/cierre y el motivo de cancelación.</DialogDescription>
+                </DialogHeader>
+                <DialogFooter>
+                    <Button type="button" variant="outline" @click="reactivarOpen = false">Volver</Button>
+                    <Button type="button" :disabled="reactivarProcessing" class="bg-[var(--sispaa-primary)] text-white hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)]" @click="submitReactivar">
+                        {{ reactivarProcessing ? 'Guardando...' : 'Reactivar' }}
                     </Button>
                 </DialogFooter>
             </DialogContent>
