@@ -2,28 +2,54 @@
 import AppSidebarLayout from '@/layouts/app/AppSidebarLayout.vue';
 import { type BreadcrumbItemType } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
-import { Plus, FlaskConical } from 'lucide-vue-next';
+import { reactive, ref } from 'vue';
+import { Plus, Search, FlaskConical } from 'lucide-vue-next';
 import { BRAND_GRADIENT } from '@/lib/brand';
+import { FlexRender, getCoreRowModel, useVueTable } from '@tanstack/vue-table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { DataTable } from '@/components/ui/data-table';
-import type { ProyectoItem, Catalogo } from './types';
+import { Input } from '@/components/ui/input';
+import { useDebounceFn } from '@vueuse/core';
+import type { Catalogo, ProyectoItem } from './types';
 import makeProyectoColumns from './columns';
 
+interface Paginated<T> { data: T[]; current_page: number; last_page: number; per_page: number; total: number; links: any[] }
+
 const props = defineProps<{
-    proyectos: ProyectoItem[];
+    proyectos: Paginated<ProyectoItem>;
     periodos: Catalogo[];
-    filters: { estado?: string };
+    filters: { estado?: string; q?: string; per_page?: number };
     breadcrumbs?: BreadcrumbItemType[];
 }>();
 
+const search = ref(props.filters.q || '');
 const filterEstado = ref(props.filters.estado || 'all');
+
 const applyFilter = () => {
-    router.get(route('investigacion.index'), { estado: filterEstado.value !== 'all' ? filterEstado.value : undefined }, { preserveState: true, replace: true });
+    router.get(
+        route('investigacion.index'),
+        {
+            estado: filterEstado.value !== 'all' ? filterEstado.value : undefined,
+            q: search.value || undefined,
+            per_page: props.proyectos.per_page,
+        },
+        { preserveState: true, replace: true },
+    );
 };
+const debouncedSearch = useDebounceFn(applyFilter, 300);
 
 const columns = makeProyectoColumns();
+
+const table = useVueTable(reactive({
+    get data() { return props.proyectos.data; },
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+}));
+
+const navigateToPage = (url: string | null) => {
+    if (url) router.get(url, {}, { preserveState: true });
+};
 </script>
 
 <template>
@@ -43,16 +69,25 @@ const columns = makeProyectoColumns();
                 </div>
                 <Button as-child class="inline-flex items-center gap-1.5 rounded-lg font-semibold text-white shadow-md shadow-[color:color-mix(in_srgb,var(--sispaa-primary)_30%,transparent)] transition-all bg-[var(--sispaa-primary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_85%,black)] hover:shadow-lg">
                     <Link :href="route('investigacion.create')">
-                        <Plus class="h-4 w-4" />
-                        Nuevo Proyecto
+                        <Plus class="h-4 w-4" /> Nuevo Proyecto
                     </Link>
                 </Button>
             </div>
 
             <div class="w-full space-y-4">
-                <div class="flex gap-3">
+                <div class="flex flex-col gap-3 sm:flex-row">
+                    <div class="relative w-full max-w-sm">
+                        <Search class="absolute left-3 top-2.5 h-4 w-4 opacity-50 text-[var(--sispaa-text)]" />
+                        <Input
+                            v-model="search"
+                            type="text"
+                            placeholder="Buscar por título, objetivo, líder o miembro..."
+                            class="rounded-lg pl-9 bg-[color:color-mix(in_srgb,var(--sispaa-surface)_35%,var(--sispaa-background))]"
+                            @input="debouncedSearch"
+                        />
+                    </div>
                     <Select v-model="filterEstado" @update:model-value="applyFilter">
-                        <SelectTrigger class="w-full sm:w-[180px]"><SelectValue placeholder="Estado" /></SelectTrigger>
+                        <SelectTrigger class="w-full sm:w-[200px]"><SelectValue placeholder="Estado" /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">Todos los estados</SelectItem>
                             <SelectItem value="en_curso">En curso</SelectItem>
@@ -62,14 +97,53 @@ const columns = makeProyectoColumns();
                     </Select>
                 </div>
 
-                <DataTable :columns="columns" :data="proyectos">
-                    <template #empty>
-                        <div class="flex h-12 w-12 items-center justify-center rounded-full bg-[color:color-mix(in_srgb,var(--sispaa-text)_6%,transparent)]">
-                            <FlaskConical class="h-5 w-5 opacity-40 text-[var(--sispaa-text)]" />
+                <div class="rounded-lg overflow-hidden bg-[var(--sispaa-background)] border border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
+                    <div class="overflow-x-auto">
+                        <Table>
+                            <TableHeader>
+                                <TableRow v-for="hg in table.getHeaderGroups()" :key="hg.id"
+                                    class="border-b border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)]">
+                                    <TableHead v-for="header in hg.headers" :key="header.id"
+                                        class="h-9 whitespace-nowrap px-3 text-xs font-semibold uppercase tracking-wider opacity-60 text-[var(--sispaa-text)]">
+                                        <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header" :props="header.getContext()" />
+                                    </TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody class="divide-y divide-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)] text-sm">
+                                <template v-if="table.getRowModel().rows?.length">
+                                    <TableRow v-for="row in table.getRowModel().rows" :key="row.id"
+                                        class="transition-colors hover:bg-[color:color-mix(in_srgb,var(--sispaa-surface)_50%,transparent)]">
+                                        <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id" class="whitespace-nowrap px-3 py-2 text-[var(--sispaa-text)]">
+                                            <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
+                                        </TableCell>
+                                    </TableRow>
+                                </template>
+                                <TableRow v-else>
+                                    <TableCell :colspan="columns.length" class="h-40 text-center">
+                                        <div class="flex flex-col items-center gap-2 opacity-50 text-[var(--sispaa-text)]">
+                                            <FlaskConical class="h-8 w-8" />
+                                            <span class="text-sm font-medium">No hay proyectos de investigación que coincidan con el filtro</span>
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            </TableBody>
+                        </Table>
+                    </div>
+                    <div class="flex flex-col items-start gap-3 border-t px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 border-[color:color-mix(in_srgb,var(--sispaa-text)_10%,transparent)]">
+                        <span class="text-xs opacity-60 text-[var(--sispaa-text)]">Mostrando {{ proyectos.data.length }} de {{ proyectos.total }} proyectos</span>
+                        <div class="flex flex-wrap items-center gap-1">
+                            <button
+                                v-for="link in proyectos.links"
+                                :key="link.label"
+                                @click="navigateToPage(link.url)"
+                                :disabled="!link.url || link.active"
+                                v-html="link.label"
+                                class="rounded-lg px-3 py-1.5 text-xs font-semibold transition-all"
+                                :class="[link.active ? 'text-white shadow-sm bg-[var(--sispaa-primary)]' : 'border text-[var(--sispaa-text)] bg-[var(--sispaa-background)] border-[color:color-mix(in_srgb,var(--sispaa-text)_15%,transparent)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-surface)_50%,transparent)] disabled:opacity-40']"
+                            />
                         </div>
-                        <p class="text-sm font-medium opacity-70 text-[var(--sispaa-text)]">No hay proyectos de investigación todavía.</p>
-                    </template>
-                </DataTable>
+                    </div>
+                </div>
             </div>
         </div>
     </AppSidebarLayout>

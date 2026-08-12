@@ -21,7 +21,7 @@ const estadoBadge = (estado: string) => {
     return map[estado] ?? map.en_proceso;
 };
 
-const formatDate = (date?: string) => {
+const formatDate = (date?: string | null) => {
     if (!date) return '—';
     return new Date(date).toLocaleDateString('es-EC', { day: '2-digit', month: '2-digit', year: 'numeric' });
 };
@@ -66,8 +66,8 @@ const formatDate = (date?: string) => {
                 </div>
                 <div class="rounded-2xl p-6 shadow-sm bg-[var(--sispaa-background)]">
                     <h4 class="text-xs font-bold uppercase tracking-wider opacity-60 text-[var(--sispaa-text)]">Fechas</h4>
-                    <p class="mt-2 text-sm text-[var(--sispaa-text)] opacity-80">Inicio: {{ titulacion.fecha_inicio ?? '—' }}</p>
-                    <p class="text-sm text-[var(--sispaa-text)] opacity-80">Graduación: {{ titulacion.fecha_graduacion ?? '—' }}</p>
+                    <p class="mt-2 text-sm text-[var(--sispaa-text)] opacity-80">Inicio: {{ formatDate(titulacion.fecha_inicio) }}</p>
+                    <p class="text-sm text-[var(--sispaa-text)] opacity-80">Graduación: {{ formatDate(titulacion.fecha_graduacion) }}</p>
                 </div>
             </div>
 

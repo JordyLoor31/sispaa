@@ -17,17 +17,9 @@ use Inertia\Inertia;
 use Inertia\Response;
 
 /**
- * Sigue el patrón Index/Create/Edit/Show adaptado: Show.vue (antes
- * Hitos.vue) hace de página de detalle del proyecto con sus hitos y
- * seguimiento anidados, ya que esos sub-recursos no tienen sentido como
- * pantallas propias fuera del contexto del proyecto padre.
- *
- * Equipo del proyecto (restructurado): docente (quien lo crea/gestiona
- * administrativamente), líder de proyecto (antes "coordinador supervisor"),
- * colíder (opcional) y miembros (varios, tabla pivote
- * investigacion_miembros). "Gestionar" (editar título/objetivo, estado,
- * hitos) lo pueden hacer docente dueño, líder o colíder. Eliminar el
- * proyecto queda restringido solo al docente dueño (acción destructiva).
+ * Proyectos de investigación con su Show como página de detalle (hitos,
+ * seguimiento e informes anidados). Equipo: docente dueño, líder, colíder
+ * y miembros. Gestionan dueño/líder/colíder; solo el dueño elimina.
  */
 class InvestigacionController extends Controller
 {
@@ -87,11 +79,7 @@ class InvestigacionController extends Controller
         }
     }
 
-    /**
-     * Catálogo de usuarios elegibles para líder/colíder/miembros de un
-     * proyecto de investigación: docentes y coordinadores (un coordinador
-     * también es docente).
-     */
+    /** Líder/colíder/miembros elegibles: docentes y coordinadores. */
     private function usuariosElegibles()
     {
         return User::role(['docente', 'coordinador'])->orderBy('name')->get(['id', 'name']);
@@ -110,32 +98,47 @@ class InvestigacionController extends Controller
             $query->where('estado', $estado);
         }
 
+        $q = $request->input('q');
+        if ($q) {
+            $query->where(function ($w) use ($q) {
+                $w->where('titulo', 'ilike', "%{$q}%")
+                    ->orWhere('objetivo', 'ilike', "%{$q}%")
+                    ->orWhereHas('lider', fn ($l) => $l->where('name', 'ilike', "%{$q}%"))
+                    ->orWhereHas('colider', fn ($l) => $l->where('name', 'ilike', "%{$q}%"))
+                    ->orWhereHas('miembros', fn ($mq) => $mq->where('name', 'ilike', "%{$q}%"));
+            });
+        }
+
+        $perPage = max(1, min(100, (int) $request->input('per_page', 15)));
         $userId = Auth::id();
 
-        $proyectos = $query->orderByDesc('created_at')->get()->map(function ($p) use ($userId) {
-            return [
-                'id' => $p->id,
-                'titulo' => $p->titulo,
-                'objetivo' => $p->objetivo,
-                'estado' => $p->estado,
-                'docente' => ['id' => $p->docente->id, 'name' => $p->docente->name],
-                'lider' => ['id' => $p->lider->id, 'name' => $p->lider->name],
-                'colider' => $p->colider ? ['id' => $p->colider->id, 'name' => $p->colider->name] : null,
-                'miembros' => $p->miembros->map(fn ($m) => ['id' => $m->id, 'name' => $m->name])->values(),
-                'periodo' => $p->periodo->nombre,
-                'total_hitos' => $p->hitos->count(),
-                'hitos_completados' => $p->hitos->where('porcentaje_avance', 100)->count(),
-                'es_propio' => $p->docente_id === $userId,
-                'es_lider' => $p->lider_id === $userId,
-                'es_colider' => $p->colider_id === $userId,
-                'puede_gestionar' => $this->puedeGestionar($p),
-            ];
-        });
+        $proyectos = $query->orderByDesc('created_at')
+            ->paginate($perPage)
+            ->withQueryString()
+            ->through(function ($p) use ($userId) {
+                return [
+                    'id' => $p->id,
+                    'titulo' => $p->titulo,
+                    'objetivo' => $p->objetivo,
+                    'estado' => $p->estado,
+                    'docente' => ['id' => $p->docente->id, 'name' => $p->docente->name],
+                    'lider' => ['id' => $p->lider->id, 'name' => $p->lider->name],
+                    'colider' => $p->colider ? ['id' => $p->colider->id, 'name' => $p->colider->name] : null,
+                    'miembros' => $p->miembros->map(fn ($m) => ['id' => $m->id, 'name' => $m->name])->values(),
+                    'periodo' => $p->periodo->nombre,
+                    'total_hitos' => $p->hitos->count(),
+                    'hitos_completados' => $p->hitos->where('porcentaje_avance', 100)->count(),
+                    'es_propio' => $p->docente_id === $userId,
+                    'es_lider' => $p->lider_id === $userId,
+                    'es_colider' => $p->colider_id === $userId,
+                    'puede_gestionar' => $this->puedeGestionar($p),
+                ];
+            });
 
         return Inertia::render('Investigacion/Index', [
             'proyectos' => $proyectos,
             'periodos' => PeriodoAcademico::vigente()->get(['id', 'nombre']),
-            'filters' => ['estado' => $estado],
+            'filters' => ['estado' => $estado, 'q' => $q, 'per_page' => $perPage],
             'breadcrumbs' => $this->investigacionBreadcrumbs('Mis Proyectos'),
         ]);
     }
@@ -149,10 +152,6 @@ class InvestigacionController extends Controller
         ]);
     }
 
-    /**
-     * Crear un proyecto propio (todo docente puede; un coordinador también,
-     * porque un coordinador siempre es también docente).
-     */
     public function store(Request $request)
     {
         $request->validate([
@@ -208,10 +207,6 @@ class InvestigacionController extends Controller
         ]);
     }
 
-    /**
-     * El dueño/líder/colíder editan título/objetivo/equipo; los mismos
-     * pueden cambiar el estado (en_curso/pausada/finalizada).
-     */
     public function update(Request $request, Investigacion $investigacion)
     {
         if (!$this->puedeGestionar($investigacion)) {
@@ -257,10 +252,6 @@ class InvestigacionController extends Controller
         return redirect()->back()->with('success', 'Proyecto eliminado.');
     }
 
-    /**
-     * Show del proyecto: hitos, seguimiento e informes trimestrales (antes
-     * método hitos()).
-     */
     public function show(Investigacion $investigacion): Response
     {
         $this->authorizeView($investigacion);
@@ -343,10 +334,7 @@ class InvestigacionController extends Controller
         return redirect()->back()->with('success', 'Hito actualizado.');
     }
 
-    /**
-     * Seguimiento tipo pregunta/respuesta: el líder o colíder del proyecto
-     * plantea la pregunta, el docente dueño del proyecto la responde.
-     */
+    /** Seguimiento pregunta/respuesta: líder o colíder pregunta, el dueño responde. */
     public function storeSeguimiento(Request $request, Investigacion $investigacion)
     {
         $userId = Auth::id();
@@ -383,11 +371,7 @@ class InvestigacionController extends Controller
         return redirect()->back()->with('success', 'Respuesta guardada.');
     }
 
-    /**
-     * Sube un informe trimestral de avance. Solo el líder de proyecto puede
-     * subirlo (por el momento, según lo confirmado). Se conserva un
-     * historial completo de informes, no se reemplaza el anterior.
-     */
+    /** Informe trimestral: solo el líder lo sube y se conserva el historial completo. */
     public function storeInformeTrimestral(Request $request, Investigacion $investigacion)
     {
         $esLider = $investigacion->lider_id === Auth::id() || $this->puedeVerTodo();
@@ -414,12 +398,7 @@ class InvestigacionController extends Controller
         return redirect()->back()->with('success', 'Informe trimestral subido.');
     }
 
-    /**
-     * Sirve el archivo del informe trimestral por una ruta autenticada, sin
-     * depender del symlink public/storage (mismo patrón que
-     * SilaboController::ver()). Cualquier miembro del equipo del proyecto
-     * puede verlo/descargarlo.
-     */
+    /** Sirve el informe por ruta autenticada (sin depender del symlink storage). */
     public function verInformeTrimestral(\App\Models\Investigacion\InformeTrimestralInvestigacion $informe)
     {
         $investigacion = $informe->investigacion;

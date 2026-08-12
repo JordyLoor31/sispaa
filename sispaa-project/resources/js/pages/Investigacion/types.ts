@@ -1,5 +1,15 @@
 export interface Catalogo { id: number; name?: string; nombre?: string }
 
+export interface ProyectoEditable {
+    id: number;
+    titulo: string;
+    objetivo: string | null;
+    estado: 'en_curso' | 'pausada' | 'finalizada';
+    lider_id: number;
+    colider_id: number | null;
+    miembros: number[];
+}
+
 export interface ProyectoItem {
     id: number;
     titulo: string;
