@@ -53,7 +53,7 @@ class DatabaseSeeder extends Seeder
         // 4. Ejecutar el resto de seeders
         $this->call(DocentesSeeder::class);
         $this->call(EstudiantesSeeder::class);
-        $this->call(FaltasSeeder::class);
+        //$this->call(FaltasSeeder::class);
         $this->call(DocumentosSeeder::class);
         $this->call(TitulacionSeeder::class);
         $this->call(AsignacionesInformesSeeder::class);
