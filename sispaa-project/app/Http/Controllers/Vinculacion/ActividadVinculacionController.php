@@ -16,17 +16,6 @@ use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
-/**
- * CRUD de Actividades de Vinculación.
- *
- * Flujo de estados:
- *  - Al crear nace en "en_ejecucion" con fecha_inicio y un registro de
- *    beneficiarios "inicial" (matriz género x edad).
- *  - Mientras esté "en_ejecucion" se agregan registros "adicional"
- *    (agregarBeneficiarios), que se suman al total (no se sobrescriben).
- *  - Al pasar a "ejecutado" se exige fecha_fin y el conteo queda consolidado.
- *  - Al "cancelado" se pueden capturar fecha_cierre y motivo (opcionales).
- */
 class ActividadVinculacionController extends Controller
 {
     use HasBreadcrumbs;
@@ -251,8 +240,7 @@ class ActividadVinculacionController extends Controller
                 'fecha_inicio' => $data['fecha_inicio'],
             ]);
 
-            // El conteo inicial se puede corregir en cualquier estado (más o
-            // menos beneficiarios); el total consolidado se recalcula.
+            // Conteo inicial editable en cualquier estado.
             if ($request->has('conteos')) {
                 DB::transaction(function () use ($actividad, $request) {
                     $actividad->registros()->where('tipo', 'inicial')->each(fn ($r) => $r->delete());
@@ -271,10 +259,7 @@ class ActividadVinculacionController extends Controller
         return redirect()->route('vinculacion.actividades')->with('success', 'Actividad actualizada.');
     }
 
-    /**
-     * Registra una tanda "adicional" de beneficiarios mientras la actividad
-     * siga en ejecución. Se suma al total, nunca sobrescribe.
-     */
+    /** Registra una tanda "adicional" de beneficiarios (se suma al total, no sobrescribe). */
     public function agregarBeneficiarios(Request $request, ActividadVinculacion $actividad)
     {
         if ($actividad->estado !== 'en_ejecucion') {
@@ -298,10 +283,6 @@ class ActividadVinculacionController extends Controller
         return redirect()->route('vinculacion.actividades')->with('success', 'Actividad eliminada.');
     }
 
-    // ---------------------------------------------------------------------
-    // Helpers
-    // ---------------------------------------------------------------------
-
     private function reglasDatos(): array
     {
         return [
@@ -311,8 +292,6 @@ class ActividadVinculacionController extends Controller
             'carrera_id' => 'required|exists:carreras,id',
             'periodo_id' => 'required|exists:periodos_academicos,id',
             'beneficiario_id' => 'required|exists:beneficiarios,id',
-            // Representante: se reusa uno existente (representante_id) o se
-            // registra uno nuevo con estos campos.
             'representante_id' => 'nullable|exists:representantes,id',
             'representante_nombre' => 'nullable|string|max:255',
             'representante_cedula' => 'nullable|digits:10',
@@ -322,10 +301,6 @@ class ActividadVinculacionController extends Controller
         ];
     }
 
-    /**
-     * Devuelve el id del representante a asociar: reusa el existente o crea uno
-     * nuevo (ligado al beneficiario) si se ingresaron sus datos.
-     */
     private function resolverRepresentante(array $data): ?int
     {
         if (!empty($data['representante_id'])) {
@@ -347,10 +322,6 @@ class ActividadVinculacionController extends Controller
         return null;
     }
 
-    /**
-     * Reglas para la matriz género x edad. En un registro adicional se exige al
-     * menos una celda con cantidad > 0; en el inicial puede quedar en 0.
-     */
     private function reglasConteos(bool $requerido = false): array
     {
         return [
@@ -415,7 +386,7 @@ class ActividadVinculacionController extends Controller
             return;
         }
 
-        // Volver a en_ejecucion: se limpian las fechas de cierre.
+        // Volver a en_ejecucion: limpia fin/cierre.
         $actividad->update([
             'estado' => 'en_ejecucion',
             'fecha_fin' => null,
@@ -429,10 +400,6 @@ class ActividadVinculacionController extends Controller
         return (int) $actividad->registros->sum(fn ($r) => $r->conteos->sum('cantidad'));
     }
 
-    /**
-     * Consolida todos los registros (iniciales + adicionales) en la matriz
-     * género x edad, con totales por género, por edad y total general.
-     */
     private function resumenBeneficiarios(ActividadVinculacion $actividad): array
     {
         $matriz = [];

@@ -10,13 +10,6 @@ use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 
-/**
- * CRUD de Beneficiarios (antes "Empresas beneficiadas"). Catálogo usado por las
- * Actividades de Vinculación.
- *
- * tipo: persona_natural | persona_juridica | comunidad_organizacion.
- * El RUC es obligatorio solo cuando tipo = persona_juridica.
- */
 class BeneficiarioController extends Controller
 {
     use HasBreadcrumbs;
@@ -120,10 +113,6 @@ class BeneficiarioController extends Controller
         return redirect()->route('vinculacion.beneficiarios')->with('success', 'Beneficiario eliminado.');
     }
 
-    /**
-     * Validación con RUC obligatorio solo para persona jurídica y cédula
-     * opcional para persona natural.
-     */
     private function validar(Request $request, ?int $ignoreId = null): array
     {
         $rucRule = Rule::unique('beneficiarios', 'ruc');
