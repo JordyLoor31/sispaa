@@ -94,6 +94,7 @@ class StudentPortalController extends Controller
 
         return Inertia::render('Estudiantes/StudentDashboard', [
             'kpis' => $kpis,
+            'needsProfileUpdate' => $user->needs_profile_update,
         ]);
     }
 

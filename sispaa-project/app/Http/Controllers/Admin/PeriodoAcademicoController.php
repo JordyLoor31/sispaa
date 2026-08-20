@@ -27,10 +27,17 @@ class PeriodoAcademicoController extends Controller
 
     public function index(Request $request): Response
     {
-        // Desactiva automáticamente los períodos activos cuya fecha_fin ya
-        // venció, para que el listado refleje el estado real (mismo criterio
-        // que usa el scheduler diario).
-        PeriodoAcademico::finalizarVencidos();
+        $periodosAVencer = PeriodoAcademico::query()
+            ->where('estado', PeriodoAcademico::ESTADO_ACTIVO)
+            ->whereDate('fecha_fin', '<', now()->toDateString())
+            ->pluck('id');
+
+        PeriodoAcademico::whereIn('id', $periodosAVencer)
+            ->update(['estado' => PeriodoAcademico::ESTADO_FINALIZADO]);
+
+        foreach ($periodosAVencer as $periodoId) {
+            PeriodoAcademico::marcarEstudiantesPeriodoVencido($periodoId);
+        }
 
         $query = PeriodoAcademico::query();
 
@@ -168,6 +175,7 @@ class PeriodoAcademicoController extends Controller
     public function finalize(PeriodoAcademico $periodo)
     {
         $periodo->update(['estado' => PeriodoAcademico::ESTADO_FINALIZADO]);
+        PeriodoAcademico::marcarEstudiantesPeriodoVencido($periodo->id);
 
         return back()->with('success', 'Periodo desactivado correctamente.');
     }
@@ -180,9 +188,16 @@ class PeriodoAcademicoController extends Controller
     private function aplicarEstado(PeriodoAcademico $periodo, string $nuevoEstado): void
     {
         if ($nuevoEstado === PeriodoAcademico::ESTADO_ACTIVO) {
-            PeriodoAcademico::where('id', '!=', $periodo->id)
+            $finalizados = PeriodoAcademico::where('id', '!=', $periodo->id)
                 ->where('estado', PeriodoAcademico::ESTADO_ACTIVO)
+                ->pluck('id');
+
+            PeriodoAcademico::whereIn('id', $finalizados)
                 ->update(['estado' => PeriodoAcademico::ESTADO_FINALIZADO]);
+
+            foreach ($finalizados as $periodoId) {
+                PeriodoAcademico::marcarEstudiantesPeriodoVencido($periodoId);
+            }
         }
     }
 

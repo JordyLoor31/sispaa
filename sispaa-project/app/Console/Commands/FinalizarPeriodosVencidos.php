@@ -19,9 +19,24 @@ class FinalizarPeriodosVencidos extends Command
 
     public function handle(): int
     {
-        $finalizados = PeriodoAcademico::finalizarVencidos();
+        $periodosAVencer = PeriodoAcademico::query()
+            ->where('estado', PeriodoAcademico::ESTADO_ACTIVO)
+            ->whereDate('fecha_fin', '<', now()->toDateString())
+            ->pluck('id');
+
+        $finalizados = PeriodoAcademico::whereIn('id', $periodosAVencer)
+            ->update(['estado' => PeriodoAcademico::ESTADO_FINALIZADO]);
 
         $this->info("Periodos desactivados: {$finalizados}");
+
+        $estudiantesMarcados = 0;
+        foreach ($periodosAVencer as $periodoId) {
+            $estudiantesMarcados += PeriodoAcademico::marcarEstudiantesPeriodoVencido($periodoId);
+        }
+
+        if ($estudiantesMarcados > 0) {
+            $this->info("Estudiantes marcados para actualizar perfil: {$estudiantesMarcados}");
+        }
 
         return self::SUCCESS;
     }

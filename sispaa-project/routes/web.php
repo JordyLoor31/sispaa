@@ -239,7 +239,7 @@ Route::middleware(['auth', 'verified', 'role:secretaria|SystemAdministrador'])
 // PORTAL DEL ESTUDIANTE
 // 'role:' de Spatie no respeta el bypass Gate::before de SystemAdministrador, por
 // eso se agrega explícitamente como alternativa para que vea el portal.
-Route::middleware(['auth', 'verified', 'role:estudiante|SystemAdministrador'])
+Route::middleware(['auth', 'verified', 'role:estudiante|SystemAdministrador', 'profile-updated'])
     ->prefix('estudiante')
     ->name('student.')
     ->group(function () {
@@ -256,8 +256,10 @@ Route::middleware(['auth', 'verified', 'role:estudiante|SystemAdministrador'])
         // "Mis Datos": vista de solo lectura de lo completado en el wizard
         Route::get('/perfil/datos', [\App\Http\Controllers\Estudiantes\PerfilEstudianteController::class, 'misDatos'])->name('perfil.show');
 
-        // Wizard "Completar mi perfil"
+        // Wizard "Completar mi perfil" (crear / editar)
+        Route::get('/perfil/crear', [\App\Http\Controllers\Estudiantes\PerfilEstudianteController::class, 'create'])->name('perfil.create');
         Route::get('/perfil/editar', [\App\Http\Controllers\Estudiantes\PerfilEstudianteController::class, 'edit'])->name('perfil.edit');
+        Route::get('/actualizar-perfil', [\App\Http\Controllers\Estudiantes\PerfilEstudianteController::class, 'requerido'])->name('perfil.requerido');
         Route::put('/perfil', [\App\Http\Controllers\Estudiantes\PerfilEstudianteController::class, 'update'])->name('perfil.update');
 
         // Familiares/representantes (CRUD inline en el paso 4 del wizard)

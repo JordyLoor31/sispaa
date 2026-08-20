@@ -2,8 +2,20 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Progress } from '@/components/ui/progress';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link } from '@inertiajs/vue3';
-import { BookOpen, FileCheck, UserCheck, Calendar } from 'lucide-vue-next';
+import { Head, Link, router } from '@inertiajs/vue3';
+import { BookOpen, FileCheck, UserCheck, Calendar, AlertCircle, ClipboardEdit } from 'lucide-vue-next';
+import { Button } from '@/components/ui/button';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { computed } from 'vue';
+import { usePage } from '@inertiajs/vue3';
 
 interface KPIProps {
     promedio: number;
@@ -11,24 +23,50 @@ interface KPIProps {
     avance_sga: number;
 }
 
-defineProps<{
+const props = defineProps<{
     kpis: KPIProps;
+    needsProfileUpdate: boolean;
 }>();
 
+const needsProfileUpdate = computed(() => props.needsProfileUpdate);
+const showAlert = computed(() => props.needsProfileUpdate);
+
+function irAlWizard() {
+    router.visit(route('student.perfil.edit'));
+}
+
 const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Portal de Estudiantes',
-        href: '/dashboard',
-    },
-    {
-        title: 'Vista General',
-        href: '/dashboard',
-    },
+    { title: 'Portal de Estudiantes', href: '/dashboard' },
+    { title: 'Vista General', href: '/dashboard' },
 ];
 </script>
 
 <template>
     <Head title="Panel del Estudiante" />
+
+    <AlertDialog :open="showAlert">
+        <AlertDialogContent @interact-outside.prevent @pointer-down-outside.prevent>
+            <AlertDialogHeader>
+                <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/50">
+                    <AlertCircle class="h-7 w-7 text-amber-600 dark:text-amber-400" />
+                </div>
+                <AlertDialogTitle class="text-center text-lg">
+                    Actualizar Perfil Requerido
+                </AlertDialogTitle>
+                <AlertDialogDescription class="text-center">
+                    Tu periodo académico ha cambiado y necesitamos que actualices tus datos
+                    personales para continuar usando el sistema. Por favor completa tu perfil
+                    antes de acceder a las demás funcionalidades.
+                </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter class="sm:justify-center">
+                <AlertDialogAction @click="irAlWizard" class="gap-2 bg-[var(--sispaa-primary)] text-white hover:bg-[color:color-mix(in_srgb,var(--sispaa-primary)_80%,black)]">
+                    <ClipboardEdit class="h-4 w-4" />
+                    Actualizar mi Perfil
+                </AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+    </AlertDialog>
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 bg-[var(--sispaa-background)]">

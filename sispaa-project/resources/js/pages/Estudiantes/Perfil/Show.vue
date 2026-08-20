@@ -58,6 +58,7 @@ interface EstudianteDetalle {
 
 const props = defineProps<{
     estudiante: EstudianteDetalle;
+    periodoActivo: { id: number; nombre: string } | null;
     breadcrumbs?: BreadcrumbItemType[];
 }>();
 
@@ -108,6 +109,14 @@ const backLabel = computed(() => (isSystemAdmin() ? 'Volver al Usuario' : 'Volve
                     <div class="mb-4 flex items-center gap-2">
                         <GraduationCap class="h-4 w-4 text-[var(--sispaa-primary)]" />
                         <h3 class="text-sm font-bold text-[var(--sispaa-text)]">Datos Académicos</h3>
+                    </div>
+                    <div v-if="perfil?.carrera?.nombre || props.periodoActivo" class="mb-4 flex flex-wrap gap-2">
+                        <span v-if="perfil?.carrera?.nombre" class="inline-flex items-center rounded-full bg-[color:color-mix(in_srgb,var(--sispaa-primary)_15%,transparent)] px-3 py-1 text-xs font-semibold text-[var(--sispaa-primary)]">
+                            {{ perfil.carrera.nombre }}
+                        </span>
+                        <span v-if="props.periodoActivo" class="inline-flex items-center rounded-full bg-[color:color-mix(in_srgb,#10b981_15%,transparent)] px-3 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
+                            {{ props.periodoActivo.nombre }}
+                        </span>
                     </div>
                     <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
                         <div><p class="text-xs font-bold uppercase opacity-50 text-[var(--sispaa-text)]">Facultad</p><p class="text-sm opacity-80 text-[var(--sispaa-text)]">{{ dato(perfil.facultad?.nombre) }}</p></div>

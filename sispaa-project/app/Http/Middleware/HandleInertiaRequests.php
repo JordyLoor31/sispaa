@@ -47,6 +47,7 @@ class HandleInertiaRequests extends Middleware
                     'roles' => $request->user()->getRoleNames(),
                     'permissions' => $request->user()->getAllPermissions()->pluck('name'),
                     'unread_notifications' => \App\Models\Admin\Notificacion::where('user_id', $request->user()->id)->where('leido', false)->count(),
+                    'needs_profile_update' => $request->user()->needs_profile_update,
                 ]) : null,
             ],
             'ziggy' => [

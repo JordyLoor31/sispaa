@@ -65,6 +65,27 @@ class PeriodoAcademico extends Model
     }
 
     /**
+     * Marca como "necesita actualizar perfil" a todos los estudiantes de las
+     * carreras que tuvieron asignaciones de docentes en el periodo indicado.
+     * Se llama cuando un periodo se finaliza (cron, admin o al activar otro).
+     */
+    public static function marcarEstudiantesPeriodoVencido(int $periodoId): int
+    {
+        $carrerasIds = \App\Models\Docencia\Materia::query()
+            ->whereHas('asignacionesDocente', fn ($q) => $q->where('periodo_id', $periodoId))
+            ->pluck('carrera_id')
+            ->unique();
+
+        if ($carrerasIds->isEmpty()) {
+            return 0;
+        }
+
+        return \App\Models\User::role('estudiante')
+            ->whereIn('carrera_id', $carrerasIds)
+            ->update(['needs_profile_update' => true]);
+    }
+
+    /**
      * Un periodo académico es una entidad global compartida por todas las
      * carreras (ej. "2026-1"), no un registro por carrera. El alcance por
      * carrera se resuelve en cada tabla dependiente que ya tiene su propio

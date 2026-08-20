@@ -27,6 +27,7 @@ class User extends Authenticatable
         'is_active',
         'email_verified_at',
         'carrera_id',
+        'needs_profile_update',
     ];
 
     /**
@@ -50,6 +51,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_active' => 'boolean',
+            'needs_profile_update' => 'boolean',
         ];
     }
 

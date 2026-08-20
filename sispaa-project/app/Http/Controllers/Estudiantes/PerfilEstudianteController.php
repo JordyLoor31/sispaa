@@ -7,6 +7,7 @@ use App\Http\Controllers\Traits\HasBreadcrumbs;
 use App\Http\Requests\Estudiantes\UpdatePerfilEstudianteRequest;
 use App\Models\Admin\Carrera;
 use App\Models\Admin\Facultad;
+use App\Models\Admin\PeriodoAcademico;
 use App\Models\Estudiantes\EstudianteDatosAdicionales;
 use App\Models\Estudiantes\PerfilEstudiante;
 use App\Models\User;
@@ -46,6 +47,13 @@ class PerfilEstudianteController extends Controller
     private function facultadPorDefecto(): ?Facultad
     {
         return Facultad::where('activa', true)->orderBy('id')->first();
+    }
+
+    private function periodoActivo(): ?array
+    {
+        $periodo = PeriodoAcademico::vigente()->first(['id', 'nombre']);
+
+        return $periodo ? ['id' => $periodo->id, 'nombre' => $periodo->nombre] : null;
     }
 
     /**
@@ -115,6 +123,7 @@ class PerfilEstudianteController extends Controller
 
         return Inertia::render('Estudiantes/Perfil/Show', [
             'estudiante' => $this->serializarDetalle($estudiante),
+            'periodoActivo' => $this->periodoActivo(),
             'breadcrumbs' => $breadcrumbs,
         ]);
     }
@@ -131,6 +140,31 @@ class PerfilEstudianteController extends Controller
 
         return Inertia::render('Estudiantes/Perfil/MisDatos', [
             'estudiante' => $this->serializarDetalle($estudiante),
+            'periodoActivo' => $this->periodoActivo(),
+        ]);
+    }
+
+    /**
+     * Pantalla del wizard para crear un nuevo perfil (desde cero).
+     */
+    public function create(Request $request, ?User $estudiante = null): Response
+    {
+        $estudiante = $this->resolverEstudiante($request, $estudiante);
+        $estudiante->load(['perfilEstudiante', 'datosAdicionales', 'familiares']);
+
+        return Inertia::render('Estudiantes/Perfil/Create', [
+            'estudiante' => [
+                'id' => $estudiante->id,
+                'name' => $estudiante->name,
+                'email' => $estudiante->email,
+                'cedula' => $estudiante->cedula,
+            ],
+            'perfil' => $estudiante->perfilEstudiante,
+            'datosAdicionales' => $estudiante->datosAdicionales,
+            'familiares' => $estudiante->familiares,
+            'facultadNombre' => $this->facultadPorDefecto()?->nombre ?? 'Ciencias de la Vida y Tecnologías',
+            'carreras' => Carrera::activas()->orderBy('nombre')->get(['id', 'nombre']),
+            'periodoActivo' => $this->periodoActivo(),
         ]);
     }
 
@@ -155,6 +189,18 @@ class PerfilEstudianteController extends Controller
             'familiares' => $estudiante->familiares,
             'facultadNombre' => $this->facultadPorDefecto()?->nombre ?? 'Ciencias de la Vida y Tecnologías',
             'carreras' => Carrera::activas()->orderBy('nombre')->get(['id', 'nombre']),
+            'periodoActivo' => $this->periodoActivo(),
+        ]);
+    }
+
+    /**
+     * Página de aviso: redirige al wizard cuando el periodo ha cambiado
+     * y el estudiante necesita actualizar sus datos.
+     */
+    public function requerido(): Response
+    {
+        return Inertia::render('Estudiantes/Perfil/Requerido', [
+            'periodoActivo' => $this->periodoActivo(),
         ]);
     }
 
@@ -207,6 +253,8 @@ class PerfilEstudianteController extends Controller
             );
         });
 
-        return redirect()->back()->with('success', 'Perfil actualizado correctamente.');
+        $estudiante->update(['needs_profile_update' => false]);
+
+        return redirect()->route('student.perfil.show')->with('success', 'Perfil actualizado correctamente.');
     }
 }
