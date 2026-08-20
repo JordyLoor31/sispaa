@@ -50,7 +50,7 @@ class EspacioLaboratorioController extends Controller
     public function create(): Response
     {
         return Inertia::render('Laboratorio/Laboratorios/Create', [
-            'carreras' => Carrera::orderBy('nombre')->get(['id', 'nombre']),
+            'carreras' => Carrera::activas()->orderBy('nombre')->get(['id', 'nombre']),
             'responsables' => User::role('docente')->orderBy('name')->get(['id', 'name']),
             'breadcrumbs' => $this->laboratorioBreadcrumbs('Laboratorios', 'Nuevo Laboratorio', route('laboratorio.laboratorios')),
         ]);
@@ -93,7 +93,7 @@ class EspacioLaboratorioController extends Controller
     {
         return Inertia::render('Laboratorio/Laboratorios/Edit', [
             'laboratorio' => $laboratorio,
-            'carreras' => Carrera::orderBy('nombre')->get(['id', 'nombre']),
+            'carreras' => Carrera::activas()->orderBy('nombre')->get(['id', 'nombre']),
             'responsables' => User::role('docente')->orderBy('name')->get(['id', 'name']),
             'breadcrumbs' => $this->laboratorioBreadcrumbs('Laboratorios', 'Editar Laboratorio', route('laboratorio.laboratorios'), $laboratorio->nombre),
         ]);

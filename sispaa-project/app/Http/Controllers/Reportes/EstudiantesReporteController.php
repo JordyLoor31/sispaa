@@ -81,7 +81,7 @@ class EstudiantesReporteController extends Controller
                 ],
             ],
             'periodos' => PeriodoAcademico::orderByDesc('fecha_inicio')->get(['id', 'nombre']),
-            'carreras' => Carrera::orderBy('nombre')->get(['id', 'nombre']),
+            'carreras' => Carrera::activas()->orderBy('nombre')->get(['id', 'nombre']),
             'filters' => ['periodo_id' => $request->input('periodo_id', 'all'), 'carrera_id' => $carreraId],
         ]);
     }

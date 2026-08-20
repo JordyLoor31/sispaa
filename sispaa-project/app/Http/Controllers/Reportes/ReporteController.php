@@ -151,7 +151,7 @@ class ReporteController extends Controller
             'columnas' => $this->columnas($tipo),
             'filas' => $paginado,
             'periodos' => PeriodoAcademico::orderByDesc('fecha_inicio')->get(['id', 'nombre']),
-            'carreras' => Carrera::orderBy('nombre')->get(['id', 'nombre']),
+            'carreras' => Carrera::activas()->orderBy('nombre')->get(['id', 'nombre']),
             'grupos' => GrupoDocumento::orderBy('nombre')->get(['id', 'nombre']),
             'filters' => $request->only(['periodo_id', 'carrera_id', 'grupo_id', 'estado', 'per_page']),
         ]);

@@ -154,7 +154,7 @@ class PerfilEstudianteController extends Controller
             'datosAdicionales' => $estudiante->datosAdicionales,
             'familiares' => $estudiante->familiares,
             'facultadNombre' => $this->facultadPorDefecto()?->nombre ?? 'Ciencias de la Vida y Tecnologías',
-            'carreras' => Carrera::where('activa', true)->orderBy('nombre')->get(['id', 'nombre']),
+            'carreras' => Carrera::activas()->orderBy('nombre')->get(['id', 'nombre']),
         ]);
     }
 

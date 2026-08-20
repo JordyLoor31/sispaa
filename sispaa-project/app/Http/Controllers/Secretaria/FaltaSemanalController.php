@@ -26,7 +26,7 @@ class FaltaSemanalController extends Controller
 
     private function carrerasDisponibles()
     {
-        return Carrera::where('activa', true)->orderBy('nombre')->get(['id', 'nombre']);
+        return Carrera::activas()->orderBy('nombre')->get(['id', 'nombre']);
     }
 
     private function periodosDisponibles()

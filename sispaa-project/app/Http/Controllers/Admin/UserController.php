@@ -55,7 +55,7 @@ class UserController extends Controller
     {
         return Inertia::render('Admin/Usuarios/Create', [
             'roles' => Role::all(),
-            'carreras' => Carrera::orderBy('nombre')->get(['id', 'nombre']),
+            'carreras' => Carrera::activas()->orderBy('nombre')->get(['id', 'nombre']),
             'breadcrumbs' => $this->adminBreadcrumbs('Usuarios', 'Nuevo Usuario', route('admin.usuarios.index')),
         ]);
     }
@@ -125,7 +125,7 @@ class UserController extends Controller
         return Inertia::render('Admin/Usuarios/Edit', [
             'usuario' => $user,
             'roles' => Role::all(),
-            'carreras' => Carrera::orderBy('nombre')->get(['id', 'nombre']),
+            'carreras' => Carrera::activas()->orderBy('nombre')->get(['id', 'nombre']),
             'breadcrumbs' => $this->adminBreadcrumbs('Usuarios', 'Editar Usuario', route('admin.usuarios.index'), $user->name),
         ]);
     }

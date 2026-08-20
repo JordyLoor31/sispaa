@@ -27,7 +27,7 @@ class ActividadVinculacionController extends Controller
     {
         return [
             'docentes' => User::role('docente')->orderBy('name')->get(['id', 'name']),
-            'carreras' => Carrera::orderBy('nombre')->get(['id', 'nombre']),
+            'carreras' => Carrera::activas()->orderBy('nombre')->get(['id', 'nombre']),
             'periodos' => PeriodoAcademico::vigente()->get(['id', 'nombre']),
             'beneficiarios' => Beneficiario::orderBy('nombre')->get(['id', 'nombre', 'tipo', 'ruc', 'cedula']),
             'representantes' => Representante::orderBy('nombre')->get(['id', 'nombre', 'cargo', 'cedula', 'telefono', 'beneficiario_id']),

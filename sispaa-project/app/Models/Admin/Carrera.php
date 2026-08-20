@@ -43,6 +43,11 @@ class Carrera extends Model
         });
     }
 
+    public function scopeActivas($query)
+    {
+        return $query->where('activa', true);
+    }
+
     public function coordinador()
     {
         return $this->belongsTo(\App\Models\User::class, 'coordinador_id');

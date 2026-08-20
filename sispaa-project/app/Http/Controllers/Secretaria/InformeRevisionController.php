@@ -100,7 +100,7 @@ class InformeRevisionController extends Controller
             'informes' => $informes,
             'filters' => $request->only(['q', 'carrera_id', 'estado', 'per_page']),
             'stats' => $stats,
-            'carreras' => Carrera::orderBy('nombre')->get(['id', 'nombre']),
+            'carreras' => Carrera::activas()->orderBy('nombre')->get(['id', 'nombre']),
             'breadcrumbs' => $this->secretariaBreadcrumbs('Informes de Asignatura'),
         ]);
     }

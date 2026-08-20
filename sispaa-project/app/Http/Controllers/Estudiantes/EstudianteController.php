@@ -94,7 +94,7 @@ class EstudianteController extends Controller
 
         return Inertia::render('Estudiantes/Index', [
             'students' => $students,
-            'carreras' => Carrera::orderBy('nombre')->get(['id', 'nombre']),
+            'carreras' => Carrera::activas()->orderBy('nombre')->get(['id', 'nombre']),
             'filters' => ['carrera_id' => $carreraId, 'q' => $q],
             'breadcrumbs' => $this->estudiantesBreadcrumbs('Estudiantes'),
         ]);

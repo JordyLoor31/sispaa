@@ -64,7 +64,7 @@ class LaboratorioController extends Controller
      */
     public function porCarrera(): Response
     {
-        $carreras = Carrera::orderBy('nombre')->get(['id', 'nombre'])->map(function ($c) {
+        $carreras = Carrera::activas()->orderBy('nombre')->get(['id', 'nombre'])->map(function ($c) {
             $practicasQuery = PracticaLaboratorio::whereHas('materia', fn ($q) => $q->where('carrera_id', $c->id));
 
             return [

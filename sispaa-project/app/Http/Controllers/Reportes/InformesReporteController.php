@@ -63,7 +63,7 @@ class InformesReporteController extends Controller
                 'porPeriodo' => ['labels' => $porPeriodo->pluck('label'), 'series' => $porPeriodo->pluck('total')],
             ],
             'periodos' => PeriodoAcademico::orderByDesc('fecha_inicio')->get(['id', 'nombre']),
-            'carreras' => Carrera::orderBy('nombre')->get(['id', 'nombre']),
+            'carreras' => Carrera::activas()->orderBy('nombre')->get(['id', 'nombre']),
             'filters' => ['periodo_id' => $periodoId, 'carrera_id' => $carreraId],
         ]);
     }
