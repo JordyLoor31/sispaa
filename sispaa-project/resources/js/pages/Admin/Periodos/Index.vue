@@ -49,12 +49,7 @@ const debouncedSearch = useDebounceFn(() => {
     });
 }, 400);
 
-const activar = (periodo: Periodo) => {
-    router.post(route('admin.periodos.activar', periodo.id), {}, { preserveScroll: true });
-};
-
-// 'Finalizar' se movió a la vista de Edición del periodo (ya no vive en la tabla, a pedido).
-const columns = makePeriodoColumns({ onActivar: activar });
+const columns = makePeriodoColumns();
 
 const table = useVueTable({
     get data() { return props.periodos?.data || [] },

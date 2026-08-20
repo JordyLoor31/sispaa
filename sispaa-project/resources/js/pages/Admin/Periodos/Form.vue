@@ -132,7 +132,7 @@ const onSubmit = handleSubmit((values) => {
 </script>
 
 <template>
-    <form class="w-full max-w-xl space-y-6" @submit="onSubmit">
+    <form class="w-full max-w-xl mx-auto space-y-6" @submit="onSubmit">
         <FormField v-slot="{ componentField }" name="nombre">
             <FormItem>
                 <FormLabel>Nombre del Periodo * (Ej: 2026-1)</FormLabel>

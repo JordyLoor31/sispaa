@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import AppSidebarLayout from '@/layouts/app/AppSidebarLayout.vue';
 import { type BreadcrumbItemType } from '@/types';
-import { Head, Link, router } from '@inertiajs/vue3';
-import { ArrowLeft, Pencil, PlayCircle, FlagTriangleRight, Clock } from 'lucide-vue-next';
+import { Head, Link } from '@inertiajs/vue3';
+import { ArrowLeft, Pencil, Clock } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
-import { useSubmitToast } from '@/composables/useSubmitToast';
 import type { EstadoPeriodo } from './columns';
 
 interface Creator {
@@ -48,22 +47,6 @@ const formatDate = (date?: string | null) => {
     if (!date) return '—';
     return new Date(date).toLocaleDateString('es-EC', { day: '2-digit', month: '2-digit', year: 'numeric' });
 };
-
-const activar = () => {
-    const { withToast } = useSubmitToast(
-        'Activando periodo...',
-        (errors) => errors.estado ?? 'No se pudo activar el periodo.',
-    );
-    router.post(route('admin.periodos.activar', props.periodo.id), {}, withToast({ preserveScroll: true }));
-};
-
-const desactivar = () => {
-    const { withToast } = useSubmitToast(
-        'Desactivando periodo...',
-        (errors) => errors.estado ?? 'No se pudo desactivar el periodo.',
-    );
-    router.post(route('admin.periodos.finalizar', props.periodo.id), {}, withToast({ preserveScroll: true }));
-};
 </script>
 
 <template>
@@ -81,12 +64,6 @@ const desactivar = () => {
                     </p>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
-                    <Button v-if="periodo.estado === 'planificado'" @click="activar" class="text-white bg-[var(--sispaa-secondary)] hover:bg-[color:color-mix(in_srgb,var(--sispaa-secondary)_85%,black)]">
-                        <PlayCircle class="h-4 w-4 mr-1.5" /> Activar
-                    </Button>
-                    <Button v-else-if="periodo.estado === 'activo'" @click="desactivar" variant="outline" class="text-rose-500 border-rose-200 hover:bg-rose-50">
-                        <FlagTriangleRight class="h-4 w-4 mr-1.5" /> Desactivar
-                    </Button>
                     <Button as-child variant="outline">
                         <Link :href="route('admin.periodos.index')">
                             <ArrowLeft class="h-4 w-4 mr-1.5" /> Volver

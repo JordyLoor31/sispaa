@@ -1,6 +1,5 @@
 import type { ColumnDef } from '@tanstack/vue-table';
 import { h } from 'vue';
-import { Button } from '@/components/ui/button';
 import ResourceActionsDropdown from '@/components/ResourceActionsDropdown.vue';
 import { STATUS_COLORS, neutralBadgeStyle, tintedBadgeStyle } from '@/lib/brand';
 
@@ -18,8 +17,6 @@ export interface Periodo {
     created_at?: string;
 }
 
-// Estilos inline theme-aware (ver @/lib/brand): antes mezclaban con negro
-// fijo y en tema oscuro quedaban ilegibles.
 const ESTADO_BADGE: Record<EstadoPeriodo, string> = {
     planificado: tintedBadgeStyle(STATUS_COLORS.advertencia),
     activo: tintedBadgeStyle(STATUS_COLORS.exito),
@@ -31,10 +28,6 @@ const ESTADO_LABEL: Record<EstadoPeriodo, string> = {
     activo: 'Activo',
     finalizado: 'Finalizado',
 };
-
-interface PeriodoColumnsOptions {
-    onActivar: (periodo: Periodo) => void;
-}
 
 const formatDateTime = (value: string | null | undefined): string => {
     if (!value) return '—';
@@ -49,7 +42,7 @@ const formatDateTime = (value: string | null | undefined): string => {
     });
 };
 
-export function makePeriodoColumns({ onActivar }: PeriodoColumnsOptions): ColumnDef<Periodo>[] {
+export function makePeriodoColumns(): ColumnDef<Periodo>[] {
     return [
         {
             accessorKey: 'nombre',
@@ -81,11 +74,6 @@ export function makePeriodoColumns({ onActivar }: PeriodoColumnsOptions): Column
                         class: 'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold',
                         style: ESTADO_BADGE[periodo.estado],
                     }, ESTADO_LABEL[periodo.estado]),
-                    periodo.estado === 'planificado'
-                        ? h(Button, { size: 'sm', variant: 'outline', class: 'h-7 px-2 text-xs', onClick: () => onActivar(periodo) }, () => 'Activar')
-                        : null,
-                    // 'Finalizar' se movió a la vista de Edición del periodo
-                    // (no vive más en la tabla, a pedido).
                 ]);
             },
         },
@@ -102,7 +90,7 @@ export function makePeriodoColumns({ onActivar }: PeriodoColumnsOptions): Column
                     editRoute: 'admin.periodos.edit',
                     routeParams: periodo.id,
                     itemLabel: `el periodo "${periodo.nombre}"`,
-                    canDelete: false, // no se elimina, se finaliza (ver columna Estado)
+                    canDelete: false,
                 });
             },
         },
